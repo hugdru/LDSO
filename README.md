@@ -1,8 +1,8 @@
 #### Possíveis technologias ####
 
 ###### Backend ######
-  * **TPC Language** go, gorilla/sessions, pressly/chi <br>
-  * **TPC Database** mongodb, postgresql or mysql (depends on the project)
+  * **Language** go, pressly/chi, SermoDigital/jose, gopkg.in/mgo.v2<br>
+  * **Database** mongodb
   
 ###### Frontend ######
   * **Framework** angular 2 with typescript<br>
