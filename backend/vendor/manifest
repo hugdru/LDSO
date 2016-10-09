@@ -1,23 +1,23 @@
 {
-	"version": 0,
-	"dependencies": [
-		{
-			"importpath": "github.com/SermoDigital/jose",
-			"repository": "https://github.com/SermoDigital/jose",
-			"revision": "b10f12c5188d355a3eacc61aba9abd3eb6b3b787",
-			"branch": "master"
-		},
-		{
-			"importpath": "github.com/pressly/chi",
-			"repository": "https://github.com/pressly/chi",
-			"revision": "2cad94402baa6eb7584258df02fed068f1502ada",
-			"branch": "master"
-		},
-		{
-			"importpath": "gopkg.in/tomb.v2",
-			"repository": "https://gopkg.in/tomb.v2",
-			"revision": "14b3d72120e8d10ea6e6b7f87f7175734b1faab8",
-			"branch": "v2"
-		}
-	]
+  "version": 0,
+  "dependencies": [
+    {
+      "importpath": "github.com/SermoDigital/jose",
+      "repository": "https://github.com/SermoDigital/jose",
+      "revision": "b10f12c5188d355a3eacc61aba9abd3eb6b3b787",
+      "branch": "master"
+    },
+    {
+      "importpath": "github.com/pressly/chi",
+      "repository": "https://github.com/pressly/chi",
+      "revision": "2cad94402baa6eb7584258df02fed068f1502ada",
+      "branch": "master"
+    },
+    {
+      "importpath": "gopkg.in/mgo.v2",
+      "repository": "https://gopkg.in/mgo.v2",
+      "revision": "3f83fa5005286a7fe593b055f0d7771a7dce4655",
+      "branch": "v2"
+    }
+  ]
 }
