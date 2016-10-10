@@ -8,7 +8,7 @@ npm_folder="$(npm config get prefix)"
 go_folder="$HOME/golang"
 mkdir -p "$go_folder"
 export_go="export GOPATH=\"$go_folder\""
-export_path="export PATH=\"${npm_folder%/}/bin:$go_folder/bin:$PATH\""
+export_path="export PATH=\"${npm_folder%/}/bin:$go_folder/bin:"'$PATH"'
 
 eval "$export_go"
 eval "$export_path"
