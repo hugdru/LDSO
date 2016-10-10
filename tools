@@ -23,6 +23,17 @@ npm install -g angular-cli
 bash <(curl https://nixos.org/nix/install)
 
 nix_init_script="$HOME/.nix-profile/etc/profile.d/nix.sh"
+
+cat << EOF >> "$HOME/.bashrc"
+nix_init_script="$nix_init_script"
+EOF
+
+cat << 'EOF' >> "$HOME/.bashrc"
+if [[ -f "$nix_init_script" ]]; then
+  source "$nix_init_script"
+fi
+EOF
+
 source "$nix_init_script"
 nix-env -i go
 
