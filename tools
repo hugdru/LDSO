@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+cat << EOF > "$HOME/.npmrc"
+  prefix=$HOME/.npm-packages
+EOF
+
+npm_folder="$(npm config get prefix)"
+go_folder="$HOME/golang"
+mkdir -p "$go_folder"
+export_go="export GOPATH=\"$go_folder\""
+export_path="export PATH=\"${npm_folder%/}/bin:$go_folder/bin:$PATH\""
+
+eval "$export_go"
+eval "$export_path"
+
+echo -e "$extend_path\n$export_path" >> "$HOME/.bashrc"
+
+sudo apt-get update
+sudo apt-get install -y build-essential nodejs npm
+npm install -g npm
+npm install -g angular-cli
+
+bash <(curl https://nixos.org/nix/install)
+
+nix_init_script="$HOME/.nix-profile/etc/profile.d/nix.sh"
+source "$nix_init_script"
+nix-env -i go
+
+# Check https://golang.org/doc/code.html
+# Check https://getgb.io/docs/install/
+# https://getgb.io/docs/project/
+go get github.com/constabulary/gb/...
+
+echo
+echo '** Please reboot the computer **'
