@@ -24,7 +24,6 @@
   
 ###### Libs ######
   * https://godoc.org/github.com/pressly/chi
-  * https://godoc.org/github.com/SermoDigital/jose
   * https://godoc.org/gopkg.in/mgo.v2
   
 #### Angular 2 ####
