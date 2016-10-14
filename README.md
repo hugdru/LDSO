@@ -1,5 +1,5 @@
 ### Backend ###
-  * *Language* go, pressly/chi, gopkg.in/mgo.v2<br>
+  * *Language* go, pressly/chi, gopkg.in/mgo.v2, alexedwards/scs<br>
   * *Database* mongodb
   
 ### Frontend ###
