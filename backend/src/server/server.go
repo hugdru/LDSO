@@ -1,10 +1,10 @@
 package main
 
 import (
+	"github.com/pressly/chi"
 	"net/http"
 	"os"
 	"path/filepath"
-	"github.com/pressly/chi"
 )
 
 func main() {
@@ -17,5 +17,5 @@ func main() {
 	filesDir := filepath.Join(workDir, "../frontend/dist")
 	router.FileServer("/", http.Dir(filesDir))
 
-	http.ListenAndServe(":8080", router)
+	http.ListenAndServe(":8888", router)
 }

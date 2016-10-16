@@ -2,9 +2,9 @@
   "version": 0,
   "dependencies": [
     {
-      "importpath": "github.com/SermoDigital/jose",
-      "repository": "https://github.com/SermoDigital/jose",
-      "revision": "b10f12c5188d355a3eacc61aba9abd3eb6b3b787",
+      "importpath": "github.com/alexedwards/scs",
+      "repository": "https://github.com/alexedwards/scs",
+      "revision": "8131b3f249566da11ff348e7f664dd016e082292",
       "branch": "master"
     },
     {
