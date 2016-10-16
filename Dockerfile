@@ -19,9 +19,6 @@ RUN \
       curl \
       git \
       xz-utils && \
-      rm -rf /var/lib/apt/lists/* && \
-      apt-get autoremove -y && \
-      apt-get clean all && \
       groupadd "$GROUP" && useradd -d "$HOME" -g "$GROUP" -s /bin/bash "$USER" && mkdir "$HOME" && \
       curl -fsSL "https://golang.org/dl/go$GOLANG_VERSION.linux-amd64.tar.gz" -o golang.tar.gz && \
       echo "$GOLANG_DOWNLOAD_SHA256  golang.tar.gz" | sha256sum -c - && \
@@ -46,7 +43,11 @@ RUN \
       grep "node-v$NODE_VERSION-linux-x64.tar.xz\$" SHASUMS256.txt | sha256sum -c - && \
       mkdir /usr/local/node && \
       tar -xJf "node-v$NODE_VERSION-linux-x64.tar.xz" -C /usr/local/node --strip-components=1 && \
-      rm "node-v$NODE_VERSION-linux-x64.tar.xz" SHASUMS256.txt.asc SHASUMS256.txt
+      rm "node-v$NODE_VERSION-linux-x64.tar.xz" SHASUMS256.txt.asc SHASUMS256.txt && \
+      apt-get remove curl xz-utils -y && \
+      rm -rf /var/lib/apt/lists/* && \
+      apt-get autoremove -y && \
+      apt-get clean all
 
 COPY backend /server/backend
 COPY frontend /server/frontend
