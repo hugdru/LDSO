@@ -1,6 +1,7 @@
 ### Backend ###
   * *Language* go, pressly/chi, gopkg.in/mgo.v2, alexedwards/scs<br>
-  * *Database* mongodb
+  * *Database Bulk* mongodb
+  * *Database Session* redis
   
 ### Frontend ###
   * *Framework* angular 2 with typescript<br>
