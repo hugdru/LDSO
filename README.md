@@ -1,5 +1,5 @@
 ### Backend ###
-  * *Language* go, pressly/chi, gopkg.in/mgo.v2, alexedwards/scs<br>
+  * *Language* go, pressly/chi, gopkg.in/mgo.v2, alexedwards/scs, golang.org/x/crypto/scrypt<br>
   * *Database Bulk* mongodb
   * *Database Session* redis
   
