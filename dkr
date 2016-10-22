@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+
+set -e
+
+cd "${0%/*}"
+
+droplet="core@46.101.173.249"
+images=("server/golang" "server/nginx")
+
+main() {
+  if [[ $# -lt 1 ]]; then
+    1>&2 echo -e "$0 build (prod|dev)"
+    1>&2 echo -e "$0 push"
+    exit 1
+  fi
+
+  program="$1"
+  shift
+  case "$program" in
+    build|push)
+      "$program" "$@"
+      ;;
+    *)
+      1>&2 echo "Option doesnt exist"
+      exit 1
+  esac
+}
+
+build() {
+  if [[ $# -ne 1 ]]; then
+    1>&2 echo "$0 build (prod|dev)"
+    exit 1
+  fi
+
+  improved_context="tar -cf - --exclude-ignore-recursive=./docker/exclude_docker_context . "
+
+  case "$1" in
+    prod)
+      $improved_context | docker build -t server/nginx -f ./docker/production/nginx.dockerfile -
+      $improved_context | docker build -t server/golang -f ./docker/production/go.dockerfile -
+      ;;
+    dev)
+      $improved_context | docker build -t server/nginx -f ./docker/development/nginx.dockerfile -
+      $improved_context | docker build -t server/golang -f ./docker/development/go.dockerfile -
+      ;;
+    *)
+      1>&2 echo "$0 build (prod|dev)"
+  esac
+}
+
+push() {
+  if [[ $# -ne 0 ]]; then
+    1>&2 echo "$0 push"
+    exit 1
+  fi
+
+  for image in "${images[@]}"; do
+    docker save "$image" | bzip2 | pv | ssh "$droplet" 'bunzip2 | docker load'
+  done
+}
+
+main "$@"

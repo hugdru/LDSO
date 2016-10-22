@@ -1,29 +1,26 @@
-FROM debian:stable
+FROM nginx:stable
 MAINTAINER "Hugo Drumond" hugdru@gmail.com
 
-# https://hub.docker.com/_/golang/
 # https://hub.docker.com/_/node/
 
 ENV \
   USER="server" \
   GROUP="server" \
-  GOLANG_VERSION="1.7.1" \
-  GOLANG_DOWNLOAD_SHA256="43ad621c9b014cde8db17393dc108378d37bc853aa351a6c74bf6432c1bbd182" \
-  NPM_CONFIG_LOGLEVEL="silent" \
-  NODE_VERSION="6.8.1"
+  NPM_CONFIG_LOGLEVEL="info" \
+  NODE_VERSION="6.9.1" \
+  PERSISTENT_APT_PACKAGES="git ca-certificates" \
+  TEMPORARY_APT_PACKAGES="curl xz-utils"
+
 
 ENV HOME="/$USER"
+ENV FRONTEND_DIR="$HOME/frontend"
+ENV HTDOCS="$FRONTEND_DIR/dist"
+ENV PREFIX="$HOME/packages"
 
 RUN \
-      apt-get update && apt-get upgrade -y && apt-get install -y \
-      curl \
-      git \
-      xz-utils && \
+      apt-get update && apt-get upgrade -y && \
+      apt-get install -y --no-install-recommends $PERSISTENT_APT_PACKAGES $TEMPORARY_APT_PACKAGES && \
       groupadd "$GROUP" && useradd -d "$HOME" -g "$GROUP" -s /bin/bash "$USER" && mkdir "$HOME" && \
-      curl -fsSL "https://golang.org/dl/go$GOLANG_VERSION.linux-amd64.tar.gz" -o golang.tar.gz && \
-      echo "$GOLANG_DOWNLOAD_SHA256  golang.tar.gz" | sha256sum -c - && \
-      tar -C /usr/local -xzf golang.tar.gz && \
-      rm golang.tar.gz && \
       set -ex && \
       for key in \
         9554F04D7259F04124DE6B476D5A82AC7E37093B \
@@ -44,33 +41,30 @@ RUN \
       mkdir /usr/local/node && \
       tar -xJf "node-v$NODE_VERSION-linux-x64.tar.xz" -C /usr/local/node --strip-components=1 && \
       rm "node-v$NODE_VERSION-linux-x64.tar.xz" SHASUMS256.txt.asc SHASUMS256.txt && \
-      apt-get remove curl xz-utils -y && \
-      rm -rf /var/lib/apt/lists/* && \
+      apt-get remove --purge -y $TEMPORARY_APT_PACKAGES && \
+      rm -rf /var/lib/apt/lists/* /watchman && \
       apt-get autoremove -y && \
       apt-get clean all
 
-COPY backend /server/backend
-COPY frontend /server/frontend
+COPY docker/configs/nginx/nginx.conf /etc/nginx/nginx.conf
+
+COPY frontend "$FRONTEND_DIR"
+
 RUN chown -R "$USER":"$GROUP" "$HOME"
 
-USER server
-WORKDIR /server
+USER "$USER"
+WORKDIR "$HOME"
 
-ENV GOPATH="$HOME/go"
-ENV PATH="$GOPATH/bin:/usr/local/go/bin:/usr/local/node/bin:$PATH"
-ENV PREFIX="$HOME/packages"
+ENV PATH="/usr/local/node/bin:$PATH"
 ENV PATH="$PREFIX/bin:$PATH"
 RUN \
-      go get github.com/constabulary/gb/... && \
-      mkdir -p "$PREFIX/bin" && npm install -g npm && npm install -g yarn && \
-      yarn global add angular-cli && \
-      cd frontend && npm install && ng build -prod && \
-      find . -maxdepth 1 ! \( -name 'dist' -o -name '.' -o -name '..' \) -exec rm -rf {} + && \
-      cd ../backend && gb vendor restore && gb build server && \
-      rm -rf pkg src vendor && \
-      cd ~ && rm -rf packages .npm .yarn .yarn-cache .gnupg .config go
+      mkdir -p "$PREFIX/bin" && npm install -g yarn && \
+      yarn global add angular-cli && cd "$FRONTEND_DIR" && yarn install && ng build -prod && \
+      find . -maxdepth 1 ! \( -name 'dist' -o -name "." -o -name ".." \) -exec rm -rf {} + && \
+      cd "$HOME" && \
+      find . -maxdepth 1 ! \( -name "${FRONTEND_DIR##*/}" -o -name "." -o -name ".." \) -exec rm -rf {} +
 
-EXPOSE 80
+EXPOSE 80 443
 
-WORKDIR /server/backend/
-ENTRYPOINT ["./bin/server"]
+USER root
+ENTRYPOINT ["nginx", "-g", "daemon off;"]

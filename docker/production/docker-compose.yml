@@ -1,0 +1,44 @@
+version: '2'
+
+networks:
+  goapp-network:
+    driver: bridge
+
+services:
+  nginx:
+    image: server/nginx
+    container_name: nginx
+    links:
+      - go1:go1
+      - go2:go2
+    ports:
+      - "80:80"
+      - "443:443"
+  go1:
+    image: server/golangangular
+    container_name: go1
+    ports:
+      - "8080"
+    networks:
+      - goapp-network
+  go2:
+    image: server/golangangular
+    container_name: go2
+    ports:
+      - "8080"
+    networks:
+      - goapp-network
+  mongodb:
+    image: server/mongodb
+    container_name: mongodb
+    ports:
+      - "27017"
+    networks:
+      - goapp-network
+  redis:
+    image: server/redis
+    container_name: redis
+    ports:
+      - "6379"
+    networks:
+      - goapp-network
