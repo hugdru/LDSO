@@ -7,8 +7,8 @@ describe('frontend App', function() {
     page = new FrontendPage();
   });
 
-  it('should display message saying app works', () => {
+  it('should display message saying request handled by nginx', () => {
     page.navigateTo();
-    expect(page.getParagraphText()).toEqual('app works!');
+    expect(page.getParagraphText()).toEqual('request handled by nginx');
   });
 });

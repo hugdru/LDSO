@@ -1,0 +1,60 @@
+version: '2'
+
+networks:
+  app-network:
+    driver: bridge
+
+services:
+  nginx:
+    image: dev/nginx
+    container_name: nginx
+    depends_on:
+      - go1
+      - gon
+    ports:
+      - "80:80"
+      - "443:443"
+    entrypoint:
+      - dockerize
+      - -template
+      - /etc/nginx/nginx.tmpl:/etc/nginx/nginx.conf
+      - -wait
+      - http://go1:8080
+      - -wait
+      - http://gon:8080
+      - -timeout
+      - 10s
+      - nginx
+    networks:
+      - app-network
+    restart: always
+  go1:
+    image: dev/golang
+    container_name: go1
+    ports:
+      - "8080"
+    networks:
+      - app-network
+    restart: always
+  gon:
+    image: dev/golang
+    container_name: gon
+    ports:
+      - "8080"
+    networks:
+      - app-network
+    restart: always
+  # mongodb:
+  #   image: dev/mongodb
+  #   container_name: mongodb
+  #   ports:
+  #     - "27017"
+  #   networks:
+  #     - app-network
+  # redis:
+  #   image: dev/redis
+  #   container_name: redis
+  #   ports:
+  #     - "6379"
+  #   networks:
+  #     - app-network

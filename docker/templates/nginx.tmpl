@@ -1,0 +1,213 @@
+#######################################################
+### https://calomel.org/nginx.html
+### https://www.digitalocean.com/community/tutorials/how-to-optimize-nginx-configuration
+### https://cipherli.st/
+### https://www.linode.com/docs/websites/nginx/configure-nginx-for-optimized-performance
+### http://serverfault.com/questions/583570/understanding-the-nginx-proxy-cache-path-directive
+### https://www.digitalocean.com/community/tutorials/how-to-configure-nginx-as-a-reverse-proxy-for-apache
+### https://serversforhackers.com/nginx-caching
+### https://www.nginx.com/blog/nginx-caching-guide/
+### http://serverfault.com/questions/583570/understanding-the-nginx-proxy-cache-path-directive
+#######################################################
+
+user server server;
+daemon off;
+
+worker_processes     1;     # one(1) worker or equal the number of _real_ cpu cores. 4=4 core cpu
+worker_priority      15;    # renice workers to reduce priority compared to system processes for
+                            # machine health. worst case nginx will get ~25% system resources at nice=15
+#worker_rlimit_nofile 1024; # maximum number of open files
+
+events {
+  worker_connections 1024;   # number of parallel or concurrent connections per worker_processes
+  use epoll;
+  #accept_mutex        on;   # serially accept() connections and pass to workers, efficient if workers gt 1
+  #accept_mutex_delay 500ms; # worker process will accept mutex after this delay if not assigned. (default 500ms)
+}
+
+http {
+ # Timeouts, do not keep connections open longer then necessary to reduce
+ # resource usage and deny Slowloris type attacks.
+  client_body_timeout      5s; # maximum time between packets the client can pause when sending nginx any data
+  client_header_timeout    5s; # maximum time the client has to send the entire header to nginx
+  keepalive_timeout       75s; # timeout which a single keep-alive client connection will stay open
+  send_timeout            15s; # maximum time between packets nginx is allowed to pause when sending the client data
+
+ ## General Options
+ #aio                       on;  # asynchronous file I/O, fast with ZFS, make sure sendfile=off
+  charset                   utf-8; # adds the line "Content-Type" into response-header, same as "source_charset"
+  default_type              application/octet-stream;
+  gzip                      off; # disable on the fly gzip compression due to higher latency, only use gzip_static
+ #gzip_http_version         1.0; # serve gzipped content to all clients including HTTP/1.0
+  gzip_static               on;  # precompress content (gzip -1) with an external script
+ #gzip_vary                 on;  # send response header "Vary: Accept-Encoding"
+  gzip_proxied             any;  # allows compressed responses for any request even from proxies
+  ignore_invalid_headers    on;
+  include                   /etc/nginx/mime.types;
+  keepalive_requests        50;  # number of requests per connection, does not affect SPDY
+  keepalive_disable         none; # allow all browsers to use keepalive connections
+  max_ranges                1; # allow a single range header for resumed downloads and to stop large range header DoS attacks
+  msie_padding              off;
+  open_file_cache           max=1000 inactive=2h;
+  open_file_cache_errors    on;
+  open_file_cache_min_uses  1;
+  open_file_cache_valid     1h;
+  output_buffers            1 512;
+  postpone_output           1440;   # postpone sends to match our machine's MSS
+  read_ahead                512K;   # kernel read head set to the output_buffers
+  recursive_error_pages     on;
+  reset_timedout_connection on;  # reset timed out connections freeing ram
+  sendfile                  on;  # on for decent direct disk I/O
+  server_tokens             off; # version number in error pages
+  server_name_in_redirect   off; # if off, nginx will use the requested Host header
+  source_charset            utf-8; # same value as "charset"
+  tcp_nodelay               on; # Nagle buffering algorithm, used for keepalive only
+  tcp_nopush                off;
+
+ ## Limit requests per second to 250 requests  per minute. If the
+ ## user's ip address goes over the limit they will be sent an
+ ## error 503 for every subsequent request.
+   limit_req_zone  $binary_remote_addr  zone=gulag:10m   rate=250r/m;
+
+ ## Log Format
+  log_format  main  '$remote_addr $host $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" $ssl_cipher $request_time';
+
+ # ECDSA ssl ciphers; google chrome prefered order, 128bit most prefered
+  ssl_ciphers "EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH";
+
+  ssl_ecdh_curve secp384r1;            # 384 bit prime modulus curve efficiently supports ECDHE ssl_ciphers up to a SHA384 hash
+  ssl_prefer_server_ciphers on;
+  ssl_protocols TLSv1.2 TLSv1.1 TLSv1;
+  ssl_session_cache shared:SSL:10m;
+  ssl_session_tickets off; # Requires nginx >= 1.5.9
+  ssl_stapling on; # Requires nginx >= 1.3.7
+  ssl_stapling_verify on; # Requires nginx => 1.3.7
+  # resolver $DNS-IP-1 $DNS-IP-2 valid=300s;
+  resolver_timeout 5s;
+  add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload";
+  add_header X-Frame-Options DENY;
+  add_header X-Content-Type-Options nosniff;
+
+ # Deny access to any host other than (www.|api.|)mydomain.com. Only use this
+ # option if you want to lock down the name in the Host header the client sends.
+  # server {
+  #      server_name  "";  #default
+  #      return 444;
+  #  }
+
+ ## Proxy settings. Make sure the "timeout"s are long enough to
+ ## take account of over loaded back end servers or long running
+ ## cgi scripts. If the proxy timeout is too short the nginx proxy
+ ## might re-request the data over and over again, putting more
+ ## load on the back end server.
+  proxy_max_temp_file_size   0;
+  proxy_connect_timeout      900;
+  proxy_send_timeout         900;
+  proxy_read_timeout         900;
+  proxy_buffer_size          4k;
+  proxy_buffers              4 32k;
+  proxy_busy_buffers_size    64k;
+  proxy_temp_file_write_size 64k;
+  proxy_intercept_errors     on;
+
+ ## Proxy caching
+  # proxy_cache_path     /var/cache/nginx levels=1:2 keys_zone=webcache:10m inactive=10m max_size=2g use_temp_path=off;
+  # proxy_cache_min_uses 5;
+
+ ## http .:. clients without a host header get an error page. This will handle
+ ## scanners looking for servers on an ip address and broken clients.
+  server {
+     add_header  Cache-Control "public";
+     add_header  X-Frame-Options "DENY";
+     access_log  /var/log/nginx/access.log main buffer=32k;
+     error_log   /var/log/nginx/error.log error;
+     expires     30d;
+     listen      80 default_server;
+     server_name "";
+
+   ## All other errors get the generic error page
+      error_page 400 401 402 403 404 405 406 407 408 409 410 411 412 413 414 415 416 417 495 496 497
+                 500 501 502 503 504 505 506 507 /error_page.html;
+      location  /error_page_generic.html { internal; }
+  }
+
+ ## Static files
+  server {
+      add_header  Cache-Control "public";
+      add_header  X-Frame-Options "DENY";
+      access_log  /var/log/nginx/access.log main buffer=32k;
+      error_log   /var/log/nginx/error.log error;
+      expires     max;
+      limit_req   zone=gulag burst=200 nodelay;
+      listen      80;
+      root        /server/frontend/dist;
+      server_name lp4a.tk www.lp4a.tk;
+
+     ## Serve an empty 1x1 gif _OR_ an error 204 (No Content) for favicon.ico
+      location = /favicon.ico {
+        return 204;
+      }
+
+     ## default location
+      location  / { try_files $uri $uri/ =404; }
+
+     ## All other errors get the generic error page
+      error_page 400 401 402 403 404 405 406 407 408 409 410 411 412 413 414 415 416 417 495 496 497
+                 500 501 502 503 504 505 506 507 /error_page.html;
+      location  /error_page.html { internal; }
+  }
+
+ ## back end web servers with "hot fail over". You can add as many back end
+ ## servers as you like here. If you add the "backup" directive the server will
+ ## only be used if the other servers are down.
+  upstream backend_web_servers {
+      server go1:8080 max_fails=250 fail_timeout=180s;
+      # server go2:8080 max_fails=250 fail_timeout=180s;
+      server gon:8080 backup;
+  }
+
+ # Reverse Proxy
+  server {
+     add_header  Cache-Control "public";
+     add_header  X-Frame-Options "DENY";
+     access_log  /var/log/nginx/access.log main buffer=32k;
+     # access_log  /var/log/nginx/cache.log cache;
+     error_log   /var/log/nginx/error.log error;
+     expires     1h;
+     listen      80 sndbuf=128k;
+     limit_req   zone=gulag  burst=1000 nodelay;
+     server_name api.lp4a.tk;
+
+     proxy_redirect     off;
+     proxy_set_header   Host             $host;
+     proxy_set_header   X-Real-IP        $remote_addr;
+     proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;
+
+     # proxy_cache        webcache;
+     # proxy_cache_key    $scheme$host$request_uri;
+     # proxy_cache_valid  200 301 302 304 120m;
+     # proxy_cache_valid  any 1m;
+
+   # Only allow GET, HEAD and POST request methods. Since this a proxy you may
+   # want to be more restrictive with your request methods. The calls are going
+   # to be passed to the back end server and nginx does not know what it
+   # normally accepts, so everything gets passed. If we only need to accept GET
+   # HEAD and POST then limit that here.
+    # if ($request_method !~ ^(GET|HEAD|POST)$ ) {
+    #     return 403;
+    # }
+
+    location = /favicon.ico {
+      return 204;
+    }
+
+    # default location
+    location / {
+        proxy_pass http://backend_web_servers;
+    }
+  }
+}
+#
+#######################################################
+###  Calomel.org  /etc/nginx.conf  END
+#######################################################
