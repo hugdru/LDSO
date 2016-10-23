@@ -9,8 +9,9 @@ ENV \
   NPM_CONFIG_LOGLEVEL="info" \
   NODE_VERSION="6.9.1" \
   PERSISTENT_APT_PACKAGES="git ca-certificates" \
-  TEMPORARY_APT_PACKAGES="curl xz-utils"
-
+  TEMPORARY_APT_PACKAGES="curl xz-utils" \
+  DOCKERIZE_VERSION="v0.2.0" \
+  DOCKERIZE_DOWNLOAD_SHA256="c0e2e33cfe066036941bf8f2598090bd8e01fdc05128490238b2a64cf988ecfb"
 
 ENV HOME="/$USER"
 ENV FRONTEND_DIR="$HOME/frontend"
@@ -41,12 +42,15 @@ RUN \
       mkdir /usr/local/node && \
       tar -xJf "node-v$NODE_VERSION-linux-x64.tar.xz" -C /usr/local/node --strip-components=1 && \
       rm "node-v$NODE_VERSION-linux-x64.tar.xz" SHASUMS256.txt.asc SHASUMS256.txt && \
+      curl -fsSL "https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz" -o dockerize.tar.gz && \
+      echo "$DOCKERIZE_DOWNLOAD_SHA256  dockerize.tar.gz" | sha256sum -c - && \
+      tar -C /usr/local/bin -xzvf dockerize.tar.gz && rm dockerize.tar.gz && \
       apt-get remove --purge -y $TEMPORARY_APT_PACKAGES && \
       rm -rf /var/lib/apt/lists/* /watchman && \
       apt-get autoremove -y && \
       apt-get clean all
 
-COPY docker/configs/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY docker/templates/nginx.tmpl /etc/nginx/nginx.tmpl
 
 COPY frontend "$FRONTEND_DIR"
 
@@ -67,4 +71,3 @@ RUN \
 EXPOSE 80 443
 
 USER root
-ENTRYPOINT ["nginx", "-g", "daemon off;"]

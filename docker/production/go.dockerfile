@@ -11,7 +11,6 @@ ENV \
   PERSISTENT_APT_PACKAGES="git ca-certificates" \
   TEMPORARY_APT_PACKAGES="curl"
 
-
 ENV HOME="/$USER"
 ENV BACKEND_DIR="$HOME/backend"
 

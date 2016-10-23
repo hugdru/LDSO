@@ -6,20 +6,21 @@ prod_compose_file="./docker/production/docker-compose.yml"
 dev_compose_file="./docker/development/docker-compose.yml"
 droplet="core@46.101.173.249"
 images_prod=("prod/golang" "prod/nginx")
-composer_version="1.8.1"
+compose_version="1.8.1"
 
 main() {
   if [[ $# -lt 1 ]]; then
     1>&2 echo -e "$0 build (prod|dev)"
     1>&2 echo -e "$0 push (images|compose)"
     1>&2 echo -e "$0 clean (local|remote)"
-    1>&2 echo -e "$0 install_docker_composer"
-    1>&2 echo -e "$0 composer (prod|dev) [command]"
+    1>&2 echo -e "$0 install_compose"
+    1>&2 echo -e "$0 compose (prod|dev) [command]"
+    1>&2 echo -e "$0 redo (prod|dev)"
     exit 1
   fi
 
   case "$1" in
-    build|push|clean|install_docker_composer|composer)
+    build|push|clean|install_compose|compose|redo)
       "$1" "${@:2}"
       ;;
     *)
@@ -37,7 +38,7 @@ build() {
     exit 1
   fi
 
-  local improved_context="tar -cf - --exclude-ignore-recursive=./docker/exclude_docker_context . "
+  local improved_context="tar -cf - --exclude-ignore-recursive=./docker/exclude_context . "
 
   case "$1" in
     prod)
@@ -100,15 +101,15 @@ clean() {
 
 }
 
-install_docker_composer() {
+install_compose() {
   if [[ $# -ne 0 ]]; then
-    1>&2 echo "$0 install_docker_composer"
+    1>&2 echo "$0 install_compose"
     exit 1
   fi
-  ssh "$droplet" 'curl -L "https://github.com/docker/compose/releases/download/'"$composer_version"'/docker-compose-$(uname -s)-$(uname -m)" > $HOME/bin/docker-compose && chmod +x "$HOME/bin/docker-compose"'
+  ssh "$droplet" 'curl -L "https://github.com/docker/compose/releases/download/'"$compose_version"'/docker-compose-$(uname -s)-$(uname -m)" > $HOME/bin/docker-compose && chmod +x "$HOME/bin/docker-compose"'
 }
 
-composer() {
+compose() {
 
   local error="$0 $FUNCNAME (prod|dev) [command]"
 
@@ -123,6 +124,29 @@ composer() {
       ;;
     dev)
       docker-compose -f "$dev_compose_file" "${@:2}"
+      ;;
+    *)
+      1>&2 echo "$error"
+  esac
+}
+
+redo() {
+  local error="$0 $FUNCNAME (prod|dev)"
+
+  if [[ $# -ne 1 ]]; then
+    1>&2 echo "$error"
+    exit 1
+  fi
+
+  case "$1" in
+    prod)
+      build prod
+      clean remote
+      push images
+      push compose
+      compose prod up
+      ;;
+    dev)
       ;;
     *)
       1>&2 echo "$error"

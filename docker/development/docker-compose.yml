@@ -11,12 +11,23 @@ services:
     depends_on:
       - go1
       - gon
-    links:
-      - go1:go1
-      - gon:gon
     ports:
       - "80:80"
       - "443:443"
+    entrypoint:
+      - dockerize
+      - -template
+      - /etc/nginx/nginx.tmpl:/etc/nginx/nginx.conf
+      - -wait
+      - http://go1:8080
+      - -wait
+      - http://gon:8080
+      - -timeout
+      - 10s
+      - nginx
+    networks:
+      - app-network
+    restart: always
   go1:
     image: dev/golang
     container_name: go1
@@ -24,6 +35,7 @@ services:
       - "8080"
     networks:
       - app-network
+    restart: always
   gon:
     image: dev/golang
     container_name: gon
@@ -31,6 +43,7 @@ services:
       - "8080"
     networks:
       - app-network
+    restart: always
   # mongodb:
   #   image: dev/mongodb
   #   container_name: mongodb
