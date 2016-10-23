@@ -1,0 +1,21 @@
+<div>
+  <div *ngIf="property" class="img-with-text">
+    <img src="./app/audit/assets/prop.jpg"
+         width="200" height="200"/>
+    <p class="thick">{{property.name}}</p>
+  </div>
+</div>
+<div>
+  <div>
+    <ul style="list-style: none;">
+      <li *ngFor="let criterion of criteria"
+          (click)="showSubCriteria(criterion)">
+        {{criterion.name}}
+      </li>
+    </ul>
+  </div>
+  <div *ngIf="selectedCriterion">
+
+  </div>
+
+</div>
