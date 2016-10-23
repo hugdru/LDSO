@@ -18,7 +18,7 @@ describe('App: Places4all', () => {
     expect(app).toBeTruthy();
   }));
 
-  it(`should have as title 'request handled by nginx'`, async(() => {
+  it(`should have as title 'p4a works!'`, async(() => {
     let fixture = TestBed.createComponent(AppComponent);
     let app = fixture.debugElement.componentInstance;
     expect(app.title).toEqual('p4a works!');

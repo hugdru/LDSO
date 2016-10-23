@@ -7,8 +7,8 @@ describe('frontend App', function() {
     page = new FrontendPage();
   });
 
-  it('should display message saying request handled by nginx', () => {
+  it('should display message saying p4a works!', () => {
     page.navigateTo();
-    expect(page.getParagraphText()).toEqual('request handled by nginx');
+    expect(page.getParagraphText()).toEqual('p4a works!');
   });
 });

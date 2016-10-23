@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 cd "${0%/*}"
 
 prod_compose_file="./docker/production/docker-compose.yml"
@@ -89,10 +91,10 @@ clean() {
   local clean_command='docker rm -f $(docker ps -q -a); docker rmi $(docker images -q)'
   case "$1" in
     remote)
-      ssh "$droplet" "$clean_command"
+      ! { ssh "$droplet" "$clean_command"; }
       ;;
     local)
-      eval "$clean_command"
+      ! { eval "$clean_command"; }
       ;;
     *)
       1>&2 echo "$error"

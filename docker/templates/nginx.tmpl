@@ -90,10 +90,10 @@ http {
 
  # Deny access to any host other than (www.|api.|)mydomain.com. Only use this
  # option if you want to lock down the name in the Host header the client sends.
-  # server {
-  #      server_name  "";  #default
-  #      return 444;
-  #  }
+  server {
+      server_name  "";  #default
+      return 444;
+   }
 
  ## Proxy settings. Make sure the "timeout"s are long enough to
  ## take account of over loaded back end servers or long running
@@ -114,23 +114,6 @@ http {
   # proxy_cache_path     /var/cache/nginx levels=1:2 keys_zone=webcache:10m inactive=10m max_size=2g use_temp_path=off;
   # proxy_cache_min_uses 5;
 
- ## http .:. clients without a host header get an error page. This will handle
- ## scanners looking for servers on an ip address and broken clients.
-  server {
-     add_header  Cache-Control "public";
-     add_header  X-Frame-Options "DENY";
-     access_log  /var/log/nginx/access.log main buffer=32k;
-     error_log   /var/log/nginx/error.log error;
-     expires     30d;
-     listen      80 default_server;
-     server_name "";
-
-   ## All other errors get the generic error page
-      error_page 400 401 402 403 404 405 406 407 408 409 410 411 412 413 414 415 416 417 495 496 497
-                 500 501 502 503 504 505 506 507 /error_page.html;
-      location  /error_page_generic.html { internal; }
-  }
-
  ## Static files
   server {
       add_header  Cache-Control "public";
@@ -144,9 +127,9 @@ http {
       server_name lp4a.tk www.lp4a.tk;
 
      ## Serve an empty 1x1 gif _OR_ an error 204 (No Content) for favicon.ico
-      location = /favicon.ico {
-        return 204;
-      }
+      # location = /favicon.ico {
+      #   return 204;
+      # }
 
      ## default location
       location  / { try_files $uri $uri/ =404; }
