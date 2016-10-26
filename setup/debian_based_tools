@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+
+set -e
+
+main() {
+
+sudo apt-get update
+sudo apt-get install -y build-essential curl git
+curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+surround_start=";;;;; ADDED BY TOOLS"
+surround_end=";;;;; END OF ADDED BY TOOLS"
+remove_around "$surround_start" "$surround_end" "$HOME/.npmrc"
+
+npm_prefix='${HOME}/.npm-packages'
+cat << EOF >> "$HOME/.npmrc"
+$surround_start
+prefix=$npm_prefix
+$surround_end
+EOF
+
+go_folder='$HOME/golang'
+yarn_folder='$HOME/.yarn-packages'
+yarn_bin="$yarn_folder/bin"
+export_yarn="export PREFIX=\"$yarn_folder\" YARN_PREFIX=\"$yarn_folder\""
+export_go="export GOPATH=\"$go_folder\""
+export_path="export PATH=\"$yarn_bin:$npm_prefix/bin:$go_folder/bin:"'$PATH"'
+
+eval mkdir -p "$go_folder"
+eval mkdir -p "$yarn_bin"
+eval "$export_go"
+eval "$export_yarn"
+eval "$export_path"
+
+npm install -g yarn
+yarn global add angular-cli
+
+surround_start="#### ADDED BY TOOLS ####"
+surround_end="#### END OF ADDED BY TOOLS ####"
+remove_around "$surround_start" "$surround_end" "$HOME/.bashrc"
+
+echo "$surround_start" >> "$HOME/.bashrc"
+echo -e "$export_go\n$export_path\n$export_yarn" >> "$HOME/.bashrc"
+nix_init_script='$HOME/.nix-profile/etc/profile.d/nix.sh'
+cat << EOF >> "$HOME/.bashrc"
+nix_init_script="$nix_init_script"
+EOF
+cat << 'EOF' >> "$HOME/.bashrc"
+if [[ -f "$nix_init_script" ]]; then
+  source "$nix_init_script"
+fi
+EOF
+echo "$surround_end" >> "$HOME/.bashrc"
+
+bash <(curl https://nixos.org/nix/install)
+
+eval source "$nix_init_script"
+nix-env -i go watchman
+
+go get github.com/constabulary/gb/...
+
+echo
+echo '** Please reboot the computer **'
+}
+
+remove_around() {
+  if [[ $# -ne 3 ]]; then
+    exit 1
+  fi
+  if [[ -f "$3" ]]; then
+    sed -i "/$1/,/$2/d" "$3"
+  fi
+}
+
+main "$@"

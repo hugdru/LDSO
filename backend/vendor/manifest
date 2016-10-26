@@ -1,0 +1,23 @@
+{
+  "version": 0,
+  "dependencies": [
+    {
+      "importpath": "github.com/alexedwards/scs",
+      "repository": "https://github.com/alexedwards/scs",
+      "revision": "8131b3f249566da11ff348e7f664dd016e082292",
+      "branch": "master"
+    },
+    {
+      "importpath": "github.com/pressly/chi",
+      "repository": "https://github.com/pressly/chi",
+      "revision": "2cad94402baa6eb7584258df02fed068f1502ada",
+      "branch": "master"
+    },
+    {
+      "importpath": "gopkg.in/mgo.v2",
+      "repository": "https://gopkg.in/mgo.v2",
+      "revision": "3f83fa5005286a7fe593b055f0d7771a7dce4655",
+      "branch": "v2"
+    }
+  ]
+}
