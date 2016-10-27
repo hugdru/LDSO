@@ -16,6 +16,7 @@ func main() {
 
 	// TODO: Find a better way to make the index unique on first run.
 	// Should be done in a json not on go.
+
 	first_run := false
 
 	session := db.StartConn("localhost:27017")

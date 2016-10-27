@@ -108,4 +108,3 @@ func GetHandlerCriterionSet(coll *mgo.Collection) http.HandlerFunc {
 		log.Println(arg)
 	}
 }
-
