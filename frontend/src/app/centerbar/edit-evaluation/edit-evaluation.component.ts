@@ -5,17 +5,17 @@ import { Component, OnInit } from '@angular/core';
   templateUrl: './edit-evaluation.component.html',
   styleUrls: ['./edit-evaluation.component.css']
 })
+
 export class EditEvaluationComponent implements OnInit {
 
-  private items =[  ["acesso",["elevador","rampa"]],
+  private items = [ ["acesso",["elevador","rampa"]],
                     ["percurso exterior",["passeios","autocarros"]]
                   ];
 
-  private item =["teste",["teste1","teste2"]];
-  addItem(){
+  private item = ["teste",["teste1","teste2"]];
 
-  this.items.push(this.item);
-
+  addItem() {
+	  this.items.push(this.item);
   }
 
   constructor() { }
