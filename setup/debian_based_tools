@@ -13,19 +13,12 @@ surround_start=";;;;; ADDED BY TOOLS"
 surround_end=";;;;; END OF ADDED BY TOOLS"
 remove_around "$surround_start" "$surround_end" "$HOME/.npmrc"
 
-npm_prefix='${HOME}/.npm-packages'
-cat << EOF >> "$HOME/.npmrc"
-$surround_start
-prefix=$npm_prefix
-$surround_end
-EOF
-
 go_folder='$HOME/golang'
 yarn_folder='$HOME/.yarn-packages'
 yarn_bin="$yarn_folder/bin"
 export_yarn="export PREFIX=\"$yarn_folder\" YARN_PREFIX=\"$yarn_folder\""
 export_go="export GOPATH=\"$go_folder\""
-export_path="export PATH=\"$yarn_bin:$npm_prefix/bin:$go_folder/bin:"'$PATH"'
+export_path="export PATH=\"$yarn_bin:$go_folder/bin:"'$PATH"'
 
 eval mkdir -p "$go_folder"
 eval mkdir -p "$yarn_bin"
