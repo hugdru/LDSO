@@ -1,4 +1,4 @@
-package data
+ackage data
 
 type Owner struct {
 	Name string `json:name`

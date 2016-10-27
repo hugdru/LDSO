@@ -7,6 +7,7 @@ import (
 	"server/data"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+	"fmt"
 )
 
 func main() {
@@ -25,11 +26,12 @@ func main() {
 	}
 
 	coll["criterion"] = db.GetCollection(session, "Places4All", "Criterion")
-	coll["sub_criterion"] = db.GetCollection(session, "Places4All", "Sub_Criterion")
-	coll["property"] = db.GetCollection(session, "Places4All", "Property")
-	coll["criterion_set"] = db.GetCollection(session, "Places4All", "Criterion_Set")
-	// c_evaluation := db.GetCollection(session, "Places4All", "Evaluation")
-	// c_note := db.GetCollection(session, "Places4All", "Note")
+	coll["sub_criterion"] = db.GetCollection(session, "Places4All",
+			"Sub_Criterion")
+	coll["property"] = db.GetCollection(session, "Places4All",
+			"Property")
+	coll["criterion_set"] = db.GetCollection(session, "Places4All",
+			"Criterion_Set")
 
 	if first_run == true {
 		db.EnsureUnique(coll["criterion"], "name")
@@ -43,7 +45,9 @@ func main() {
 	populateCriterionSet(coll)
 
 	http.HandleFunc("/criterion", conn.GetHandlerCriterion(coll["criterion"]))
-	// http.HandleFunc("/property", conn.GetHandlerProperty(c_property))
+	http.HandleFunc("/property", conn.GetHandlerCriterion(coll["property"]))
+	http.HandleFunc("/criterion_set",
+			conn.GetHandlerCriterionSet(coll["criterion_set"]))
 
 	http.ListenAndServe(":8080", nil)
 }
@@ -94,6 +98,7 @@ func populateCriterionSet(coll map[string]*mgo.Collection) {
 	crit_set1.SetSub_Criterion(sub1, sub2, sub3)
 
 	db.Insert(coll["criterion_set"], &crit_set1)
+	fmt.Println(crit_set1)
 }
 /*
  * Test data end

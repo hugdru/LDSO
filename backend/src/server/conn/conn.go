@@ -9,6 +9,8 @@ import (
 	"server/data"
 )
 
+// TODO: Change error handling from Fatal to proper handling.
+
 func giveAccess(w http.ResponseWriter, methods string) {
 	w.Header().Set("Access-Control-Allow-Methods", methods)
 	w.Header().Set("Access-Control-Allow-Headers",
@@ -39,10 +41,7 @@ func GetHandlerProperty(coll *mgo.Collection) http.HandlerFunc {
 	return func (w http.ResponseWriter, r *http.Request) {
 		arg := data.Property{}
 
-		origin := r.Header.Get("Origin")
-		if origin != "" {
-			w.Header().Set("Access-Control-Allow-Origin", origin)
-		}
+		allowOrigin(w, r)
 
 		label := r.FormValue("label")
 		value := r.FormValue("value")
@@ -52,9 +51,7 @@ func GetHandlerProperty(coll *mgo.Collection) http.HandlerFunc {
 			log.Fatal(err)
 		}
 
-		w.Header().Set("Access-Control-Allow-Methods", "GET")
-		w.Header().Set("Access-Control-Allow-Headers",
-				"Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token")
+		giveAccess(w, "GET")
 
 		err = json.NewEncoder(w).Encode(arg);
 		if err != nil {
@@ -68,19 +65,14 @@ func GetHandlerCriterion(coll *mgo.Collection) http.HandlerFunc {
 	return func (w http.ResponseWriter, r *http.Request) {
 		arg := []data.Criterion{}
 
-		origin := r.Header.Get("Origin")
-		if origin != "" {
-			w.Header().Set("Access-Control-Allow-Origin", origin)
-		}
+		allowOrigin(w, r)
 
 		err := coll.Find(bson.M{}).Iter().All(&arg)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		w.Header().Set("Access-Control-Allow-Methods", "GET")
-		w.Header().Set("Access-Control-Allow-Headers",
-				"Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token")
+		giveAccess(w, "GET")
 
 		err = json.NewEncoder(w).Encode(arg);
 		if err != nil {
@@ -90,26 +82,24 @@ func GetHandlerCriterion(coll *mgo.Collection) http.HandlerFunc {
 	}
 }
 
-func GetHandlerCriteriaSet(coll *mgo.Collection) http.HandlerFunc {
+
+func GetHandlerCriterionSet(coll *mgo.Collection) http.HandlerFunc {
 	return func (w http.ResponseWriter, r *http.Request) {
 		arg := data.Criterion_Set{}
 
-		origin := r.Header.Get("Origin")
-		if origin != "" {
-			w.Header().Set("Access-Control-Allow-Origin", origin)
-		}
+		allowOrigin(w, r)
 
 		label := r.FormValue("label")
+		log.Println(label)
 		value := r.FormValue("value")
+		log.Println(value)
 
 		err := coll.Find(bson.M{label: value}).One(&arg)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		w.Header().Set("Access-Control-Allow-Methods", "GET")
-		w.Header().Set("Access-Control-Allow-Headers",
-				"Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token")
+		giveAccess(w, "GET")
 
 		err = json.NewEncoder(w).Encode(arg);
 		if err != nil {

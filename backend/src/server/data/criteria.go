@@ -10,6 +10,24 @@ type Sub_Criterion struct {
 	Weight uint `json:weight`
 }
 
+/*
+type Group struct {
+	Name string
+	Weight uint
+}
+
+type Sub_Group struct {
+	Name string
+	Weight uint
+}
+
+type Criterion struct {
+	Name string
+	Accessibility Accessibility
+	Legislation bool
+}
+*/
+
 type Criterion_Set struct {
 	Criterion Criterion `json:criterion`
 	Sub_Criteria []Sub_Criterion `json:sub_criteria`
