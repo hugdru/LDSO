@@ -53,7 +53,7 @@ func FindAll(c *mgo.Collection, arg []interface{}) {
 	}
 }
 
-func EnsureUnique(c *mgo.Collection, tag interface{}) {
+func EnsureUnique(c *mgo.Collection, tag string) {
 	index := mgo.Index{
 		Key: []string{tag},
 		Unique: true,

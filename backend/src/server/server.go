@@ -10,8 +10,11 @@ import (
 )
 
 func main() {
+	var coll map[string]*mgo.Collection
+	coll = make(map[string]*mgo.Collection)
+
 	// TODO: Find a better way to make the index unique on first run.
-	// Should be done in a script not on go.
+	// Should be done in a json not on go.
 	first_run := false
 
 	session := db.StartConn("localhost:27017")
@@ -21,25 +24,25 @@ func main() {
 		first_run = true
 	}
 
-	c_criterion := db.GetCollection(session, "Places4All", "Criterion")
-	c_sub_criterion := db.GetCollection(session, "Places4All", "Sub_Criterion")
-	c_property := db.GetCollection(session, "Places4All", "Property")
-	c_criterion_set := db.GetCollection(session, "Places4All", "Criterion_Set")
+	coll["criterion"] = db.GetCollection(session, "Places4All", "Criterion")
+	coll["sub_criterion"] = db.GetCollection(session, "Places4All", "Sub_Criterion")
+	coll["property"] = db.GetCollection(session, "Places4All", "Property")
+	coll["criterion_set"] = db.GetCollection(session, "Places4All", "Criterion_Set")
 	// c_evaluation := db.GetCollection(session, "Places4All", "Evaluation")
 	// c_note := db.GetCollection(session, "Places4All", "Note")
 
 	if first_run == true {
-		db.EnsureUnique(c_criterion, "name")
-		db.EnsureUnique(c_sub_criterion, "name")
-		db.EnsureUnique(c_property, "name")
+		db.EnsureUnique(coll["criterion"], "name")
+		db.EnsureUnique(coll["sub_criterion"], "name")
+		db.EnsureUnique(coll["property"], "name")
 	}
 
-	populateCriterion(c_criterion);
-	populateSubCriterion(c_sub_criterion);
-	populateProperty(c_property);
-	populateCriterionSet(c_criterion_set, c_criterion, c_sub_criterion)
+	populateCriterion(coll["criterion"]);
+	populateSubCriterion(coll["sub_criterion"]);
+	populateProperty(coll["property"]);
+	populateCriterionSet(coll)
 
-	http.HandleFunc("/criterion", conn.GetHandlerCriterion(c_criterion))
+	http.HandleFunc("/criterion", conn.GetHandlerCriterion(coll["criterion"]))
 	// http.HandleFunc("/property", conn.GetHandlerProperty(c_property))
 
 	http.ListenAndServe(":8080", nil)
@@ -77,20 +80,20 @@ func populateProperty(c_property *mgo.Collection) {
 	db.Insert(c_property, &prop1, &prop2)
 }
 
-func populateCriterionSet(c_crit_set, c_crit, c_sub *mgo.Collection) {
+func populateCriterionSet(coll map[string]*mgo.Collection) {
 	var crit data.Criterion
 	var sub1, sub2, sub3 data.Sub_Criterion
 	var crit_set1 data.Criterion_Set
 
-	c_crit.Find(bson.M{"name": "Acessos"}).One(&crit)
-	c_sub.Find(bson.M{"name": "Entrada"}).One(&sub1)
-	c_sub.Find(bson.M{"name": "WC"}).One(&sub2)
-	c_sub.Find(bson.M{"name": "Cadeira"}).One(&sub3)
+	coll["criterion"].Find(bson.M{"name": "Acessos"}).One(&crit)
+	coll["sub_criterion"].Find(bson.M{"name": "Entrada"}).One(&sub1)
+	coll["sub_criterion"].Find(bson.M{"name": "WC"}).One(&sub2)
+	coll["sub_criterion"].Find(bson.M{"name": "Cadeira"}).One(&sub3)
 
 	crit_set1.Criterion = crit
 	crit_set1.SetSub_Criterion(sub1, sub2, sub3)
 
-	db.Insert(c_crit_set, &crit_set1)
+	db.Insert(coll["criterion_set"], &crit_set1)
 }
 /*
  * Test data end
