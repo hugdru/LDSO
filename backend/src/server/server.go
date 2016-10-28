@@ -25,11 +25,9 @@ func main() {
 		first_run = true
 	}
 
-	coll["groups"] = db.GetCollection(session, "Places4All", "Group")
-	coll["accessibility"] = db.GetCollection(session, "Places4All",
-			"Accessibility")
-	coll["groups_set"] = db.GetCollection(session, "Places4All", "Group_Set")
-	coll["property"] = db.GetCollection(session, "Places4All", "Property")
+	coll["groups"] = db.GetCollection(session, "Places4All", "group")
+	coll["groups_set"] = db.GetCollection(session, "Places4All", "group_set")
+	coll["property"] = db.GetCollection(session, "Places4All", "property")
 
 	if first_run == true {
 		db.EnsureUnique(coll["groups"], "name")
