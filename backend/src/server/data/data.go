@@ -8,6 +8,7 @@ type Group struct {
 type Sub_Group struct {
 	Name string `json:name`
 	Weight uint `json:weight`
+	Criteria []Criterion `json:criteria`
 }
 
 type Accessibility string
@@ -20,12 +21,7 @@ type Criterion struct {
 
 type Group_Set struct {
 	Group Group `json:group`
-	Sub_Groups []Sub_Group_Set `json:sub_groups`
-}
-
-type Sub_Group_Set struct {
-	Sub_Group Sub_Group `json:sub_group`
-	Criteria []Criterion `json:criteria`
+	Sub_Groups []Sub_Group `json:sub_groups`
 }
 
 type Owner struct {
@@ -50,24 +46,24 @@ type Evaluation struct {
 	Value uint `json:value`
 }
 
-func (this *Group_Set) SetSub(subs ...Sub_Group) {
-	this.Sub_Group = nil
-	for _, sub := range subs {
-		this.Sub_Group = append(this.Sub_Group, sub)
-	}
-}
-
-func (this *Group_Set) AppendSub(sub Sub_Group) {
-	this.Sub_Group = append(this.Sub_Group, sub)
-}
-
-func (this *Sub_Group_Set) SetSub(subs ...Sub_Group) {
+func (this *Sub_Group) SetCriteria(subs ...Criterion) {
 	this.Criteria = nil
 	for _, sub := range subs {
 		this.Criteria = append(this.Criteria, sub)
 	}
 }
 
-func (this *Sub_Group_Set) AppendSub(sub Sub_Group) {
+func (this *Sub_Group) AppendCriteria(sub Criterion) {
 	this.Criteria = append(this.Criteria, sub)
+}
+
+func (this *Group_Set) SetSubs(subs ...Sub_Group) {
+	this.Sub_Groups = nil
+	for _, sub := range subs {
+		this.Sub_Groups = append(this.Sub_Groups, sub)
+	}
+}
+
+func (this *Group_Set) AppendSub(sub Sub_Group) {
+	this.Sub_Groups = append(this.Sub_Groups, sub)
 }
