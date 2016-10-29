@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-	selector: 'p4a-auditing',
+	selector: 'p4a-audit',
 	templateUrl: './html/audit.component.html',
 	styleUrls: ['./audit.component.css']
 })
