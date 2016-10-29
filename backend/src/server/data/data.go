@@ -40,7 +40,7 @@ type Note struct {
 	Image_path string `json:"image_path"`
 }
 
-type Evaluation struct {
+type Audit struct {
 	Property Property `json:"property"`
 	Notes []Note `json:"notes"`
 	Value uint `json:"value"`
