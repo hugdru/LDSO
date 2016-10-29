@@ -36,7 +36,7 @@ type Property struct {
 
 type Note struct {
 	Data string `json:"data"`
-	Criterion Criterion `json:"sub_criterion"`
+	Criterion Criterion `json:"criterion"`
 	Image_path string `json:"image_path"`
 }
 
