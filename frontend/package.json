@@ -1,7 +1,7 @@
 {
-  "name": "frontend",
-  "version": "0.0.0",
-  "license": "MIT",
+  "name": "Places4All",
+  "version": "0.0.1",
+  "license": "GPLv2",
   "angular-cli": {},
   "scripts": {
     "mrun": "open http://localhost:4200",

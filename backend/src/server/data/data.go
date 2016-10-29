@@ -35,12 +35,12 @@ type Property struct {
 }
 
 type Note struct {
-	Data string `json:"data"`
+	Data []string `json:"data"`
 	Criterion Criterion `json:"criterion"`
-	Image_path string `json:"image_path"`
+	Image_path []string `json:"image_path"`
 }
 
-type Evaluation struct {
+type Audit struct {
 	Property Property `json:"property"`
 	Notes []Note `json:"notes"`
 	Value uint `json:"value"`

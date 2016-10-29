@@ -7,7 +7,7 @@ import { AppComponent } from './app.component';
 import { HeaderComponent } from './header/header.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { FootbarComponent } from './footbar/footbar.component';
-import { CenterbarComponent } from './centerbar/centerbar.component';
+import { CenterComponent } from './center/center.component';
 import { AuditComponent } from './audit/audit.component';
 import { EditEvaluationComponent } from './audit/edit-evaluation.component';
 
@@ -17,7 +17,7 @@ import { EditEvaluationComponent } from './audit/edit-evaluation.component';
 		HeaderComponent,
 		SidebarComponent,
 		FootbarComponent,
-		CenterbarComponent,
+		CenterComponent,
 		AuditComponent,
 		EditEvaluationComponent
 	],
