@@ -1,0 +1,18 @@
+/* .page-header{ */
+/* 	/1* padding-left: 40%; *1/ */
+/* 	/1* width: 50%; *1/ */
+/* 	/1* margin: 0 auto; *1/ */
+/* 	margin-left: auto; */
+/* 	margin-right: auto; */
+/* } */
+.navbar {
+	margin-bottom:0px;
+}
+.page-header {
+    position: relative;
+    left: 50%;
+    margin-left: -100px !important;  /* 50% of your logo width */
+	margin-top: 0px;
+	border-bottom: 0px;
+    display: block;
+}

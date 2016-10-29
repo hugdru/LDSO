@@ -8,25 +8,28 @@ import { HeaderComponent } from './header/header.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { FootbarComponent } from './footbar/footbar.component';
 import { CenterbarComponent } from './centerbar/centerbar.component';
-import { AuditingComponent } from './centerbar/auditing/auditing.component';
-import { EditEvaluationComponent } from './centerbar/edit-evaluation/edit-evaluation.component';
+import { AuditComponent } from './audit/audit.component';
+import { EditEvaluationComponent } from './audit/edit-evaluation.component';
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    HeaderComponent,
-    SidebarComponent,
-    FootbarComponent,
-    CenterbarComponent,
-    AuditingComponent,
-    EditEvaluationComponent
-  ],
-  imports: [
-    BrowserModule,
-    FormsModule,
-    HttpModule
-  ],
-  providers: [],
-  bootstrap: [AppComponent]
+	declarations: [
+		AppComponent,
+		HeaderComponent,
+		SidebarComponent,
+		FootbarComponent,
+		CenterbarComponent,
+		AuditComponent,
+		EditEvaluationComponent
+	],
+	imports: [
+		BrowserModule,
+		FormsModule,
+		HttpModule
+	],
+	providers: [],
+	bootstrap: [AppComponent]
 })
-export class AppModule { }
+
+export class AppModule {
+
+}
