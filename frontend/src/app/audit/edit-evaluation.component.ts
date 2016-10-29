@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'p4a-edit-evaluation',
-  templateUrl: './edit-evaluation.component.html',
-  styleUrls: ['./edit-evaluation.component.css']
+	selector: 'p4a-edit-evaluation',
+	templateUrl: './html/edit-evaluation.component.html',
 })
 
 export class EditEvaluationComponent implements OnInit {
