@@ -4,3 +4,6 @@ tags
 .idea/
 **.swp
 **/pkg/**
+backend/go.sh
+backend/mongo.sh
+frontend/angular.sh
