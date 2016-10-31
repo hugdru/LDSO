@@ -1,11 +1,11 @@
 /* tslint:disable:no-unused-variable */
 
 import { TestBed, async } from '@angular/core/testing';
-import { CenterbarComponent } from './centerbar.component';
+import { CenterComponent } from './center.component';
 
-describe('Component: Centerbar', () => {
+describe('Component: Center', () => {
   it('should create an instance', () => {
-    let component = new CenterbarComponent();
+    let component = new CenterComponent();
     expect(component).toBeTruthy();
   });
 });
