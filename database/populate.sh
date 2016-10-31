@@ -1,5 +1,9 @@
+#!/usr/bin/env bash
+
+cd "${0%/*}"
+
 DB=Places4All
-collections=(property groups)
+collections=(groups property)
 
 for coll in ${collections[@]}
 do
