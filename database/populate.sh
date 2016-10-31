@@ -3,7 +3,7 @@
 cd "${0%/*}"
 
 DB=Places4All
-collections=(groups property)
+collections=(main_group property)
 
 mongo $DB --eval "db.dropDatabase()"
 for coll in ${collections[@]}
