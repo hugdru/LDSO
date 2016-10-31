@@ -15,25 +15,25 @@ func main() {
 	// TODO: Find a better way to make the index unique on first run.
 	// Should be done in a json not on go.
 
-	first_run := false
+//	first_run := false
 
 	session := db.StartConn("localhost:27017")
 	defer db.CloseConn(session)
 
-	if !db.ExistsCollections(session, "Places4All") {
-		first_run = true
-	}
+//	if !db.ExistsCollections(session, "Places4All") {
+//		first_run = true
+//	}
 
-	coll["groups"] = db.GetCollection(session, "Places4All", "group")
-	coll["groups_set"] = db.GetCollection(session, "Places4All", "group_set")
+	coll["main_group"] = db.GetCollection(session, "Places4All", "main_group")
 	coll["property"] = db.GetCollection(session, "Places4All", "property")
 
-	if first_run == true {
-		db.EnsureUnique(coll["groups"], "name")
+//	if first_run == true {
+		db.EnsureUnique(coll["main_group"], "name")
 		db.EnsureUnique(coll["property"], "name")
-	}
+//	}
 
-	http.HandleFunc("/groups", conn.GetHandlerGroup(coll["groups"]))
+	http.HandleFunc("/getAllGroups", conn.GetAllGroups(coll["main_group"]))
+	http.HandleFunc("/setGroup", conn.SetGroup(coll["main_group"]))
 	http.HandleFunc("/property", conn.GetHandlerProperty(coll["property"]))
 
 	http.ListenAndServe(":8080", nil)
