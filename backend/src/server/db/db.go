@@ -28,28 +28,30 @@ func GetCollection(session *mgo.Session, db_name,
 func Insert(c *mgo.Collection, args ...interface{}) {
 	err := c.Insert(args...)
 	if err != nil {
-		log.Print(err)
+		log.Panic(err)
 	}
 }
 
 func FindOne(c *mgo.Collection, arg interface{}, tag, value string) {
-	err := c.Find(bson.M{tag: value}).One(&arg)
+	log.Println(tag)
+	log.Println(value)
+	err := c.Find(bson.M{tag: value}).One(arg)
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 }
 
 func Find(c *mgo.Collection, arg interface{}, tag, value string) {
-	err := c.Find(bson.M{tag: value}).Limit(100).Iter().All(&arg)
+	err := c.Find(bson.M{tag: value}).Iter().All(arg)
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 }
 
-func FindAll(c *mgo.Collection, arg []interface{}) {
-	err := c.Find(bson.M{}).Limit(100).Iter().All(&arg)
+func FindAll(c *mgo.Collection, arg interface{}) {
+	err := c.Find(bson.M{}).Iter().All(arg)
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 }
 
@@ -68,7 +70,7 @@ func EnsureUnique(c *mgo.Collection, tag string) {
 func ExistsCollections(session *mgo.Session, name string) bool {
 	names, err := session.DB(name).CollectionNames()
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 	return len(names) != 0
 }

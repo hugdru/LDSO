@@ -28,11 +28,12 @@ func main() {
 	coll["property"] = db.GetCollection(session, "Places4All", "property")
 
 //	if first_run == true {
-		db.EnsureUnique(coll["main_group"], "name")
-		db.EnsureUnique(coll["property"], "name")
+//		db.EnsureUnique(coll["main_group"], "name")
+//		db.EnsureUnique(coll["property"], "name")
 //	}
 
 	http.HandleFunc("/getAllGroups", conn.GetAllGroups(coll["main_group"]))
+	http.HandleFunc("/getGroup", conn.GetGroup(coll["main_group"]))
 	http.HandleFunc("/setGroup", conn.SetGroup(coll["main_group"]))
 	http.HandleFunc("/property", conn.GetHandlerProperty(coll["property"]))
 

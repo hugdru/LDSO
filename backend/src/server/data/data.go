@@ -1,6 +1,6 @@
 package data
 
-type Group struct {
+type Main_Group struct {
 	Name string `json:"name"`
 	Weight uint `json:"weight"`
 	Sub_Groups []Sub_Group `json:"sub_groups"`
@@ -57,13 +57,13 @@ func (this *Sub_Group) AppendCriteria(sub Criterion) {
 	this.Criteria = append(this.Criteria, sub)
 }
 
-func (this *Group) SetSubs(subs ...Sub_Group) {
+func (this *Main_Group) SetSubs(subs ...Sub_Group) {
 	this.Sub_Groups = nil
 	for _, sub := range subs {
 		this.Sub_Groups = append(this.Sub_Groups, sub)
 	}
 }
 
-func (this *Group) AppendSub(sub Sub_Group) {
+func (this *Main_Group) AppendSub(sub Sub_Group) {
 	this.Sub_Groups = append(this.Sub_Groups, sub)
 }

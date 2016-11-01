@@ -49,28 +49,61 @@ func GetHandlerProperty(coll *mgo.Collection) http.HandlerFunc {
 
 func GetAllGroups(coll *mgo.Collection) http.HandlerFunc {
 	return func (w http.ResponseWriter, r *http.Request) {
-		arg := []data.Group{}
+		groups := []data.Main_Group{}
 
-		allowOrigin(w, r)
+//		allowOrigin(w, r)
 
-		err := coll.Find(bson.M{}).Iter().All(&arg)
+		db.FindAll(coll, &groups)
+
+		giveAccess(w, "GET, POST")
+
+		err := json.NewEncoder(w).Encode(groups);
+		if err != nil {
+			log.Println(err)
+		}
+		log.Println(groups)
+	}
+}
+
+type name_query struct {
+	Name string
+}
+
+func GetGroup(coll *mgo.Collection) http.HandlerFunc {
+	return func (w http.ResponseWriter, r *http.Request) {
+		group := data.Main_Group{}
+		name := name_query{}
+
+//		allowOrigin(w, r)
+
+		decoder := json.NewDecoder(r.Body)
+
+		defer r.Body.Close()
+
+		err := decoder.Decode(&name)
 		if err != nil {
 			log.Panic(err)
 		}
 
+
+		log.Println(r)
+		log.Println(name.Name)
+
+		db.FindOne(coll, &group, "name", name.Name)
+
 		giveAccess(w, "GET, POST")
 
-		err = json.NewEncoder(w).Encode(arg);
+		err = json.NewEncoder(w).Encode(group);
 		if err != nil {
 			log.Println(err)
 		}
-		log.Println(arg)
+		log.Println(group)
 	}
 }
 
 func SetGroup(coll *mgo.Collection) http.HandlerFunc {
 	return func (w http.ResponseWriter, r *http.Request) {
-		var group data.Group
+		var group data.Main_Group
 		decoder := json.NewDecoder(r.Body)
 
 		defer r.Body.Close()
@@ -81,6 +114,23 @@ func SetGroup(coll *mgo.Collection) http.HandlerFunc {
 		}
 
 		db.Insert(coll, &group)
+
+		log.Println(group)
+	}
+}
+
+func SetSubGroup(coll *mgo.Collection) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var subgroup data.Sub_Group
+		var group data.Main_Group
+		decoder := json.NewDecoder(r.Body)
+
+		defer r.Body.Close()
+
+		err := decoder.Decode(&subgroup)
+		if err != nil {
+			log.Panic(err)
+		}
 
 		log.Println(group)
 	}
