@@ -1,6 +1,6 @@
 {
 	"name": "Acessos",
-	"weight": "40",
+	"weight": 40,
 	"sub_groups": [
 		{
 			"name": "Transportes publicos",
@@ -63,16 +63,16 @@
 }
 {
 	"name": "Percusso Exterior",
-	"weight": "20",
+	"weight": 20,
 	"sub_groups": []
 }
 {
 	"name": "Percusso Interior",
-	"weight": "20",
+	"weight": 20,
 	"sub_groups": []
 }
 {
 	"name": "Bens e Serviços",
-	"weight": "20",
+	"weight": 20,
 	"sub_groups": []
 }

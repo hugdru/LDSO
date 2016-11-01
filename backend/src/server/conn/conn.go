@@ -7,6 +7,7 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"server/data"
+	"server/db"
 )
 
 func giveAccess(w http.ResponseWriter, methods string) {
@@ -46,7 +47,7 @@ func GetHandlerProperty(coll *mgo.Collection) http.HandlerFunc {
 	}
 }
 
-func GetHandlerGroup(coll *mgo.Collection) http.HandlerFunc {
+func GetAllGroups(coll *mgo.Collection) http.HandlerFunc {
 	return func (w http.ResponseWriter, r *http.Request) {
 		arg := []data.Group{}
 
@@ -54,7 +55,7 @@ func GetHandlerGroup(coll *mgo.Collection) http.HandlerFunc {
 
 		err := coll.Find(bson.M{}).Iter().All(&arg)
 		if err != nil {
-			log.Fatal(err)
+			log.Panic(err)
 		}
 
 		giveAccess(w, "GET, POST")
@@ -64,5 +65,23 @@ func GetHandlerGroup(coll *mgo.Collection) http.HandlerFunc {
 			log.Println(err)
 		}
 		log.Println(arg)
+	}
+}
+
+func SetGroup(coll *mgo.Collection) http.HandlerFunc {
+	return func (w http.ResponseWriter, r *http.Request) {
+		var group data.Group
+		decoder := json.NewDecoder(r.Body)
+
+		defer r.Body.Close()
+
+		err := decoder.Decode(&group)
+		if err != nil {
+			log.Panic(err)
+		}
+
+		db.Insert(coll, &group)
+
+		log.Println(group)
 	}
 }
