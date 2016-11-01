@@ -8,6 +8,7 @@ collections=(main_group property)
 mongo $DB --eval "db.dropDatabase()"
 
 mongo $DB --eval "db.main_group.ensureIndex({name: 1}, {unique: true})"
+#mongo $DB --eval "db.main_group.sub_groups.ensureIndex({name: 1}, {unique: true})" # this does not work!!!
 mongo $DB --eval "db.property.ensureIndex({name: 1}, {unique: true})"
 
 for coll in ${collections[@]}

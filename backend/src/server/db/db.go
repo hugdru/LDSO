@@ -33,8 +33,6 @@ func Insert(c *mgo.Collection, args ...interface{}) {
 }
 
 func FindOne(c *mgo.Collection, arg interface{}, tag, value string) {
-	log.Println(tag)
-	log.Println(value)
 	err := c.Find(bson.M{tag: value}).One(arg)
 	if err != nil {
 		log.Panic(err)
@@ -50,6 +48,24 @@ func Find(c *mgo.Collection, arg interface{}, tag, value string) {
 
 func FindAll(c *mgo.Collection, arg interface{}) {
 	err := c.Find(bson.M{}).Iter().All(arg)
+	if err != nil {
+		log.Panic(err)
+	}
+}
+
+func Update(c *mgo.Collection, parent interface{}, tag string, child interface{}) {
+	change := bson.M{"$set": bson.M{tag: child}}
+	err := c.Update(parent, change)
+	if err != nil {
+		log.Panic(err)
+	}
+}
+
+func Add(c *mgo.Collection, parent interface{}, tag string, child interface{}) {
+	// TODO find a way to use $push instead of $addToSet, by enforcing subgroup uniqueness in the DB
+	// change := bson.M{"$push": bson.M{tag: child}}
+	change := bson.M{"$addToSet": bson.M{tag: child}}
+	err := c.Update(parent, change)
 	if err != nil {
 		log.Panic(err)
 	}

@@ -62,12 +62,12 @@
 	]
 }
 {
-	"name": "Percusso Exterior",
+	"name": "Percurso Exterior",
 	"weight": 20,
 	"sub_groups": []
 }
 {
-	"name": "Percusso Interior",
+	"name": "Percurso Interior",
 	"weight": 20,
 	"sub_groups": []
 }

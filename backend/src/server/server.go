@@ -35,6 +35,7 @@ func main() {
 	http.HandleFunc("/getAllGroups", conn.GetAllGroups(coll["main_group"]))
 	http.HandleFunc("/getGroup", conn.GetGroup(coll["main_group"]))
 	http.HandleFunc("/setGroup", conn.SetGroup(coll["main_group"]))
+	http.HandleFunc("/setSubGroup", conn.SetSubGroup(coll["main_group"]))
 	http.HandleFunc("/property", conn.GetHandlerProperty(coll["property"]))
 
 	http.ListenAndServe(":8080", nil)

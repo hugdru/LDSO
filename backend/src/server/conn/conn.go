@@ -51,8 +51,6 @@ func GetAllGroups(coll *mgo.Collection) http.HandlerFunc {
 	return func (w http.ResponseWriter, r *http.Request) {
 		groups := []data.Main_Group{}
 
-//		allowOrigin(w, r)
-
 		db.FindAll(coll, &groups)
 
 		giveAccess(w, "GET, POST")
@@ -72,9 +70,8 @@ type name_query struct {
 func GetGroup(coll *mgo.Collection) http.HandlerFunc {
 	return func (w http.ResponseWriter, r *http.Request) {
 		group := data.Main_Group{}
-		name := name_query{}
 
-//		allowOrigin(w, r)
+/*		name := name_query{}
 
 		decoder := json.NewDecoder(r.Body)
 
@@ -84,16 +81,15 @@ func GetGroup(coll *mgo.Collection) http.HandlerFunc {
 		if err != nil {
 			log.Panic(err)
 		}
+*/
 
+		name:= r.FormValue("name")
 
-		log.Println(r)
-		log.Println(name.Name)
-
-		db.FindOne(coll, &group, "name", name.Name)
+		db.FindOne(coll, &group, "name", name)
 
 		giveAccess(w, "GET, POST")
 
-		err = json.NewEncoder(w).Encode(group);
+		err := json.NewEncoder(w).Encode(group);
 		if err != nil {
 			log.Println(err)
 		}
@@ -103,7 +99,7 @@ func GetGroup(coll *mgo.Collection) http.HandlerFunc {
 
 func SetGroup(coll *mgo.Collection) http.HandlerFunc {
 	return func (w http.ResponseWriter, r *http.Request) {
-		var group data.Main_Group
+		group := data.Main_Group{}
 		decoder := json.NewDecoder(r.Body)
 
 		defer r.Body.Close()
@@ -121,17 +117,26 @@ func SetGroup(coll *mgo.Collection) http.HandlerFunc {
 
 func SetSubGroup(coll *mgo.Collection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var subgroup data.Sub_Group
-		var group data.Main_Group
+		sub_group := data.Sub_Group{}
+
 		decoder := json.NewDecoder(r.Body)
 
 		defer r.Body.Close()
 
-		err := decoder.Decode(&subgroup)
+		err := decoder.Decode(&sub_group)
 		if err != nil {
 			log.Panic(err)
 		}
 
+		group := data.Main_Group{}
+
+		name:= r.FormValue("name")
+
+		db.FindOne(coll, &group, "name", name)
+
+		db.Add(coll, &group, "sub_groups", &sub_group)
+
+		db.FindOne(coll, &group, "name", name)
 		log.Println(group)
 	}
 }
