@@ -78,6 +78,9 @@
 	}
 }
 
+.navbar.navbar-default.sidebar.col-sm-4.col-md-3 {
+  padding-right: 0px;
+}
 nav.sidebar .navbar-nav .open .dropdown-menu>li>a:hover, nav.sidebar
 		.navbar-nav .open .dropdown-menu>li>a:focus {
 	color: #CCC;

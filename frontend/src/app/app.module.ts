@@ -10,6 +10,7 @@ import { FootbarComponent } from './footbar/footbar.component';
 import { CenterComponent } from './center/center.component';
 import { AuditComponent } from './audit/audit.component';
 import { EditEvaluationComponent } from './audit/edit-evaluation.component';
+import { CriterionComponent } from './criterion/criterion.component';
 
 @NgModule({
 	declarations: [
@@ -19,7 +20,8 @@ import { EditEvaluationComponent } from './audit/edit-evaluation.component';
 		FootbarComponent,
 		CenterComponent,
 		AuditComponent,
-		EditEvaluationComponent
+		EditEvaluationComponent,
+		CriterionComponent
 	],
 	imports: [
 		BrowserModule,

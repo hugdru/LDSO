@@ -1,0 +1,22 @@
+form{
+  width: 100%;
+}
+
+.col-form-label{
+  min-width: 120px;
+  text-align: left;
+}
+
+.row1{
+  margin-left: 20%;
+  display: inline-block;
+}
+
+.row2{
+  margin-left: 20%;
+  display: inline-block;
+}
+
+.submit{
+  float: right;
+}
