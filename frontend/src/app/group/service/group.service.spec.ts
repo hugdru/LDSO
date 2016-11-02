@@ -1,37 +1,53 @@
 import {
-	Http,
-	BaseRequestOptions,
-	Response,
-	ResponseOptions,
-	RequestMethod
+	TestBed,
+	getTestBed,
+	async,
+	inject
+} from '@angular/core/testing';
+import {
+	Headers, BaseRequestOptions,
+	Response, HttpModule, Http, XHRBackend, RequestMethod
 } from '@angular/http';
-import { MockBackend, MockConnection } from '@angular/http/testing';
-import { inject } from '@angular/core/testing';
 
+import { ResponseOptions } from '@angular/http';
+import { MockBackend, MockConnection } from '@angular/http/testing';
 import { GroupService } from 'group/service/group.service';
 
-describe('GroupServiceTest', () => {
-	let service: GroupService = null;
-	let backend: MockBackend = null;
+describe('Group Service', () => {
+	let mockBackend: MockBackend;
 
-	beforeEach(inject([GroupService, MockBackend],
-			(groupService: GroupService, mockBackend: MockBackend) => {
-		service = groupService;
-		backend = mockBackend;
+	beforeEach(async(() => {
+		TestBed.configureTestingModule({
+			providers: [
+				GroupService,
+				MockBackend,
+				BaseRequestOptions,
+				{
+					provide: Http,
+					deps: [MockBackend, BaseRequestOptions],
+					useFactory: (backend: XHRBackend,
+								 defaultOptions: BaseRequestOptions) => {
+						return new Http(backend, defaultOptions);
+					},
+				}
+			],
+			imports: [ HttpModule ]
+		});
+
+		TestBed.compileComponents();
+		mockBackend = getTestBed().get(MockBackend);
 	}));
 
-	it('#getGroups', (done) => {
-		let fake: Object[] = [{_id: 1, name: "Casa", weight: 30, sub_groups: null}];
-		backend.connections.subscribe((connection: MockConnection) => {
-			let options = new ResponseOptions({
-				body: JSON.stringify(fake)
-			});
-		connection.mockRespond(new Response(options));
+	it('should get blogs', async(() => {
+		let fake = [{ _id: 26, name: "ana", weight: 30, sub_groups: null}];
+		let groupService: GroupService = getTestBed().get(GroupService);
+		mockBackend.connections.subscribe((connection: MockConnection) => {
+			connection.mockRespond(new Response(new ResponseOptions({
+				body: fake
+			})));
 		});
-
-		service.getGroups().subscribe((response) => {
-			expect(response).toEqual(fake);
-			done();
+		groupService.getGroups().subscribe((data) => {
+			expect(data).toBe(fake);
 		});
-	});
+	}));
 });
