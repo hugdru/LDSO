@@ -1,4 +1,4 @@
-import { SubGroup } from './sub-group/sub-group';
+import { SubGroup } from 'sub-group/sub-group';
 
 export class Group {
 	name: string;

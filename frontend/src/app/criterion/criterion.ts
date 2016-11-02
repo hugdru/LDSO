@@ -1,4 +1,4 @@
-import { Accessibility } from './accessibility/accessibility';
+import { Accessibility } from 'accessibility/accessibility';
 
 export class Criterion {
 	name: string;
