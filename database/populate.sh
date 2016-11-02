@@ -3,7 +3,7 @@
 cd "${0%/*}"
 
 DB=Places4All
-collections=(main_group property)
+collections=(main_group sub_group criterion accessibility property)
 
 mongo $DB --eval "db.dropDatabase()"
 

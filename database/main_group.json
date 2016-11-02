@@ -1,78 +1,20 @@
 {
+	"_id": 1,
 	"name": "Acessos",
-	"weight": 40,
-	"sub_groups": [
-		{
-			"name": "Transportes publicos",
-			"weight": 60,
-			"criteria": [
-				{
-					"name": "Autocarros",
-					"weight": 10,
-					"accessibilities": [
-						{
-							"name": "fisica",
-							"weight": 25
-						},
-						{
-							"name": "auditiva",
-							"weight": 25
-						},
-						{
-							"name": "visual",
-							"weight": 25
-						},
-						{
-							"name": "cognitiva",
-							"weight": 25
-						}
-					],
-					"legislation": ""
-				},
-				{
-					"name": "Metro",
-					"weight": 90,
-					"accessibilities": [
-						{
-							"name": "fisica",
-							"weight": 25
-						},
-						{
-							"name": "auditiva",
-							"weight": 25
-						},
-						{
-							"name": "visual",
-							"weight": 25
-						},
-						{
-							"name": "cognitiva",
-							"weight": 25
-						}
-					],
-					"legislation": "Decreto de lei xpto"
-				}
-			]
-		},
-		{
-			"name": "Estacionamento",
-			"weight": 40,
-			"criteria": []
-		}
-	]
+	"weight": 40
 }
 {
+	"_id": 2,
 	"name": "Percurso Exterior",
-	"weight": 20,
-	"sub_groups": []
+	"weight": 20
 }
 {
+	"_id": 3,
 	"name": "Percurso Interior",
-	"weight": 20,
-	"sub_groups": []
+	"weight": 20
 }
 {
+	"_id": 4,
 	"name": "Bens e Serviços",
-	"weight": 20,
-	"sub_groups": []
+	"weight": 20
 }

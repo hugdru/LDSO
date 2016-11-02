@@ -1,0 +1,55 @@
+{
+  "_id": 1,
+  "name": "fisica",
+  "weight": 25,
+  "criterion": 1
+}
+{
+  "_id": 2,
+  "name": "auditiva",
+  "weight": 25,
+  "criterion": 1
+
+}
+{
+  "_id": 3,
+  "name": "visual",
+  "weight": 25,
+  "criterion": 1
+
+}
+{
+  "_id": 4,
+  "name": "cognitiva",
+  "weight": 25,
+  "criterion": 1
+
+}
+{
+  "_id": 5,
+  "name": "fisica",
+  "weight": 40,
+  "criterion": 2
+
+}
+{
+  "_id": 6,
+  "name": "auditiva",
+  "weight": 40,
+  "criterion": 2
+
+}
+{
+  "_id": 7,
+  "name": "visual",
+  "weight": 10,
+  "criterion": 2
+
+}
+{
+  "_id": 8,
+  "name": "cognitiva",
+  "weight": 10,
+  "criterion": 2
+
+}

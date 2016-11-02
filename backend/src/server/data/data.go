@@ -1,27 +1,31 @@
 package data
 
 type Main_Group struct {
+	Id uint `json:"_id" bson:"_id,omitempty"`
 	Name string `json:"name"`
 	Weight uint `json:"weight"`
-	Sub_Groups []Sub_Group `json:"sub_groups"`
 }
 
 type Sub_Group struct {
+	Id uint `json:"_id" bson:"_id,omitempty"`
 	Name string `json:"name"`
 	Weight uint `json:"weight"`
-	Criteria []Criterion `json:"criteria"`
+	Main_Group uint `json:"main_group"`
 }
 
 type Criterion struct {
+	Id uint `json:"_id" bson:"_id,omitempty"`
 	Name string `json:"name"`
 	Weight uint `json:"weight"`
-	Accessibilities []Accessibility `json:"accessibilities"`
 	Legislation string `json:"legislation"`
+	Sub_Group uint `json:"sub_group"`
 }
 
 type Accessibility struct {
+	Id uint `json:"_id" bson:"_id,omitempty"`
 	Name string `json:"name"`
 	Weight uint `json:"weight"`
+	Criterion uint `json:"criterion"`
 }
 
 type Owner struct {
@@ -44,26 +48,4 @@ type Audit struct {
 	Property Property `json:"property"`
 	Notes []Note `json:"notes"`
 	Value uint `json:"value"`
-}
-
-func (this *Sub_Group) SetCriteria(subs ...Criterion) {
-	this.Criteria = nil
-	for _, sub := range subs {
-		this.Criteria = append(this.Criteria, sub)
-	}
-}
-
-func (this *Sub_Group) AppendCriteria(sub Criterion) {
-	this.Criteria = append(this.Criteria, sub)
-}
-
-func (this *Main_Group) SetSubs(subs ...Sub_Group) {
-	this.Sub_Groups = nil
-	for _, sub := range subs {
-		this.Sub_Groups = append(this.Sub_Groups, sub)
-	}
-}
-
-func (this *Main_Group) AppendSub(sub Sub_Group) {
-	this.Sub_Groups = append(this.Sub_Groups, sub)
 }
