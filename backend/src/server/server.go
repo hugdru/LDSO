@@ -12,28 +12,14 @@ func main() {
 	var coll map[string]*mgo.Collection
 	coll = make(map[string]*mgo.Collection)
 
-	// TODO: Find a better way to make the index unique on first run. DONE?
-	// Should be done in a json not on go.
-
-//	first_run := false
-
 	session := db.StartConn("localhost:27017")
 	defer db.CloseConn(session)
-
-//	if !db.ExistsCollections(session, "Places4All") {
-//		first_run = true
-//	}
 
 	coll["main_group"] = db.GetCollection(session, "Places4All", "main_group")
 	coll["sub_group"] = db.GetCollection(session, "Places4All", "sub_group")
 	coll["criterion"] = db.GetCollection(session, "Places4All", "criterion")
 	coll["accessibility"] = db.GetCollection(session, "Places4All", "accessibility")
 	coll["property"] = db.GetCollection(session, "Places4All", "property")
-
-//	if first_run == true {
-//		db.EnsureUnique(coll["main_group"], "name")
-//		db.EnsureUnique(coll["property"], "name")
-//	}
 
 	http.HandleFunc("/getAllMainGroups", conn.GetAll(coll["main_group"]))
 	http.HandleFunc("/getMainGroups", conn.Get(coll["main_group"]))

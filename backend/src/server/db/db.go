@@ -60,33 +60,3 @@ func Update(c *mgo.Collection, document interface{}, tag string, value interface
 		log.Panic(err)
 	}
 }
-
-func Add(c *mgo.Collection, parent interface{}, tag string, child interface{}) {
-	// TODO find a way to use $push instead of $addToSet, by enforcing subgroup uniqueness in the DB
-	// change := bson.M{"$push": bson.M{tag: child}}
-	change := bson.M{"$addToSet": bson.M{tag: child}}
-	err := c.Update(parent, change)
-	if err != nil {
-		log.Panic(err)
-	}
-}
-
-func EnsureUnique(c *mgo.Collection, tag string) {
-	index := mgo.Index{
-		Key: []string{tag},
-		Unique: true,
-	}
-
-	err := c.EnsureIndex(index)
-	if err != nil {
-		log.Print(err)
-	}
-}
-
-func ExistsCollections(session *mgo.Session, name string) bool {
-	names, err := session.DB(name).CollectionNames()
-	if err != nil {
-		log.Panic(err)
-	}
-	return len(names) != 0
-}
