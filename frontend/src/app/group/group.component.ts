@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
 
-@Component({
-	selector: 'group-p4a',
-	templateUrl: 'html/group.component.html',
-	styleUrls: [ 'group.component.css' ]
-})
-
 import { Group } from 'group/group';
 import { GroupService } from 'group/service/group.service';
+
+@Component({
+	selector: 'group-p4a',
+	templateUrl: 'html/group.component.html'
+	// styleUrls: [ 'group.component.css' ]
+})
 
 export class GroupComponent {
 	groups: Group[];

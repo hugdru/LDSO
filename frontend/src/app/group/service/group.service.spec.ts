@@ -6,19 +6,34 @@ import {
 	RequestMethod
 } from '@angular/http';
 import { MockBackend, MockConnection } from '@angular/http/testing';
-import { inject } from '@angular/core/testing';
+
+import { inject, TestBed } from '@angular/core/testing';
 
 import { GroupService } from 'group/service/group.service';
+import { GroupComponent } from 'group/group.component';
 
 describe('GroupServiceTest', () => {
 	let service: GroupService = null;
 	let backend: MockBackend = null;
 
-	beforeEach(inject([GroupService, MockBackend],
-			(groupService: GroupService, mockBackend: MockBackend) => {
-		service = groupService;
-		backend = mockBackend;
-	}));
+	beforeEach(
+		TestBed.configureTestingModule({
+		declarations: [
+			GroupComponent
+		],
+		imports: [
+		  // HttpModule, etc.
+		],
+		providers: [
+		  // { provide: ServiceA, useClass: TestServiceA }
+		]
+	  });	
+	);
+		// inject([GroupService, MockBackend],
+		// 	(groupService: GroupService, mockBackend: MockBackend) => {
+		// service = groupService;
+		// backend = mockBackend;
+	// }));
 
 	it('#getGroups', (done) => {
 		let fake: Object[] = [{_id: 1, name: "Casa", weight: 30, sub_groups: null}];
