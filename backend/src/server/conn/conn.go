@@ -63,6 +63,21 @@ func GetDocument(coll_name string) interface{} {
 	return document
 }
 
+func GetValue(r *http.Request) interface {} {
+	value_type := r.FormValue("type")
+	var value interface{}
+	var err error
+	if value_type == "int" {
+		value, err = strconv.ParseInt(r.FormValue("value"), 10, 64)
+		if err != nil {
+			log.Panic(err)
+		}
+	} else {
+		value = r.FormValue("value")
+	}
+	return value
+}
+
 func GetAll(coll *mgo.Collection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var document interface{}
@@ -95,17 +110,7 @@ func GetAll(coll *mgo.Collection) http.HandlerFunc {
 func Get(coll *mgo.Collection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		tag := r.FormValue("tag")
-		value_type := r.FormValue("type")
-		var value interface{}
-		var err error
-		if value_type == "int" {
-			value, err = strconv.ParseInt(r.FormValue("value"), 10, 64)
-			if err != nil {
-				log.Panic(err)
-			}
-		} else {
-			value = r.FormValue("value")
-		}
+		value := GetValue(r)
 		var document interface{}
 		switch coll.Name {
 		case "main_group":
@@ -126,7 +131,7 @@ func Get(coll *mgo.Collection) http.HandlerFunc {
 			document = accessibilities
 		}
 		giveAccess(w, "GET, POST")
-		err = json.NewEncoder(w).Encode(document);
+		err := json.NewEncoder(w).Encode(document);
 		if err != nil {
 			log.Panic(err)
 		}
@@ -137,20 +142,10 @@ func GetOne(coll *mgo.Collection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		document := GetDocument(coll.Name)
 		tag := r.FormValue("tag")
-		value_type := r.FormValue("type")
-		var value interface{}
-		var err error
-		if value_type == "int" {
-			value, err = strconv.ParseInt(r.FormValue("value"), 10, 64)
-			if err != nil {
-				log.Panic(err)
-			}
-		} else {
-			value = r.FormValue("value")
-		}
+		value := GetValue(r)
 		db.FindOne(coll, &document, tag, value)
 		giveAccess(w, "GET, POST")
-		err = json.NewEncoder(w).Encode(document);
+		err := json.NewEncoder(w).Encode(document);
 		if err != nil {
 			log.Panic(err)
 		}
@@ -178,16 +173,7 @@ func Update(coll *mgo.Collection) http.HandlerFunc {
 		}
 		db.FindOne(coll, &document, "_id", id)
 		tag := r.FormValue("tag")
-		value_type := r.FormValue("type")
-		var value interface{}
-		if value_type == "int" {
-			value, err = strconv.ParseInt(r.FormValue("value"), 10, 64)
-			if err != nil {
-				log.Panic(err)
-			}
-		} else {
-			value = r.FormValue("value")
-		}
+		value := GetValue(r)
 		db.Update(coll, document, tag, value)
 	}
 }
