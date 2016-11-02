@@ -12,6 +12,9 @@ import { AuditComponent } from './audit/audit.component';
 import { EditEvaluationComponent } from './audit/edit-evaluation.component';
 import { CriterionComponent } from './criterion/criterion.component';
 
+import { routing } from './app.routs';
+
+
 @NgModule({
 	declarations: [
 		AppComponent,
@@ -26,7 +29,8 @@ import { CriterionComponent } from './criterion/criterion.component';
 	imports: [
 		BrowserModule,
 		FormsModule,
-		HttpModule
+		HttpModule,
+    routing
 	],
 	providers: [],
 	bootstrap: [AppComponent]

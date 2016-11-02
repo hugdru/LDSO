@@ -1,5 +1,6 @@
 import { Component, OnInit}  from '@angular/core';
 
+
 @Component({
   selector: 'p4a-sidebar',
   templateUrl: './sidebar.component.html',
