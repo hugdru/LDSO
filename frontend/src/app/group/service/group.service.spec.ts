@@ -1,52 +1,54 @@
 import {
-	Http,
-	BaseRequestOptions,
-	Response,
-	ResponseOptions,
-	RequestMethod
+	TestBed,
+	getTestBed,
+	async,
+	inject
+} from '@angular/core/testing';
+import {
+	Headers, BaseRequestOptions,
+	Response, HttpModule, Http, XHRBackend, RequestMethod
 } from '@angular/http';
+
+import { ResponseOptions } from '@angular/http';
 import { MockBackend, MockConnection } from '@angular/http/testing';
-
-import { inject, TestBed } from '@angular/core/testing';
-
 import { GroupService } from 'group/service/group.service';
 import { GroupComponent } from 'group/group.component';
 
-describe('GroupServiceTest', () => {
-	let service: GroupService = null;
-	let backend: MockBackend = null;
+describe('Group Service', () => {
+	let mockBackend: MockBackend;
 
-	beforeEach(
+	beforeEach(async(() => {
 		TestBed.configureTestingModule({
-		declarations: [
-			GroupComponent
-		],
-		imports: [
-		  // HttpModule, etc.
-		],
-		providers: [
-		  // { provide: ServiceA, useClass: TestServiceA }
-		]
-	  });	
-	);
-		// inject([GroupService, MockBackend],
-		// 	(groupService: GroupService, mockBackend: MockBackend) => {
-		// service = groupService;
-		// backend = mockBackend;
-	// }));
-
-	it('#getGroups', (done) => {
-		let fake: Object[] = [{_id: 1, name: "Casa", weight: 30, sub_groups: null}];
-		backend.connections.subscribe((connection: MockConnection) => {
-			let options = new ResponseOptions({
-				body: JSON.stringify(fake)
-			});
-		connection.mockRespond(new Response(options));
+			providers: [
+				GroupService,
+				MockBackend,
+				BaseRequestOptions,
+				{
+					provide: Http,
+					deps: [MockBackend, BaseRequestOptions],
+					useFactory: (backend: XHRBackend,
+								 defaultOptions: BaseRequestOptions) => {
+						return new Http(backend, defaultOptions);
+					},
+				}
+			],
+			imports: [ HttpModule ]
 		});
 
-		service.getGroups().subscribe((response) => {
-			expect(response).toEqual(fake);
-			done();
+		TestBed.compileComponents();
+		mockBackend = getTestBed().get(MockBackend);
+	}));
+
+	it('should get blogs', async(() => {
+		let fake = [{ _id: 26, name: "ana", weight: 30, sub_groups: null}];
+		let groupService: GroupService = getTestBed().get(GroupService);
+		mockBackend.connections.subscribe((connection: MockConnection) => {
+			connection.mockRespond(new Response(new ResponseOptions({
+				body: fake
+			})));
 		});
-	});
+		groupService.getGroups().subscribe((data) => {
+			expect(data).toBe(fake);
+		});
+	}));
 });
