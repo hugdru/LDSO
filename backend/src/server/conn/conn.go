@@ -58,10 +58,20 @@ func GetAll(document interface{}) http.HandlerFunc {
 	}
 }
 
-func GetOne(coll *mgo.Collection, document interface{}, tag string) http.HandlerFunc {
+func GetOne(coll *mgo.Collection, document interface{}) http.HandlerFunc {
 	return func (w http.ResponseWriter, r *http.Request) {
-		value := r.FormValue(tag)
-		db.FindOne(coll, &document, tag, value)
+		tag := r.FormValue("tag")
+		value_type := r.FormValue("type")
+		if value_type == "int" {
+			value, err := strconv.ParseInt(r.FormValue("value"), 10, 64)
+			if err != nil {
+				log.Panic(err)
+			}
+			db.FindOne(coll, &document, tag, value)
+		} else {
+			value := r.FormValue("value")
+			db.FindOne(coll, &document, tag, value)
+		}
 		giveAccess(w, "GET, POST")
 		err := json.NewEncoder(w).Encode(document);
 		if err != nil {
@@ -88,10 +98,19 @@ func Update(coll *mgo.Collection, document interface{}) http.HandlerFunc {
 		if err != nil {
 			log.Panic(err)
 		}
-		tag := r.FormValue("tag")
-		value := r.FormValue("value")
 		db.FindOne(coll, &document, "_id", id)
-		db.Update(coll, document, tag, value)
+		tag := r.FormValue("tag")
+		value_type := r.FormValue("type")
+		if value_type == "int" {
+			value, err := strconv.ParseInt(r.FormValue("value"), 10, 64)
+			if err != nil {
+				log.Panic(err)
+			}
+			db.Update(coll, document, tag, value)
+		} else {
+			value := r.FormValue("value")
+			db.Update(coll, document, tag, value)
+		}
 	}
 }
 
@@ -103,7 +122,7 @@ func GetAllMainGroups(coll *mgo.Collection) http.HandlerFunc {
 
 func GetMainGroup(coll *mgo.Collection) http.HandlerFunc {
 	main_group := data.Main_Group{}
-	return GetOne(coll, main_group, "name")
+	return GetOne(coll, main_group)
 }
 
 func SetMainGroup(coll *mgo.Collection) http.HandlerFunc {
@@ -124,7 +143,7 @@ func GetAllSubGroups(coll *mgo.Collection) http.HandlerFunc {
 
 func GetSubGroup(coll *mgo.Collection) http.HandlerFunc {
 	sub_group := data.Sub_Group{}
-	return GetOne(coll, sub_group, "name")
+	return GetOne(coll, sub_group)
 }
 
 func SetSubGroup(coll *mgo.Collection) http.HandlerFunc {
@@ -145,7 +164,7 @@ func GetAllCriteria(coll *mgo.Collection) http.HandlerFunc {
 
 func GetCriterion(coll *mgo.Collection) http.HandlerFunc {
 	criterion := data.Criterion{}
-	return GetOne(coll, criterion, "name")
+	return GetOne(coll, criterion)
 }
 
 func SetCriterion(coll *mgo.Collection) http.HandlerFunc {
@@ -166,7 +185,7 @@ func GetAllAccessibilities(coll *mgo.Collection) http.HandlerFunc {
 
 func GetAccessibility(coll *mgo.Collection) http.HandlerFunc {
 	accessibility := data.Accessibility{}
-	return GetOne(coll, accessibility, "name")
+	return GetOne(coll, accessibility)
 }
 
 func SetAccessibility(coll *mgo.Collection) http.HandlerFunc {

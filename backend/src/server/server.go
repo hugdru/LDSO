@@ -42,7 +42,7 @@ func main() {
 	http.HandleFunc("/getAllSubGroups", conn.GetAllSubGroups(coll["sub_group"]))
 	http.HandleFunc("/getSubGroup", conn.GetSubGroup(coll["sub_group"]))
 	http.HandleFunc("/setSubGroup", conn.SetSubGroup(coll["sub_group"]))
-	http.HandleFunc("/updateSubGroup", conn.UpdateSubGroup(coll["main_group"]))
+	http.HandleFunc("/updateSubGroup", conn.UpdateSubGroup(coll["sub_group"]))
 	http.HandleFunc("/getAllCriteria", conn.GetAllCriteria(coll["criterion"]))
 	http.HandleFunc("/getCriterion", conn.GetCriterion(coll["criterion"]))
 	http.HandleFunc("/setCriterion", conn.SetCriterion(coll["criterion"]))
