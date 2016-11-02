@@ -7,3 +7,4 @@ tags
 backend/go.sh
 backend/mongo.sh
 frontend/angular.sh
+**/karma.conf.js
