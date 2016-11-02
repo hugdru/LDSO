@@ -1,5 +1,5 @@
 export class Accessibility {
-	id: number;
+	_id: number;
 	name: string;
 	weight: number;
 }

@@ -1,25 +1,37 @@
-import { GroupService } from './group.service';
+import {
+	Http,
+	BaseRequestOptions,
+	Response,
+	ResponseOptions,
+	RequestMethod
+} from '@angular/http';
+import { MockBackend, MockConnection } from '@angular/http/testing';
+import { inject } from '@angular/core/testing';
 
-describe('GroupService without the TestBed', () => {
-	let service: GroupService;
+import { GroupService } from 'group/service/group.service';
 
+describe('GroupServiceTest', () => {
+	let service: GroupService = null;
+	let backend: MockBackend = null;
 
-	it('#getGroups should return faked value from a fake object', () => {
-		const fake =  {
-			getGroups: () => [{name: "jose", weight: 30, sub_groups: null}]
-		};
-		service = new GroupService(fake as GroupService);
-		expect(service.getValue())
-				.toBe([{name: "jose", weight: 30, sub_groups: null}]);
+	beforeEach(inject([GroupService, MockBackend],
+			(groupService: GroupService, mockBackend: MockBackend) => {
+		service = groupService;
+		backend = mockBackend;
+	}));
+
+	it('#getGroups', (done) => {
+		let fake: Object[] = [{_id: 1, name: "Casa", weight: 30, sub_groups: null}];
+		backend.connections.subscribe((connection: MockConnection) => {
+			let options = new ResponseOptions({
+				body: JSON.stringify(fake)
+			});
+		connection.mockRespond(new Response(options));
+		});
+
+		service.getGroups().subscribe((response) => {
+			expect(response).toEqual(fake);
+			done();
+		});
 	});
-
-	  // it('#getValue should return stubbed value from a FancyService spy', () => {
-		// const fancy = new FancyService();
-		// const stubValue = 'stub value';
-		// const spy = spyOn(fancy, 'getValue').and.returnValue(stubValue);
-		// service = new DependentService(fancy);
-		// expect(service.getValue()).toBe(stubValue, 'service returned stub value');
-		// expect(spy.calls.count()).toBe(1, 'stubbed method was called once');
-		// expect(spy.calls.mostRecent().returnValue).toBe(stubValue);
-	  // });
 });

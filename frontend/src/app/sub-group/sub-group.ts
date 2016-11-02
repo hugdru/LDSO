@@ -1,7 +1,7 @@
 import { Criterion } from 'criterion/criterion';
 
 export class SubGroup {
-	id: number;
+	_id: number;
 	name: string;
 	weight: number;
 	criteria: Criterion[];
