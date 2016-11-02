@@ -1,9 +1,11 @@
 import {Routes, RouterModule} from '@angular/router';
 
-import {CriterionComponent} from './criterion/criterion.component';
+import {Main_groupComponent} from './main_group/main_group.component';
+import {SubGroupComponent} from './main_group/sub-group/sub-group.component';
 
 const APP_ROUTES: Routes =[
-  {path: 'criterion',component: CriterionComponent}
+  {path: 'main_group',component: Main_groupComponent},
+  {path: 'sub_group/:id',component: SubGroupComponent}
 ];
 
 export const routing = RouterModule.forRoot(APP_ROUTES);

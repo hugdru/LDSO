@@ -1,4 +1,4 @@
-import { Criterion } from './criterion/criterion';
+import { Criterion } from './main_group/main_group';
 
 export class SubGroup {
 	name: string;

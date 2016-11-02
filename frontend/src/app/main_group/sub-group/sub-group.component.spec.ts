@@ -3,21 +3,21 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 
-import { CriterionComponent } from './criterion.component';
+import { SubGroupComponent } from './sub-group.component';
 
-describe('CriterionComponent', () => {
-  let component: CriterionComponent;
-  let fixture: ComponentFixture<CriterionComponent>;
+describe('SubGroupComponent', () => {
+  let component: SubGroupComponent;
+  let fixture: ComponentFixture<SubGroupComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ CriterionComponent ]
+      declarations: [ SubGroupComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(CriterionComponent);
+    fixture = TestBed.createComponent(SubGroupComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
