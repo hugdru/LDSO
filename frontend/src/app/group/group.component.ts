@@ -6,8 +6,8 @@ import { Component } from '@angular/core';
 	styleUrls: [ 'group.component.css' ]
 })
 
-import { Group } from './group';
-import { GroupService } from './service/group.service';
+import { Group } from 'group/group';
+import { GroupService } from 'group/service/group.service';
 
 export class GroupComponent {
 	groups: Group[];

@@ -4,8 +4,8 @@ import { Observable } from 'rxjs/Observable';
 
 import 'rxjs/add/operator/map';
 
-import { SharedData } from './app/shared/shared-data';
-import { Group } from './group';
+import { getGroupUrl, setGroupUrl } from 'shared/shared-data';
+import { Group } from 'group/group';
 
 @Injectable()
 export class GroupService {
@@ -14,19 +14,19 @@ export class GroupService {
 	constructor(private http: Http) {}
 
 	getGroups(): Observable<Group[]> {
-		return this.http.post(SharedData.groupUrl)
+		return this.http.get(getGroupUrl)
 				.map((result: Response) => result.json())
 				.map((data: any) => {
-					let result: []Group = null;
+					let result: Group[] = null;
 					if(data) {
-						this.group = data;
+						result = data;
 					}
-					return this.groups;
+					return result;
 				});
 	}
 
 	setGroup(group: Group): void {
-		this.http.post(SharedData.setGroupUrl, JSON.stringify(group))
+		this.http.post(setGroupUrl, JSON.stringify(group))
 				.map(res => res.json()).subscribe();
 	}
 }
