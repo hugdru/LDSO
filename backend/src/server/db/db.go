@@ -32,14 +32,14 @@ func Insert(c *mgo.Collection, args ...interface{}) {
 	}
 }
 
-func FindOne(c *mgo.Collection, arg interface{}, tag, value string) {
+func FindOne(c *mgo.Collection, arg interface{}, tag string, value interface{}) {
 	err := c.Find(bson.M{tag: value}).One(arg)
 	if err != nil {
 		log.Panic(err)
 	}
 }
 
-func Find(c *mgo.Collection, arg interface{}, tag, value string) {
+func Find(c *mgo.Collection, arg interface{}, tag string, value interface{}) {
 	err := c.Find(bson.M{tag: value}).Iter().All(arg)
 	if err != nil {
 		log.Panic(err)
@@ -53,8 +53,8 @@ func FindAll(c *mgo.Collection, arg interface{}) {
 	}
 }
 
-func Update(c *mgo.Collection, parent interface{}, tag string, child interface{}) {
-	change := bson.M{"$set": bson.M{tag: child}}
+func Update(c *mgo.Collection, parent interface{}, tag string, value interface{}) {
+	change := bson.M{"$set": bson.M{tag: value}}
 	err := c.Update(parent, change)
 	if err != nil {
 		log.Panic(err)
