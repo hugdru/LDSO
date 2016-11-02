@@ -14,7 +14,7 @@ import (
 func giveAccess(w http.ResponseWriter, methods string) {
 	w.Header().Set("Access-Control-Allow-Methods", methods)
 	w.Header().Set("Access-Control-Allow-Headers",
-			"Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token")
+		"Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token")
 }
 
 func allowOrigin(w http.ResponseWriter, r *http.Request) {
@@ -25,7 +25,7 @@ func allowOrigin(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetHandlerProperty(coll *mgo.Collection) http.HandlerFunc {
-	return func (w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
 		arg := data.Property{}
 
 		allowOrigin(w, r)
@@ -48,40 +48,117 @@ func GetHandlerProperty(coll *mgo.Collection) http.HandlerFunc {
 	}
 }
 
-func GetAll(document interface{}) http.HandlerFunc {
-	return func (w http.ResponseWriter, r *http.Request) {
+func GetDocument(coll_name string) interface{} {
+	var document interface{}
+	switch coll_name {
+	case "main_group":
+		document = data.Main_Group{}
+	case "sub_group":
+		document = data.Sub_Group{}
+	case "criterion":
+		document = data.Criterion{}
+	case "accessibility":
+		document = data.Accessibility{}
+	}
+	return document
+}
+
+func GetAll(coll *mgo.Collection) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var document interface{}
+		switch coll.Name {
+		case "main_group":
+			main_group := []data.Main_Group{}
+			db.FindAll(coll, &main_group)
+			document = main_group
+		case "sub_group":
+			sub_group := []data.Sub_Group{}
+			db.FindAll(coll, &sub_group)
+			document = sub_group
+		case "criterion":
+			criterion := []data.Criterion{}
+			db.FindAll(coll, &criterion)
+			document = criterion
+		case "accessibility":
+			accessibility := []data.Accessibility{}
+			db.FindAll(coll, &accessibility)
+			document = accessibility
+		}
 		giveAccess(w, "GET, POST")
 		err := json.NewEncoder(w).Encode(document);
 		if err != nil {
-			log.Println(err)
+			log.Panic(err)
 		}
 	}
 }
 
-func GetOne(coll *mgo.Collection, document interface{}) http.HandlerFunc {
-	return func (w http.ResponseWriter, r *http.Request) {
+func Get(coll *mgo.Collection) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 		tag := r.FormValue("tag")
 		value_type := r.FormValue("type")
+		var value interface{}
+		var err error
 		if value_type == "int" {
-			value, err := strconv.ParseInt(r.FormValue("value"), 10, 64)
+			value, err = strconv.ParseInt(r.FormValue("value"), 10, 64)
 			if err != nil {
 				log.Panic(err)
 			}
-			db.FindOne(coll, &document, tag, value)
 		} else {
-			value := r.FormValue("value")
-			db.FindOne(coll, &document, tag, value)
+			value = r.FormValue("value")
+		}
+		var document interface{}
+		switch coll.Name {
+		case "main_group":
+			main_groups := []data.Main_Group{}
+			db.Find(coll, &main_groups, tag, value)
+			document = main_groups
+		case "sub_group":
+			sub_groups := []data.Sub_Group{}
+			db.Find(coll, &sub_groups, tag, value)
+			document = sub_groups
+		case "criterion":
+			criteria := []data.Criterion{}
+			db.Find(coll, &criteria, tag, value)
+			document = criteria
+		case "accessibility":
+			accessibilities := []data.Accessibility{}
+			db.Find(coll, &accessibilities, tag, value)
+			document = accessibilities
 		}
 		giveAccess(w, "GET, POST")
-		err := json.NewEncoder(w).Encode(document);
+		err = json.NewEncoder(w).Encode(document);
 		if err != nil {
-			log.Println(err)
+			log.Panic(err)
 		}
 	}
 }
 
-func Set(coll *mgo.Collection, document interface{}) http.HandlerFunc {
-	return func (w http.ResponseWriter, r *http.Request) {
+func GetOne(coll *mgo.Collection) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		document := GetDocument(coll.Name)
+		tag := r.FormValue("tag")
+		value_type := r.FormValue("type")
+		var value interface{}
+		var err error
+		if value_type == "int" {
+			value, err = strconv.ParseInt(r.FormValue("value"), 10, 64)
+			if err != nil {
+				log.Panic(err)
+			}
+		} else {
+			value = r.FormValue("value")
+		}
+		db.FindOne(coll, &document, tag, value)
+		giveAccess(w, "GET, POST")
+		err = json.NewEncoder(w).Encode(document);
+		if err != nil {
+			log.Panic(err)
+		}
+	}
+}
+func Set(coll *mgo.Collection) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		document := GetDocument(coll.Name)
 		decoder := json.NewDecoder(r.Body)
 		defer r.Body.Close()
 		err := decoder.Decode(&document)
@@ -92,8 +169,9 @@ func Set(coll *mgo.Collection, document interface{}) http.HandlerFunc {
 	}
 }
 
-func Update(coll *mgo.Collection, document interface{}) http.HandlerFunc {
-	return func (w http.ResponseWriter, r *http.Request) {
+func Update(coll *mgo.Collection) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		document := GetDocument(coll.Name)
 		id, err := strconv.ParseInt(r.FormValue("_id"), 10, 64)
 		if err != nil {
 			log.Panic(err)
@@ -101,103 +179,18 @@ func Update(coll *mgo.Collection, document interface{}) http.HandlerFunc {
 		db.FindOne(coll, &document, "_id", id)
 		tag := r.FormValue("tag")
 		value_type := r.FormValue("type")
+		var value interface{}
 		if value_type == "int" {
-			value, err := strconv.ParseInt(r.FormValue("value"), 10, 64)
+			value, err = strconv.ParseInt(r.FormValue("value"), 10, 64)
 			if err != nil {
 				log.Panic(err)
 			}
-			db.Update(coll, document, tag, value)
 		} else {
-			value := r.FormValue("value")
-			db.Update(coll, document, tag, value)
+			value = r.FormValue("value")
 		}
+		db.Update(coll, document, tag, value)
 	}
 }
-
-func GetAllMainGroups(coll *mgo.Collection) http.HandlerFunc {
-	main_groups := []data.Main_Group{}
-	db.FindAll(coll, &main_groups)
-	return GetAll(main_groups)
-}
-
-func GetMainGroup(coll *mgo.Collection) http.HandlerFunc {
-	main_group := data.Main_Group{}
-	return GetOne(coll, main_group)
-}
-
-func SetMainGroup(coll *mgo.Collection) http.HandlerFunc {
-	main_group := data.Main_Group{}
-	return Set(coll, main_group)
-}
-
-func UpdateMainGroup(coll *mgo.Collection) http.HandlerFunc {
-	main_group := data.Main_Group{}
-	return Update(coll, main_group)
-}
-
-func GetAllSubGroups(coll *mgo.Collection) http.HandlerFunc {
-	sub_groups := []data.Sub_Group{}
-	db.FindAll(coll, &sub_groups)
-	return GetAll(sub_groups)
-}
-
-func GetSubGroup(coll *mgo.Collection) http.HandlerFunc {
-	sub_group := data.Sub_Group{}
-	return GetOne(coll, sub_group)
-}
-
-func SetSubGroup(coll *mgo.Collection) http.HandlerFunc {
-	sub_group := data.Sub_Group{}
-	return Set(coll, sub_group)
-}
-
-func UpdateSubGroup(coll *mgo.Collection) http.HandlerFunc {
-	sub_group := data.Sub_Group{}
-	return Update(coll, sub_group)
-}
-
-func GetAllCriteria(coll *mgo.Collection) http.HandlerFunc {
-	criteria := []data.Criterion{}
-	db.FindAll(coll, &criteria)
-	return GetAll(criteria)
-}
-
-func GetCriterion(coll *mgo.Collection) http.HandlerFunc {
-	criterion := data.Criterion{}
-	return GetOne(coll, criterion)
-}
-
-func SetCriterion(coll *mgo.Collection) http.HandlerFunc {
-	criterion := data.Criterion{}
-	return Set(coll, criterion)
-}
-
-func UpdateCriterion(coll *mgo.Collection) http.HandlerFunc {
-	criterion := data.Criterion{}
-	return Update(coll, criterion)
-}
-
-func GetAllAccessibilities(coll *mgo.Collection) http.HandlerFunc {
-	accessibilities := []data.Accessibility{}
-	db.FindAll(coll, &accessibilities)
-	return GetAll(accessibilities)
-}
-
-func GetAccessibility(coll *mgo.Collection) http.HandlerFunc {
-	accessibility := data.Accessibility{}
-	return GetOne(coll, accessibility)
-}
-
-func SetAccessibility(coll *mgo.Collection) http.HandlerFunc {
-	accessibility := data.Accessibility{}
-	return Set(coll, accessibility)
-}
-
-func UpdateAccessibility(coll *mgo.Collection) http.HandlerFunc {
-	accessibility := data.Accessibility{}
-	return Update(coll, accessibility)
-}
-
 
 /*
 func SetSubGroup(coll *mgo.Collection) http.HandlerFunc {

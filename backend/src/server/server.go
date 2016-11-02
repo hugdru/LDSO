@@ -12,7 +12,7 @@ func main() {
 	var coll map[string]*mgo.Collection
 	coll = make(map[string]*mgo.Collection)
 
-	// TODO: Find a better way to make the index unique on first run.
+	// TODO: Find a better way to make the index unique on first run. DONE?
 	// Should be done in a json not on go.
 
 //	first_run := false
@@ -35,22 +35,26 @@ func main() {
 //		db.EnsureUnique(coll["property"], "name")
 //	}
 
-	http.HandleFunc("/getAllGroups", conn.GetAllMainGroups(coll["main_group"]))
-	http.HandleFunc("/getMainGroup", conn.GetMainGroup(coll["main_group"]))
-	http.HandleFunc("/setMainGroup", conn.SetMainGroup(coll["main_group"]))
-	http.HandleFunc("/updateMainGroup", conn.UpdateMainGroup(coll["main_group"]))
-	http.HandleFunc("/getAllSubGroups", conn.GetAllSubGroups(coll["sub_group"]))
-	http.HandleFunc("/getSubGroup", conn.GetSubGroup(coll["sub_group"]))
-	http.HandleFunc("/setSubGroup", conn.SetSubGroup(coll["sub_group"]))
-	http.HandleFunc("/updateSubGroup", conn.UpdateSubGroup(coll["sub_group"]))
-	http.HandleFunc("/getAllCriteria", conn.GetAllCriteria(coll["criterion"]))
-	http.HandleFunc("/getCriterion", conn.GetCriterion(coll["criterion"]))
-	http.HandleFunc("/setCriterion", conn.SetCriterion(coll["criterion"]))
-	http.HandleFunc("/updateCriterion", conn.UpdateCriterion(coll["criterion"]))
-	http.HandleFunc("/getAllAccessibilities", conn.GetAllAccessibilities(coll["accessibility"]))
-	http.HandleFunc("/getAccessibility", conn.GetAccessibility(coll["accessibility"]))
-	http.HandleFunc("/setAccessibility", conn.SetAccessibility(coll["accessibility"]))
-	http.HandleFunc("/updateAccessibility", conn.UpdateAccessibility(coll["accessibility"]))
+	http.HandleFunc("/getAllMainGroups", conn.GetAll(coll["main_group"]))
+	http.HandleFunc("/getMainGroups", conn.Get(coll["main_group"]))
+	http.HandleFunc("/getOneMainGroup", conn.GetOne(coll["main_group"]))
+	http.HandleFunc("/setMainGroup", conn.Set(coll["main_group"]))
+	http.HandleFunc("/updateMainGroup", conn.Update(coll["main_group"]))
+	http.HandleFunc("/getAllSubGroups", conn.GetAll(coll["sub_group"]))
+	http.HandleFunc("/getSubGroups", conn.Get(coll["sub_group"]))
+	http.HandleFunc("/getOneSubGroup", conn.GetOne(coll["sub_group"]))
+	http.HandleFunc("/setSubGroup", conn.Set(coll["sub_group"]))
+	http.HandleFunc("/updateSubGroup", conn.Update(coll["sub_group"]))
+	http.HandleFunc("/getAllCriteria", conn.GetAll(coll["criterion"]))
+	http.HandleFunc("/getCriteria", conn.Get(coll["criterion"]))
+	http.HandleFunc("/getOneCriterion", conn.GetOne(coll["criterion"]))
+	http.HandleFunc("/setCriterion", conn.Set(coll["criterion"]))
+	http.HandleFunc("/updateCriterion", conn.Update(coll["criterion"]))
+	http.HandleFunc("/getAllAccessibilities", conn.GetAll(coll["accessibility"]))
+	http.HandleFunc("/getAccessibilities", conn.Get(coll["accessibility"]))
+	http.HandleFunc("/getOneAccessibility", conn.GetOne(coll["accessibility"]))
+	http.HandleFunc("/setAccessibility", conn.Set(coll["accessibility"]))
+	http.HandleFunc("/updateAccessibility", conn.Update(coll["accessibility"]))
 	http.HandleFunc("/property", conn.GetHandlerProperty(coll["property"]))
 
 	http.ListenAndServe(":8080", nil)

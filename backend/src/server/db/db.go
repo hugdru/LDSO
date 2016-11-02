@@ -25,37 +25,37 @@ func GetCollection(session *mgo.Session, db_name,
 	return session.DB(db_name).C(c_name)
 }
 
-func Insert(c *mgo.Collection, args ...interface{}) {
-	err := c.Insert(args...)
+func Insert(c *mgo.Collection, documents ...interface{}) {
+	err := c.Insert(documents...)
 	if err != nil {
 		log.Panic(err)
 	}
 }
 
-func FindOne(c *mgo.Collection, arg interface{}, tag string, value interface{}) {
-	err := c.Find(bson.M{tag: value}).One(arg)
+func FindOne(c *mgo.Collection, document interface{}, tag string, value interface{}) {
+	err := c.Find(bson.M{tag: value}).One(document)
 	if err != nil {
 		log.Panic(err)
 	}
 }
 
-func Find(c *mgo.Collection, arg interface{}, tag string, value interface{}) {
-	err := c.Find(bson.M{tag: value}).Iter().All(arg)
+func Find(c *mgo.Collection, document interface{}, tag string, value interface{}) {
+	err := c.Find(bson.M{tag: value}).Iter().All(document)
 	if err != nil {
 		log.Panic(err)
 	}
 }
 
-func FindAll(c *mgo.Collection, arg interface{}) {
-	err := c.Find(bson.M{}).Iter().All(arg)
+func FindAll(c *mgo.Collection, document interface{}) {
+	err := c.Find(bson.M{}).Iter().All(document)
 	if err != nil {
 		log.Panic(err)
 	}
 }
 
-func Update(c *mgo.Collection, parent interface{}, tag string, value interface{}) {
+func Update(c *mgo.Collection, document interface{}, tag string, value interface{}) {
 	change := bson.M{"$set": bson.M{tag: value}}
-	err := c.Update(parent, change)
+	err := c.Update(document, change)
 	if err != nil {
 		log.Panic(err)
 	}
