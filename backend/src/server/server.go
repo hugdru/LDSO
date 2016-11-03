@@ -1,10 +1,10 @@
 package main
 
 import (
-	"net/http"
-	"server/db"
-	"server/conn"
 	"gopkg.in/mgo.v2"
+	"net/http"
+	"server/conn"
+	"server/db"
 	// "gopkg.in/mgo.v2/bson"
 )
 
@@ -17,7 +17,7 @@ func main() {
 
 	first_run := false
 
-	session := db.StartConn("localhost:27017")
+	session := db.StartConn("mongodb:27017")
 	defer db.CloseConn(session)
 
 	if !db.ExistsCollections(session, "Places4All") {

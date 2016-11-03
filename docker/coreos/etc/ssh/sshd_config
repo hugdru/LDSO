@@ -1,0 +1,10 @@
+UsePrivilegeSeparation sandbox
+ClientAliveInterval 180
+UseDNS no
+PrintMotd no
+PermitRootLogin no
+PermitEmptyPasswords no
+AllowUsers core
+PubkeyAuthentication yes
+PasswordAuthentication no
+ChallengeResponseAuthentication no

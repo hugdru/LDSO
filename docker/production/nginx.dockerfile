@@ -46,7 +46,7 @@ RUN \
       echo "$DOCKERIZE_DOWNLOAD_SHA256  dockerize.tar.gz" | sha256sum -c - && \
       tar -C /usr/local/bin -xzvf dockerize.tar.gz && rm dockerize.tar.gz && \
       apt-get remove --purge -y $TEMPORARY_APT_PACKAGES && \
-      rm -rf /var/lib/apt/lists/* /watchman && \
+      rm -rf /var/lib/apt/lists/* && \
       apt-get autoremove -y && \
       apt-get clean all
 
@@ -59,8 +59,7 @@ RUN chown -R "$USER":"$GROUP" "$HOME"
 USER "$USER"
 WORKDIR "$HOME"
 
-ENV PATH="/usr/local/node/bin:$PATH"
-ENV PATH="$PREFIX/bin:$PATH"
+ENV PATH="$PREFIX/bin:/usr/local/node/bin:$PATH"
 RUN \
       mkdir -p "$PREFIX/bin" && npm install -g yarn && \
       yarn global add angular-cli && cd "$FRONTEND_DIR" && yarn install && ng build -prod && \
