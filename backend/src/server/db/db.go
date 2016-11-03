@@ -39,15 +39,13 @@ func FindOne(c *mgo.Collection, document interface{}, tag string, value interfac
 	}
 }
 
-func Find(c *mgo.Collection, document interface{}, tag string, value interface{}) {
-	err := c.Find(bson.M{tag: value}).Iter().All(document)
-	if err != nil {
-		log.Panic(err)
+func Find(c *mgo.Collection, documents interface{}, tagged bool, tag string, value interface{}) {
+	var err error
+	if (tagged) {
+		err = c.Find(bson.M{tag: value}).Iter().All(documents)
+	} else {
+		err = c.Find(bson.M{}).Iter().All(documents)
 	}
-}
-
-func FindAll(c *mgo.Collection, document interface{}) {
-	err := c.Find(bson.M{}).Iter().All(document)
 	if err != nil {
 		log.Panic(err)
 	}

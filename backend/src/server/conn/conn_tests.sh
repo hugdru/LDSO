@@ -6,7 +6,7 @@ curl -X GET "http://localhost:8080/getAllMainGroups"
 
 curl -X POST -d "{\"_id\":5, \"name\":\"Coisas\", \"weight\":30}" "http://localhost:8080/setMainGroup"
 
-curl -X GET "http://localhost:8080/getMainGroup?tag=name&type=string&value=Coisas"
+curl -X GET "http://localhost:8080/getOneMainGroup?tag=name&type=string&value=Coisas"
 
 curl -X GET "http://localhost:8080/updateMainGroup?_id=5&tag=weight&type=int&value=20"
 

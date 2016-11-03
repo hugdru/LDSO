@@ -48,21 +48,6 @@ func GetHandlerProperty(coll *mgo.Collection) http.HandlerFunc {
 	}
 }
 
-func GetDocument(coll_name string) interface{} {
-	var document interface{}
-	switch coll_name {
-	case "main_group":
-		document = data.Main_Group{}
-	case "sub_group":
-		document = data.Sub_Group{}
-	case "criterion":
-		document = data.Criterion{}
-	case "accessibility":
-		document = data.Accessibility{}
-	}
-	return document
-}
-
 func GetValue(r *http.Request) interface {} {
 	value_type := r.FormValue("type")
 	var value interface{}
@@ -78,29 +63,51 @@ func GetValue(r *http.Request) interface {} {
 	return value
 }
 
+func GetDocument(coll_name string) interface{} {
+	var document interface{}
+	switch coll_name {
+	case "main_group":
+		document = data.Main_Group{}
+	case "sub_group":
+		document = data.Sub_Group{}
+	case "criterion":
+		document = data.Criterion{}
+	case "accessibility":
+		document = data.Accessibility{}
+	}
+	return document
+}
+
+func GetDocuments(coll *mgo.Collection, tagged bool, tag string, value interface{}) interface{} {
+	var document interface{}
+	switch coll.Name {
+	case "main_group":
+		main_groups := []data.Main_Group{}
+		db.Find(coll, &main_groups, tagged, tag, value)
+		document = main_groups
+	case "sub_group":
+		sub_groups := []data.Sub_Group{}
+		db.Find(coll, &sub_groups, tagged, tag, value)
+		document = sub_groups
+	case "criterion":
+		criteria := []data.Criterion{}
+		db.Find(coll, &criteria, tagged, tag, value)
+		document = criteria
+	case "accessibility":
+		accessibilities := []data.Accessibility{}
+		db.Find(coll, &accessibilities, tagged, tag, value)
+		document = accessibilities
+	}
+	return document
+}
+
 func GetAll(coll *mgo.Collection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var document interface{}
+		documents := GetDocuments(coll, false, "", 0)
 		switch coll.Name {
-		case "main_group":
-			main_group := []data.Main_Group{}
-			db.FindAll(coll, &main_group)
-			document = main_group
-		case "sub_group":
-			sub_group := []data.Sub_Group{}
-			db.FindAll(coll, &sub_group)
-			document = sub_group
-		case "criterion":
-			criterion := []data.Criterion{}
-			db.FindAll(coll, &criterion)
-			document = criterion
-		case "accessibility":
-			accessibility := []data.Accessibility{}
-			db.FindAll(coll, &accessibility)
-			document = accessibility
 		}
 		giveAccess(w, "GET, POST")
-		err := json.NewEncoder(w).Encode(document);
+		err := json.NewEncoder(w).Encode(documents);
 		if err != nil {
 			log.Panic(err)
 		}
@@ -111,27 +118,9 @@ func Get(coll *mgo.Collection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		tag := r.FormValue("tag")
 		value := GetValue(r)
-		var document interface{}
-		switch coll.Name {
-		case "main_group":
-			main_groups := []data.Main_Group{}
-			db.Find(coll, &main_groups, tag, value)
-			document = main_groups
-		case "sub_group":
-			sub_groups := []data.Sub_Group{}
-			db.Find(coll, &sub_groups, tag, value)
-			document = sub_groups
-		case "criterion":
-			criteria := []data.Criterion{}
-			db.Find(coll, &criteria, tag, value)
-			document = criteria
-		case "accessibility":
-			accessibilities := []data.Accessibility{}
-			db.Find(coll, &accessibilities, tag, value)
-			document = accessibilities
-		}
+		documents := GetDocuments(coll, true, tag, value)
 		giveAccess(w, "GET, POST")
-		err := json.NewEncoder(w).Encode(document);
+		err := json.NewEncoder(w).Encode(documents);
 		if err != nil {
 			log.Panic(err)
 		}
