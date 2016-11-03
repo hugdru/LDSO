@@ -38,7 +38,6 @@ describe('Group Service', () => {
 			imports: [ HttpModule ]
 		});
 
-		TestBed.compileComponents();
 		mockBackend = getTestBed().get(MockBackend);
 	}));
 
@@ -57,4 +56,20 @@ describe('Group Service', () => {
 			expect(data).toBe(fake);
 		});
 	}));
+
+	// it('should insert a new group',
+	// 		async(inject([GroupService], (groupService) => {
+	// 	mockBackend.connections
+	// 			.subscribe((connection: MockConnection) => {
+	// 		expect(connection.request.method).toBe(RequestMethod.Post);
+	// 		connection.mockRespond(new Response(
+	// 				new ResponseOptions({status: 201})));
+	// 	});
+
+	// 	let fake = {_id: 24, name: "ana", weight: 20};
+	// 	groupService.setGroup(fake).subscribe((result => {
+	// 		expect(result).toBeDefined();
+	// 		expect(result.status).toBe(201);
+	// 	}));
+	// })));
 });
