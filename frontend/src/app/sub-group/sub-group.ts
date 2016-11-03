@@ -4,5 +4,5 @@ export class SubGroup {
 	_id: number;
 	name: string;
 	weight: number;
-	criteria: Criterion[];
+	main_group: number;
 }

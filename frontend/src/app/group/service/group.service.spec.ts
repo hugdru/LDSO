@@ -4,6 +4,7 @@ import {
 	async,
 	inject
 } from '@angular/core/testing';
+
 import {
 	Headers, BaseRequestOptions,
 	Response, HttpModule, Http, XHRBackend, RequestMethod
@@ -40,13 +41,15 @@ describe('Group Service', () => {
 	}));
 
 	it('should receive groups', async(() => {
-		let fake = [{ _id: 26, name: "ana", weight: 30, sub_groups: null}];
+		let fake = [{ _id: 26, name: "ana", weight: 30}];
 		let groupService: GroupService = getTestBed().get(GroupService);
+
 		mockBackend.connections.subscribe((connection: MockConnection) => {
 			connection.mockRespond(new Response(new ResponseOptions({
 				body: fake
 			})));
 		});
+		
 		groupService.getGroups().subscribe((data) => {
 			expect(data).toBe(fake);
 		});
