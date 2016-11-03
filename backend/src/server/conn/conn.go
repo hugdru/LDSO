@@ -48,7 +48,7 @@ func GetHandlerProperty(coll *mgo.Collection) http.HandlerFunc {
 	}
 }
 
-func GetValue(r *http.Request) interface{} {
+func GetValue(r *http.Request) interface {} {
 	value_type := r.FormValue("type")
 	var value interface{}
 	var err error
