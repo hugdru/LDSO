@@ -19,6 +19,9 @@ export class GroupComponent implements OnInit {
 	}
 
 	initGroups(): void {
-		this.groupService.getGroups().subscribe(data => this.groups = data);
+		this.GroupService.getGroup().subscribe(
+			data => this.groups = data,
+			error => this.errorMessage = <any>error
+		);
 	}
 }
