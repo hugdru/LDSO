@@ -1,45 +1,47 @@
 #!/usr/bin/env bash
-
-cd "${0%/*}"
-
-curl -X GET "http://localhost:8080/getAllMainGroups"
-
-curl -X POST -d "{\"_id\":5, \"name\":\"Coisas\", \"weight\":30}" "http://localhost:8080/setMainGroup"
-
-curl -X GET "http://localhost:8080/getMainGroup?tag=name&type=string&value=Coisas"
-
-curl -X GET "http://localhost:8080/updateMainGroup?_id=5&tag=weight&type=int&value=20"
-
-curl -X GET "http://localhost:8080/updateMainGroup?_id=5&tag=name&type=string&value=Cenas"
-
-curl -X GET "http://localhost:8080/getOneMainGroup?tag=_id&type=int&value=5"
-
-curl -X GET "http://localhost:8080/getAllSubGroups"
-
-curl -X POST -d "{\"_id\":3, \"name\":\"Paralelo\", \"weight\":10, \"main_group\":2}" "http://localhost:8080/setSubGroup"
-
-curl -X GET "http://localhost:8080/getOneSubGroup?tag=name&type=string&value=Paralelo"
-
-curl -X GET "http://localhost:8080/updateSubGroup?_id=3&tag=name&type=string&value=Paralelinho"
-
-curl -X GET "http://localhost:8080/getOneSubGroup?tag=name&type=string&value=Paralelinho"
-
-curl -X GET "http://localhost:8080/getAllCriteria"
-
-curl -X POST -d "{\"_id\":3, \"name\":\"xpto\", \"weight\":5, \"legislation\":\"\", \"sub_group\":2}" "http://localhost:8080/setCriterion"
-
-curl -X GET "http://localhost:8080/getOneCriterion?tag=name&type=string&value=xpto"
-
-curl -X GET "http://localhost:8080/updateCriterion?_id=3&tag=name&type=string&value=yqup"
-
-curl -X GET "http://localhost:8080/getOneCriterion?tag=name&type=string&value=yqup"
-
-curl -X GET "http://localhost:8080/getAllAccessibilities"
-
-curl -X POST -d "{\"_id\":9, \"name\":\"fisica\", \"weight\":5, \"criterion\":3}" "http://localhost:8080/setAccessibility"
-
-curl -X GET "http://localhost:8080/getAccessibilities?tag=name&type=string&value=fisica"
-
-curl -X GET "http://localhost:8080/updateAccessibility?_id=9&tag=weight&type=int&value=5"
-
-curl -X GET "http://localhost:8080/getOneAccessibility?tag=_id&type=int&value=9"
+EXE="curl -X"
+URL="http://localhost:8080/"
+PostTests=( \
+		"{\"_id\":5,\"name\":\"Coisas\",\"weight\":30}" \
+		"setMainGroup" \
+#
+		"{\"_id\":3,\"name\":\"Paralelo\",\"weight\":10,\"main_group\":2}" \
+		"setSubGroup" \
+#
+		"{\"_id\":3,\"name\":\"xpto\",\"weight\":5,\"legislation\":\"\",\"sub_group\":2}" \
+		"setCriterion" \
+#
+		"{\"_id\":9,\"name\":\"fisica\",\"weight\":5,\"criterion\":3}" \
+		"setAccessibility" \
+)
+GetTests=(\
+		"getOneMainGroup?tag=name&type=string&value=Coisas" \
+		"updateMainGroup?_id=5&tag=weight&type=int&value=20" \
+		"updateMainGroup?_id=5&tag=name&type=string&value=Cenas" \
+		"getOneMainGroup?tag=_id&type=int&value=5" \
+		"getOneSubGroup?tag=name&type=string&value=Paralelo" \
+		"updateSubGroup?_id=3&tag=name&type=string&value=Paralelinho" \
+		"getOneSubGroup?tag=name&type=string&value=Paralelinho" \
+		"getOneCriterion?tag=name&type=string&value=xpto" \
+		"updateCriterion?_id=3&tag=name&type=string&value=yqup" \
+		"getOneCriterion?tag=name&type=string&value=yqup" \
+		"getAccessibilities?tag=name&type=string&value=fisica" \
+		"updateAccessibility?_id=9&tag=weight&type=int&value=5" \
+		"getAllMainGroups" \
+		"getAllSubGroups" \
+		"getAllCriteria" \
+		"getAllAccessibilities" \
+		"removeMainGroup?_id=1" \
+		"getAllMainGroups" \
+		"getAllSubGroups" \
+		"getAllCriteria" \
+		"getAllAccessibilities" \
+	)
+for (( t=0; t<${#PostTests[@]}; t=t+2))
+do
+	$EXE POST -d ${PostTests[$t]} $URL${PostTests[$t+1]}
+done
+for t in ${GetTests[@]}
+do
+	$EXE GET $URL$t
+done

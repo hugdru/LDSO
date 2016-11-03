@@ -1,31 +1,31 @@
 package data
 
 type Main_Group struct {
-	Id uint `json:"_id" bson:"_id,omitempty"`
+	Id int `json:"_id" bson:"_id,omitempty"`
 	Name string `json:"name"`
-	Weight uint `json:"weight"`
+	Weight int `json:"weight"`
 }
 
 type Sub_Group struct {
-	Id uint `json:"_id" bson:"_id,omitempty"`
+	Id int `json:"_id" bson:"_id,omitempty"`
 	Name string `json:"name"`
-	Weight uint `json:"weight"`
-	Main_Group uint `json:"main_group"`
+	Weight int `json:"weight"`
+	Main_Group int `json:"main_group"`
 }
 
 type Criterion struct {
-	Id uint `json:"_id" bson:"_id,omitempty"`
+	Id int `json:"_id" bson:"_id,omitempty"`
 	Name string `json:"name"`
-	Weight uint `json:"weight"`
+	Weight int `json:"weight"`
 	Legislation string `json:"legislation"`
-	Sub_Group uint `json:"sub_group"`
+	Sub_Group int `json:"sub_group"`
 }
 
 type Accessibility struct {
-	Id uint `json:"_id" bson:"_id,omitempty"`
+	Id int `json:"_id" bson:"_id,omitempty"`
 	Name string `json:"name"`
-	Weight uint `json:"weight"`
-	Criterion uint `json:"criterion"`
+	Weight int `json:"weight"`
+	Criterion int `json:"criterion"`
 }
 
 type Owner struct {
@@ -47,5 +47,5 @@ type Note struct {
 type Audit struct {
 	Property Property `json:"property"`
 	Notes []Note `json:"notes"`
-	Value uint `json:"value"`
+	Value int `json:"value"`
 }

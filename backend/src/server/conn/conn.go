@@ -48,6 +48,21 @@ func GetHandlerProperty(coll *mgo.Collection) http.HandlerFunc {
 	}
 }
 
+func GetValue(r *http.Request) interface{} {
+	value_type := r.FormValue("type")
+	var value interface{}
+	var err error
+	if value_type == "int" {
+		value, err = strconv.Atoi(r.FormValue("value"))
+		if err != nil {
+			log.Panic(err)
+		}
+	} else {
+		value = r.FormValue("value")
+	}
+	return value
+}
+
 func GetDocument(coll_name string) interface{} {
 	var document interface{}
 	switch coll_name {
@@ -63,44 +78,36 @@ func GetDocument(coll_name string) interface{} {
 	return document
 }
 
-func GetValue(r *http.Request) interface {} {
-	value_type := r.FormValue("type")
-	var value interface{}
-	var err error
-	if value_type == "int" {
-		value, err = strconv.ParseInt(r.FormValue("value"), 10, 64)
-		if err != nil {
-			log.Panic(err)
-		}
-	} else {
-		value = r.FormValue("value")
+func GetDocuments(coll *mgo.Collection, tagged bool, tag string, value interface{}) interface{} {
+	var document interface{}
+	switch coll.Name {
+	case "main_group":
+		main_groups := []data.Main_Group{}
+		db.Find(coll, &main_groups, tagged, tag, value)
+		document = main_groups
+	case "sub_group":
+		sub_groups := []data.Sub_Group{}
+		db.Find(coll, &sub_groups, tagged, tag, value)
+		document = sub_groups
+	case "criterion":
+		criteria := []data.Criterion{}
+		db.Find(coll, &criteria, tagged, tag, value)
+		document = criteria
+	case "accessibility":
+		accessibilities := []data.Accessibility{}
+		db.Find(coll, &accessibilities, tagged, tag, value)
+		document = accessibilities
 	}
-	return value
+	return document
 }
 
 func GetAll(coll *mgo.Collection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var document interface{}
+		documents := GetDocuments(coll, false, "", 0)
 		switch coll.Name {
-		case "main_group":
-			main_group := []data.Main_Group{}
-			db.FindAll(coll, &main_group)
-			document = main_group
-		case "sub_group":
-			sub_group := []data.Sub_Group{}
-			db.FindAll(coll, &sub_group)
-			document = sub_group
-		case "criterion":
-			criterion := []data.Criterion{}
-			db.FindAll(coll, &criterion)
-			document = criterion
-		case "accessibility":
-			accessibility := []data.Accessibility{}
-			db.FindAll(coll, &accessibility)
-			document = accessibility
 		}
 		giveAccess(w, "GET, POST")
-		err := json.NewEncoder(w).Encode(document);
+		err := json.NewEncoder(w).Encode(documents);
 		if err != nil {
 			log.Panic(err)
 		}
@@ -111,27 +118,9 @@ func Get(coll *mgo.Collection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		tag := r.FormValue("tag")
 		value := GetValue(r)
-		var document interface{}
-		switch coll.Name {
-		case "main_group":
-			main_groups := []data.Main_Group{}
-			db.Find(coll, &main_groups, tag, value)
-			document = main_groups
-		case "sub_group":
-			sub_groups := []data.Sub_Group{}
-			db.Find(coll, &sub_groups, tag, value)
-			document = sub_groups
-		case "criterion":
-			criteria := []data.Criterion{}
-			db.Find(coll, &criteria, tag, value)
-			document = criteria
-		case "accessibility":
-			accessibilities := []data.Accessibility{}
-			db.Find(coll, &accessibilities, tag, value)
-			document = accessibilities
-		}
+		documents := GetDocuments(coll, true, tag, value)
 		giveAccess(w, "GET, POST")
-		err := json.NewEncoder(w).Encode(document);
+		err := json.NewEncoder(w).Encode(documents);
 		if err != nil {
 			log.Panic(err)
 		}
@@ -167,7 +156,7 @@ func Set(coll *mgo.Collection) http.HandlerFunc {
 func Update(coll *mgo.Collection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		document := GetDocument(coll.Name)
-		id, err := strconv.ParseInt(r.FormValue("_id"), 10, 64)
+		id, err := strconv.Atoi(r.FormValue("_id"))
 		if err != nil {
 			log.Panic(err)
 		}
@@ -175,5 +164,43 @@ func Update(coll *mgo.Collection) http.HandlerFunc {
 		tag := r.FormValue("tag")
 		value := GetValue(r)
 		db.Update(coll, document, tag, value)
+	}
+}
+
+func RecursiveRemove(coll *mgo.Collection, id int) {
+	db.Remove(coll, "_id", id)
+	var child_coll *mgo.Collection
+	switch coll.Name {
+	case "main_group":
+		sub_groups := []data.Sub_Group{}
+		child_coll = db.Coll["sub_group"]
+		db.Find(child_coll, &sub_groups, true, "main_group", id)
+		for _, sub_group := range sub_groups {
+			RecursiveRemove(child_coll, sub_group.Id)
+		}
+	case "sub_group":
+		criteria := []data.Criterion{}
+		child_coll = db.Coll["criterion"]
+		db.Find(child_coll, &criteria, true, "sub_group", id)
+		for _, criterion := range criteria {
+			RecursiveRemove(child_coll, criterion.Id)
+		}
+	case "criterion":
+		accessibilities := []data.Accessibility{}
+		child_coll = db.Coll["accessibility"]
+		db.Find(child_coll, &accessibilities, true, "criterion", id)
+		for _, accessibility := range accessibilities {
+			RecursiveRemove(child_coll, accessibility.Id)
+		}
+	}
+}
+
+func Remove(coll *mgo.Collection) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id, err := strconv.Atoi(r.FormValue("_id"))
+		if err != nil {
+			log.Panic(err)
+		}
+		RecursiveRemove(coll, id)
 	}
 }
