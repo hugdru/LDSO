@@ -15,6 +15,9 @@ export class GroupComponent {
 	constructor(private groupService: GroupService ) {}
 
 	setGroups(): void {
-		this.GroupService.getGroup().subscribe(data => this.groups = data);
+		this.GroupService.getGroup().subscribe(
+			data => this.groups = data,
+			error => this.errorMessage = <any>error
+		);
 	}
 }
