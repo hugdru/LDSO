@@ -1,6 +1,5 @@
-<footer>
 <div class="form_main_group panel">
-  <form action="submit">
+  <form [formGroup]='myForm' (ngSubmit)="onSubmit()">
     <div class="row1">
       <div class="input">
         <label for="acessos" class="col-form-label">Acessos</label>
@@ -32,4 +31,3 @@
     <button type="submit" class="btn btn-primary submit" >Submit</button>
   </form>
 </div>
-</footer>
