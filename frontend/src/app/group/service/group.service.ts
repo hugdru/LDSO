@@ -31,8 +31,7 @@ export class GroupService {
 		return this.handler.get<Group[]>(getGroupUrl);
 	}
 
-	setGroup(group: Group): void {
-		this.http.post(setGroupUrl, JSON.stringify(group))
-				.map(res => res.json()).subscribe();
+	public setGroup(group: Group): void {
+		this.handler.set<Group>(group, setGroupUrl);
 	}
 }

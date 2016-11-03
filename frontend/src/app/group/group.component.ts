@@ -11,6 +11,7 @@ import { GroupService } from 'group/service/group.service';
 
 export class GroupComponent implements OnInit {
 	groups: Group[];
+	errMsg: string;
 
 	constructor(private groupService: GroupService ) { }
 
@@ -18,10 +19,10 @@ export class GroupComponent implements OnInit {
 		this.initGroups();
 	}
 
-	setGroups(): void {
-		this.GroupService.getGroup().subscribe(
+	initGroups(): void {
+		this.groupService.getGroups().subscribe(
 			data => this.groups = data,
-			error => this.errorMessage = <any>error
+			error => this.errMsg = <any>error
 		);
 	}
 }
