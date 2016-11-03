@@ -5,24 +5,15 @@ import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 
 import { getGroupUrl, setGroupUrl } from 'shared/shared-data';
+import { HandlerService } from 'handler.service';
 import { Group } from 'group/group';
 
 @Injectable()
 export class GroupService {
-	private groups: Group[];
-
-	constructor(private http: Http) {}
+	constructor(private http: Http, private handler: HandlerService) {}
 
 	getGroups(): Observable<Group[]> {
-		return this.http.get(getGroupUrl)
-				.map((result: Response) => result.json())
-				.map((data: any) => {
-					let result: Group[] = null;
-					if(data) {
-						result = data;
-					}
-					return result;
-				});
+		return this.handler.get<Group[]>(getGroupUrl);
 	}
 
 	setGroup(group: Group): void {
