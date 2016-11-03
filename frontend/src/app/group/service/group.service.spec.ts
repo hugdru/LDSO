@@ -14,6 +14,7 @@ import { ResponseOptions } from '@angular/http';
 import { MockBackend, MockConnection } from '@angular/http/testing';
 import { GroupService } from 'group/service/group.service';
 import { GroupComponent } from 'group/group.component';
+import { HandlerService } from 'handler.service';
 
 describe('Group Service', () => {
 	let mockBackend: MockBackend;
@@ -22,6 +23,7 @@ describe('Group Service', () => {
 		TestBed.configureTestingModule({
 			providers: [
 				GroupService,
+				HandlerService,
 				MockBackend,
 				BaseRequestOptions,
 				{
@@ -41,7 +43,8 @@ describe('Group Service', () => {
 	}));
 
 	it('should receive groups', async(() => {
-		let fake = [{ _id: 26, name: "ana", weight: 30}];
+		let fake = [{ _id: 26, name: "ana", weight: 30},
+				{_id: 14, name: "joao", weight: 25}];
 		let groupService: GroupService = getTestBed().get(GroupService);
 
 		mockBackend.connections.subscribe((connection: MockConnection) => {
@@ -49,7 +52,7 @@ describe('Group Service', () => {
 				body: fake
 			})));
 		});
-		
+
 		groupService.getGroups().subscribe((data) => {
 			expect(data).toBe(fake);
 		});
