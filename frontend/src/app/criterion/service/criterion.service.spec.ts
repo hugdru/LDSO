@@ -62,6 +62,22 @@ describe('Criterion Service w/ Mock Server', () => {
 		});
 	}));
 
+	it('Get some criteria', async(() => {
+		let criterionService: CriterionService = getTestBed()
+				.get(CriterionService);
+
+		mockBackend.connections.subscribe((connection: MockConnection) => {
+			connection.mockRespond(new Response(new ResponseOptions({
+				body: mockArray
+			})));
+		});
+
+		criterionService.getSomeCriteria("sub_group", "int", 4)
+				.subscribe((data) => {
+			expect(data).toBe(mockArray);
+		});
+	}));
+
 	it('Get one criterion', async(() => {
 		let criterionService: CriterionService = getTestBed()
 				.get(CriterionService);

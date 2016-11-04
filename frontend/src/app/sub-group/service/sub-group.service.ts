@@ -4,6 +4,7 @@ import { Observable } from 'rxjs/Observable';
 
 import {
 	getSubGroupsUrl,
+	getSomeSubGroupsUrl,
 	getSubGroupUrl,
 	updateSubGroupUrl,
 	setSubGroupUrl,
@@ -17,11 +18,16 @@ export class SubGroupService {
 	constructor(private handler: HandlerService) { }
 
 	getSubGroups(): Observable<SubGroup[]> {
-	    return this.handler.get<SubGroup[]>(getSubGroupsUrl);
+	    return this.handler.getAll<SubGroup[]>(getSubGroupsUrl);
+	}
+
+	getSomeSubGroups(tag: string, type: string, value: any)
+			: Observable<SubGroup> {
+	    return this.handler.get<SubGroup[]>(getSomeSubGroupUrl, tag, type, value);
 	}
 
 	getSubGroup(tag: string, type: string, value: any): Observable<SubGroup> {
-	    return this.handler.getOne<SubGroup>(getSubGroupUrl, tag, type, value);
+	    return this.handler.get<SubGroup>(getSubGroupUrl, tag, type, value);
 	}
 
 	updateSubGroup(id: number, tag: string, type: string, value: any)

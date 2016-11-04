@@ -4,6 +4,7 @@ import { Observable } from 'rxjs/Observable';
 
 import {
 	getAccessibilitiesUrl,
+	getSomeAccessibilitiesUrl,
 	getAccessibilityUrl,
 	updateAccessibilityUrl,
 	setAccessibilityUrl,
@@ -17,12 +18,18 @@ export class AccessibilityService {
 	constructor(private handler: HandlerService) { }
 
 	getAccessibilities(): Observable<Accessibility[]> {
-		return this.handler.get<Accessibility[]>(getAccessibilitiesUrl);
+		return this.handler.getAll<Accessibility[]>(getAccessibilitiesUrl);
+	}
+
+	getSomeAccessibilities(tag: string, type: string, value: any)
+			: Observable<Accessibility[]> {
+		return this.handler.get<Accessibility[]>(getSomeAccessibilitiesUrl,
+				tag, type, value);
 	}
 
 	getAccessibility(tag: string, type: string, value: any)
 			: Observable<Accessibility> {
-		return this.handler.getOne<Accessibility>(getAccessibilitiesUrl, tag, type,
+		return this.handler.get<Accessibility>(getAccessibilitiesUrl, tag, type,
 				value);
 	}
 
