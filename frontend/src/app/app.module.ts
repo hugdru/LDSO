@@ -10,10 +10,10 @@ import { FootbarComponent } from './footbar/footbar.component';
 import { CenterComponent } from './center/center.component';
 import { AuditComponent } from './audit/audit.component';
 import { EditEvaluationComponent } from './audit/edit-evaluation.component';
-import { Main_groupComponent } from './main_group/main_group.component';
+import { MainGroupComponent } from './mainGroup/mainGroup.component';
 
 import { routing } from './app.routs';
-import { SubGroupComponent } from './main_group/sub-group/sub-group.component';
+import { SubGroupComponent } from './subGroup/subGroup.component';
 
 
 @NgModule({
@@ -25,7 +25,7 @@ import { SubGroupComponent } from './main_group/sub-group/sub-group.component';
 		CenterComponent,
 		AuditComponent,
 		EditEvaluationComponent,
-    Main_groupComponent,
+    MainGroupComponent,
     SubGroupComponent
 	],
 	imports: [
