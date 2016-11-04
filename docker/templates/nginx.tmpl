@@ -11,7 +11,6 @@
 #######################################################
 
 user server server;
-daemon off;
 
 worker_processes     1;     # one(1) worker or equal the number of _real_ cpu cores. 4=4 core cpu
 worker_priority      15;    # renice workers to reduce priority compared to system processes for
@@ -116,15 +115,27 @@ http {
 
  ## Static files
   server {
+{{if ne (default .Env.BUILD "") "development"}}
       add_header  Cache-Control "public";
+{{else}}
+      add_header  Cache-Control "no-store";
+{{end}}
       add_header  X-Frame-Options "DENY";
       access_log  /var/log/nginx/access.log main buffer=32k;
       error_log   /var/log/nginx/error.log error;
-      expires     max;
+{{if ne (default .Env.BUILD "") "development"}}
+      expires     1d;
+{{end}}
       limit_req   zone=gulag burst=200 nodelay;
       listen      80;
       root        /server/frontend/dist;
+{{if eq (default .Env.BUILD "") "production"}}
       server_name lp4a.tk www.lp4a.tk;
+{{else if eq (default .Env.BUILD "") "development"}}
+      server_name lp4adev.tk www.lp4adev.tk;
+{{else}}
+      server_name lp4astaging.tk www.lp4astaging.tk;
+{{end}}
 
      ## Serve an empty 1x1 gif _OR_ an error 204 (No Content) for favicon.ico
       # location = /favicon.ico {
@@ -151,15 +162,24 @@ http {
 
  # Reverse Proxy
   server {
-     add_header  Cache-Control "public";
+{{if eq (default .Env.BUILD "") "development"}}
+     add_header  Cache-Control "no-store";
+{{end}}
+     # add_header  Cache-Control "public";
      add_header  X-Frame-Options "DENY";
      access_log  /var/log/nginx/access.log main buffer=32k;
      # access_log  /var/log/nginx/cache.log cache;
      error_log   /var/log/nginx/error.log error;
-     expires     1h;
+     # expires     1h;
      listen      80 sndbuf=128k;
      limit_req   zone=gulag  burst=1000 nodelay;
+{{if eq (default .Env.BUILD "") "production"}}
      server_name api.lp4a.tk;
+{{else if eq (default .Env.BUILD "") "development"}}
+     server_name api.lp4adev.tk;
+{{else}}
+     server_name api.lp4astaging.tk;
+{{end}}
 
      proxy_redirect     off;
      proxy_set_header   Host             $host;

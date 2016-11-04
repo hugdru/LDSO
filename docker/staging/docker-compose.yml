@@ -9,7 +9,7 @@ services:
     image: prod/nginx
     container_name: nginx
     environment:
-      - BUILD=production
+      - BUILD=staging
     depends_on:
       - go1
       - gon

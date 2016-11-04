@@ -11,8 +11,10 @@ ENV \
   SUEXEC_VERSION="v0.2" \
   SUEXEC_DOWNLOAD_SHA256="ec4acbd8cde6ceeb2be67eda1f46c709758af6db35cacbcde41baac349855e25" \
   WATCHMAN_VERSION="v4.7.0" \
-  PERSISTENT_APT_PACKAGES="git libpcre++0 libpcre3" \
+  PERSISTENT_APT_PACKAGES="git libpcre++0 libpcre3 ca-certificates" \
   TEMPORARY_APT_PACKAGES="autoconf automake build-essential curl python-dev xz-utils libpcre3-dev libpcre++-dev wget ca-certificates" \
+  DOCKERIZE_VERSION="v0.2.0" \
+  DOCKERIZE_DOWNLOAD_SHA256="c0e2e33cfe066036941bf8f2598090bd8e01fdc05128490238b2a64cf988ecfb"
 
 
 ENV HOME="/$USER"
@@ -50,16 +52,19 @@ RUN \
       cd watchman git checkout "$WATCHMAN_VERSION" && \
       ./autogen.sh && ./configure && make && make install && \
       mkdir /suexec && cd /suexec && \
-      wget -O suexec.tar.gz "https://github.com/ncopa/su-exec/archive/$.tar.gz" && \
+      wget -O suexec.tar.gz "https://github.com/ncopa/su-exec/archive/$SUEXEC_VERSION.tar.gz" && \
       echo "$SUEXEC_DOWNLOAD_SHA256  suexec.tar.gz" | sha256sum -c - && \
-      tar -xvzf suexec.tar.gz && make && mv su-exec /usr/local/bin && cd .. && rm -rf /suexec && \
+      tar -xvzf suexec.tar.gz --strip-components 1 && make && mv su-exec /usr/local/bin && cd .. && rm -rf /suexec && \
+      curl -fsSL "https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz" -o dockerize.tar.gz && \
+      echo "$DOCKERIZE_DOWNLOAD_SHA256  dockerize.tar.gz" | sha256sum -c - && \
+      tar -C /usr/local/bin -xzvf dockerize.tar.gz && rm dockerize.tar.gz && \
       apt-get remove --purge -y $TEMPORARY_APT_PACKAGES && \
       rm -rf /var/lib/apt/lists/* /watchman && \
       apt-get autoremove -y && \
       apt-get clean all
 
 VOLUME "$FRONTEND_DIR"
-COPY docker/configs/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY docker/templates/nginx.tmpl /etc/nginx/nginx.tmpl
 
 WORKDIR "$SCRIPTS_DIR"
 COPY "$HOST_ENTRYPOINT_FILE" entrypoint.sh
@@ -69,14 +74,10 @@ RUN chown -R "$USER":"$GROUP" "$HOME" && chmod +x "$SCRIPTS_DIR/entrypoint.sh"
 USER "$USER"
 WORKDIR "$HOME"
 
-ENV PATH="$SCRIPTS_DIR:/usr/local/node/bin:$PATH"
 ENV PREFIX="$NPM_YARN_PACKAGES_DIR" YARN_PREFIX="$NPM_YARN_PACKAGES_DIR"
-ENV PATH="$NPM_YARN_PACKAGES_DIR/bin:$SCRIPTS_DIR:$PATH"
-RUN \
-      mkdir -p "$NPM_YARN_PACKAGES_DIR/bin" && npm install -g npm && npm install -g yarn && \
-      yarn global add angular-cli
+ENV PATH="$NPM_YARN_PACKAGES_DIR/bin:$SCRIPTS_DIR:/usr/local/node/bin:$PATH"
+RUN mkdir -p "$NPM_YARN_PACKAGES_DIR/bin" && npm install -g angular-cli
 
-EXPOSE 80 443
+EXPOSE 80 443 4200
 
 USER root
-ENTRYPOINT ["entrypoint.sh"]

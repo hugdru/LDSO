@@ -8,39 +8,74 @@ services:
   nginx:
     image: dev/nginx
     container_name: nginx
+    environment:
+      - BUILD=development
     depends_on:
       - go1
       - gon
+    volumes:
+      - ../../frontend:/server/frontend
     ports:
       - "80:80"
       - "443:443"
+      - "4200:4200"
     entrypoint:
       - dockerize
       - -template
       - /etc/nginx/nginx.tmpl:/etc/nginx/nginx.conf
       - -wait
-      - http://go1:8080
+      - tcp://go1:8080
       - -wait
-      - http://gon:8080
+      - tcp://gon:8080
       - -timeout
-      - 10s
-      - nginx
+      - 60s
+      - entrypoint.sh
     networks:
-      - app-network
+      app-network:
+        aliases:
+          - api.lp4a.tk
+          - www.lp4a.tk
+          - lp4a.tk
     restart: always
   go1:
     image: dev/golang
     container_name: go1
+    depends_on:
+      - mongodb
+      - redis
+    volumes:
+      - ../../backend:/server/backend
     ports:
-      - "8080"
+      - "8080:8080"
     networks:
       - app-network
     restart: always
   gon:
     image: dev/golang
     container_name: gon
+    depends_on:
+      - mongodb
+      - redis
+    volumes:
+      - ../../backend:/server/backend
     ports:
-      - "8080"
+      - "8089:8080"
+    networks:
+      - app-network
+    restart: always
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    networks:
+      - app-network
+    restart: always
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
     networks:
       - app-network
     restart: always

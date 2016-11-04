@@ -4,37 +4,35 @@ set -e
 
 main() {
 
+surround_start=";;;;; ADDED BY DEBIAN BASED TOOLS"
+surround_end=";;;;; END OF DEBIAN BASED TOOLS"
+
 sudo apt-get update
+sudo apt-get upgrade
 sudo apt-get install -y build-essential curl git
 curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
 sudo apt-get install -y nodejs
 
-surround_start=";;;;; ADDED BY TOOLS"
-surround_end=";;;;; END OF ADDED BY TOOLS"
-remove_around "$surround_start" "$surround_end" "$HOME/.npmrc"
-
 go_folder='$HOME/golang'
-yarn_folder='$HOME/.yarn-packages'
-yarn_bin="$yarn_folder/bin"
-export_yarn="export PREFIX=\"$yarn_folder\" YARN_PREFIX=\"$yarn_folder\""
+prefix='$HOME/.node-global-packages'
+prefix_bin="$prefix/bin"
+export_prefix="export PREFIX=\"$prefix\""
 export_go="export GOPATH=\"$go_folder\""
-export_path="export PATH=\"$yarn_bin:$go_folder/bin:"'$PATH"'
+export_path="export PATH=\"$prefix_bin:$go_folder/bin:"'$PATH"'
 
 eval mkdir -p "$go_folder"
-eval mkdir -p "$yarn_bin"
+eval mkdir -p "$prefix_bin"
 eval "$export_go"
-eval "$export_yarn"
+eval "$export_prefix"
 eval "$export_path"
 
 npm install -g yarn
 yarn global add angular-cli
 
-surround_start="#### ADDED BY TOOLS ####"
-surround_end="#### END OF ADDED BY TOOLS ####"
 remove_around "$surround_start" "$surround_end" "$HOME/.bashrc"
 
 echo "$surround_start" >> "$HOME/.bashrc"
-echo -e "$export_go\n$export_path\n$export_yarn" >> "$HOME/.bashrc"
+echo -e "$export_go\n$export_path\n$export_prefix" >> "$HOME/.bashrc"
 nix_init_script='$HOME/.nix-profile/etc/profile.d/nix.sh'
 cat << EOF >> "$HOME/.bashrc"
 nix_init_script="$nix_init_script"

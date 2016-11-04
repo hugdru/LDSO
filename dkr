@@ -4,156 +4,174 @@ set -e
 
 cd "${0%/*}"
 
-prod_compose_file="./docker/production/docker-compose.yml"
-dev_compose_file="./docker/development/docker-compose.yml"
-droplet="core@46.101.173.249"
-images_prod=("prod/golang" "prod/nginx")
+######################    GLOBAL VARS     ######################
 compose_version="1.8.1"
 
+exclude_context_file="./docker/exclude_context"
+
+typeset -A composes
+composes=(
+  ["prod"]="./docker/production/docker-compose.yml"
+  ["stag"]="./docker/staging/docker-compose.yml"
+  ["dev"]="./docker/development/docker-compose.yml"
+)
+
+typeset -A droplets
+droplets=(
+  ["prod"]="core@46.101.173.249"
+  ["stag"]="core@138.68.81.181"
+)
+
+# prod images are also used for staging
+typeset -A images
+images=(
+  ["prod/nginx"]="./docker/production/nginx.dockerfile"
+  ["prod/golang"]="./docker/production/go.dockerfile"
+  ["dev/nginx"]="./docker/development/nginx.dockerfile"
+  ["dev/golang"]="./docker/development/go.dockerfile"
+)
+
+typeset -A args
+args=(
+  ["build"]="build (prod|dev)"
+  ["push"]="push (images|compose) (prod|stag)"
+  ["clean"]="clean (prod|dev|stag)"
+  ["install_compose"]="install_compose (prod|stag)"
+  ["compose"]="compose [command] (prod|dev|stag)"
+  ["redo"]="redo (prod|dev|stag)"
+)
+###################### END OF GLOBAL VARS ######################
+
 main() {
-  if [[ $# -lt 1 ]]; then
-    1>&2 echo -e "$0 build (prod|dev)"
-    1>&2 echo -e "$0 push (images|compose)"
-    1>&2 echo -e "$0 clean (local|remote)"
-    1>&2 echo -e "$0 install_compose"
-    1>&2 echo -e "$0 compose (prod|dev) [command]"
-    1>&2 echo -e "$0 redo (prod|dev)"
-    exit 1
+  if [[ $# -lt 1 || -z "${args[$1]}" ]]; then
+    error
   fi
 
-  case "$1" in
-    build|push|clean|install_compose|compose|redo)
-      "$1" "${@:2}"
-      ;;
-    *)
-      1>&2 echo "Option doesnt exist"
-      exit 1
-  esac
+  "$1" "${@:2}"
 }
 
 build() {
-
-  local error="$0 $FUNCNAME (prod|dev)"
-
-  if [[ $# -ne 1 ]]; then
-    1>&2 echo "$error"
+  if [[ $# -ne 1 || "$1" != prod && "$1" != dev ]]; then
+    1>&2 echo "${args[$FUNCNAME]}"
     exit 1
   fi
 
-  local improved_context="tar -cf - --exclude-ignore-recursive=./docker/exclude_context . "
-
-  case "$1" in
-    prod)
-      $improved_context | docker build -t prod/nginx -f ./docker/production/nginx.dockerfile -
-      $improved_context | docker build -t prod/golang -f ./docker/production/go.dockerfile -
-      ;;
-    dev)
-      $improved_context | docker build -t dev/nginx -f ./docker/development/nginx.dockerfile -
-      $improved_context | docker build -t dev/golang -f ./docker/development/go.dockerfile -
-      ;;
-    *)
-      1>&2 echo "$error"
-  esac
+  for image in "${!images[@]}"; do
+    IFS='/' read -ra image_fields <<< "$image"
+    if [[ "${image_fields[0]}" != "$1" ]]; then continue; fi
+    tar -cf - --exclude-ignore-recursive="$exclude_context_file" . | docker build -t "$image" -f "${images["$image"]}" -
+  done
 }
 
 push() {
-
-  local error="$0 $FUNCNAME (images|compose)"
-
-  if [[ $# -ne 1 ]]; then
-    1>&2 echo "$error"
+  if [[ $# -ne 2 || $2 != prod && $2 != stag ]]; then
+    1>&2 echo "${args[$FUNCNAME]}"
     exit 1
   fi
 
+  local droplet="${droplets[$2]}"
+  local compose="${composes[$2]}"
+
   case "$1" in
     images)
-      for image_prod in "${images_prod[@]}"; do
-        docker save "$image_prod" | xz -9 | pv | ssh "$droplet" 'unxz | docker load'
+      for image in "${!images[@]}"; do
+        IFS='/' read -ra image_fields <<< "$image"
+        if [[ "${image_fields[0]}" != prod ]]; then continue; fi
+        docker save "$image" | xz -9 | pv | ssh "$droplet" 'unxz | docker load'
       done
       ;;
     compose)
-      scp "$prod_compose_file" "$droplet":~/"${prod_compose_file##*/}"
+      scp "$compose" "$droplet":~/"${compose##*/}"
       ;;
     *)
-      1>&2 echo "$error"
+      1>&2 echo "${args[$FUNCNAME]}"
   esac
 }
 
 clean() {
-
-  local error="$0 $FUNCNAME (local|remote)"
-
   if [[ $# -ne 1 ]]; then
-    1>&2 echo "$error"
+    1>&2 echo "${args[$FUNCNAME]}"
     exit 1
   fi
 
   local clean_command='docker rm -f $(docker ps -q -a); docker rmi $(docker images -q)'
+
   case "$1" in
-    remote)
-      ! { ssh "$droplet" "$clean_command"; }
+    prod|stag)
+      ssh "${droplets[$1]}" "$clean_command" || true
       ;;
-    local)
-      ! { eval "$clean_command"; }
+    dev)
+      eval "$clean_command" || true
       ;;
     *)
-      1>&2 echo "$error"
+      1>&2 echo "${args[$FUNCNAME]}"
       exit 1
   esac
 
 }
 
 install_compose() {
-  if [[ $# -ne 0 ]]; then
-    1>&2 echo "$0 install_compose"
+  if [[ $# -ne 1 || $1 != prod && $1 != stag ]]; then
+    1>&2 echo "${args[$FUNCNAME]}"
     exit 1
   fi
-  ssh "$droplet" 'curl -L "https://github.com/docker/compose/releases/download/'"$compose_version"'/docker-compose-$(uname -s)-$(uname -m)" > $HOME/bin/docker-compose && chmod +x "$HOME/bin/docker-compose"'
+  ssh "${droplets[$1]}" 'mkdir -p ~/bin && curl -L "https://github.com/docker/compose/releases/download/'"$compose_version"'/docker-compose-$(uname -s)-$(uname -m)" > $HOME/bin/docker-compose && chmod +x "$HOME/bin/docker-compose"'
 }
 
 compose() {
-
-  local error="$0 $FUNCNAME (prod|dev) [command]"
-
   if [[ $# -lt 1 ]]; then
-    1>&2 echo "$error"
+    1>&2 echo "${args[$FUNCNAME]}"
     exit 1
   fi
 
-  case "$1" in
-    prod)
-      ssh "$droplet" "./bin/docker-compose -f ${prod_compose_file##*/} ${@:2}"
+  local last_argument="${@: -1}"
+  local compose="${composes[$last_argument]}"
+  local compose_args=("${@:1:$(($#-1))}")
+
+  case "$last_argument" in
+    prod|stag)
+      for index in "${!compose_args[@]}"; do
+        compose_args[$index]="\"${compose_args[$index]}\""
+      done
+      ssh "${droplets[$last_argument]}" "./bin/docker-compose -f ${compose##*/} ${compose_args[@]}"
       ;;
     dev)
-      docker-compose -f "$dev_compose_file" "${@:2}"
+      docker-compose -f "$compose" "${compose_args[@]}"
       ;;
     *)
-      1>&2 echo "$error"
+      1>&2 echo "${args[$FUNCNAME]}"
   esac
 }
 
 redo() {
-  local error="$0 $FUNCNAME (prod|dev)"
-
   if [[ $# -ne 1 ]]; then
-    1>&2 echo "$error"
+    1>&2 echo "${args[$FUNCNAME]}"
     exit 1
   fi
 
   case "$1" in
-    prod)
+    prod|stag)
       build prod
-      clean remote
-      push images
-      push compose
-      compose prod up
+      clean "$1"
+      push images "$1"
+      push compose "$1"
+      compose up "$1"
       ;;
     dev)
+      clean "$1"
+      build "$1"
+      compose up "$1"
       ;;
     *)
-      1>&2 echo "$error"
+    1>&2 echo "${args[$FUNCNAME]}"
   esac
 }
 
+error() {
+    for value in "${args[@]}"; do
+      1>&2 echo -e "$value"
+    done
+    exit 1
+}
 
 main "$@"

@@ -9,8 +9,10 @@ ENV \
   GOLANG_VERSION="1.7.3" \
   GOLANG_DOWNLOAD_SHA256="508028aac0654e993564b6e2014bf2d4a9751e3b286661b0b0040046cf18028e" \
   WATCHMAN_VERSION="v4.7.0" \
-  PERSISTENT_APT_PACKAGES="git libpcre++0 libpcre3" \
-  TEMPORARY_APT_PACKAGES="autoconf automake build-essential curl python-dev libpcre3-dev libpcre++-dev"
+  PERSISTENT_APT_PACKAGES="git libpcre++0 libpcre3 ca-certificates" \
+  TEMPORARY_APT_PACKAGES="autoconf automake build-essential curl python-dev libpcre3-dev libpcre++-dev" \
+  DOCKERIZE_VERSION="v0.2.0" \
+  DOCKERIZE_DOWNLOAD_SHA256="c0e2e33cfe066036941bf8f2598090bd8e01fdc05128490238b2a64cf988ecfb"
 
 ENV HOME="/$USER"
 ENV BACKEND_DIR="$HOME/backend"
@@ -31,6 +33,9 @@ RUN \
       rm golang.tar.gz && \
       git clone https://github.com/facebook/watchman.git /watchman && \
       cd watchman git checkout "$WATCHMAN_VERSION" && ./autogen.sh && ./configure && make && make install && \
+      curl -fsSL "https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz" -o dockerize.tar.gz && \
+      echo "$DOCKERIZE_DOWNLOAD_SHA256  dockerize.tar.gz" | sha256sum -c - && \
+      tar -C /usr/local/bin -xzvf dockerize.tar.gz && rm dockerize.tar.gz && \
       apt-get remove --purge -y $TEMPORARY_APT_PACKAGES && \
       rm -rf /var/lib/apt/lists/* /watchman && \
       apt-get autoremove -y && \
@@ -52,5 +57,4 @@ RUN go get github.com/constabulary/gb/...
 
 EXPOSE 8080
 
-WORKDIR "$BACKEND_DIR"
 ENTRYPOINT ["entrypoint.sh"]

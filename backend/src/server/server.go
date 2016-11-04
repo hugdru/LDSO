@@ -2,14 +2,13 @@ package main
 
 import (
 	"net/http"
-	"server/db"
 	"server/conn"
+	"server/db"
 )
-
 
 func main() {
 
-	session := db.StartConn("localhost:27017")
+	session := db.StartConn("mongodb:27017")
 	defer db.CloseConn(session)
 
 	http.HandleFunc("/getAllMainGroups", conn.GetAll(db.Coll["main_group"]))

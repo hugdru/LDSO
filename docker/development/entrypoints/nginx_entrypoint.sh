@@ -1,10 +1,7 @@
 #!/usr/bin/env bash
 
+nginx
+
 cd "$FRONTEND_DIR"
-npm install && watchman -j <<"EOF"
-["trigger", ".", {
-  "name": "angular_assets",
-  "command": ["ng", "build"],
-  "append_files": false
-}]
-EOF
+# ng build -dev --watch true
+ng serve --port 4200 --host 0.0.0.0
