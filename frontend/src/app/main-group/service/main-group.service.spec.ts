@@ -12,7 +12,7 @@ import {
 
 import { ResponseOptions } from '@angular/http';
 import { MockBackend, MockConnection } from '@angular/http/testing';
-import { GroupService } from 'group/service/group.service';
+import { MainGroupService } from 'main-group/service/main-group.service';
 import { HandlerService } from 'handler.service';
 
 const mockArray = [
@@ -21,13 +21,13 @@ const mockArray = [
 ];
 const mock = { _id: 26, name: "ana", weight: 30};
 
-describe('Group Service w/ Mock Service', () => {
+describe('MainGroup Service w/ Mock Service', () => {
 	let mockBackend: MockBackend;
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
 			providers: [
-				GroupService,
+				MainGroupService,
 				HandlerService,
 				MockBackend,
 				BaseRequestOptions,
@@ -47,7 +47,7 @@ describe('Group Service w/ Mock Service', () => {
 	}));
 
 	it('Get all groups', async(() => {
-		let groupService: GroupService = getTestBed().get(GroupService);
+		let groupService: MainGroupService = getTestBed().get(MainGroupService);
 
 		mockBackend.connections.subscribe((connection: MockConnection) => {
 			connection.mockRespond(new Response(new ResponseOptions({
@@ -55,13 +55,13 @@ describe('Group Service w/ Mock Service', () => {
 			})));
 		});
 
-		groupService.getGroups().subscribe((data) => {
+		groupService.getMainGroups().subscribe((data) => {
 			expect(data).toBe(mockArray);
 		});
 	}));
 
 	it('Get one group', async(() => {
-		let groupService: GroupService = getTestBed().get(GroupService);
+		let groupService: MainGroupService = getTestBed().get(MainGroupService);
 
 		mockBackend.connections.subscribe((connection: MockConnection) => {
 			connection.mockRespond(new Response(new ResponseOptions({
@@ -69,13 +69,13 @@ describe('Group Service w/ Mock Service', () => {
 			})));
 		});
 
-		groupService.getGroup("name", "int", 1).subscribe((data) => {
+		groupService.getMainGroup("name", "int", 1).subscribe((data) => {
 			expect(data).toBe(mock);
 		});
 	}));
 
 	it('Updade a group', async(() => {
-		let groupService: GroupService = getTestBed().get(GroupService);
+		let groupService: MainGroupService = getTestBed().get(MainGroupService);
 
 		mockBackend.connections.subscribe((connection: MockConnection) => {
 			connection.mockRespond(new Response(new ResponseOptions({
@@ -83,7 +83,7 @@ describe('Group Service w/ Mock Service', () => {
 			})));
 		});
 
-		groupService.updateGroup(5, "name", "string", "henrique")
+		groupService.updateMainGroup(5, "name", "string", "henrique")
 				.subscribe((result => {
 			expect(result).toBeDefined();
 			expect(result.status).toBe(200);
@@ -91,7 +91,7 @@ describe('Group Service w/ Mock Service', () => {
 	}));
 
 	it('Add a new group',
-			async(inject([GroupService], (groupService) => {
+			async(inject([MainGroupService], (groupService) => {
 		mockBackend.connections
 				.subscribe((connection: MockConnection) => {
 			expect(connection.request.method).toBe(RequestMethod.Post);
@@ -99,14 +99,14 @@ describe('Group Service w/ Mock Service', () => {
 					new ResponseOptions({status: 201})));
 		});
 
-		groupService.setGroup(mock).subscribe((result => {
+		groupService.setMainGroup(mock).subscribe((result => {
 			expect(result).toBeDefined();
 			expect(result.status).toBe(201);
 		}));
 	})));
 
 	it('Delete a group',
-			async(inject([GroupService], (groupService) => {
+			async(inject([MainGroupService], (groupService) => {
 		mockBackend.connections
 				.subscribe((connection: MockConnection) => {
 			expect(connection.request.method).toBe(RequestMethod.Get);
@@ -114,7 +114,7 @@ describe('Group Service w/ Mock Service', () => {
 					new ResponseOptions({status: 204})));
 		});
 
-		groupService.removeGroup(15).subscribe((result => {
+		groupService.removeMainGroup(15).subscribe((result => {
 			expect(result).toBeDefined();
 			expect(result.status).toBe(204);
 		}));

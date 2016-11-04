@@ -1,4 +1,4 @@
-describe('Group Service e2e',() => {
+describe('MainGroup Service e2e',() => {
 	it('should click something', () => {
 		browser.get('http://localhost:4200');
 
