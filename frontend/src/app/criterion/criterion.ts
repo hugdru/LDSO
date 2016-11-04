@@ -1,5 +1,3 @@
-import { Accessibility } from 'accessibility/accessibility';
-
 export class Criterion {
 	_id: number;
 	name: string;

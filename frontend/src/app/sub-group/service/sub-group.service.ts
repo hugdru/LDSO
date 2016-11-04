@@ -1,17 +1,29 @@
+import { Response } from '@angular/http';
 import { Injectable } from '@angular/core';
-import { Http, Response } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 
-import 'rxjs/add/operator/map';
-
-import { SharedData } from 'shared/shared-data';
+import {
+	getSubGroupsUrl,
+	getSubGroupUrl,
+	setSubGroupUrl
+} from 'shared/shared-data';
+import { HandlerService } from 'handler.service';
+import { SubGroup } from 'sub-group/sub-group';
 
 @Injectable()
 export class SubGroupService {
-	private subGroups: SubGroup[];
+	 constructor(private handler: HandlerService) { }
 
-	 constructor(private http: Http) { }
+	 getSubGroups(): Observable<SubGroup[]> {
+		 return this.handler.get<SubGroup[]>(getSubGroupsUrl);
+	 }
 
-	 getSubGroup(name: string): Observable<SubGroup> {
+	 getSubGroup(tag: string, type: string, value: any): Observable<SubGroup> {
+		 return this.handler.get<SubGroup>(getSubGroupUrl + "?tag=" + tag
+			   + "&type=" + type + "&value=" + value);
+	 }
+
+	 setSubGroup(subGroup: SubGroup): Observable<Response> {
+		 return this.handler.set<SubGroup>(subGroup, setSubGroupUrl);
 	 }
 }

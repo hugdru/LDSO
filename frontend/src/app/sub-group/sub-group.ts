@@ -1,5 +1,3 @@
-import { Criterion } from 'criterion/criterion';
-
 export class SubGroup {
 	_id: number;
 	name: string;
