@@ -34,7 +34,17 @@ export class SubGroupComponent implements OnDestroy{
 
     this.formVar.addSubGroup(this.id,SubGroup_Name);
    // this.formVar.addCriterios(this.id,SubGroup_Name,'teste');
-    console.log(SubGroup_Name);
-    console.log(this.formGroup.value[this.id]);
+   // console.log(this.formGroup.value[this.id][0]);
+   // console.log(this.formGroup.value[this.id]);
+   // console.log(this.formGroup.value[this.id].length);
   }
+  onAddCriteria(novo_cretire: string,Subclass: string){
+   // this.formVar.addCriterios(this.id,Subclass,novo_cretire);
+
+    console.log(this.formGroup.value[this.id][Subclass][0]);
+    console.log(novo_cretire);
+    console.log(Subclass);
+
+  }
+
 }

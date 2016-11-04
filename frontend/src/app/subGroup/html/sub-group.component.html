@@ -1,16 +1,32 @@
-<div class="form_criterion panel col-sm-10">
+<div class="form_criterion panel col-sm-16">
   <label class="col-form-label">{{id}}</label>
   <form [formGroup]="formGroup" (ngSubmit)="onSubmit()">
     <div>
       <label class="col-form-label">Sub-Group</label>
-      <input id="demo_vertical" type="text"  name="demo_vertical" #Input>
-      <button  class="btn btn-primary glyphicon glyphicon-plus" (click)="onAddSubgroup(Input.value)"> </button>
-      <!--<div class="col-xs-10" *ngFor="let item of '{{formGroup.value[id]}}'; let i = index">
+      <input id="subGroup" type="text"  name="subGroup" #Input_subGroup>
+      <button  class="btn btn-primary glyphicon glyphicon-plus" (click)="onAddSubgroup(Input_subGroup.value)"> </button>
+      <div class="col-xs-14" *ngFor="let item of formGroup.value[id]; let i = index" >
+        <label class="col-form-label">Nome do subgroup {{item}}</label>
+        <input id="criterios"  type="text"  name="criterios" #Input_Criteria>
+        <button  class="btn btn-primary glyphicon glyphicon-plus" (click)="onAddCriteria(Input_Criteria.value,i)">adicionar</button>
+        <div class="col-xs-12"> <!--*ngFor="let itemC of formGroup.value[id][i]; let k = index">-->
+          <br>
+          <label class="col-form-label">Nome Criterio</label>
+          <br>
+          <br>
+          Physical<input  type="number"  name="physical" class="btn-sm bfh-number">
+          Auditory<input  type="number"  name="auditory" class="btn-sm bfh-number">
+          Visual<input  type="number"  name="visual" class="btn-sm bfh-number">
+          Cognitive<input  type="number"  name="cognitive" class="btn-sm bfh-number">
+          <br>
+          Comments
+          <br>
+          <input  type="text"  name="comments" class="form-control">
+          <button  class="btn btn-primary  glyphicon glyphicon-minus" > apagar</button>
+        </div>
       </div>
--->
-
-
-      <button type="submit" class="btn btn-primary submit" >Sub groups</button>
+      <br>
+      <button type="submit" class="btn btn-primary pull-right submit " >Save</button>
     </div>
   </form>
 </div>

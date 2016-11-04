@@ -19,17 +19,19 @@ export class FormInfoService{
   addSubGroup(main_Group: string, sub_group: string){
     this.myFormSubForm.value[main_Group].push({[sub_group]: new FormGroup({})});
   }
-/*
   addCriterios(main_Group: string, sub_group: string, criteria: string){
-    (this.myFormSubForm.value[main_Group]).value[sub_group].push(new FormGroup(
-      {criteria : new FormControl(['bom',Validators.required()]),
-        'fisica': new FormControl(['0',Validators.required()]),
-        'auditiva': new FormControl(['0',Validators.required()]),
-        'visual': new FormControl(['0',Validators.required()]),
-        'cognitiva': new FormControl(['0',Validators.required()])
+    this.myFormSubForm.value[main_Group][sub_group].push(new FormGroup(
+      {
+        [criteria]:new FormControl(['bom']),
+        'physical':new FormControl(['0']),
+        'auditory':new FormControl(['0']),
+        'visual':new FormControl(['0']),
+        'cognitive':new FormControl(['0']),
+        'comentarios':new FormControl(['Escrever comentarios'])
       }
     ));
-  }*/
+  }
+
   getFormGroup(){
     return this.myFormSubForm;
   }
