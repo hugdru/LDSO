@@ -20,9 +20,10 @@ export class TestGroupComponent implements OnInit {
 	}
 
 	initGroups(): void {
-		this.mainGroupService.getMainGroups().subscribe(
-			data => {this.groups = data; console.log(this.groups);},
-			error => this.errMsg = <any>error
-		);
+		this.mainGroupService.updateMainGroup(5, "name", "string", "casa");
+		// this.mainGroupService.getMainGroups().subscribe(
+		// 	data => {this.groups = data; console.log(this.groups);},
+		// 	error => this.errMsg = <any>error
+		// );
 	}
 }

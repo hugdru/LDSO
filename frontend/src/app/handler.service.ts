@@ -29,17 +29,18 @@ export class HandlerService {
 			: Observable<T> {
 		let formated = url + "?tag=" + tag + "&type=" + type
 				+ "&value=" + value;
+		console.log(formated);
 		return this.getAll<T>(formated);
 	}
 
 	getAll<T>(url: string): Observable<T> {
 		return this.http.get(url)
-				.map((result: Response) => result.json())
+				.map((result: Response) => {result.json(); console.log("res")})
 				.map((data: any) => {
 					let result: T = null;
 					if(data) {
 						result = data;
-						console.log(result);
+						console.log("data");
 					}
 					return result;
 				}).catch(this.handleError);
