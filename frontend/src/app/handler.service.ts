@@ -26,8 +26,16 @@ export class HandlerService {
 			return Observable.throw(errMsg);
 		}
 
+		getOne<T>(url: string, tag: string, type: string, value: any)
+				: Observable<T> {
+			let formated = url + "?tag=" + tag + "&type=" + type
+					+ "&value=" + value;
+			return this.get<T>(formated);
+		}
+
 		get<T>(url: string): Observable<T> {
-			return this.http.get(url).map((result: Response) => result.json())
+			return this.http.get(url)
+					.map((result: Response) => result.json())
 					.map((data: any) => {
 						let result: T = null;
 						if(data) {
@@ -37,8 +45,16 @@ export class HandlerService {
 					}).catch(this.handleError);
 		}
 
-		change(url: string): Observable<Response> {
-			return this.http.get(url).map((result: Response) => result);
+		update(url: string, id: number, tag: string, type: string, value: any)
+				: Observable<Response> {
+			let formated = url + "?_id" + id + "&tag=" + tag + "&type=" + type
+					+ "&value=" + value;
+			return this.http.get(formated).map((result: Response) => result);
+		}
+
+		delete(url: string, id: number): Observable<Response> {
+			let formated = url + "?_id" + id;
+			return this.http.get(formated).map((result: Response) => result);
 		}
 
 		set<T>(object: T, url: string): Observable<Response> {

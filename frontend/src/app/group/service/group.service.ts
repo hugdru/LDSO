@@ -14,6 +14,7 @@ import { Group } from 'group/group';
 
 @Injectable()
 export class GroupService {
+
 	constructor(private handler: HandlerService) { }
 
 	private handleError (error: Response | any) {
@@ -35,14 +36,12 @@ export class GroupService {
 	}
 
 	getGroup(tag: string, type: string, value: any): Observable<Group> {
-		return this.handler.get<Group>(getGroupUrl + "?tag=" + tag + "&type="
-			   + type + "&value=" + value);
+		return this.handler.getOne<Group>(getGroupUrl, tag, type, value);
 	}
 
 	updateGroup(id: number, tag: string, type: string, value: any)
 			: Observable<Response> {
-		return this.handler.change(updateGroupUrl + "?_id"+ id + "&tag=" + tag 
-			   + "&type=" + type + "&value=" + value);
+		return this.handler.update(updateGroupUrl, id, tag, type, value);
 	}
 
 	setGroup(group: Group): Observable<Response> {
@@ -50,6 +49,6 @@ export class GroupService {
 	}
 
 	removeGroup(id: number): Observable<Response> {
-		return this.handler.change(removeGroupUrl + "?_id" + id);
+		return this.handler.delete(removeGroupUrl, id);
 	}
 }

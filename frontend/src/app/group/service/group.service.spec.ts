@@ -102,4 +102,20 @@ describe('Group Service', () => {
 			expect(result.status).toBe(201);
 		}));
 	})));
+
+	it('should remove a group',
+			async(inject([GroupService], (groupService) => {
+		mockBackend.connections
+				.subscribe((connection: MockConnection) => {
+			expect(connection.request.method).toBe(RequestMethod.Post);
+			connection.mockRespond(new Response(
+					new ResponseOptions({status: 204})));
+		});
+
+		let mock = {_id: 24, name: "ana", weight: 20};
+		groupService.setGroup(mock).subscribe((result => {
+			expect(result).toBeDefined();
+			expect(result.status).toBe(204);
+		}));
+	})));
 });
