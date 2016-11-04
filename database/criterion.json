@@ -1,0 +1,14 @@
+{
+  "_id": 1,
+  "name": "Autocarros",
+  "weight": 10,
+  "legislation": "",
+  "sub_group": 1
+}
+{
+  "_id": 2,
+  "name": "Metro",
+  "weight": 90,
+  "legislation": "Decreto de lei xpto",
+  "sub_group": 1
+}

@@ -6,6 +6,10 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+var (
+	Coll map[string]*mgo.Collection
+)
+
 type InsertFunc func(c *mgo.Collection, args ...interface{})
 
 func StartConn(addr string) *mgo.Session {
@@ -13,6 +17,12 @@ func StartConn(addr string) *mgo.Session {
 	if err != nil {
 		panic(err)
 	}
+	Coll = make(map[string]*mgo.Collection)
+	Coll["main_group"] = GetCollection(session, "Places4All", "main_group")
+	Coll["sub_group"] = GetCollection(session, "Places4All", "sub_group")
+	Coll["criterion"] = GetCollection(session, "Places4All", "criterion")
+	Coll["accessibility"] = GetCollection(session, "Places4All", "accessibility")
+	Coll["property"] = GetCollection(session, "Places4All", "property")
 	return session
 }
 
@@ -25,50 +35,44 @@ func GetCollection(session *mgo.Session, db_name,
 	return session.DB(db_name).C(c_name)
 }
 
-func Insert(c *mgo.Collection, args ...interface{}) {
-	err := c.Insert(args...)
+func Insert(c *mgo.Collection, documents ...interface{}) {
+	err := c.Insert(documents...)
 	if err != nil {
-		log.Print(err)
+		log.Panic(err)
 	}
 }
 
-func FindOne(c *mgo.Collection, arg interface{}, tag, value string) {
-	err := c.Find(bson.M{tag: value}).One(&arg)
+func FindOne(c *mgo.Collection, document interface{}, tag string, value interface{}) {
+	err := c.Find(bson.M{tag: value}).One(document)
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 }
 
-func Find(c *mgo.Collection, arg interface{}, tag, value string) {
-	err := c.Find(bson.M{tag: value}).Limit(100).Iter().All(&arg)
+func Find(c *mgo.Collection, documents interface{}, tagged bool, tag string, value interface{}) {
+	var err error
+	if (tagged) {
+		err = c.Find(bson.M{tag: value}).Iter().All(documents)
+	} else {
+		err = c.Find(bson.M{}).Iter().All(documents)
+	}
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 }
 
-func FindAll(c *mgo.Collection, arg []interface{}) {
-	err := c.Find(bson.M{}).Limit(100).Iter().All(&arg)
+func Update(c *mgo.Collection, document interface{}, tag string, value interface{}) {
+	change := bson.M{"$set": bson.M{tag: value}}
+	err := c.Update(document, change)
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 }
 
-func EnsureUnique(c *mgo.Collection, tag string) {
-	index := mgo.Index{
-		Key: []string{tag},
-		Unique: true,
-	}
-
-	err := c.EnsureIndex(index)
+func Remove(c *mgo.Collection, tag string, value interface{}) {
+	err := c.Remove(bson.M{tag: value})
 	if err != nil {
-		log.Print(err)
-	}
-}
+		log.Panic(err)
 
-func ExistsCollections(session *mgo.Session, name string) bool {
-	names, err := session.DB(name).CollectionNames()
-	if err != nil {
-		log.Fatal(err)
 	}
-	return len(names) != 0
 }
