@@ -111,6 +111,7 @@ func GetAll(coll *mgo.Collection) http.HandlerFunc {
 		if err != nil {
 			log.Panic(err)
 		}
+		log.Println(documents)
 	}
 }
 
@@ -124,6 +125,7 @@ func Get(coll *mgo.Collection) http.HandlerFunc {
 		if err != nil {
 			log.Panic(err)
 		}
+		log.Println(documents)
 	}
 }
 
@@ -138,8 +140,10 @@ func GetOne(coll *mgo.Collection) http.HandlerFunc {
 		if err != nil {
 			log.Panic(err)
 		}
+		log.Println(document)
 	}
 }
+
 func Set(coll *mgo.Collection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		document := GetDocument(coll.Name)
@@ -150,6 +154,7 @@ func Set(coll *mgo.Collection) http.HandlerFunc {
 			log.Panic(err)
 		}
 		db.Insert(coll, &document)
+		log.Println(document)
 	}
 }
 
@@ -164,11 +169,16 @@ func Update(coll *mgo.Collection) http.HandlerFunc {
 		tag := r.FormValue("tag")
 		value := GetValue(r)
 		db.Update(coll, document, tag, value)
+		db.FindOne(coll, &document, "_id", id)
+		log.Println(document)
 	}
 }
 
 func RecursiveRemove(coll *mgo.Collection, id int) {
+	document := GetDocument(coll.Name)
+	db.FindOne(coll, &document, "_id", id)
 	db.Remove(coll, "_id", id)
+	log.Println(document)
 	var child_coll *mgo.Collection
 	switch coll.Name {
 	case "main_group":
