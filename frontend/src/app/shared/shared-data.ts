@@ -1,29 +1,29 @@
 export const serverUrl = 'http://localhost:8080';
 
-export const getMainGroupsUrl = this.serverUrl + '/getAllMainGroups';
-export const getSomeMainGroupsUrl = this.serverUrl + '/getMainGroups';
-export const getMainGroupUrl = this.serverUrl + '/getOneMainGroup';
-export const updateMainGroupUrl = this.serverUrl + '/updateMainGroup';
-export const setMainGroupUrl = this.serverUrl + '/setMainGroup';
-export const removeMainGroupUrl = this.serverUrl + '/removeMainGroup';
+export const getMainGroupsUrl = serverUrl + '/getAllMainGroups';
+export const getSomeMainGroupsUrl = serverUrl + '/getMainGroups';
+export const getMainGroupUrl = serverUrl + '/getOneMainGroup';
+export const updateMainGroupUrl = serverUrl + '/updateMainGroup';
+export const setMainGroupUrl = serverUrl + '/setMainGroup';
+export const removeMainGroupUrl = serverUrl + '/removeMainGroup';
 
-export const getSubGroupsUrl = this.serverUrl + '/getAllSubGroups';
-export const getSomeSubGroupsUrl = this.serverUrl + '/getSubGroups';
-export const getSubGroupUrl = this.serverUrl + '/getOneSubGroup';
-export const updateSubGroupUrl = this.serverUrl + '/updateSubGroup';
-export const setSubGroupUrl = this.serverUrl + '/setSubGroup';
-export const removeSubGroupUrl = this.serverUrl + '/removeSubMainGroup';
+export const getSubGroupsUrl = serverUrl + '/getAllSubGroups';
+export const getSomeSubGroupsUrl = serverUrl + '/getSubGroups';
+export const getSubGroupUrl = serverUrl + '/getOneSubGroup';
+export const updateSubGroupUrl = serverUrl + '/updateSubGroup';
+export const setSubGroupUrl = serverUrl + '/setSubGroup';
+export const removeSubGroupUrl = serverUrl + '/removeSubMainGroup';
 
-export const getCriteriaUrl = this.serverUrl + '/getAllCriteria';
-export const getSomeCriteriaUrl = this.serverUrl + '/getCriteria';
-export const getCriterionUrl = this.serverUrl + '/getOneCriterion';
-export const updateCriterionUrl = this.serverUrl + '/updateCriterion';
-export const setCriterionUrl = this.serverUrl + '/setCriterion';
-export const removeCriterionUrl = this.serverUrl + '/removeCriterion';
+export const getCriteriaUrl = serverUrl + '/getAllCriteria';
+export const getSomeCriteriaUrl = serverUrl + '/getCriteria';
+export const getCriterionUrl = serverUrl + '/getOneCriterion';
+export const updateCriterionUrl = serverUrl + '/updateCriterion';
+export const setCriterionUrl = serverUrl + '/setCriterion';
+export const removeCriterionUrl = serverUrl + '/removeCriterion';
 
-export const getAccessibilitiesUrl = this.serverUrl + '/getAllAccessibilities';
-export const getSomeAccessibilitiesUrl = this.serverUrl + '/getAccessibilities';
-export const getAccessibilityUrl = this.serverUrl + '/getOneAccessibility';
-export const updateAccessibilityUrl = this.serverUrl + '/updateAccessibility';
-export const setAccessibilityUrl = this.serverUrl + '/setAccessibility';
-export const removeAccessibilityUrl = this.serverUrl + '/removeAccessibility';
+export const getAccessibilitiesUrl = serverUrl + '/getAllAccessibilities';
+export const getSomeAccessibilitiesUrl = serverUrl + '/getAccessibilities';
+export const getAccessibilityUrl = serverUrl + '/getOneAccessibility';
+export const updateAccessibilityUrl = serverUrl + '/updateAccessibility';
+export const setAccessibilityUrl = serverUrl + '/setAccessibility';
+export const removeAccessibilityUrl = serverUrl + '/removeAccessibility';
