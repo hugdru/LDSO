@@ -4,6 +4,7 @@ import { Observable } from 'rxjs/Observable';
 
 import {
 	getMainGroupsUrl,
+	getSomeMainGroupsUrl,
 	getMainGroupUrl,
 	updateMainGroupUrl,
 	setMainGroupUrl,
@@ -18,11 +19,17 @@ export class MainGroupService {
 	constructor(private handler: HandlerService) { }
 
 	getMainGroups(): Observable<MainGroup[]> {
-		return this.handler.get<MainGroup[]>(getMainGroupsUrl);
+		return this.handler.getAll<MainGroup[]>(getMainGroupsUrl);
+	}
+
+	getSomeMainGroups(tag: string, type: string, value: any)
+			: Observable<MainGroup[]> {
+		return this.handler.get<MainGroup[]>(getSomeMainGroupUrl, tag, type,
+				 value);
 	}
 
 	getMainGroup(tag: string, type: string, value: any): Observable<MainGroup> {
-		return this.handler.getOne<MainGroup>(getMainGroupUrl, tag, type, value);
+		return this.handler.get<MainGroup>(getMainGroupUrl, tag, type, value);
 	}
 
 	updateMainGroup(id: number, tag: string, type: string, value: any)

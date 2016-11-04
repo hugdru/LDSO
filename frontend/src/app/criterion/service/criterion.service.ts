@@ -4,6 +4,7 @@ import { Observable } from 'rxjs/Observable';
 
 import {
 	getCriteriaUrl,
+	getSomeCriteriaUrl,
 	getCriterionUrl,
 	updateCriterionUrl,
 	setCriterionUrl,
@@ -17,7 +18,13 @@ export class CriterionService {
 	constructor(private handler: HandlerService) {}
 
 	getCriteria(): Observable<Criterion[]> {
-		return this.handler.get<Criterion[]>(getCriteriaUrl);
+		return this.handler.getAll<Criterion[]>(getCriteriaUrl);
+	}
+
+	getSomeCriteria(tag: string, type: string, value: any)
+			: Observable<Criterion[]> {
+		return this.handler.get<Criterion[]>(getCriterionUrl, tag, type,
+				value);
 	}
 
 	getCriterion(tag: string, type: string, value: any)

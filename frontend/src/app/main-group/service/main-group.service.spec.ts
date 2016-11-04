@@ -46,7 +46,7 @@ describe('MainGroup Service w/ Mock Service', () => {
 		mockBackend = getTestBed().get(MockBackend);
 	}));
 
-	it('Get all groups', async(() => {
+	it('Get all main groups', async(() => {
 		let groupService: MainGroupService = getTestBed().get(MainGroupService);
 
 		mockBackend.connections.subscribe((connection: MockConnection) => {
@@ -60,7 +60,21 @@ describe('MainGroup Service w/ Mock Service', () => {
 		});
 	}));
 
-	it('Get one group', async(() => {
+	it('Get some main groups', async(() => {
+		let groupService: MainGroupService = getTestBed().get(MainGroupService);
+
+		mockBackend.connections.subscribe((connection: MockConnection) => {
+			connection.mockRespond(new Response(new ResponseOptions({
+				body: mockArray
+			})));
+		});
+
+		groupService.getSomeMainGroups("weight", "string", "ana").subscribe((data) => {
+			expect(data).toBe(mockArray);
+		});
+	}));
+
+	it('Get one main group', async(() => {
 		let groupService: MainGroupService = getTestBed().get(MainGroupService);
 
 		mockBackend.connections.subscribe((connection: MockConnection) => {
@@ -69,12 +83,12 @@ describe('MainGroup Service w/ Mock Service', () => {
 			})));
 		});
 
-		groupService.getMainGroup("name", "int", 1).subscribe((data) => {
+		groupService.getMainGroup("weight", "int", 1).subscribe((data) => {
 			expect(data).toBe(mock);
 		});
 	}));
 
-	it('Updade a group', async(() => {
+	it('Updade a main group', async(() => {
 		let groupService: MainGroupService = getTestBed().get(MainGroupService);
 
 		mockBackend.connections.subscribe((connection: MockConnection) => {
@@ -90,7 +104,7 @@ describe('MainGroup Service w/ Mock Service', () => {
 		}));
 	}));
 
-	it('Add a new group',
+	it('Add a new main group',
 			async(inject([MainGroupService], (groupService) => {
 		mockBackend.connections
 				.subscribe((connection: MockConnection) => {
@@ -105,7 +119,7 @@ describe('MainGroup Service w/ Mock Service', () => {
 		}));
 	})));
 
-	it('Delete a group',
+	it('Delete a main group',
 			async(inject([MainGroupService], (groupService) => {
 		mockBackend.connections
 				.subscribe((connection: MockConnection) => {

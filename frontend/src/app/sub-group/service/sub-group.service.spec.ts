@@ -60,6 +60,21 @@ describe('SubGroup Service w/ Mock Service', () => {
 		});
 	}));
 
+	it('Get some subgroups', async(() => {
+		let subGroupService: SubGroupService = getTestBed().get(SubGroupService);
+
+		mockBackend.connections.subscribe((connection: MockConnection) => {
+			connection.mockRespond(new Response(new ResponseOptions({
+				body: mockArray
+			})));
+		});
+
+		subGroupService.getSomeSubGroups("main_group", "int", 5)
+				.subscribe((data) => {
+			expect(data).toBe(mockArray);
+		});
+	}));
+
 	it('Get one subgroup', async(() => {
 		let subGroupService: SubGroupService = getTestBed().get(SubGroupService);
 

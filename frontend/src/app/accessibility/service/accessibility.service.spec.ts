@@ -63,6 +63,22 @@ describe('Accessibility Service w/ Mock Server', () => {
 		});
 	}));
 
+	it('Get some accessibilities', async(() => {
+		let accessibilityService: AccessibilityService = getTestBed()
+				.get(AccessibilityService);
+
+		mockBackend.connections.subscribe((connection: MockConnection) => {
+			connection.mockRespond(new Response(new ResponseOptions({
+				body: mockArray
+			})));
+		});
+
+		accessibilityService.getSomeAccessibilities("criterion", "int", 12)
+				.subscribe((data) => {
+			expect(data).toBe(mockArray);
+		});
+	}));
+
 	it('Get one accessibility', async(() => {
 		let accessibilityService: AccessibilityService = getTestBed()
 				.get(AccessibilityService);
