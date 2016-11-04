@@ -4,6 +4,7 @@ export const getGroupsUrl = this.serverUrl + '/getAllMainGroups';
 export const getGroupUrl = this.serverUrl + '/getOneMainGroup';
 export const updateGroupUrl = this.serverUrl + '/updateMainGroup';
 export const setGroupUrl = this.serverUrl + '/setMainGroup';
+export const removeGroupUrl = this.serverUrl + '/removeMainGroup';
 
 export const getSubGroupsUrl = this.serverUrl + '/getAllSubGroups';
 export const getSubGroupUrl = this.serverUrl + '/getOneSubGroup';
