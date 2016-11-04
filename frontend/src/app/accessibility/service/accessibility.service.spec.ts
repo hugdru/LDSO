@@ -17,7 +17,13 @@ import {
 } from 'accessibility/service/accessibility.service';
 import { HandlerService } from 'handler.service';
 
-describe('Accessibility Service', () => {
+const mockArray = [
+	{_id: 5, name: "carlos", weight: 25, criterion: 25},
+	{_id: 2, name: "pedro", weight: 30, criterion: 25}
+];
+const mock = {_id: 5, name: "carlos", weight: 25, criterion: 25};
+
+describe('Accessibility Service w/ Mock Server', () => {
 	let mockBackend: MockBackend;
 
 	beforeEach(async(() => {
@@ -42,43 +48,22 @@ describe('Accessibility Service', () => {
 		mockBackend = getTestBed().get(MockBackend);
 	}));
 
-	it('should get accessibilities from accessibilityservice', async(() => {
-		let mock = [
-			{
-				_id: 5,
-				name: "carlos",
-				weight: 25,
-				criterion: 25
-			},
-			{
-				_id: 2,
-				name: "pedro",
-				weight: 30,
-				criterion: 25
-			}];
+	it('Get all accessibilities', async(() => {
 		let accessibilityService: AccessibilityService = getTestBed()
 				.get(AccessibilityService);
 
 		mockBackend.connections.subscribe((connection: MockConnection) => {
 			connection.mockRespond(new Response(new ResponseOptions({
-				body: mock
+				body: mockArray
 			})));
 		});
 
 		accessibilityService.getAccessibilities().subscribe((data) => {
-			expect(data).toBe(mock);
+			expect(data).toBe(mockArray);
 		});
 	}));
 
-	it('should get a accessibilities from accessibilities service using tags',
-			async(() => {
-		let mock =
-			{
-				_id: 5,
-				name: "carlos",
-				weight: 25,
-				criterion: 25
-			};
+	it('Get one accessibility', async(() => {
 		let accessibilityService: AccessibilityService = getTestBed()
 				.get(AccessibilityService);
 
@@ -94,25 +79,49 @@ describe('Accessibility Service', () => {
 		});
 	}));
 
-	it('should insert a new accessibility',
+
+	it('Update an accessibility', async(() => {
+		let accessibilityService: AccessibilityService = getTestBed()
+				.get(AccessibilityService);
+
+		mockBackend.connections.subscribe((connection: MockConnection) => {
+			connection.mockRespond(new Response(new ResponseOptions({
+				status: 200
+			})));
+		});
+
+		accessibilityService.updateAccessibility(5, "name", "string", "henrique")
+				.subscribe((result => {
+			expect(result).toBeDefined();
+			expect(result.status).toBe(200);
+		}));
+	}));
+
+	it('Add a new accessibiliy',
 			async(inject([AccessibilityService], (accessibilityService) => {
 		mockBackend.connections.subscribe((connection: MockConnection) => {
 			expect(connection.request.method).toBe(RequestMethod.Post);
 			connection.mockRespond(new Response(
 					new ResponseOptions({status: 201})));
 		});
-
-		let mock =
-			{
-				_id: 5,
-				name: "carlos",
-				weight: 25,
-				criterion: 25
-			};
 		accessibilityService.setAccessibility(mock).subscribe((result => {
 			expect(result).toBeDefined();
 			expect(result.status).toBe(201);
 		}));
 	})));
 
+	it('Delete an accessibility',
+			async(inject([AccessibilityService], (accessibilityService) => {
+		mockBackend.connections
+				.subscribe((connection: MockConnection) => {
+			expect(connection.request.method).toBe(RequestMethod.Get);
+			connection.mockRespond(new Response(
+					new ResponseOptions({status: 204})));
+		});
+
+		accessibilityService.removeAccessibility(20).subscribe((result => {
+			expect(result).toBeDefined();
+			expect(result.status).toBe(204);
+		}));
+	})));
 });

@@ -15,7 +15,13 @@ import { MockBackend, MockConnection } from '@angular/http/testing';
 import { SubGroupService } from 'sub-group/service/sub-group.service';
 import { HandlerService } from 'handler.service';
 
-describe('Sub-Group Service', () => {
+const mockArray = [
+	{_id: 5, name: "carlos", weight: 25, main_group: 25},
+	{_id: 2, name: "pedro", weight: 30, main_group: 14}
+];
+const mock = {_id: 5, name: "carlos", weight: 25, main_group: 25};
+
+describe('SubGroup Service w/ Mock Service', () => {
 	let mockBackend: MockBackend;
 
 	beforeEach(async(() => {
@@ -40,24 +46,21 @@ describe('Sub-Group Service', () => {
 		mockBackend = getTestBed().get(MockBackend);
 	}));
 
-	it('should get sub groups from sub group service', async(() => {
-		let mock = [{_id: 5, name: "carlos", weight: 25, main_group: 25},
-				{_id: 2, name: "pedro", weight: 30, main_group: 14}];
+	it('Get all subgroups', async(() => {
 		let subGroupService: SubGroupService = getTestBed().get(SubGroupService);
 
 		mockBackend.connections.subscribe((connection: MockConnection) => {
 			connection.mockRespond(new Response(new ResponseOptions({
-				body: mock
+				body: mockArray
 			})));
 		});
 
 		subGroupService.getSubGroups().subscribe((data) => {
-			expect(data).toBe(mock);
+			expect(data).toBe(mockArray);
 		});
 	}));
 
-	it('should get one sub group from sub group service using tags', async(() => {
-		let mock = {_id: 5, name: "carlos", weight: 25, main_group: 25};
+	it('Get one subgroup', async(() => {
 		let subGroupService: SubGroupService = getTestBed().get(SubGroupService);
 
 		mockBackend.connections.subscribe((connection: MockConnection) => {
@@ -72,7 +75,25 @@ describe('Sub-Group Service', () => {
 		});
 	}));
 
-	it('should insert a new sub group',
+	it('Update a subgroup',
+	   		async(() => {
+		let subGroupService: SubGroupService = getTestBed()
+				.get(SubGroupService);
+
+		mockBackend.connections.subscribe((connection: MockConnection) => {
+			connection.mockRespond(new Response(new ResponseOptions({
+				status: 200
+			})));
+		});
+
+		subGroupService.updateSubGroup(5, "name", "string", "henrique")
+				.subscribe((result => {
+			expect(result).toBeDefined();
+			expect(result.status).toBe(200);
+		}));
+	}));
+
+	it('Add a new subgroup',
 			async(inject([SubGroupService], (subGroupService) => {
 		mockBackend.connections
 				.subscribe((connection: MockConnection) => {
@@ -81,11 +102,24 @@ describe('Sub-Group Service', () => {
 					new ResponseOptions({status: 201})));
 		});
 
-		let mock = {_id: 12, name: "rita", weight: 15, main_group: 45};
 		subGroupService.setSubGroup(mock).subscribe((result => {
 			expect(result).toBeDefined();
 			expect(result.status).toBe(201);
 		}));
 	})));
 
+	it('Delete a subgroup',
+			async(inject([SubGroupService], (subGroupService) => {
+		mockBackend.connections
+				.subscribe((connection: MockConnection) => {
+			expect(connection.request.method).toBe(RequestMethod.Get);
+			connection.mockRespond(new Response(
+					new ResponseOptions({status: 204})));
+		});
+
+		subGroupService.removeSubGroup(20).subscribe((result => {
+			expect(result).toBeDefined();
+			expect(result.status).toBe(204);
+		}));
+	})));
 });

@@ -15,7 +15,14 @@ import { MockBackend, MockConnection } from '@angular/http/testing';
 import { CriterionService } from 'criterion/service/criterion.service';
 import { HandlerService } from 'handler.service';
 
-describe('Criterion Service', () => {
+const mockArray = [
+	{_id: 5, name: "carlos", weight: 25, legislation: "aaa", sub_group: 25},
+	{_id: 2, name: "pedro", weight: 30, legislation: "abba", sub_group: 33}
+];
+
+const mock = {_id: 5, name: "ana", weight: 25, legislation: "a", sub_group: 25};
+
+describe('Criterion Service w/ Mock Server', () => {
 	let mockBackend: MockBackend;
 
 	beforeEach(async(() => {
@@ -40,45 +47,22 @@ describe('Criterion Service', () => {
 		mockBackend = getTestBed().get(MockBackend);
 	}));
 
-	it('should get criterias from Criterionservice', async(() => {
-		let mock = [
-			{
-				_id: 5,
-				name: "carlos",
-				weight: 25,
-				legislation: "aaa",
-				sub_group: 25
-			},
-			{
-				_id: 2,
-				name: "pedro",
-				weight: 30,
-				legislation: "abba",
-				sub_group: 33
-			}];
+	it('Get all criteria', async(() => {
 		let criterionService: CriterionService = getTestBed()
 				.get(CriterionService);
 
 		mockBackend.connections.subscribe((connection: MockConnection) => {
 			connection.mockRespond(new Response(new ResponseOptions({
-				body: mock
+				body: mockArray
 			})));
 		});
 
 		criterionService.getCriteria().subscribe((data) => {
-			expect(data).toBe(mock);
+			expect(data).toBe(mockArray);
 		});
 	}));
 
-	it('should get a criterion from criterion service using tags', async(() => {
-		let mock =
-			{
-				_id: 5,
-				name: "carlos",
-				weight: 25,
-				legislation: "aaa",
-				sub_group: 25
-			};
+	it('Get one criterion', async(() => {
 		let criterionService: CriterionService = getTestBed()
 				.get(CriterionService);
 
@@ -94,7 +78,24 @@ describe('Criterion Service', () => {
 		});
 	}));
 
-	it('should insert a new criterion',
+	it('Update a criterion', async(() => {
+		let criterionService: CriterionService = getTestBed()
+				.get(CriterionService);
+
+		mockBackend.connections.subscribe((connection: MockConnection) => {
+			connection.mockRespond(new Response(new ResponseOptions({
+				status: 200
+			})));
+		});
+
+		criterionService.updateCriterion(5, "name", "string", "henrique")
+				.subscribe((result => {
+			expect(result).toBeDefined();
+			expect(result.status).toBe(200);
+		}));
+	}));
+
+	it('Add a new criterion',
 			async(inject([CriterionService], (criterionService) => {
 		mockBackend.connections.subscribe((connection: MockConnection) => {
 			expect(connection.request.method).toBe(RequestMethod.Post);
@@ -102,18 +103,24 @@ describe('Criterion Service', () => {
 					new ResponseOptions({status: 201})));
 		});
 
-		let mock =
-			{
-				_id: 5,
-				name: "carlos",
-				weight: 25,
-				legislation: "aaa",
-				sub_group: 25
-			};
 		criterionService.setCriterion(mock).subscribe((result => {
 			expect(result).toBeDefined();
 			expect(result.status).toBe(201);
 		}));
 	})));
 
+	it('Delete a criterion',
+			async(inject([CriterionService], (criterionService) => {
+		mockBackend.connections
+				.subscribe((connection: MockConnection) => {
+			expect(connection.request.method).toBe(RequestMethod.Get);
+			connection.mockRespond(new Response(
+					new ResponseOptions({status: 204})));
+		});
+
+		criterionService.removeCriterion(20).subscribe((result => {
+			expect(result).toBeDefined();
+			expect(result.status).toBe(204);
+		}));
+	})));
 });
