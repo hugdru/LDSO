@@ -1,4 +1,4 @@
-import { Accessibility } from 'accessibility/accessibility';
+<<<<<<< HEAD
 export class Criterion {
 	_id: number;
 	name: string;

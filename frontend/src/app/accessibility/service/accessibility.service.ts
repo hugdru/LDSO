@@ -3,8 +3,8 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
 import {
-	getAccessibilityUrl,
 	getAccessibilitiesUrl,
+	getAccessibilityUrl,
 	setAccessibilityUrl
 } from 'shared/shared-data';
 import { HandlerService } from 'handler.service';
@@ -12,7 +12,8 @@ import { Accessibility } from 'accessibility/accessibility';
 
 @Injectable()
 export class AccessibilityService {
-	constructor(private handler: HandlerService) {}
+
+	constructor(private handler: HandlerService) { }
 
 	getAccessibilities(): Observable<Accessibility[]> {
 		return this.handler.get<Accessibility[]>(getAccessibilitiesUrl);

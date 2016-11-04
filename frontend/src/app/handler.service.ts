@@ -28,8 +28,7 @@ export class HandlerService {
 		}
 
 		get<T>(url: string): Observable<T> {
-			return this.http.get(url)
-					.map((result: Response) => result.json())
+			return this.http.get(url).map((result: Response) => result.json())
 					.map((data: any) => {
 						let result: T = null;
 						if(data) {
@@ -39,8 +38,13 @@ export class HandlerService {
 					}).catch(this.handleError);
 		}
 
-		set<T>(object: T, url: string): void {
-			this.http.post(url, JSON.stringify(object))
-					.map(res => res.json());
+		change(url: string): Observable<Response> {
+			return this.http.get(url).map((result: Response) => result);
 		}
+
+		set<T>(object: T, url: string): Observable<Response> {
+			return this.http.post(url, JSON.stringify(object))
+					.map((res: Response) => res);
+		}
+
 }
