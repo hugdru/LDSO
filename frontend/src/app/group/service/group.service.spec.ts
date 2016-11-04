@@ -107,13 +107,12 @@ describe('Group Service', () => {
 			async(inject([GroupService], (groupService) => {
 		mockBackend.connections
 				.subscribe((connection: MockConnection) => {
-			expect(connection.request.method).toBe(RequestMethod.Post);
+			expect(connection.request.method).toBe(RequestMethod.Get);
 			connection.mockRespond(new Response(
 					new ResponseOptions({status: 204})));
 		});
 
-		let mock = {_id: 24, name: "ana", weight: 20};
-		groupService.setGroup(mock).subscribe((result => {
+		groupService.removeGroup(15).subscribe((result => {
 			expect(result).toBeDefined();
 			expect(result.status).toBe(204);
 		}));
