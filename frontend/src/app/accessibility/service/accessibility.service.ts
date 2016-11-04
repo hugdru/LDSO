@@ -15,6 +15,7 @@ import { Accessibility } from 'accessibility/accessibility';
 
 @Injectable()
 export class AccessibilityService {
+	
 	constructor(private handler: HandlerService) { }
 
 	getAccessibilities(): Observable<Accessibility[]> {
