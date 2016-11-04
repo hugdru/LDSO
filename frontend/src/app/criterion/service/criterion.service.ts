@@ -29,7 +29,7 @@ export class CriterionService {
 
 	getCriterion(tag: string, type: string, value: any)
 			: Observable<Criterion> {
-		return this.handler.getOne<Criterion>(getCriterionUrl, tag, type,
+		return this.handler.get<Criterion>(getCriterionUrl, tag, type,
 				value);
 	}
 
