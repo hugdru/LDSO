@@ -54,6 +54,7 @@ export class HandlerService {
 
 		delete(url: string, id: number): Observable<Response> {
 			let formated = url + "?_id" + id;
+			// TODO: make this a http.delete
 			return this.http.get(formated).map((result: Response) => result);
 		}
 
