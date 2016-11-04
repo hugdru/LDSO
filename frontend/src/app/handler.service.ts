@@ -39,6 +39,7 @@ export class HandlerService {
 					let result: T = null;
 					if(data) {
 						result = data;
+						console.log(result);
 					}
 					return result;
 				}).catch(this.handleError);

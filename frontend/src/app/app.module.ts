@@ -3,13 +3,16 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 
-import { AppComponent } from './app.component';
-import { HeaderComponent } from './header/header.component';
-import { SidebarComponent } from './sidebar/sidebar.component';
-import { FootbarComponent } from './footbar/footbar.component';
-import { CenterComponent } from './center/center.component';
-import { AuditComponent } from './audit/audit.component';
-import { EditEvaluationComponent } from './audit/edit-evaluation.component';
+import { AppComponent } from 'app.component';
+import { HeaderComponent } from 'header/header.component';
+import { SidebarComponent } from 'sidebar/sidebar.component';
+import { FootbarComponent } from 'footbar/footbar.component';
+import { CenterComponent } from 'center/center.component';
+import { AuditComponent } from 'audit/audit.component';
+import { EditEvaluationComponent } from 'audit/edit-evaluation.component';
+import { TestGroupComponent } from 'test-group/test-group.component';
+
+import { HandlerService } from 'handler.service';
 
 @NgModule({
 	declarations: [
@@ -20,14 +23,15 @@ import { EditEvaluationComponent } from './audit/edit-evaluation.component';
 		CenterComponent,
 		AuditComponent,
 		EditEvaluationComponent,
+		TestGroupComponent
 	],
 	imports: [
 		BrowserModule,
 		FormsModule,
 		HttpModule
 	],
-	providers: [],
-	bootstrap: [AppComponent]
+	providers: [ HandlerService ],
+	bootstrap: [ AppComponent ]
 })
 
 export class AppModule {
