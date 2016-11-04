@@ -24,7 +24,7 @@ export class MainGroupService {
 
 	getSomeMainGroups(tag: string, type: string, value: any)
 			: Observable<MainGroup[]> {
-		return this.handler.get<MainGroup[]>(getSomeMainGroupUrl, tag, type,
+		return this.handler.get<MainGroup[]>(getSomeMainGroupsUrl, tag, type,
 				 value);
 	}
 

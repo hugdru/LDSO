@@ -1,11 +1,11 @@
 export const serverUrl = 'http://localhost:8080';
 
-export const getGroupsUrl = this.serverUrl + '/getAllMainGroups';
+export const getMainGroupsUrl = this.serverUrl + '/getAllMainGroups';
 export const getSomeMainGroupsUrl = this.serverUrl + '/getMainGroups';
-export const getGroupUrl = this.serverUrl + '/getOneMainGroup';
-export const updateGroupUrl = this.serverUrl + '/updateMainGroup';
-export const setGroupUrl = this.serverUrl + '/setMainGroup';
-export const removeGroupUrl = this.serverUrl + '/removeMainGroup';
+export const getMainGroupUrl = this.serverUrl + '/getOneMainGroup';
+export const updateMainGroupUrl = this.serverUrl + '/updateMainGroup';
+export const setMainGroupUrl = this.serverUrl + '/setMainGroup';
+export const removeMainGroupUrl = this.serverUrl + '/removeMainGroup';
 
 export const getSubGroupsUrl = this.serverUrl + '/getAllSubGroups';
 export const getSomeSubGroupsUrl = this.serverUrl + '/getSubGroups';

@@ -22,8 +22,8 @@ export class SubGroupService {
 	}
 
 	getSomeSubGroups(tag: string, type: string, value: any)
-			: Observable<SubGroup> {
-	    return this.handler.get<SubGroup[]>(getSomeSubGroupUrl, tag, type, value);
+			: Observable<SubGroup[]> {
+	    return this.handler.get<SubGroup[]>(getSomeSubGroupsUrl, tag, type, value);
 	}
 
 	getSubGroup(tag: string, type: string, value: any): Observable<SubGroup> {
