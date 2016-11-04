@@ -1,6 +1,6 @@
 <div class="form_criterion panel col-sm-10">
   <label class="col-form-label">{{id}}</label>
-  <form (ngSubmit)="onSubmit()">
+  <form [formGroup]="formGroup" (ngSubmit)="onSubmit()">
     <div>
       <label class="col-form-label">Sub-Group</label>
       <input id="demo_vertical" type="text"  name="demo_vertical" #Input>
@@ -8,7 +8,8 @@
       <!--<div class="col-xs-10" *ngFor="let item of '{{formGroup.value[id]}}'; let i = index">
       </div>
 -->
-      {{formGroup.value[id]}}
+
+
       <button type="submit" class="btn btn-primary submit" >Sub groups</button>
     </div>
   </form>

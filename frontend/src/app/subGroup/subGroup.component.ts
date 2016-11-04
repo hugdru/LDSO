@@ -12,10 +12,7 @@ import {FormInfoService} from '../mainGroup/service/form-info.service';
 })
 export class SubGroupComponent implements OnDestroy{
   private subcription: Subscription;
-
-  subFormGroup: FormArray;
   formGroup: FormGroup;
-
 
   id: string;
   constructor(private router: Router, private activatedRoute: ActivatedRoute, private formVar: FormInfoService) {
@@ -23,7 +20,7 @@ export class SubGroupComponent implements OnDestroy{
       (param: any) => this.id = param['id']
     );
     this.formGroup = formVar.getFormGroup();
-    this.subFormGroup = formVar.getSubFormGroup(this.id);
+    //this.subFormGroup = formVar.getSubFormGroup(this.id);
   }
   ngOnDestroy(){
     this.subcription.unsubscribe();
@@ -38,8 +35,6 @@ export class SubGroupComponent implements OnDestroy{
     this.formVar.addSubGroup(this.id,SubGroup_Name);
    // this.formVar.addCriterios(this.id,SubGroup_Name,'teste');
     console.log(SubGroup_Name);
-    console.log(this.formGroup.value[this.id].value);
-    console.log(this.formGroup.value[this.id].length);
-
+    console.log(this.formGroup.value[this.id]);
   }
 }

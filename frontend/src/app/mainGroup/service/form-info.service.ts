@@ -17,7 +17,7 @@ export class FormInfoService{
   }
 
   addSubGroup(main_Group: string, sub_group: string){
-    this.myFormSubForm.value[main_Group].push({sub_group: new FormGroup({})});
+    this.myFormSubForm.value[main_Group].push({[sub_group]: new FormGroup({})});
   }
 /*
   addCriterios(main_Group: string, sub_group: string, criteria: string){
