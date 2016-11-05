@@ -17,19 +17,30 @@ export class FormInfoService{
   }
 
   addSubGroup(main_Group: string, sub_group: string){
-    this.myFormSubForm.value[main_Group].push({[sub_group]: new FormGroup({})});
+    console.log(this.myFormSubForm.value[main_Group]);
+    this.myFormSubForm.value[main_Group].push(
+                        {'subGroup' : [sub_group],
+                         'criteria': new FormArray([])
+                        });
   }
-  addCriterios(main_Group: string, sub_group: string, criteria: string){
-    this.myFormSubForm.value[main_Group][sub_group].push(new FormGroup(
-      {
-        [criteria]:new FormControl(['bom']),
-        'physical':new FormControl(['0']),
-        'auditory':new FormControl(['0']),
-        'visual':new FormControl(['0']),
-        'cognitive':new FormControl(['0']),
-        'comentarios':new FormControl(['Escrever comentarios'])
+  addCriterios(main_Group: string, sub_group: string, new_criteria: string){
+    for(let group of this.myFormSubForm.value[main_Group]){
+      if(group.subGroup === sub_group){
+         group.criteria.controls.push(
+            {
+              'criteria_name' : [new_criteria],
+              'weigths' : new FormGroup(
+                {
+                  'Physical' : new FormControl('20'),
+                  'Auditor' : new FormControl('20'),
+                  'Visual' : new FormControl('20'),
+                  'Cognitive' : new FormControl('20'),
+                  'Good practice' : new FormControl('20')
+                })
+            }
+          );
       }
-    ));
+    }
   }
 
   getFormGroup(){

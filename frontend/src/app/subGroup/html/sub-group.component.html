@@ -6,27 +6,28 @@
       <input id="subGroup" type="text"  name="subGroup" #Input_subGroup>
       <button  class="btn btn-primary glyphicon glyphicon-plus" (click)="onAddSubgroup(Input_subGroup.value)"> </button>
       <div class="col-xs-14" *ngFor="let item of formGroup.value[id]; let i = index" >
-        <label class="col-form-label">Nome do subgroup {{item}}</label>
+        <label class="col-form-label">{{item.subGroup}} (sub-group)</label>
         <input id="criterios"  type="text"  name="criterios" #Input_Criteria>
-        <button  class="btn btn-primary glyphicon glyphicon-plus" (click)="onAddCriteria(Input_Criteria.value,i)">adicionar</button>
-        <div class="col-xs-12"> <!--*ngFor="let itemC of formGroup.value[id][i]; let k = index">-->
+        <button  class="btn btn-primary glyphicon glyphicon-plus" (click)="onAddCriteria(item.subGroup,Input_Criteria.value)">adicionar</button>
+        <div class="col-xs-12" *ngFor="let crite of item.criteria.controls; let j = index">
           <br>
-          <label class="col-form-label">Nome Criterio</label>
+          <label class="col-form-label">{{crite.criteria_name}} (criteria)</label>
           <br>
-          <br>
-          Physical<input  type="number"  name="physical" class="btn-sm bfh-number">
-          Auditory<input  type="number"  name="auditory" class="btn-sm bfh-number">
-          Visual<input  type="number"  name="visual" class="btn-sm bfh-number">
-          Cognitive<input  type="number"  name="cognitive" class="btn-sm bfh-number">
-          <br>
-          Comments
-          <br>
+          <label class="col-form-label">Comments</label>
           <input  type="text"  name="comments" class="form-control">
-          <button  class="btn btn-primary  glyphicon glyphicon-minus" > apagar</button>
+          <tr><label class="col-form-label">Physical:</label>
+          <tr><input  type="text"  name="phy" class="form-control">
+          <tr><label class="col-form-label">Auditor:</label>
+          <tr><input  type="text"  name="aud" class="form-control">
+          <br>
+          <tr><label class="col-form-label">Visual</label>
+          <tr><input  type="text"  name="vis" class="form-control">
+          <tr><label class="col-form-label">Cognitive</label>
+          <tr><input  type="text"  name="cog" class="form-control">
         </div>
       </div>
       <br>
-      <button type="submit" class="btn btn-primary pull-right submit " >Save</button>
+      <button type="submit" class="btn btn-primary pull-right submit" >Save</button>
     </div>
   </form>
 </div>
