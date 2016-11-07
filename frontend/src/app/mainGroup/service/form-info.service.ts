@@ -29,14 +29,15 @@ export class FormInfoService{
          group.criteria.controls.push(
             {
               'criteria_name' : [new_criteria],
-              'weigths' : new FormGroup(
+              'weigths' :
                 {
-                  'Physical' : new FormControl('20'),
-                  'Auditor' : new FormControl('20'),
-                  'Visual' : new FormControl('20'),
-                  'Cognitive' : new FormControl('20'),
-                  'Good practice' : new FormControl('20')
-                })
+                  'Physical' : '20',
+                  'Auditor' : '20',
+                  'Visual' : '20',
+                  'Cognitive' : '20',
+                  'GoodPractice' : 'no'
+                },
+              'Comments': 'write coments'
             }
           );
       }

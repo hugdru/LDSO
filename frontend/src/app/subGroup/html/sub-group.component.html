@@ -1,6 +1,5 @@
 <div class="form_criterion panel col-sm-16">
   <label class="col-form-label">{{id}}</label>
-  <form [formGroup]="formGroup" (ngSubmit)="onSubmit()">
     <div>
       <label class="col-form-label">Sub-Group</label>
       <input id="subGroup" type="text"  name="subGroup" #Input_subGroup>
@@ -14,22 +13,23 @@
           <label class="col-form-label">{{crite.criteria_name}} (criteria)</label>
           <br>
           <label class="col-form-label">Comments</label>
-          <input  type="text"  name="comments" class="form-control">
+          <input  type="text"  name="comments" class="form-control" [(ngModel)]="crite.Comments">
           <tr><label class="col-form-label">Physical:</label>
-          <tr><input  type="text"  name="phy" class="form-control">
+          <tr><input  type="text"  name="phy" class="form-control" [(ngModel)]="crite.weigths.Physical">
           <tr><label class="col-form-label">Auditor:</label>
-          <tr><input  type="text"  name="aud" class="form-control">
+          <tr><input  type="text"  name="aud" class="form-control" [(ngModel)]="crite.weigths.Auditor">
           <br>
           <tr><label class="col-form-label">Visual</label>
-          <tr><input  type="text"  name="vis" class="form-control">
+          <tr><input  type="text"  name="vis" class="form-control" [(ngModel)]="crite.weigths.Visual">
           <tr><label class="col-form-label">Cognitive</label>
-          <tr><input  type="text"  name="cog" class="form-control">
+          <tr><input  type="text"  name="cog" class="form-control" [(ngModel)]="crite.weigths.Cognitive">
+          <tr><label class="col-form-label">Good practice</label>
+          <tr><input  type="text"  name="cog" class="form-control" [(ngModel)]="crite.weigths.GoodPractice">
         </div>
       </div>
       <br>
       <button type="submit" class="btn btn-primary pull-right submit" >Save</button>
     </div>
-  </form>
 </div>
 
 
