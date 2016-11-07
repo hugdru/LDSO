@@ -1,4 +1,4 @@
-import { Criterion } from './mainGroup/mainGroup';
+import { Criterion } from './main-group/main-group';
 
 export class Note {
 	data: string[];

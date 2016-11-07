@@ -6,8 +6,8 @@ import {FormInfoService} from './service/form-info.service';
 
 @Component({
   selector: 'app-main_group',
-  templateUrl: 'mainGroup.component.html',
-  styleUrls: ['mainGroup.component.css'],
+  templateUrl: 'main-group.component.html',
+  styleUrls: ['main-group.component.css'],
   providers: [FormInfoService]
 })
 

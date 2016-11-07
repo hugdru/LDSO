@@ -3,7 +3,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 
-import { SubGroupComponent } from './subGroup.component';
+import { SubGroupComponent } from './sub-group.component';
 
 describe('SubGroupComponent', () => {
   let component: SubGroupComponent;

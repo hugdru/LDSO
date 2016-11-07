@@ -2,12 +2,12 @@ import {Component, OnDestroy} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {FormGroup, FormControl, Validators, FormArray} from "@angular/forms";
 import {Subscription} from "rxjs";
-import {FormInfoService} from '../mainGroup/service/form-info.service';
+import {FormInfoService} from '../main-group/service/form-info.service';
 
 @Component({
   selector: 'app-sub-group',
   templateUrl: './html/sub-group.component.html',
-  styleUrls: ['subGroup.component.css'],
+  styleUrls: ['sub-group.component.css'],
   providers: [FormInfoService]
 })
 export class SubGroupComponent implements OnDestroy{

@@ -32,7 +32,7 @@ export class FormInfoService{
               'weigths' :
                 {
                   'Physical' : '20',
-                  'Auditor' : '20',
+                  'Auditive' : '20',
                   'Visual' : '20',
                   'Cognitive' : '20',
                   'GoodPractice' : 'no'
