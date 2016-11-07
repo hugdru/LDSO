@@ -10,7 +10,6 @@ import { FootbarComponent } from 'footbar/footbar.component';
 import { CenterComponent } from 'center/center.component';
 import { AuditComponent } from 'audit/audit.component';
 import { EditEvaluationComponent } from 'audit/edit-evaluation.component';
-import { TestGroupComponent } from 'test-group/test-group.component';
 
 import { HandlerService } from 'handler.service';
 
@@ -23,7 +22,6 @@ import { HandlerService } from 'handler.service';
 		CenterComponent,
 		AuditComponent,
 		EditEvaluationComponent,
-		TestGroupComponent
 	],
 	imports: [
 		BrowserModule,
