@@ -104,7 +104,6 @@ func GetDocuments(coll *mgo.Collection, tagged bool, tag string, value interface
 func GetAll(coll *mgo.Collection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		allowOrigin(w, r)
-		giveAccess(w, "GET, POST")
 		documents := GetDocuments(coll, false, "", 0)
 		switch coll.Name {
 		}
@@ -119,7 +118,6 @@ func GetAll(coll *mgo.Collection) http.HandlerFunc {
 func Get(coll *mgo.Collection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		allowOrigin(w, r)
-		giveAccess(w, "GET, POST")
 		tag := r.FormValue("tag")
 		value := GetValue(r)
 		documents := GetDocuments(coll, true, tag, value)
@@ -134,7 +132,6 @@ func Get(coll *mgo.Collection) http.HandlerFunc {
 func GetOne(coll *mgo.Collection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		allowOrigin(w, r)
-		giveAccess(w, "GET, POST")
 		document := GetDocument(coll.Name)
 		tag := r.FormValue("tag")
 		value := GetValue(r)
@@ -150,7 +147,6 @@ func GetOne(coll *mgo.Collection) http.HandlerFunc {
 func Set(coll *mgo.Collection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		allowOrigin(w, r)
-		giveAccess(w, "GET, POST")
 		document := GetDocument(coll.Name)
 		decoder := json.NewDecoder(r.Body)
 		defer r.Body.Close()
@@ -166,7 +162,6 @@ func Set(coll *mgo.Collection) http.HandlerFunc {
 func Update(coll *mgo.Collection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		allowOrigin(w, r)
-		giveAccess(w, "GET, POST")
 		document := GetDocument(coll.Name)
 		id, err := strconv.Atoi(r.FormValue("_id"))
 		if err != nil {
@@ -215,7 +210,6 @@ func RecursiveRemove(coll *mgo.Collection, id int) {
 func Remove(coll *mgo.Collection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		allowOrigin(w, r)
-		giveAccess(w, "GET, POST")
 		id, err := strconv.Atoi(r.FormValue("_id"))
 		if err != nil {
 			log.Panic(err)
