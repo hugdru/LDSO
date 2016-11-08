@@ -18,16 +18,15 @@ func Connect(addr string) *mgo.Session {
 		panic(err)
 	}
 	coll = make(map[string]*mgo.Collection)
-	coll["main_group"] = session.DB("Places4All").C("main_group")
-	coll["sub_group"] = session.DB("Places4All").C("sub_group")
-	coll["criterion"] = session.DB("Places4All").C("criterion")
-	coll["accessibility"] = session.DB("Places4All").C("accessibility")
-	coll["property"] = session.DB("Places4All").C("property")
 	return session
 }
 
 func Disconnect(session *mgo.Session) {
 	session.Close()
+}
+
+func SetCollection(session *mgo.Session, db_name, c_name string) {
+	coll[c_name] = session.DB(db_name).C(c_name)
 }
 
 func GetCollection(c_name string) *mgo.Collection {

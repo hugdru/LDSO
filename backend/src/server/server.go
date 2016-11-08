@@ -12,6 +12,12 @@ func main() {
 	session := db.Connect("mongodb:27017")
 	defer db.Disconnect(session)
 
+	db.SetCollection(session, "Places4All", "main_group")
+	db.SetCollection(session, "Places4All", "sub_group")
+	db.SetCollection(session, "Places4All", "criterion")
+	db.SetCollection(session, "Places4All", "accessibility")
+	db.SetCollection(session, "Places4All", "property")
+
 	http.HandleFunc("/getAllMainGroups", conn.GetAll(db.GetCollection("main_group")))
 	http.HandleFunc("/getMainGroups", conn.Get(db.GetCollection("main_group")))
 	http.HandleFunc("/getOneMainGroup", conn.GetOne(db.GetCollection("main_group")))
