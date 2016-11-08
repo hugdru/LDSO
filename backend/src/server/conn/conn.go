@@ -105,8 +105,6 @@ func GetAll(coll *mgo.Collection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		allowOrigin(w, r)
 		documents := GetDocuments(coll, false, "", 0)
-		switch coll.Name {
-		}
 		err := json.NewEncoder(w).Encode(documents);
 		if err != nil {
 			log.Panic(err)
