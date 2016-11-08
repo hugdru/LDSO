@@ -92,13 +92,13 @@ describe('MainGroup Service w/ Mock Service', () => {
 		let groupService: MainGroupService = getTestBed().get(MainGroupService);
 
 		mockBackend.connections.subscribe((connection: MockConnection) => {
+			expect(connection.request.method).toBe(RequestMethod.Put);
 			connection.mockRespond(new Response(new ResponseOptions({
 				status: 200
 			})));
 		});
 
-		groupService.updateMainGroup(5, "name", "string", "henrique")
-				.subscribe((result => {
+		groupService.updateMainGroup(mock).subscribe((result => {
 			expect(result).toBeDefined();
 			expect(result.status).toBe(200);
 		}));
@@ -123,7 +123,7 @@ describe('MainGroup Service w/ Mock Service', () => {
 			async(inject([MainGroupService], (groupService) => {
 		mockBackend.connections
 				.subscribe((connection: MockConnection) => {
-			expect(connection.request.method).toBe(RequestMethod.Get);
+			expect(connection.request.method).toBe(RequestMethod.Delete);
 			connection.mockRespond(new Response(
 					new ResponseOptions({status: 204})));
 		});

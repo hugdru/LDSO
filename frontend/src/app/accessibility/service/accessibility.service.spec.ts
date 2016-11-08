@@ -101,13 +101,13 @@ describe('Accessibility Service w/ Mock Server', () => {
 				.get(AccessibilityService);
 
 		mockBackend.connections.subscribe((connection: MockConnection) => {
+			expect(connection.request.method).toBe(RequestMethod.Put);
 			connection.mockRespond(new Response(new ResponseOptions({
 				status: 200
 			})));
 		});
 
-		accessibilityService.updateAccessibility(5, "name", "string", "henrique")
-				.subscribe((result => {
+		accessibilityService.updateAccessibility(mock).subscribe((result => {
 			expect(result).toBeDefined();
 			expect(result.status).toBe(200);
 		}));
@@ -130,7 +130,7 @@ describe('Accessibility Service w/ Mock Server', () => {
 			async(inject([AccessibilityService], (accessibilityService) => {
 		mockBackend.connections
 				.subscribe((connection: MockConnection) => {
-			expect(connection.request.method).toBe(RequestMethod.Get);
+			expect(connection.request.method).toBe(RequestMethod.Delete);
 			connection.mockRespond(new Response(
 					new ResponseOptions({status: 204})));
 		});

@@ -2,14 +2,7 @@ import { Response } from '@angular/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
-import {
-	getMainGroupsUrl,
-	getSomeMainGroupsUrl,
-	getMainGroupUrl,
-	updateMainGroupUrl,
-	setMainGroupUrl,
-	removeMainGroupUrl
-} from 'shared/shared-data';
+import { mainGroupsUrl, mainGroupsFindUrl } from 'shared/shared-data';
 import { HandlerService } from 'handler.service';
 import { MainGroup } from 'main-group/main-group';
 
@@ -19,29 +12,28 @@ export class MainGroupService {
 	constructor(private handler: HandlerService) { }
 
 	getMainGroups(): Observable<MainGroup[]> {
-		return this.handler.getAll<MainGroup[]>(getMainGroupsUrl);
+		return this.handler.getAll<MainGroup[]>(mainGroupsUrl);
 	}
 
 	getSomeMainGroups(tag: string, type: string, value: any)
 			: Observable<MainGroup[]> {
-		return this.handler.get<MainGroup[]>(getSomeMainGroupsUrl, tag, type,
+		return this.handler.get<MainGroup[]>(mainGroupsUrl, tag, type,
 				 value);
 	}
 
 	getMainGroup(tag: string, type: string, value: any): Observable<MainGroup> {
-		return this.handler.get<MainGroup>(getMainGroupUrl, tag, type, value);
+		return this.handler.get<MainGroup>(mainGroupsFindUrl, tag, type, value);
 	}
 
-	updateMainGroup(id: number, tag: string, type: string, value: any)
-			: Observable<Response> {
-		return this.handler.update(updateMainGroupUrl, id, tag, type, value);
+	updateMainGroup(group: MainGroup): Observable<Response> {
+		return this.handler.update<MainGroup>(mainGroupsUrl, group);
 	}
 
 	setMainGroup(group: MainGroup): Observable<Response> {
-		return this.handler.set<MainGroup>(group, setMainGroupUrl);
+		return this.handler.set<MainGroup>(mainGroupsUrl, group);
 	}
 
 	removeMainGroup(id: number): Observable<Response> {
-		return this.handler.delete(removeMainGroupUrl, id);
+		return this.handler.delete(mainGroupsUrl, id);
 	}
 }

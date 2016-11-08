@@ -99,13 +99,13 @@ describe('Criterion Service w/ Mock Server', () => {
 				.get(CriterionService);
 
 		mockBackend.connections.subscribe((connection: MockConnection) => {
+			expect(connection.request.method).toBe(RequestMethod.Put);
 			connection.mockRespond(new Response(new ResponseOptions({
 				status: 200
 			})));
 		});
 
-		criterionService.updateCriterion(5, "name", "string", "henrique")
-				.subscribe((result => {
+		criterionService.updateCriterion(mock).subscribe((result => {
 			expect(result).toBeDefined();
 			expect(result.status).toBe(200);
 		}));
@@ -129,7 +129,7 @@ describe('Criterion Service w/ Mock Server', () => {
 			async(inject([CriterionService], (criterionService) => {
 		mockBackend.connections
 				.subscribe((connection: MockConnection) => {
-			expect(connection.request.method).toBe(RequestMethod.Get);
+			expect(connection.request.method).toBe(RequestMethod.Delete);
 			connection.mockRespond(new Response(
 					new ResponseOptions({status: 204})));
 		});

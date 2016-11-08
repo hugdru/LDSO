@@ -96,13 +96,13 @@ describe('SubGroup Service w/ Mock Service', () => {
 				.get(SubGroupService);
 
 		mockBackend.connections.subscribe((connection: MockConnection) => {
+			expect(connection.request.method).toBe(RequestMethod.Put);
 			connection.mockRespond(new Response(new ResponseOptions({
 				status: 200
 			})));
 		});
 
-		subGroupService.updateSubGroup(5, "name", "string", "henrique")
-				.subscribe((result => {
+		subGroupService.updateSubGroup(mock).subscribe((result => {
 			expect(result).toBeDefined();
 			expect(result.status).toBe(200);
 		}));
@@ -127,7 +127,7 @@ describe('SubGroup Service w/ Mock Service', () => {
 			async(inject([SubGroupService], (subGroupService) => {
 		mockBackend.connections
 				.subscribe((connection: MockConnection) => {
-			expect(connection.request.method).toBe(RequestMethod.Get);
+			expect(connection.request.method).toBe(RequestMethod.Delete);
 			connection.mockRespond(new Response(
 					new ResponseOptions({status: 204})));
 		});
