@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+cd "${0%/*}"
 EXE="curl -X"
 URL="http://go1:8080/"
 
