@@ -29,18 +29,16 @@ export class HandlerService {
 			: Observable<T> {
 		let formated = url + "?tag=" + tag + "&type=" + type
 				+ "&value=" + value;
-		console.log(formated);
 		return this.getAll<T>(formated);
 	}
 
 	getAll<T>(url: string): Observable<T> {
 		return this.http.get(url)
-				.map((result: Response) => {result.json(); console.log("res")})
+				.map((result: Response) => result.json())
 				.map((data: any) => {
 					let result: T = null;
 					if(data) {
 						result = data;
-						console.log("data");
 					}
 					return result;
 				}).catch(this.handleError);
@@ -55,7 +53,7 @@ export class HandlerService {
 
 	delete(url: string, id: number): Observable<Response> {
 		let formated = url + "?_id" + id;
-		// TODO: make this a http.delete
+		// TODO: make this a http.delete(maybe??)
 		return this.http.get(formated).map((result: Response) => result);
 	}
 
