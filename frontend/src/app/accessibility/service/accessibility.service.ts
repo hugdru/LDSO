@@ -23,7 +23,7 @@ export class AccessibilityService {
 
 	getAccessibility(tag: string, type: string, value: any)
 			: Observable<Accessibility> {
-		return this.handler.get<Accessibility>(accessibilityFindUrl, tag, type,
+		return this.handler.get<Accessibility>(accessibilitiesFindUrl, tag, type,
 				value);
 	}
 
@@ -38,7 +38,7 @@ export class AccessibilityService {
 	}
 
 	removeAccessibility(id: number): Observable<Response> {
-		return this.handler.delete(accessibilityUrl, id);
+		return this.handler.delete(accessibilitiesUrl, id);
 	}
 
 }
