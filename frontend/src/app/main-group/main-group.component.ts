@@ -1,28 +1,32 @@
-import { Component, OnInit } from '@angular/core';
-
-import { Group } from 'group/group';
-import { GroupService } from 'group/service/group.service';
+import {Component, OnDestroy} from '@angular/core';
+import {Router, ActivatedRoute} from '@angular/router'
+import {Subscription} from "rxjs";
+import {FormGroup, FormControl, Validators, FormArray} from "@angular/forms";
+import {FormInfoService} from './service/form-info.service';
 
 @Component({
-	selector: 'group-p4a',
-	templateUrl: 'html/group.component.html'
-	// styleUrls: [ 'group.component.css' ]
+  selector: 'app-main_group',
+  templateUrl: 'main-group.component.html',
+  styleUrls: ['main-group.component.css'],
+  providers: [FormInfoService]
 })
 
-export class GroupComponent implements OnInit {
-	groups: Group[];
-	errMsg: string;
+export class MainGroupComponent implements OnDestroy {
+  private subcription: Subscription;
+  myForm : FormGroup;
 
-	constructor(private groupService: GroupService ) { }
+  id: string;
+  constructor(private router: Router, private activatedRoute: ActivatedRoute, private formVar: FormInfoService) {
+    this.subcription =activatedRoute.params.subscribe();
+    this.myForm = formVar.getFormGroup();
+  }
 
-	ngOnInit(): void {
-		this.initGroups();
-	}
+  onSubmit(){
+    console.log(this.myForm.value);
 
-	initGroups(): void {
-		this.groupService.getGroups().subscribe(
-			data => this.groups = data,
-			error => this.errMsg = <any>error
-		);
-	}
+  }
+
+  ngOnDestroy(){
+    this.subcription.unsubscribe();
+  }
 }

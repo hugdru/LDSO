@@ -1,0 +1,25 @@
+
+.col-form-label{
+  min-width: 120px;
+  text-align: left;
+}
+
+.input{
+  padding: 5%;
+  display: inline;
+}
+
+.row1{
+  margin: 1%;
+  padding-left: 5%;
+  display: inline-block;
+}
+
+.row2{
+  margin: 1%;
+  padding-left: 5%;
+  display: inline-block;
+}
+
+.submit{
+}

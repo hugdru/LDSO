@@ -1,4 +1,5 @@
-import { Component, OnInit , Input}  from '@angular/core';
+import { Component, OnInit}  from '@angular/core';
+
 
 @Component({
   selector: 'p4a-sidebar',
@@ -7,11 +8,6 @@ import { Component, OnInit , Input}  from '@angular/core';
 })
 
 export class SidebarComponent implements OnInit {
-
-  @Input() Recipe = {
-    name:"Auditoria",
-    number:27
-  };
 
   constructor() { }
 
