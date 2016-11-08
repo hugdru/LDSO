@@ -101,29 +101,26 @@ func GetDocuments(coll *mgo.Collection, tagged bool, tag string, value interface
 	return document
 }
 
-func GetAll(coll *mgo.Collection) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		allowOrigin(w, r)
-		documents := GetDocuments(coll, false, "", 0)
-		err := json.NewEncoder(w).Encode(documents);
-		if err != nil {
-			log.Panic(err)
-		}
-		log.Println(documents)
-	}
-}
-
 func Get(coll *mgo.Collection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		allowOrigin(w, r)
 		tag := r.FormValue("tag")
-		value := GetValue(r)
-		documents := GetDocuments(coll, true, tag, value)
-		err := json.NewEncoder(w).Encode(documents);
-		if err != nil {
-			log.Panic(err)
+		if tag == "" {
+			documents := GetDocuments(coll, false, "", 0)
+			err := json.NewEncoder(w).Encode(documents);
+			if err != nil {
+				log.Panic(err)
+			}
+			log.Println(documents)
+		} else {
+			value := GetValue(r)
+			documents := GetDocuments(coll, true, tag, value)
+			err := json.NewEncoder(w).Encode(documents);
+			if err != nil {
+				log.Panic(err)
+			}
+			log.Println(documents)
 		}
-		log.Println(documents)
 	}
 }
 
