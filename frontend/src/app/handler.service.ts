@@ -44,8 +44,9 @@ export class HandlerService {
 				}).catch(this.handleError);
 	}
 
-	update<T>(url: string, object: T): Observable<Response> {
-		return this.http.put(url, JSON.stringify(object))
+	update<T>(url: string, object: T, id: number): Observable<Response> {
+		console.log("here also");
+		return this.http.put(url + "?_id=" + id, JSON.stringify(object))
 				.map((result: Response) => result);
 	}
 

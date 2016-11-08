@@ -23,6 +23,13 @@ func allowOrigin(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func Accept() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		allowOrigin(w, r)
+		giveAccess(w, "PUT")
+	}
+}
+
 func GetValue(r *http.Request) interface {} {
 	var value interface{}
 	var err error
@@ -180,6 +187,7 @@ func Set(coll *mgo.Collection) http.HandlerFunc {
 func Update(coll *mgo.Collection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		allowOrigin(w, r)
+		giveAccess(w, "PUT")
 
 		newDocument := GetDocument(coll.Name)
 		oldDocument := GetDocument(coll.Name)

@@ -1,4 +1,4 @@
-export const serverUrl = 'http://localhost:8080';
+export const serverUrl = 'http://go1:8080';
 
 export const mainGroupsUrl = serverUrl + '/mainGroups';
 export const mainGroupsFindUrl = mainGroupsUrl + '/find';

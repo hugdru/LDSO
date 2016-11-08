@@ -35,7 +35,9 @@ export class MainGroupComponent implements OnInit {
 	}
 
 	updateMainGroup(): void {
-		this.mainGroupService.updateMainGroup(this.selectedMainGroup);
+		console.log(this.selectedMainGroup);
+		this.mainGroupService.updateMainGroup(this.selectedMainGroup)
+				.subscribe();
 		this.selectedMainGroup = null;
 	}
 }
