@@ -22,7 +22,6 @@ func main() {
 
 	router.Get("/mainGroups", conn.Get(db.GetCollection("main_group")))
 	router.Get("/mainGroups/find", conn.GetOne(db.GetCollection("main_group")))
-	router.Get("/mainGroups/:id", conn.GetOneNew(db.GetCollection("main_group")))
 	router.Post("/mainGroups", conn.Set(db.GetCollection("main_group")))
 	router.Put("/mainGroups", conn.Update(db.GetCollection("main_group")))
 	router.Delete("/mainGroups", conn.Delete(db.GetCollection("main_group")))
