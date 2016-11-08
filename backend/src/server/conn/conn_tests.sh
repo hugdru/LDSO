@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 EXE="curl -X"
 URL="http://go1:8080/"
+
 PostTests=( \
 		"{\"_id\":5,\"name\":\"Coisas\",\"weight\":30}" \
 		"setMainGroup" \
@@ -14,6 +15,7 @@ PostTests=( \
 		"{\"_id\":9,\"name\":\"fisica\",\"weight\":5,\"criterion\":3}" \
 		"setAccessibility" \
 )
+
 GetTests=(\
 		"getOneMainGroup?tag=name&type=string&value=Coisas" \
 		"updateMainGroup?_id=5&tag=weight&type=int&value=20" \
@@ -37,10 +39,14 @@ GetTests=(\
 		"getAllCriteria" \
 		"getAllAccessibilities" \
 	)
+
+./../../../../database/populate.sh
+
 for (( t=0; t<${#PostTests[@]}; t=t+2))
 do
 	$EXE POST -d ${PostTests[$t]} $URL${PostTests[$t+1]}
 done
+
 for t in ${GetTests[@]}
 do
 	$EXE GET $URL$t
