@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
 	"server/data"
 	"server/db"
 	"strconv"
@@ -75,6 +74,37 @@ func GetDocuments(coll *mgo.Collection, tagged bool, tag string, value interface
 		document = accessibilities
 	}
 	return document
+}
+
+func GetIds(coll *mgo.Collection) []int {
+	var ids []int
+	switch coll.Name {
+	case "main_group":
+		main_groups := []data.Main_Group{}
+		db.Find(coll, &main_groups, false, "", 0)
+		for _, main_group := range main_groups {
+			ids = append(ids, main_group.Id)
+		}
+	case "sub_group":
+		sub_groups := []data.Sub_Group{}
+		db.Find(coll, &sub_groups, false, "", 0)
+		for _, sub_group := range sub_groups {
+			ids = append(ids, sub_group.Id)
+		}
+	case "criterion":
+		criteria := []data.Criterion{}
+		db.Find(coll, &criteria, false, "", 0)
+		for _, criterion := range criteria {
+			ids = append(ids, criterion.Id)
+		}
+	case "accessibility":
+		accessibilities := []data.Accessibility{}
+		db.Find(coll, &accessibilities, false, "", 0)
+		for _, accessibility := range accessibilities {
+			ids = append(ids, accessibility.Id)
+		}
+	}
+	return ids
 }
 
 func Get(coll *mgo.Collection) http.HandlerFunc {
@@ -147,10 +177,10 @@ func Update(coll *mgo.Collection) http.HandlerFunc {
 	}
 }
 
-func RecursiveRemove(coll *mgo.Collection, id int) {
+func RecursiveDelete(coll *mgo.Collection, id int) {
 	document := GetDocument(coll.Name)
 	db.FindOne(coll, &document, "_id", id)
-	db.Remove(coll, "_id", id)
+	db.Delete(coll, "_id", id)
 	log.Println(document)
 	var child_coll *mgo.Collection
 	switch coll.Name {
@@ -159,32 +189,40 @@ func RecursiveRemove(coll *mgo.Collection, id int) {
 		child_coll = db.GetCollection("sub_group");
 		db.Find(child_coll, &sub_groups, true, "main_group", id)
 		for _, sub_group := range sub_groups {
-			RecursiveRemove(child_coll, sub_group.Id)
+			RecursiveDelete(child_coll, sub_group.Id)
 		}
 	case "sub_group":
 		criteria := []data.Criterion{}
 		child_coll = db.GetCollection("criterion")
 		db.Find(child_coll, &criteria, true, "sub_group", id)
 		for _, criterion := range criteria {
-			RecursiveRemove(child_coll, criterion.Id)
+			RecursiveDelete(child_coll, criterion.Id)
 		}
 	case "criterion":
 		accessibilities := []data.Accessibility{}
 		child_coll = db.GetCollection("accessibility")
 		db.Find(child_coll, &accessibilities, true, "criterion", id)
 		for _, accessibility := range accessibilities {
-			RecursiveRemove(child_coll, accessibility.Id)
+			RecursiveDelete(child_coll, accessibility.Id)
 		}
 	}
 }
 
-func Remove(coll *mgo.Collection) http.HandlerFunc {
+func Delete(coll *mgo.Collection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		allowOrigin(w, r)
-		id, err := strconv.Atoi(r.FormValue("_id"))
-		if err != nil {
-			log.Panic(err)
+		id_str := r.FormValue("_id")
+		if (id_str == "") {
+			ids := GetIds(coll)
+			for _,id := range ids {
+				RecursiveDelete(coll, id)
+			}
+		} else {
+			id, err := strconv.Atoi(id_str)
+			if err != nil {
+				log.Panic(err)
+			}
+			RecursiveDelete(coll, id)
 		}
-		RecursiveRemove(coll, id)
 	}
 }

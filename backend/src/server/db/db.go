@@ -67,8 +67,16 @@ func Update(c *mgo.Collection, document interface{}, tag string, value interface
 	}
 }
 
-func Remove(c *mgo.Collection, tag string, value interface{}) {
+func Delete(c *mgo.Collection, tag string, value interface{}) {
 	err := c.Remove(bson.M{tag: value})
+	if err != nil {
+		log.Panic(err)
+
+	}
+}
+
+func DeleteAll(c *mgo.Collection) {
+	err := c.Remove(bson.M{})
 	if err != nil {
 		log.Panic(err)
 
