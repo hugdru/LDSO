@@ -1,32 +1,41 @@
-import {Component, OnDestroy} from '@angular/core';
-import {Router, ActivatedRoute} from '@angular/router'
-import {Subscription} from "rxjs";
-import {FormGroup, FormControl, Validators, FormArray} from "@angular/forms";
-import {FormInfoService} from './service/form-info.service';
+import { Component, OnInit } from '@angular/core';
+
+import { MainGroupService } from 'main-group/service/main-group.service';
+import { MainGroup } from 'main-group/main-group';
 
 @Component({
-  selector: 'app-main_group',
-  templateUrl: 'main-group.component.html',
-  styleUrls: ['main-group.component.css'],
-  providers: [FormInfoService]
+	selector: 'main-group',
+	templateUrl: 'main-group.component.html',
+	styleUrls: ['main-group.component.css'],
+	providers: [ MainGroupService ]
 })
 
-export class MainGroupComponent implements OnDestroy {
-  private subcription: Subscription;
-  myForm : FormGroup;
+export class MainGroupComponent implements OnInit {
+	mainGroups: MainGroup[];
+	selectedMainGroup: MainGroup;
+	errorMsg: string;
 
-  id: string;
-  constructor(private router: Router, private activatedRoute: ActivatedRoute, private formVar: FormInfoService) {
-    this.subcription =activatedRoute.params.subscribe();
-    this.myForm = formVar.getFormGroup();
-  }
+	constructor(private mainGroupService: MainGroupService) {
 
-  onSubmit(){
-    console.log(this.myForm.value);
+	}
 
-  }
+	ngOnInit(): void {
+		this.initMainGroups();
+	}
 
-  ngOnDestroy(){
-    this.subcription.unsubscribe();
-  }
+	initMainGroups(): void {
+		this.mainGroupService.getMainGroups().subscribe(
+			data => this.mainGroups = data,
+			error => this.errorMsg = <any> error
+		);
+	}
+
+	selectMainGroup(mainGroup: MainGroup): void {
+		this.selectedMainGroup = mainGroup;
+	}
+
+	updateMainGroup(): void {
+		this.mainGroupService.updateMainGroup(this.selectedMainGroup);
+		this.selectedMainGroup = null;
+	}
 }

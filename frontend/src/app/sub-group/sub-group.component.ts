@@ -1,44 +1,19 @@
-import {Component, OnDestroy} from '@angular/core';
-import {Router, ActivatedRoute} from '@angular/router';
-import {FormGroup, FormControl, Validators, FormArray} from "@angular/forms";
-import {Subscription} from "rxjs";
-import {FormInfoService} from '../main-group/service/form-info.service';
+import { Component, OnInit } from '@angular/core';
+
+import { SubGroupService } from 'sub-group/service/sub-group.service';
+import { SubGroup } from 'sub-group/sub-group';
 
 @Component({
-  selector: 'app-sub-group',
-  templateUrl: './html/sub-group.component.html',
-  styleUrls: ['sub-group.component.css'],
-  providers: [FormInfoService]
+	selector: 'app-sub-group',
+	templateUrl: './html/sub-group.component.html',
+	styleUrls: [ 'sub-group.component.css' ],
+	providers: [ SubGroupService ]
 })
-export class SubGroupComponent implements OnDestroy{
-  private subcription: Subscription;
-  formGroup: FormGroup;
-  id: string;
 
-  constructor(private router: Router, private activatedRoute: ActivatedRoute,
-		private formVar: FormInfoService) {
-    this.subcription =activatedRoute.params.subscribe(
-      (param: any) => this.id = param['id']
-    );
-    this.formGroup = formVar.getFormGroup();
-    //this.subFormGroup = formVar.getSubFormGroup(this.id);
-  }
+export class SubGroupComponent implements OnInit {
 
-  ngOnDestroy(){
-    this.subcription.unsubscribe();
-  }
+	ngOnInit() {
 
-  onSubmit(){
-   // console.log(this.id);
-   // console.log(this.formGroup.value);
-   // console.log(this.subFormGroup.value);
-  }
+	}
 
-  onAddSubgroup(SubGroup_Name:string){
-    this.formVar.addSubGroup(this.id,SubGroup_Name);
-  }
-
-  onAddCriteria(sub_group: string, new_criteria: string){
-    this.formVar.addCriterios(this.id, sub_group, new_criteria);
-  }
 }
