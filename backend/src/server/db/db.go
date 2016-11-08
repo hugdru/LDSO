@@ -7,32 +7,31 @@ import (
 )
 
 var (
-	Coll map[string]*mgo.Collection
+	coll map[string]*mgo.Collection
 )
 
 type InsertFunc func(c *mgo.Collection, args ...interface{})
 
-func StartConn(addr string) *mgo.Session {
+func Connect(addr string) *mgo.Session {
 	session, err := mgo.Dial(addr)
 	if err != nil {
 		panic(err)
 	}
-	Coll = make(map[string]*mgo.Collection)
-	Coll["main_group"] = GetCollection(session, "Places4All", "main_group")
-	Coll["sub_group"] = GetCollection(session, "Places4All", "sub_group")
-	Coll["criterion"] = GetCollection(session, "Places4All", "criterion")
-	Coll["accessibility"] = GetCollection(session, "Places4All", "accessibility")
-	Coll["property"] = GetCollection(session, "Places4All", "property")
+	coll = make(map[string]*mgo.Collection)
+	coll["main_group"] = session.DB("Places4All").C("main_group")
+	coll["sub_group"] = session.DB("Places4All").C("sub_group")
+	coll["criterion"] = session.DB("Places4All").C("criterion")
+	coll["accessibility"] = session.DB("Places4All").C("accessibility")
+	coll["property"] = session.DB("Places4All").C("property")
 	return session
 }
 
-func CloseConn(session *mgo.Session) {
+func Disconnect(session *mgo.Session) {
 	session.Close()
 }
 
-func GetCollection(session *mgo.Session, db_name,
-		c_name string) *mgo.Collection {
-	return session.DB(db_name).C(c_name)
+func GetCollection(c_name string) *mgo.Collection {
+	return coll[c_name]
 }
 
 func Insert(c *mgo.Collection, documents ...interface{}) {

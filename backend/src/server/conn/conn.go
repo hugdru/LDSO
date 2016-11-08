@@ -185,21 +185,21 @@ func RecursiveRemove(coll *mgo.Collection, id int) {
 	switch coll.Name {
 	case "main_group":
 		sub_groups := []data.Sub_Group{}
-		child_coll = db.Coll["sub_group"]
+		child_coll = db.GetCollection("sub_group");
 		db.Find(child_coll, &sub_groups, true, "main_group", id)
 		for _, sub_group := range sub_groups {
 			RecursiveRemove(child_coll, sub_group.Id)
 		}
 	case "sub_group":
 		criteria := []data.Criterion{}
-		child_coll = db.Coll["criterion"]
+		child_coll = db.GetCollection("criterion")
 		db.Find(child_coll, &criteria, true, "sub_group", id)
 		for _, criterion := range criteria {
 			RecursiveRemove(child_coll, criterion.Id)
 		}
 	case "criterion":
 		accessibilities := []data.Accessibility{}
-		child_coll = db.Coll["accessibility"]
+		child_coll = db.GetCollection("accessibility")
 		db.Find(child_coll, &accessibilities, true, "criterion", id)
 		for _, accessibility := range accessibilities {
 			RecursiveRemove(child_coll, accessibility.Id)
