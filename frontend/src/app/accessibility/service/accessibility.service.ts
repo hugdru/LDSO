@@ -2,14 +2,7 @@ import { Response } from '@angular/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
-import {
-	getAccessibilitiesUrl,
-	getSomeAccessibilitiesUrl,
-	getAccessibilityUrl,
-	updateAccessibilityUrl,
-	setAccessibilityUrl,
-	removeAccessibilityUrl
-} from 'shared/shared-data';
+import { accessibilitiesUrl, accessibilitiesFindUrl } from 'shared/shared-data';
 import { HandlerService } from 'handler.service';
 import { Accessibility } from 'accessibility/accessibility';
 
@@ -19,34 +12,33 @@ export class AccessibilityService {
 	constructor(private handler: HandlerService) { }
 
 	getAccessibilities(): Observable<Accessibility[]> {
-		return this.handler.getAll<Accessibility[]>(getAccessibilitiesUrl);
+		return this.handler.getAll<Accessibility[]>(accessibilitiesUrl);
 	}
 
 	getSomeAccessibilities(tag: string, type: string, value: any)
 			: Observable<Accessibility[]> {
-		return this.handler.get<Accessibility[]>(getSomeAccessibilitiesUrl,
+		return this.handler.get<Accessibility[]>(accessibilitiesUrl,
 				tag, type, value);
 	}
 
 	getAccessibility(tag: string, type: string, value: any)
 			: Observable<Accessibility> {
-		return this.handler.get<Accessibility>(getAccessibilitiesUrl, tag, type,
+		return this.handler.get<Accessibility>(accessibilitiesFindUrl, tag, type,
 				value);
 	}
 
-	updateAccessibility(id: number, tag: string, type: string, value: any)
-			:Observable<Response> {
-		return this.handler.update(updateAccessibilityUrl, id, tag, type,
-				value);
+	updateAccessibility(accessibiliy: Accessibility):Observable<Response> {
+		return this.handler.update<Accessibility>(accessibilitiesUrl,
+				accessibiliy);
 	}
 
 	setAccessibility(accessibility: Accessibility): Observable<Response> {
-		return this.handler.set<Accessibility>(accessibility,
-				setAccessibilityUrl);
+		return this.handler.set<Accessibility>(accessibilitiesUrl,
+				accessibility);
 	}
 
 	removeAccessibility(id: number): Observable<Response> {
-		return this.handler.delete(removeAccessibilityUrl, id);
+		return this.handler.delete(accessibilitiesUrl, id);
 	}
 
 }

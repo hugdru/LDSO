@@ -7,32 +7,36 @@ import (
 )
 
 var (
-	Coll map[string]*mgo.Collection
+	coll map[string]*mgo.Collection
 )
 
 type InsertFunc func(c *mgo.Collection, args ...interface{})
 
-func StartConn(addr string) *mgo.Session {
+func Connect(addr string) *mgo.Session {
 	session, err := mgo.Dial(addr)
 	if err != nil {
 		panic(err)
 	}
-	Coll = make(map[string]*mgo.Collection)
-	Coll["main_group"] = GetCollection(session, "Places4All", "main_group")
-	Coll["sub_group"] = GetCollection(session, "Places4All", "sub_group")
-	Coll["criterion"] = GetCollection(session, "Places4All", "criterion")
-	Coll["accessibility"] = GetCollection(session, "Places4All", "accessibility")
-	Coll["property"] = GetCollection(session, "Places4All", "property")
+	coll = make(map[string]*mgo.Collection)
 	return session
 }
 
-func CloseConn(session *mgo.Session) {
+func Disconnect(session *mgo.Session) {
 	session.Close()
 }
 
-func GetCollection(session *mgo.Session, db_name,
-		c_name string) *mgo.Collection {
-	return session.DB(db_name).C(c_name)
+func SetCollections(session *mgo.Session, db_name string, c_names ...string) {
+	for _, c_name := range c_names {
+		SetCollection(session, db_name, c_name)
+	}
+}
+
+func SetCollection(session *mgo.Session, db_name, c_name string) {
+	coll[c_name] = session.DB(db_name).C(c_name)
+}
+
+func GetCollection(c_name string) *mgo.Collection {
+	return coll[c_name]
 }
 
 func Insert(c *mgo.Collection, documents ...interface{}) {
@@ -42,14 +46,16 @@ func Insert(c *mgo.Collection, documents ...interface{}) {
 	}
 }
 
-func FindOne(c *mgo.Collection, document interface{}, tag string, value interface{}) {
+func FindOne(c *mgo.Collection, document interface{}, tag string,
+		value interface{}) {
 	err := c.Find(bson.M{tag: value}).One(document)
 	if err != nil {
 		log.Panic(err)
 	}
 }
 
-func Find(c *mgo.Collection, documents interface{}, tagged bool, tag string, value interface{}) {
+func Find(c *mgo.Collection, documents interface{}, tagged bool, tag string,
+		value interface{}) {
 	var err error
 	if (tagged) {
 		err = c.Find(bson.M{tag: value}).Iter().All(documents)
@@ -61,7 +67,15 @@ func Find(c *mgo.Collection, documents interface{}, tagged bool, tag string, val
 	}
 }
 
-func Update(c *mgo.Collection, document interface{}, tag string, value interface{}) {
+func Update(c *mgo.Collection, oldDocument, newDocument interface{}) {
+	err := c.Update(oldDocument, newDocument)
+	if err != nil {
+		log.Panic(err)
+	}
+}
+
+func UpdateField(c *mgo.Collection, document interface{}, tag string,
+		value interface{}) {
 	change := bson.M{"$set": bson.M{tag: value}}
 	err := c.Update(document, change)
 	if err != nil {
@@ -69,8 +83,16 @@ func Update(c *mgo.Collection, document interface{}, tag string, value interface
 	}
 }
 
-func Remove(c *mgo.Collection, tag string, value interface{}) {
+func Delete(c *mgo.Collection, tag string, value interface{}) {
 	err := c.Remove(bson.M{tag: value})
+	if err != nil {
+		log.Panic(err)
+
+	}
+}
+
+func DeleteAll(c *mgo.Collection) {
+	err := c.Remove(bson.M{})
 	if err != nil {
 		log.Panic(err)
 
