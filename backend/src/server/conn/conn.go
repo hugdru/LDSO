@@ -24,30 +24,6 @@ func allowOrigin(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func GetHandlerProperty(coll *mgo.Collection) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		arg := data.Property{}
-
-		allowOrigin(w, r)
-
-		label := r.FormValue("label")
-		value := r.FormValue("value")
-
-		err := coll.Find(bson.M{label: value}).One(&arg)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		giveAccess(w, "GET, POST")
-
-		err = json.NewEncoder(w).Encode(arg);
-		if err != nil {
-			log.Println(err)
-		}
-		log.Println(arg)
-	}
-}
-
 func GetValue(r *http.Request) interface {} {
 	value_type := r.FormValue("type")
 	var value interface{}
