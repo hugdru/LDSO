@@ -26,7 +26,7 @@ export class MainGroupService {
 	}
 
 	updateMainGroup(group: MainGroup): Observable<Response> {
-		return this.handler.update<MainGroup>(mainGroupsUrl, group);
+		return this.handler.update<MainGroup>(mainGroupsUrl, group, group._id);
 	}
 
 	setMainGroup(group: MainGroup): Observable<Response> {

@@ -27,7 +27,8 @@ export class CriterionService {
 	}
 
 	updateCriterion(criterion: Criterion):Observable<Response> {
-		return this.handler.update<Criterion>(criteriaUrl, criterion);
+		return this.handler.update<Criterion>(criteriaUrl, criterion,
+				criterion._id);
 	}
 
 	setCriterion(criterion: Criterion): Observable<Response> {

@@ -12,6 +12,7 @@ import { SidebarComponent } from 'sidebar/sidebar.component';
 import { FootbarComponent } from 'footbar/footbar.component';
 import { CenterComponent } from 'center/center.component';
 import { MainGroupComponent } from 'main-group/main-group.component';
+import { MainGroupEditComponent } from 'main-group/main-group-edit.component';
 import { SubGroupComponent } from 'sub-group/sub-group.component';
 
 import { HandlerService } from 'handler.service';
@@ -24,6 +25,7 @@ import { HandlerService } from 'handler.service';
 		FootbarComponent,
 		CenterComponent,
 		MainGroupComponent,
+		MainGroupEditComponent,
 		SubGroupComponent
 	],
 	imports: [

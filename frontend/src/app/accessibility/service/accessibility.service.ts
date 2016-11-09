@@ -8,7 +8,7 @@ import { Accessibility } from 'accessibility/accessibility';
 
 @Injectable()
 export class AccessibilityService {
-	
+
 	constructor(private handler: HandlerService) { }
 
 	getAccessibilities(): Observable<Accessibility[]> {
@@ -29,7 +29,7 @@ export class AccessibilityService {
 
 	updateAccessibility(accessibiliy: Accessibility):Observable<Response> {
 		return this.handler.update<Accessibility>(accessibilitiesUrl,
-				accessibiliy);
+				accessibiliy, accessibility._id);
 	}
 
 	setAccessibility(accessibility: Accessibility): Observable<Response> {

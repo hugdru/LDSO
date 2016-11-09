@@ -28,6 +28,6 @@ func setRouter(router *chi.Mux, url, coll string) {
 	router.Get(url + "/find", conn.GetOne(db.GetCollection(coll)))
 	router.Post(url, conn.Set(db.GetCollection(coll)))
 	router.Put(url, conn.Update(db.GetCollection(coll)))
+	router.Options(url, conn.Accept())
 	router.Delete(url, conn.Delete(db.GetCollection(coll)))
-
 }

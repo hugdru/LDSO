@@ -1,36 +1,47 @@
 <div>
 	<div class="input" *ngFor= 'let mainGroup of mainGroups'>
-		<label for="groupName" class="col-form-label">
-			{{mainGroup.name}}
-		</label>
-		<label class="groupWeight">
-			{{mainGroup.weight}}%
-		</label>
-		<button class="btn btn-neutral round outline"
-			(click)="selectMainGroup(mainGroup)">
-			<i class="glyphicon glyphicon-pencil"></i>
-		</button>
-		<button type="button" class="btn btn-delete round outline"
-			(click)="selectMainGroup(mainGroup)">
-			<span class="glyphicon glyphicon-trash"></span>
-		</button>
+		<div *ngIf="!selectedMainGroup">
+			<label for="groupName" class="col-form-label">
+				{{mainGroup.name}}
+			</label>
+			<label class="groupWeight">
+				{{mainGroup.weight}}%
+			</label>
+			<button class="btn btn-neutral round outline"
+				(click)="selectMainGroup(mainGroup)">
+				<i class="glyphicon glyphicon-pencil"></i>
+			</button>
+			<button type="button" class="btn btn-delete round outline"
+				(click)="selectMainGroup(mainGroup)">
+				<span class="glyphicon glyphicon-trash"></span>
+			</button>
+		</div>
+		<div *ngIf="selectedMainGroup">
+			<div *ngIf="selectedMainGroup.name == mainGroup.name">
+				<main-group-edit
+						[selectedMainGroup]="selectedMainGroup"
+						(onAction)="onAction()">
+				</main-group-edit>
+			</div>
+			<div *ngIf="selectedMainGroup.name != mainGroup.name">
+				<label for="groupName" class="col-form-label">
+					{{mainGroup.name}}
+				</label>
+				<label class="groupWeight">
+					{{mainGroup.weight}}%
+				</label>
+				<button class="btn btn-neutral round outline"
+					(click)="selectMainGroup(mainGroup)">
+					<i class="glyphicon glyphicon-pencil"></i>
+				</button>
+				<button type="button" class="btn btn-delete round outline"
+					(click)="selectMainGroup(mainGroup)">
+					<span class="glyphicon glyphicon-trash"></span>
+				</button>
+			</div>
+		</div>
 	</div>
 	<button class="btn btn-primary round outline">
 		<i class="glyphicon glyphicon-plus"></i>
 	</button>
-</div>
-<div *ngIf="selectedMainGroup">
-	<div>
-		<input [(ngModel)]="selectedMainGroup.name" placeholder="name"/>
-		<input type="number" [(ngModel)]="selectedMainGroup.weight"
-				placeholder="weight"/>
-		<button class="btn btn-success round outline"
-				(click)="updateMainGroup()">
-			<i class="glyphicon glyphicon-ok"></i>
-		</button>
-		<button class="btn btn-neutral round outline"
-				(click)="selectedMainGroup = null">
-			<i class="glyphicon glyphicon-remove"></i>
-		</button>
-	</div>
 </div>

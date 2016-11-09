@@ -24,7 +24,8 @@ export class SubGroupService {
 	}
 
 	updateSubGroup(subGroup: SubGroup): Observable<Response> {
-		return this.handler.update<SubGroup>(subGroupsUrl, subGroup);
+		return this.handler.update<SubGroup>(subGroupsUrl, subGroup,
+				subGroup._id);
 	}
 
 	setSubGroup(subGroup: SubGroup): Observable<Response> {

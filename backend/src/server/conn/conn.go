@@ -23,6 +23,13 @@ func allowOrigin(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func Accept() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		allowOrigin(w, r)
+		giveAccess(w, "PUT, DELETE")
+	}
+}
+
 func GetValue(r *http.Request) interface {} {
 	var value interface{}
 	var err error
@@ -180,6 +187,7 @@ func Set(coll *mgo.Collection) http.HandlerFunc {
 func Update(coll *mgo.Collection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		allowOrigin(w, r)
+		giveAccess(w, "PUT")
 
 		newDocument := GetDocument(coll.Name)
 		oldDocument := GetDocument(coll.Name)
@@ -245,7 +253,7 @@ func Delete(coll *mgo.Collection) http.HandlerFunc {
 		id_str := r.FormValue("_id")
 		if (id_str == "") {
 			ids := GetIds(coll)
-			for _,id := range ids {
+			for _, id := range ids {
 				RecursiveDelete(coll, id)
 			}
 		} else {
