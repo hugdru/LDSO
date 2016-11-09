@@ -1,0 +1,19 @@
+.btn-delete.outline {
+    /* border: 2px solid #871916; */
+    color: #871916;
+}
+
+.btn-delete.outline:hover, .btn-delete.outline:focus,
+.btn-delete.outline:active, .btn-delete.outline.active, .open >
+.dropdown-toggle.btn-delete {
+    color: #3a0b0a;
+    /* border-color: #297040; */
+	/* background: #f0f0f0; */
+}
+
+.btn-delete.outline:active, .btn-delete.outline.active {
+    /* border-color: #2d9446; */
+    color: #871916;
+	/* background: #f0f0f0; */
+    box-shadow: none;
+}

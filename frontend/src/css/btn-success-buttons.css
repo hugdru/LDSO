@@ -1,0 +1,14 @@
+.btn-success.outline {
+    color: #2d9446;
+}
+
+.btn-success.outline:hover, .btn-success.outline:focus,
+.btn-success.outline:active, .btn-success.outline.active, .open >
+.dropdown-toggle.btn-success {
+    color: #297040;
+}
+
+.btn-success.outline:active, .btn-success.outline.active {
+    color: #2d9446;
+    box-shadow: none;
+}
