@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, AfterViewChecked } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 
 import { MainGroupService } from 'main-group/service/main-group.service';
 import { MainGroup } from 'main-group/main-group';
@@ -7,11 +7,11 @@ import { MainGroupEditComponent } from 'main-group/main-group-edit.component';
 @Component({
 	selector: 'main-group',
 	templateUrl: 'main-group.component.html',
-	styleUrls: ['main-group.component.css'],
+	styleUrls: [ 'main-group.component.css' ],
 	providers: [ MainGroupService ]
 })
 
-export class MainGroupComponent implements OnInit, AfterViewChecked {
+export class MainGroupComponent implements OnInit {
 	mainGroups: MainGroup[];
 	selectedMainGroup: MainGroup = null;
 	errorMsg: string;
@@ -24,9 +24,6 @@ export class MainGroupComponent implements OnInit, AfterViewChecked {
 
 	ngOnInit(): void {
 		this.initMainGroups();
-	}
-
-	ngAfterViewChecked(): void {
 	}
 
 	initMainGroups(): void {
@@ -44,12 +41,13 @@ export class MainGroupComponent implements OnInit, AfterViewChecked {
 		this.selectedMainGroup = null;
 	}
 
-	checkPercentage(): boolean {
-		let result: number;
+	sumPercentage(): number {
+		let result: number = 0;
 		for (let group of this.mainGroups) {
-			result += group.weight;
+			if (group._id != this.selectedMainGroup._id) {
+				result += group.weight;
+			}
 		}
-		console.log(result <= 100);
-		return result <= 100;
+		return result;
 	}
 }

@@ -20,6 +20,7 @@
 			<div *ngIf="selectedMainGroup.name == mainGroup.name">
 				<main-group-edit
 						[selectedMainGroup]="selectedMainGroup"
+						[weight]="sumPercentage()"
 						(onAction)="onAction()">
 				</main-group-edit>
 			</div>
