@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 
 import { MainGroupService } from 'main-group/service/main-group.service';
 import { MainGroup } from 'main-group/main-group';
@@ -9,19 +9,30 @@ import { MainGroup } from 'main-group/main-group';
 	providers: [ MainGroupService ]
 })
 
-export class MainGroupEditComponent {
+export class MainGroupEditComponent implements OnInit {
+	backupMainGroup: MainGroup;
+
 	@Input() selectedMainGroup: MainGroup;
-	@Output() onAction = new EventEmitter<MainGroup>();
+	@Output() onAction = new EventEmitter();
 
 	constructor(private mainGroupService: MainGroupService) {
 
 	}
 
-	pressed(update: boolean, updatedMainGroup: MainGroup): void {
-		if(update) {
+	ngOnInit(): void {
+		this.backupMainGroup = new MainGroup();
+		this.backupMainGroup.name = this.selectedMainGroup.name;
+		this.backupMainGroup.weight = this.selectedMainGroup.weight;
+	}
+
+	pressed(updatedMainGroup: MainGroup): void {
+		if (updatedMainGroup) {
 			this.updateMainGroup();
+		} else {
+			this.selectedMainGroup.name = this.backupMainGroup.name;
+			this.selectedMainGroup.weight = this.backupMainGroup.weight;
 		}
-		this.onAction.emit(updatedMainGroup);
+		this.onAction.emit();
 	}
 
 	updateMainGroup(): void {

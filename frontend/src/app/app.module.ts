@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { HttpModule } from '@angular/http';
 import { FormsModule } from '@angular/forms';
 
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { AppRoutingModule } from 'app-routing.module';
 
 import { AppComponent } from 'app.component';
@@ -31,7 +32,8 @@ import { HandlerService } from 'handler.service';
 		AppRoutingModule,
 		BrowserModule,
 		HttpModule,
-		FormsModule
+		FormsModule,
+		NgbModule.forRoot()
 	],
 	providers: [ HandlerService ],
 	bootstrap: [ AppComponent ]

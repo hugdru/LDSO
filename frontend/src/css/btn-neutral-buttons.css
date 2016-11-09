@@ -1,0 +1,14 @@
+.btn-neutral.outline {
+    color: #8f8f8f;
+}
+
+.btn-neutral.outline:hover, .btn-neutral.outline:focus,
+.btn-neutral.outline:active, .btn-neutral.outline.active, .open >
+.dropdown-toggle.btn-neutral {
+    color: #717171;
+}
+
+.btn-neutral.outline:active, .btn-neutral.outline.active {
+    color: #8f8f8f;
+    box-shadow: none;
+}

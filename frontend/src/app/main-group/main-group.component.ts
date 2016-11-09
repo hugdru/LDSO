@@ -40,13 +40,7 @@ export class MainGroupComponent implements OnInit, AfterViewChecked {
 		this.selectedMainGroup = mainGroup;
 	}
 
-	onAction(updatedMainGroup: MainGroup): void {
-		for (let group of this.mainGroups) {
-			if (group._id == updatedMainGroup._id) {
-				group = updatedMainGroup;
-				break;
-			}
-		}
+	onAction(): void {
 		this.selectedMainGroup = null;
 	}
 

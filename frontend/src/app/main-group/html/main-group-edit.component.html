@@ -2,6 +2,12 @@
 	<input [(ngModel)]="selectedMainGroup.name" placeholder="name"/>
 	<input type="number" [(ngModel)]="selectedMainGroup.weight"
 			placeholder="weight"/>
-	<button class="btn glyphicon glyphicon-ok"
-			(click)="pressed(true, selectedMainGroup)"></button>
+	<button class="btn btn-success round outline"
+			(click)="pressed(selectedMainGroup)">
+		<i class="glyphicon glyphicon-ok"></i>
+	</button>
+	<button class="btn btn-neutral round outline"
+			(click)="pressed(null)">
+		<i class="glyphicon glyphicon-remove"></i>
+	</button>
 </div>

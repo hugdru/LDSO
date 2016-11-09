@@ -7,14 +7,20 @@
 			<label class="groupWeight">
 				{{mainGroup.weight}}%
 			</label>
-			<button class="btn glyphicon glyphicon-pencil"
-				(click)="selectMainGroup(mainGroup)"></button>
+			<button class="btn btn-neutral round outline"
+				(click)="selectMainGroup(mainGroup)">
+				<i class="glyphicon glyphicon-pencil"></i>
+			</button>
+			<button type="button" class="btn btn-delete round outline"
+				(click)="selectMainGroup(mainGroup)">
+				<span class="glyphicon glyphicon-trash"></span>
+			</button>
 		</div>
 		<div *ngIf="selectedMainGroup">
 			<div *ngIf="selectedMainGroup.name == mainGroup.name">
 				<main-group-edit
 						[selectedMainGroup]="selectedMainGroup"
-						(onAction)="onAction($event)">
+						(onAction)="onAction()">
 				</main-group-edit>
 			</div>
 			<div *ngIf="selectedMainGroup.name != mainGroup.name">
@@ -24,10 +30,18 @@
 				<label class="groupWeight">
 					{{mainGroup.weight}}%
 				</label>
-				<button class="btn glyphicon glyphicon-pencil"
-					(click)="selectMainGroup(mainGroup)"></button>
+				<button class="btn btn-neutral round outline"
+					(click)="selectMainGroup(mainGroup)">
+					<i class="glyphicon glyphicon-pencil"></i>
+				</button>
+				<button type="button" class="btn btn-delete round outline"
+					(click)="selectMainGroup(mainGroup)">
+					<span class="glyphicon glyphicon-trash"></span>
+				</button>
 			</div>
 		</div>
 	</div>
-	<button type="add" class="btn btn-primary submit">+</button>
+	<button class="btn btn-primary round outline">
+		<i class="glyphicon glyphicon-plus"></i>
+	</button>
 </div>
