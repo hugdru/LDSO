@@ -12,7 +12,7 @@
 				<i class="glyphicon glyphicon-pencil"></i>
 			</button>
 			<button type="button" class="btn btn-delete round outline"
-				(click)="selectMainGroup(mainGroup)">
+				(click)="deleteMainGroup(mainGroup)">
 				<span class="glyphicon glyphicon-trash"></span>
 			</button>
 		</div>
@@ -30,18 +30,14 @@
 				<label class="groupWeight">
 					{{mainGroup.weight}}%
 				</label>
-				<button class="btn btn-neutral round outline"
-					(click)="selectMainGroup(mainGroup)">
-					<i class="glyphicon glyphicon-pencil"></i>
-				</button>
-				<button type="button" class="btn btn-delete round outline"
-					(click)="selectMainGroup(mainGroup)">
-					<span class="glyphicon glyphicon-trash"></span>
-				</button>
 			</div>
 		</div>
 	</div>
-	<button class="btn btn-primary round outline">
+	<button class="btn btn-primary round outline"
+			(click)="selectAddMainGroup()">
 		<i class="glyphicon glyphicon-plus"></i>
 	</button>
+</div>
+<div *ngIf="selectedAddMainGroup">
+	<main-group-add (onAdd)="onAdd($event)"></main-group-add>
 </div>

@@ -26,7 +26,7 @@ export class MainGroupEditComponent implements OnInit {
 	}
 
 	pressed(updatedMainGroup: MainGroup): void {
-		if (updatedMainGroup) {
+		if(updatedMainGroup) {
 			this.updateMainGroup();
 		} else {
 			this.selectedMainGroup.name = this.backupMainGroup.name;
