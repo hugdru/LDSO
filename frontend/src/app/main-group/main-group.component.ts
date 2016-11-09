@@ -14,6 +14,7 @@ import { MainGroupEditComponent } from 'main-group/main-group-edit.component';
 export class MainGroupComponent implements OnInit {
 	mainGroups: MainGroup[];
 	selectedMainGroup: MainGroup = null;
+	selectedAddMainGroup: boolean = false;
 	errorMsg: string;
 
 	@ViewChild(MainGroupEditComponent) editView: MainGroupEditComponent;
@@ -37,8 +38,31 @@ export class MainGroupComponent implements OnInit {
 		this.selectedMainGroup = mainGroup;
 	}
 
+	selectAddMainGroup(): void {
+		this.selectedAddMainGroup = true;
+	}
+
+	deleteMainGroup(mainGroup: MainGroup): void {
+		this.mainGroupService.removeMainGroup(mainGroup._id).subscribe();
+		let position: number;
+		for(let i in this.mainGroups) {
+			if(this.mainGroups[i]._id = mainGroup._id) {
+				position = Number(i);
+				break;
+			}
+		}
+		this.mainGroups.splice(position, 1);
+	}
+
 	onAction(): void {
 		this.selectedMainGroup = null;
+	}
+
+	onAdd(newMainGroup: MainGroup): void {
+		if(newMainGroup != null) {
+			this.mainGroups.push(newMainGroup);
+		}
+		this.selectedAddMainGroup = false;
 	}
 
 	sumPercentage(): number {
