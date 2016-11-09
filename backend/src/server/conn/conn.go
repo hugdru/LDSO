@@ -26,7 +26,7 @@ func allowOrigin(w http.ResponseWriter, r *http.Request) {
 func Accept() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		allowOrigin(w, r)
-		giveAccess(w, "PUT")
+		giveAccess(w, "PUT, DELETE")
 	}
 }
 
@@ -253,7 +253,7 @@ func Delete(coll *mgo.Collection) http.HandlerFunc {
 		id_str := r.FormValue("_id")
 		if (id_str == "") {
 			ids := GetIds(coll)
-			for _,id := range ids {
+			for _, id := range ids {
 				RecursiveDelete(coll, id)
 			}
 		} else {

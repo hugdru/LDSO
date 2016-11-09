@@ -1,22 +1,33 @@
 <div>
 	<div class="input" *ngFor= 'let mainGroup of mainGroups'>
-		<label for="groupName" class="col-form-label">
-			{{mainGroup.name}}
-		</label>
-		<label class="groupWeight">
-			{{mainGroup.weight}}%
-		</label>
-		<button class="btn glyphicon glyphicon-pencil"
-			(click)="selectMainGroup(mainGroup)"></button>
+		<div *ngIf="!selectedMainGroup">
+			<label for="groupName" class="col-form-label">
+				{{mainGroup.name}}
+			</label>
+			<label class="groupWeight">
+				{{mainGroup.weight}}%
+			</label>
+			<button class="btn glyphicon glyphicon-pencil"
+				(click)="selectMainGroup(mainGroup)"></button>
+		</div>
+		<div *ngIf="selectedMainGroup">
+			<div *ngIf="selectedMainGroup.name == mainGroup.name">
+				<main-group-edit
+						[selectedMainGroup]="selectedMainGroup"
+						(onAction)="onAction($event)">
+				</main-group-edit>
+			</div>
+			<div *ngIf="selectedMainGroup.name != mainGroup.name">
+				<label for="groupName" class="col-form-label">
+					{{mainGroup.name}}
+				</label>
+				<label class="groupWeight">
+					{{mainGroup.weight}}%
+				</label>
+				<button class="btn glyphicon glyphicon-pencil"
+					(click)="selectMainGroup(mainGroup)"></button>
+			</div>
+		</div>
 	</div>
 	<button type="add" class="btn btn-primary submit">+</button>
-</div>
-<div *ngIf="selectedMainGroup">
-	<div>
-		<input [(ngModel)]="selectedMainGroup.name" placeholder="name"/>
-		<input type="number" [(ngModel)]="selectedMainGroup.weight"
-				placeholder="weight"/>
-		<button class="btn glyphicon glyphicon-ok"
-				(click)="updateMainGroup()"></button>
-	</div>
 </div>

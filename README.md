@@ -2,12 +2,12 @@
   * *Language* go, pressly/chi, gopkg.in/mgo.v2, alexedwards/scs, golang.org/x/crypto/scrypt<br>
   * *Database Bulk* mongodb
   * *Database Session* redis
-  
+
 ### Frontend ###
   * *Framework* angular 2 with typescript<br>
   * *Build tool* brunch, gulp or webpack (included in angular2)<br>
   * *Responsive Framework* bootstrap with scss
-  
+
 ### Tools ###
   * *IDE* webstorm<br>
   * *Environment* docker and any well supported Gnu/Linux system
@@ -22,11 +22,11 @@
   * https://golang.org/doc/code.html
   * https://getgb.io/docs/usage/
   * https://godoc.org/github.com/constabulary/gb/cmd/gb-vendor
-  
+
 ###### Libs ######
   * https://godoc.org/github.com/pressly/chi
   * https://godoc.org/gopkg.in/mgo.v2
-  
+
 #### Angular 2 ####
   * https://angular.io/docs/ts/latest/quickstart.html
   * https://www.udemy.com/the-complete-guide-to-angular-2/

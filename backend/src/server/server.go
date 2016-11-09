@@ -30,5 +30,4 @@ func setRouter(router *chi.Mux, url, coll string) {
 	router.Put(url, conn.Update(db.GetCollection(coll)))
 	router.Options(url, conn.Accept())
 	router.Delete(url, conn.Delete(db.GetCollection(coll)))
-
 }

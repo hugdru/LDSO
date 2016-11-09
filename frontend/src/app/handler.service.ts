@@ -45,13 +45,12 @@ export class HandlerService {
 	}
 
 	update<T>(url: string, object: T, id: number): Observable<Response> {
-		console.log("here also");
 		return this.http.put(url + "?_id=" + id, JSON.stringify(object))
 				.map((result: Response) => result);
 	}
 
 	delete(url: string, id: number): Observable<Response> {
-		let formated = url + "?_id" + id;
+		let formated = url + "?_id=" + id;
 		return this.http.delete(formated).map((result: Response) => result);
 	}
 
