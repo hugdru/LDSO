@@ -40,5 +40,8 @@
 	</button>
 </div>
 <div *ngIf="selectedAddMainGroup">
-	<main-group-add (onAdd)="onAdd($event)"></main-group-add>
+	<main-group-add
+		(onAdd)="onAdd($event)"
+		[weight]="sumPercentageForAdd()">
+	</main-group-add>
 </div>

@@ -65,6 +65,14 @@ export class MainGroupComponent implements OnInit {
 		this.selectedAddMainGroup = false;
 	}
 
+	sumPercentageForAdd(): number {
+		let result: number = 0;
+		for (let group of this.mainGroups) {
+			result += group.weight;
+		}
+		return result;
+	}
+
 	sumPercentage(): number {
 		let result: number = 0;
 		for (let group of this.mainGroups) {
