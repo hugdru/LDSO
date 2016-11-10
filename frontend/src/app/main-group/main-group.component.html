@@ -10,7 +10,7 @@
 	</div>
 </div>
 <div>
-	<div class="input" *ngFor= 'let mainGroup of mainGroups'>
+	<div *ngFor= 'let mainGroup of mainGroups'>
 		<div *ngIf="!selectedMainGroup">
 			<div (click)="selectShowSubGroup(mainGroup)">
 				<label class="col-form-label">
