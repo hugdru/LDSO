@@ -1,12 +1,25 @@
 <div>
-	<div class="input" *ngFor= 'let mainGroup of mainGroups'>
+	<button *ngIf="!selectedAddMainGroup" class="btn btn-primary round outline"
+			(click)="selectAddMainGroup()">
+		 Novo Grupo <i class="glyphicon glyphicon-plus"></i>
+	</button>
+	<div *ngIf="selectedAddMainGroup">
+		<main-group-add 
+				[weight]="sumPercentageForAdd()"
+				(onAdd)="onAdd($event)"></main-group-add>
+	</div>
+</div>
+<div>
+	<div *ngFor= 'let mainGroup of mainGroups'>
 		<div *ngIf="!selectedMainGroup">
-			<label for="groupName" class="col-form-label">
-				{{mainGroup.name}}
-			</label>
-			<label class="groupWeight">
-				{{mainGroup.weight}}%
-			</label>
+			<div (click)="selectShowSubGroup(mainGroup)">
+				<label class="col-form-label">
+					{{mainGroup.name}}
+				</label>
+				<label >
+					{{mainGroup.weight}}%
+				</label>
+			</div>
 			<button class="btn btn-neutral round outline"
 				(click)="selectMainGroup(mainGroup)">
 				<i class="glyphicon glyphicon-pencil"></i>
@@ -24,24 +37,18 @@
 						(onAction)="onAction()">
 				</main-group-edit>
 			</div>
-			<div *ngIf="selectedMainGroup.name != mainGroup.name">
-				<label for="groupName" class="col-form-label">
+			<div *ngIf="selectedMainGroup.name != mainGroup.name"
+					(click)="selectShowSubGroup(mainGroup)">
+				<label class="col-form-label">
 					{{mainGroup.name}}
 				</label>
-				<label class="groupWeight">
+				<label>
 					{{mainGroup.weight}}%
 				</label>
 			</div>
 		</div>
 	</div>
-	<button class="btn btn-primary round outline"
-			(click)="selectAddMainGroup()">
-		<i class="glyphicon glyphicon-plus"></i>
-	</button>
 </div>
-<div *ngIf="selectedAddMainGroup">
-	<main-group-add
-		(onAdd)="onAdd($event)"
-		[weight]="sumPercentageForAdd()">
-	</main-group-add>
+<div *ngIf="selectedShowSubGroup">
+	<sub-group [selectedShowSubGroup]="selectedShowSubGroup"></sub-group>
 </div>
