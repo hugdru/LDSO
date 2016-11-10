@@ -4,7 +4,9 @@
 		 Novo Grupo <i class="glyphicon glyphicon-plus"></i>
 	</button>
 	<div *ngIf="selectedAddMainGroup">
-		<main-group-add (onAdd)="onAdd($event)"></main-group-add>
+		<main-group-add 
+				[weight]="sumPercentageForAdd()"
+				(onAdd)="onAdd($event)"></main-group-add>
 	</div>
 </div>
 <div>
@@ -46,16 +48,6 @@
 			</div>
 		</div>
 	</div>
-	<button class="btn btn-primary round outline"
-			(click)="selectAddMainGroup()">
-		<i class="glyphicon glyphicon-plus"></i>
-	</button>
-</div>
-<div *ngIf="selectedAddMainGroup">
-	<main-group-add
-		(onAdd)="onAdd($event)"
-		[weight]="sumPercentageForAdd()">
-	</main-group-add>
 </div>
 <div *ngIf="selectedShowSubGroup">
 	<sub-group [selectedShowSubGroup]="selectedShowSubGroup"></sub-group>
