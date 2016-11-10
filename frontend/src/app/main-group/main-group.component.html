@@ -1,4 +1,13 @@
 <div>
+	<button *ngIf="!selectedAddMainGroup" class="btn btn-primary round outline"
+			(click)="selectAddMainGroup()">
+		 Novo Grupo <i class="glyphicon glyphicon-plus"></i>
+	</button>
+	<div *ngIf="selectedAddMainGroup">
+		<main-group-add (onAdd)="onAdd($event)"></main-group-add>
+	</div>
+</div>
+<div>
 	<div class="input" *ngFor= 'let mainGroup of mainGroups'>
 		<div *ngIf="!selectedMainGroup">
 			<label for="groupName" class="col-form-label">
