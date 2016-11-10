@@ -7,25 +7,34 @@ EXE="curl -X"
 URL="http://go1:8080/"
 
 PostTests=( \
-		"{\"_id\":5,\"name\":\"Coisas\",\"weight\":30}" \
+		"{\"name\":\"Coisas\",\"weight\":30}" \
 		"mainGroups" \
 #
-		"{\"_id\":3,\"name\":\"Paralelo\",\"weight\":10,\"main_group\":2}" \
+		"{\"name\":\"Paralelo\",\"weight\":10,\"main_group\":2}" \
 		"subGroups" \
 #
-		"{\"_id\":3,\"name\":\"xpto\",\"weight\":5,\"legislation\":\"\",\"sub_group\":2}" \
+		"{\"name\":\"xpto\",\"weight\":5,\"legislation\":\"\",\"sub_group\":2}" \
 		"criteria" \
 #
-		"{\"_id\":9,\"name\":\"fisica\",\"weight\":5,\"criterion\":3}" \
+		"{\"name\":\"fisica\",\"weight\":15,\"criterion\":3}" \
 		"accessibilities" \
 )
 
-PutTests=(\
-		"mainGroups?_id=5&tag=weight&type=int&value=20" \
-		"mainGroups?_id=5&tag=name&type=string&value=Cenas" \
-		"subGroups?_id=3&tag=name&type=string&value=Paralelinho" \
-		"accessibilities?_id=9&tag=weight&type=int&value=5" \
-		"criteria?_id=3&tag=name&type=string&value=yqup" \
+PutTests=( \
+		"{\"_id\":5,\"name\":\"Coisas\",\"weight\":20}" \
+		"mainGroups?_id=5" \
+#
+		"{\"_id\":5,\"name\":\"Cenas\",\"weight\":20}" \
+		"mainGroups?_id=5" \
+#
+		"{\"_id\":3,\"name\":\"Paralelinho\",\"weight\":10,\"main_group\":2}" \
+		"subGroups?_id=3" \
+#
+		"{\"_id\":3,\"name\":\"yqup\",\"weight\":5,\"legislation\":\"\",\"sub_group\":2}" \
+		"criteria?_id=3" \
+#
+		"{\"_id\":9,\"name\":\"fisica\",\"weight\":5,\"criterion\":3}" \
+		"accessibilities?_id=9" \
 )
 
 GetTests1=( \
@@ -57,9 +66,9 @@ do
 	$EXE POST -d ${PostTests[$t]} $URL${PostTests[$t+1]}
 done
 
-for t in ${PutTests[@]}
+for (( t=0; t<${#PutTests[@]}; t=t+2))
 do
-	$EXE PUT $URL$t
+	$EXE PUT -d ${PutTests[$t]} $URL${PutTests[$t+1]}
 done
 
 for t in ${GetTests1[@]}
@@ -67,12 +76,12 @@ do
 	$EXE GET $URL$t
 done
 
-for t in ${DeleteTests[@]}
-do
-	$EXE DELETE $URL$t
-done
-
-for t in ${GetTests2[@]}
-do
-	$EXE GET $URL$t
-done
+#for t in ${DeleteTests[@]}
+#do
+#	$EXE DELETE $URL$t
+#done
+#
+#for t in ${GetTests2[@]}
+#do
+#	$EXE GET $URL$t
+#done

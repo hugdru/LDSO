@@ -46,16 +46,21 @@ func Insert(c *mgo.Collection, documents ...interface{}) {
 	}
 }
 
-func FindOne(c *mgo.Collection, document interface{}, tag string,
-		value interface{}) {
+func FindOne(c *mgo.Collection, document interface{}, tag string, value interface{}) {
 	err := c.Find(bson.M{tag: value}).One(document)
 	if err != nil {
 		log.Panic(err)
 	}
 }
 
-func Find(c *mgo.Collection, documents interface{}, tagged bool, tag string,
-		value interface{}) {
+func FindMaxId(c *mgo.Collection, document interface{}) {
+	err := c.Find(bson.M{}).Sort("-_id").One(document)
+	if err != nil {
+		log.Panic(err)
+	}
+}
+
+func Find(c *mgo.Collection, documents interface{}, tagged bool, tag string, value interface{}) {
 	var err error
 	if (tagged) {
 		err = c.Find(bson.M{tag: value}).Iter().All(documents)
@@ -74,8 +79,7 @@ func Update(c *mgo.Collection, oldDocument, newDocument interface{}) {
 	}
 }
 
-func UpdateField(c *mgo.Collection, document interface{}, tag string,
-		value interface{}) {
+func UpdateField(c *mgo.Collection, document interface{}, tag string, value interface{}) {
 	change := bson.M{"$set": bson.M{tag: value}}
 	err := c.Update(document, change)
 	if err != nil {
