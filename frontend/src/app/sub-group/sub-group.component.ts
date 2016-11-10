@@ -1,19 +1,49 @@
-import { Component, OnInit } from '@angular/core';
+import {
+	Component,
+	OnInit,
+	OnChanges,
+	SimpleChanges,
+	Input
+} from '@angular/core';
 
 import { SubGroupService } from 'sub-group/service/sub-group.service';
 import { SubGroup } from 'sub-group/sub-group';
+import { MainGroup } from 'main-group/main-group';
 
 @Component({
-	selector: 'app-sub-group',
+	selector: 'sub-group',
 	templateUrl: './html/sub-group.component.html',
-	styleUrls: [ 'sub-group.component.css' ],
+	styleUrls: [ '../main-group/main-group.component.css' ],
 	providers: [ SubGroupService ]
 })
 
-export class SubGroupComponent implements OnInit {
+export class SubGroupComponent implements OnInit, OnChanges {
+	subGroups: SubGroup[];
+
+	@Input() selectedShowSubGroup: MainGroup;
+
+	constructor(private subGroupService: SubGroupService){ }
+
+	ngOnChanges(changes: SimpleChanges): void {
+		for(let i in changes) {
+			console.log(changes[i].previousValue);
+			console.log(changes[i].currentValue);
+			this.initSubGroups(changes[i].currentValue._id);
+			console.log(this.subGroups);
+		}
+	}
 
 	ngOnInit() {
+		this.initSubGroups(this.selectedShowSubGroup._id);	
+		console.log(this.selectedShowSubGroup);
+		console.log(this.subGroups);
+	}
 
+	initSubGroups(mainGroupId: number): void {
+		this.subGroupService
+				.getSomeSubGroups("main_group", "int", mainGroupId)
+				.subscribe(data => this.subGroups = data);
+	
 	}
 
 }

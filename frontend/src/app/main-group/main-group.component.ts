@@ -15,6 +15,7 @@ export class MainGroupComponent implements OnInit {
 	mainGroups: MainGroup[];
 	selectedMainGroup: MainGroup = null;
 	selectedAddMainGroup: boolean = false;
+	selectedShowSubGroup: MainGroup;
 	errorMsg: string;
 
 	@ViewChild(MainGroupEditComponent) editView: MainGroupEditComponent;
@@ -40,6 +41,10 @@ export class MainGroupComponent implements OnInit {
 
 	selectAddMainGroup(): void {
 		this.selectedAddMainGroup = true;
+	}
+
+	selectShowSubGroup(mainGroup: MainGroup): void {
+		this.selectedShowSubGroup = mainGroup;
 	}
 
 	deleteMainGroup(mainGroup: MainGroup): void {
