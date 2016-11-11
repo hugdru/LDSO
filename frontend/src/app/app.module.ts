@@ -17,6 +17,7 @@ import { MainGroupAddComponent } from 'main-group/main-group-add.component';
 import { SubGroupComponent } from 'sub-group/sub-group.component';
 import { SubGroupEditComponent } from 'sub-group/sub-group-edit.component';
 import { SubGroupAddComponent } from 'sub-group/sub-group-add.component';
+import { CriterionComponent } from 'criterion/criterion.component';
 import { ListManageComponent } from 'shared/list-manage/list-manage.component';
 
 import { HandlerService } from 'handler.service';
@@ -34,6 +35,7 @@ import { HandlerService } from 'handler.service';
 		SubGroupComponent,
 		SubGroupEditComponent,
 		SubGroupAddComponent,
+		CriterionComponent,
 		ListManageComponent
 	],
 	imports: [
