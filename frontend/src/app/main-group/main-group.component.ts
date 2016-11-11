@@ -27,7 +27,7 @@ export class MainGroupComponent implements OnInit {
 	initMainGroups(): void {
 		this.mainGroupService.getMainGroups().subscribe(
 			data => this.mainGroups = data,
-				error => this.errorMsg = <any> error
+			error => this.errorMsg = <any> error
 		);
 	}
 

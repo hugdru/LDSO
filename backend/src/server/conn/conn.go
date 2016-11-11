@@ -170,13 +170,18 @@ func Set(coll *mgo.Collection) http.HandlerFunc {
 		decoder := json.NewDecoder(r.Body)
 		var err error
 		defer r.Body.Close()
+		var id int
 		switch coll.Name {
 		case "main_group":
 			documentMaxId := data.Main_Group{}
 			document := data.Main_Group{}
 			db.FindMaxId(coll, &documentMaxId)
 			err = decoder.Decode(&document)
-			document.Id = documentMaxId.Id + 1
+			if err != nil {
+				log.Panic(err)
+			}
+			id = documentMaxId.Id + 1
+			document.Id = id
 			db.Insert(coll, document)
 			log.Println(document)
 		case "sub_group":
@@ -184,7 +189,11 @@ func Set(coll *mgo.Collection) http.HandlerFunc {
 			document := data.Sub_Group{}
 			db.FindMaxId(coll, &documentMaxId)
 			err = decoder.Decode(&document)
-			document.Id = documentMaxId.Id + 1
+			if err != nil {
+				log.Panic(err)
+			}
+			id = documentMaxId.Id + 1
+			document.Id = id
 			db.Insert(coll, document)
 			log.Println(document)
 		case "criterion":
@@ -192,7 +201,11 @@ func Set(coll *mgo.Collection) http.HandlerFunc {
 			document := data.Criterion{}
 			db.FindMaxId(coll, &documentMaxId)
 			err = decoder.Decode(&document)
-			document.Id = documentMaxId.Id + 1
+			if err != nil {
+				log.Panic(err)
+			}
+			id = documentMaxId.Id + 1
+			document.Id = id
 			db.Insert(coll, document)
 			log.Println(document)
 		case "accessibility":
@@ -200,13 +213,19 @@ func Set(coll *mgo.Collection) http.HandlerFunc {
 			document := data.Accessibility{}
 			db.FindMaxId(coll, &documentMaxId)
 			err = decoder.Decode(&document)
-			document.Id = documentMaxId.Id + 1
+			if err != nil {
+				log.Panic(err)
+			}
+			id = documentMaxId.Id + 1
+			document.Id = id
 			db.Insert(coll, document)
 			log.Println(document)
 		}
+		err = json.NewEncoder(w).Encode(id);
 		if err != nil {
 			log.Panic(err)
 		}
+
 	}
 }
 

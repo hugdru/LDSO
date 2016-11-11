@@ -56,7 +56,7 @@ export class HandlerService {
 
 	set<T>(url: string, object: T): Observable<Response> {
 		return this.http.post(url, JSON.stringify(object))
-				.map((res: Response) => res);
+				.map((response: Response) => response);
 	}
 
 }
