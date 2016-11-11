@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 
 import { SubGroupService } from 'sub-group/service/sub-group.service';
 import { SubGroup } from 'sub-group/sub-group';
+import { MainGroup } from 'main-group/main-group';
 
 @Component({
 	selector: 'sub-group-add',
@@ -13,6 +14,7 @@ import { SubGroup } from 'sub-group/sub-group';
 export class SubGroupAddComponent implements OnInit {
 	selectedObject: SubGroup;
 
+	@Input() mainGroup: MainGroup;
 	@Input() weight: number;
 	@Output() onAdd = new EventEmitter<SubGroup>();
 
@@ -32,6 +34,7 @@ export class SubGroupAddComponent implements OnInit {
 	}
 
 	addSubGroup(): void {
+		this.selectedObject.main_group = this.mainGroup._id;
 		this.subGroupService.setSubGroup(this.selectedObject).subscribe();
 	}
 

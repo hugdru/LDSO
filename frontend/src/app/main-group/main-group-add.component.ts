@@ -32,8 +32,8 @@ export class MainGroupAddComponent implements OnInit {
 	}
 
 	addMainGroup(): void {
-		this.mainGroupService.setMainGroup(this.selectedMainGroup).subscribe(
-			response => this.selectedMainGroup._id = response.json()
+		this.mainGroupService.setMainGroup(this.selectedObject).subscribe(
+			response => this.selectedObject._id = response.json()
 		);
 	}
 

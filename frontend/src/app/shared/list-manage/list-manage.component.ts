@@ -5,6 +5,7 @@ import {
 	EventEmitter
 } from '@angular/core';
 
+import { Criterion } from 'criterion/criterion';
 import { SubGroup } from 'sub-group/sub-group';
 import { MainGroup } from 'main-group/main-group';
 import { Identifier } from 'identifier.interface';
@@ -15,6 +16,7 @@ import { Identifier } from 'identifier.interface';
 	styleUrls: [ '../../main-group/main-group.component.css' ],
 })
 
+// enum TYPE {Mai}
 export class ListManageComponent {
 	selectedEditObject: Identifier;
 	selectedAddObject: boolean = false;
@@ -50,7 +52,7 @@ export class ListManageComponent {
 
 	sumPercentageForAdd(): number {
 		let result: number = 0;
-		for (let obj of this.objects) {
+		for(let obj of this.objects) {
 			result += obj.weight;
 		}
 		return result;
@@ -58,8 +60,8 @@ export class ListManageComponent {
 
 	sumPercentage(): number {
 		let result: number = 0;
-		for (let obj of this.objects) {
-			if (obj._id != this.selectedEditObject._id) {
+		for(let obj of this.objects) {
+			if(obj._id != this.selectedEditObject._id) {
 				result += obj.weight;
 			}
 		}
@@ -67,13 +69,17 @@ export class ListManageComponent {
 	}
 
 	findType(): string {
-		if ((<SubGroup>this.father).main_group !== undefined) {
-			console.log("sg");
-			return "SubGroup";
+		if(this.father === undefined) {
+			return "MainGroup";
+		}
+		else if((<SubGroup>this.father).main_group !== undefined) {
+			return "Criterion";
+		}
+		else if((<Criterion>this.father).sub_group !== undefined) {
+			return "Accessibility";
 		}
 		else {
-			console.log("mg");
-			return "MainGroup";
+			return "SubGroup";
 		}
 	}
 
