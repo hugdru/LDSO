@@ -29,11 +29,18 @@ images=(
   ["prod/golang"]="./docker/production/go.dockerfile"
   ["dev/nginx"]="./docker/development/nginx.dockerfile"
   ["dev/golang"]="./docker/development/go.dockerfile"
+  ["stag/nginx"]="./docker/production/nginx.dockerfile"
+  ["stag/golang"]="./docker/production/go.dockerfile"
+)
+
+typeset -A builds_args
+builds_args=(
+  ["stag/nginx"]="--build-arg BUILD=stag"
 )
 
 typeset -A args
 args=(
-  ["build"]="build (prod|dev)"
+  ["build"]="build (prod|dev|stag)"
   ["push"]="push (images|compose) (prod|stag)"
   ["clean"]="clean (prod|dev|stag)"
   ["install_compose"]="install_compose (prod|stag)"
@@ -51,7 +58,7 @@ main() {
 }
 
 build() {
-  if [[ $# -ne 1 || "$1" != prod && "$1" != dev ]]; then
+  if [[ $# -ne 1 || "$1" != prod && "$1" != dev && "$1" != stag ]]; then
     1>&2 echo "${args[$FUNCNAME]}"
     exit 1
   fi
@@ -59,7 +66,7 @@ build() {
   for image in "${!images[@]}"; do
     IFS='/' read -ra image_fields <<< "$image"
     if [[ "${image_fields[0]}" != "$1" ]]; then continue; fi
-    tar -cf - --exclude-ignore-recursive="$exclude_context_file" . | docker build -t "$image" -f "${images["$image"]}" -
+    tar -cf - --exclude-ignore-recursive="$exclude_context_file" . | docker build -t "$image" -f "${images["$image"]}" ${builds_args["$image"]} -
   done
 }
 
@@ -76,7 +83,7 @@ push() {
     images)
       for image in "${!images[@]}"; do
         IFS='/' read -ra image_fields <<< "$image"
-        if [[ "${image_fields[0]}" != prod ]]; then continue; fi
+        if [[ "${image_fields[0]}" != "$2" ]]; then continue; fi
         docker save "$image" | xz -9 | pv | ssh "$droplet" 'unxz | docker load'
       done
       ;;
@@ -151,7 +158,7 @@ redo() {
 
   case "$1" in
     prod|stag)
-      build prod
+      build "$1"
       clean "$1"
       push images "$1"
       push compose "$1"
