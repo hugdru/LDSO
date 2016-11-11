@@ -3,12 +3,15 @@ MAINTAINER "Hugo Drumond" hugdru@gmail.com
 
 # https://hub.docker.com/_/node/
 
+ARG BUILD
+ENV BUILD ${BUILD:-prod}
+
 ENV \
   USER="server" \
   GROUP="server" \
   NPM_CONFIG_LOGLEVEL="info" \
   NODE_VERSION="6.9.1" \
-  PERSISTENT_APT_PACKAGES="git ca-certificates" \
+  PERSISTENT_APT_PACKAGES="git ca-certificates python make g++" \
   TEMPORARY_APT_PACKAGES="curl xz-utils" \
   DOCKERIZE_VERSION="v0.2.0" \
   DOCKERIZE_DOWNLOAD_SHA256="c0e2e33cfe066036941bf8f2598090bd8e01fdc05128490238b2a64cf988ecfb"
@@ -62,7 +65,7 @@ WORKDIR "$HOME"
 ENV PATH="$PREFIX/bin:/usr/local/node/bin:$PATH"
 RUN \
       mkdir -p "$PREFIX/bin" && npm install -g yarn && \
-      yarn global add angular-cli && cd "$FRONTEND_DIR" && yarn install && ng build -prod && \
+      yarn global add angular-cli && cd "$FRONTEND_DIR" && yarn install && ng build --env="$BUILD" && \
       find . -maxdepth 1 ! \( -name 'dist' -o -name "." -o -name ".." \) -exec rm -rf {} + && \
       cd "$HOME" && \
       find . -maxdepth 1 ! \( -name "${FRONTEND_DIR##*/}" -o -name "." -o -name ".." \) -exec rm -rf {} +

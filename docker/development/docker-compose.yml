@@ -9,7 +9,7 @@ services:
     image: dev/nginx
     container_name: nginx
     environment:
-      - BUILD=development
+      - BUILD=dev
     depends_on:
       - go1
       - gon
