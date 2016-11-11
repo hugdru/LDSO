@@ -11,8 +11,8 @@ import { SubGroup } from 'sub-group/sub-group';
 
 @Component({
 	selector: 'sub-group-edit',
-	templateUrl: './html/main-group-edit.component.html',
-	styleUrls: [ 'main-group-edit.component.css' ],
+	templateUrl: '../main-group/html/main-group-edit.component.html',
+	styleUrls: [ '../main-group/main-group-edit.component.css' ],
 	providers: [ SubGroupService ]
 })
 

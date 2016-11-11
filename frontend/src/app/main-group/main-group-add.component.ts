@@ -11,7 +11,7 @@ import { MainGroup } from 'main-group/main-group';
 })
 
 export class MainGroupAddComponent implements OnInit {
-	selectedMainGroup: MainGroup;
+	selectedObject: MainGroup;
 
 	@Input() weight: number;
 	@Output() onAdd = new EventEmitter<MainGroup>();
@@ -21,7 +21,7 @@ export class MainGroupAddComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
-		this.selectedMainGroup = new MainGroup();
+		this.selectedObject = new MainGroup();
 	}
 
 	pressed(newMainGroup: MainGroup): void {
@@ -32,10 +32,10 @@ export class MainGroupAddComponent implements OnInit {
 	}
 
 	addMainGroup(): void {
-		this.mainGroupService.setMainGroup(this.selectedMainGroup).subscribe();
+		this.mainGroupService.setMainGroup(this.selectedObject).subscribe();
 	}
 
 	checkPercentage(): boolean {
-		return this.selectedMainGroup.weight + this.weight > 100;
+		return this.selectedObject.weight + this.weight > 100;
 	}
 }

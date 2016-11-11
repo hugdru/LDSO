@@ -19,6 +19,7 @@ import { MainGroup } from 'main-group/main-group';
 
 export class SubGroupComponent implements OnInit, OnChanges {
 	subGroups: SubGroup[];
+	selectedShowCriteria: SubGroup;
 
 	@Input() selectedShowSubGroup: MainGroup;
 
@@ -34,7 +35,7 @@ export class SubGroupComponent implements OnInit, OnChanges {
 	}
 
 	ngOnInit() {
-		this.initSubGroups(this.selectedShowSubGroup._id);	
+		this.initSubGroups(this.selectedShowSubGroup._id);
 		console.log(this.selectedShowSubGroup);
 		console.log(this.subGroups);
 	}
@@ -43,7 +44,15 @@ export class SubGroupComponent implements OnInit, OnChanges {
 		this.subGroupService
 				.getSomeSubGroups("main_group", "int", mainGroupId)
 				.subscribe(data => this.subGroups = data);
-	
+
+	}
+
+	onDelete(subGroup: SubGroup): void {
+		this.subGroupService.removeSubGroup(subGroup._id).subscribe();
+	}
+
+	onShow(subGroup: SubGroup): void {
+		this.selectedShowCriteria = subGroup;
 	}
 
 }

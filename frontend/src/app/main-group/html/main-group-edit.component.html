@@ -1,9 +1,9 @@
 <div>
-	<input [(ngModel)]="selectedMainGroup.name" placeholder="name"/>
-	<input type="number" [(ngModel)]="selectedMainGroup.weight"
+	<input [(ngModel)]="selectedObject.name" placeholder="name"/>
+	<input type="number" [(ngModel)]="selectedObject.weight"
 			placeholder="weight" [class.warning]="checkPercentage()"/>
 	<button class="btn btn-success round outline"
-			(click)="pressed(selectedMainGroup)">
+			(click)="pressed(selectedObject)">
 		<i class="glyphicon glyphicon-ok"></i>
 	</button>
 	<button class="btn btn-neutral round outline"

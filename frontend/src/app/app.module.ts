@@ -15,6 +15,8 @@ import { MainGroupComponent } from 'main-group/main-group.component';
 import { MainGroupEditComponent } from 'main-group/main-group-edit.component';
 import { MainGroupAddComponent } from 'main-group/main-group-add.component';
 import { SubGroupComponent } from 'sub-group/sub-group.component';
+import { SubGroupEditComponent } from 'sub-group/sub-group-edit.component';
+import { SubGroupAddComponent } from 'sub-group/sub-group-add.component';
 import { ListManageComponent } from 'shared/list-manage/list-manage.component';
 
 import { HandlerService } from 'handler.service';
@@ -30,6 +32,8 @@ import { HandlerService } from 'handler.service';
 		MainGroupEditComponent,
 		MainGroupAddComponent,
 		SubGroupComponent,
+		SubGroupEditComponent,
+		SubGroupAddComponent,
 		ListManageComponent
 	],
 	imports: [

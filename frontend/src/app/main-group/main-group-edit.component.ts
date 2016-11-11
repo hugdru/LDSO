@@ -19,7 +19,7 @@ import { MainGroup } from 'main-group/main-group';
 export class MainGroupEditComponent implements OnInit {
 	backupMainGroup: MainGroup;
 
-	@Input() selectedMainGroup: MainGroup;
+	@Input() selectedObject: MainGroup;
 	@Input() weight: number;
 	@Output() onAction = new EventEmitter();
 
@@ -29,27 +29,27 @@ export class MainGroupEditComponent implements OnInit {
 
 	ngOnInit(): void {
 		this.backupMainGroup = new MainGroup();
-		this.backupMainGroup.name = this.selectedMainGroup.name;
-		this.backupMainGroup.weight = this.selectedMainGroup.weight;
+		this.backupMainGroup.name = this.selectedObject.name;
+		this.backupMainGroup.weight = this.selectedObject.weight;
 	}
 
 	pressed(updatedMainGroup: MainGroup): void {
 		if(updatedMainGroup) {
 			this.updateMainGroup();
 		} else {
-			this.selectedMainGroup.name = this.backupMainGroup.name;
-			this.selectedMainGroup.weight = this.backupMainGroup.weight;
+			this.selectedObject.name = this.backupMainGroup.name;
+			this.selectedObject.weight = this.backupMainGroup.weight;
 		}
 		this.onAction.emit();
 	}
 
 	updateMainGroup(): void {
-		this.mainGroupService.updateMainGroup(this.selectedMainGroup)
+		this.mainGroupService.updateMainGroup(this.selectedObject)
 				.subscribe();
 	}
 
 	checkPercentage(): boolean {
-		return this.selectedMainGroup.weight + this.weight > 100;
+		return this.selectedObject.weight + this.weight > 100;
 	}
 
 }

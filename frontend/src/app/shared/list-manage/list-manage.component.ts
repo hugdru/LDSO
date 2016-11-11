@@ -17,11 +17,10 @@ import { Identifier } from 'identifier.interface';
 
 export class ListManageComponent {
 	selectedEditObject: Identifier;
-	isMainGroup: boolean = false;
-	isSubGroup: boolean = false;
 	selectedAddObject: boolean = false;
 
 	@Input() objects: Identifier[];
+	@Input() father: Identifier;
 	@Output() onShow = new EventEmitter<Object>();
 	@Output() onDelete = new EventEmitter<Object>();
 
@@ -39,13 +38,6 @@ export class ListManageComponent {
 			}
 		}
 		this.objects.splice(position, 1);
-	}
-
-	onAdd(newObject: Identifier): void {
-		if(newObject != null) {
-			this.objects.push(newObject);
-		}
-		this.selectedAddObject = false;
 	}
 
 	selectAddObject() {
@@ -74,8 +66,26 @@ export class ListManageComponent {
 		return result;
 	}
 
+	findType(): string {
+		if ((<SubGroup>this.father).main_group !== undefined) {
+			console.log("sg");
+			return "SubGroup";
+		}
+		else {
+			console.log("mg");
+			return "MainGroup";
+		}
+	}
+
 	onAction(): void {
 		this.selectedEditObject = null;
+	}
+
+	onAdd(newObject: Identifier): void {
+		if(newObject != null) {
+			this.objects.push(newObject);
+		}
+		this.selectedAddObject = false;
 	}
 
 }
