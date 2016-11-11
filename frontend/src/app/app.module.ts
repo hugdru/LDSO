@@ -15,6 +15,7 @@ import { MainGroupComponent } from 'main-group/main-group.component';
 import { MainGroupEditComponent } from 'main-group/main-group-edit.component';
 import { MainGroupAddComponent } from 'main-group/main-group-add.component';
 import { SubGroupComponent } from 'sub-group/sub-group.component';
+import { ListManageComponent } from 'shared/list-manage/list-manage.component';
 
 import { HandlerService } from 'handler.service';
 
@@ -28,7 +29,8 @@ import { HandlerService } from 'handler.service';
 		MainGroupComponent,
 		MainGroupEditComponent,
 		MainGroupAddComponent,
-		SubGroupComponent
+		SubGroupComponent,
+		ListManageComponent
 	],
 	imports: [
 		AppRoutingModule,

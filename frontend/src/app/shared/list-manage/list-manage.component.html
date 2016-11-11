@@ -1,0 +1,58 @@
+<div>
+	<button *ngIf="!selectedAddObject" class="btn btn-primary round outline"
+			(click)="selectAddObject()">
+		 Adicionar Novo<i class="glyphicon glyphicon-plus"></i>
+	</button>
+	<div *ngIf="selectedAddObject">
+		<main-group-add
+				[weight]="sumPercentageForAdd()"
+				(onAdd)="onAdd($event)"></main-group-add>
+	</div>
+</div>
+<div *ngFor= 'let obj of objects'>
+	<div *ngIf="!selectedEditObject">
+		<div (click)="showChildren(obj)">
+			<label class="col-form-label">
+				{{obj.name}}
+			</label>
+			<label >
+				{{obj.weight}}%
+			</label>
+		</div>
+		<button class="btn btn-neutral round outline"
+			(click)="selectEditObject(obj)">
+			<i class="glyphicon glyphicon-pencil"></i>
+		</button>
+		<button type="button" class="btn btn-delete round outline"
+			(click)="deleteObject(obj)">
+			<span class="glyphicon glyphicon-trash"></span>
+		</button>
+	</div>
+	<div *ngIf="selectedEditObject">
+		<div *ngIf="selectedEditObject.name == obj.name">
+			<div *ngIf="isMainGroup">
+				<main-group-edit
+						[selectedMainGroup]="selectedEditObject"
+						[weight]="sumPercentage()"
+						(onAction)="onAction()">
+				</main-group-edit>
+			</div>
+			<!-- <div *ngIf="isSubGroup"> -->
+			<!-- 	<sub-group-edit -->
+			<!-- 			[selectedSubGroup]="selectedEditObject" -->
+			<!-- 			[weight]="sumPercentage()" -->
+			<!-- 			(onAction)="onAction()"> -->
+			<!-- 	</sub-group-edit> -->
+			<!-- </div> -->
+		</div>
+		<div *ngIf="selectedEditObject.name != obj.name"
+				(click)="showChildren(obj)">
+			<label class="col-form-label">
+				{{obj.name}}
+			</label>
+			<label>
+				{{obj.weight}}%
+			</label>
+		</div>
+	</div>
+</div>
