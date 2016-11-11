@@ -1,7 +1,7 @@
 package data
 
 type Main_Group struct {
-	Id int `json:"_id" bson:"_id,omitempty"`
+	Id int`json:"_id" bson:"_id,omitempty"`
 	Name string `json:"name"`
 	Weight int `json:"weight"`
 }
