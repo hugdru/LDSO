@@ -30,7 +30,16 @@ func Accept() http.HandlerFunc {
 	}
 }
 
-func GetValue(r *http.Request) interface {} {
+func Decode(r *http.Request, document interface{}) {
+	decoder := json.NewDecoder(r.Body)
+	defer r.Body.Close()
+	err := decoder.Decode(&document)
+	if err != nil {
+		log.Panic(err)
+	}
+}
+
+func GetValue(r *http.Request) interface{} {
 	var value interface{}
 	var err error
 
@@ -49,7 +58,6 @@ func GetValue(r *http.Request) interface {} {
 
 func GetDocument(coll_name string) interface{} {
 	var document interface{}
-
 	switch coll_name {
 	case "main_group":
 		document = data.Main_Group{}
@@ -60,14 +68,11 @@ func GetDocument(coll_name string) interface{} {
 	case "accessibility":
 		document = data.Accessibility{}
 	}
-
 	return document
 }
 
-func GetDocuments(coll *mgo.Collection, tagged bool, tag string,
-		value interface{}) interface{} {
+func GetDocuments(coll *mgo.Collection, tagged bool, tag string, value interface{}) interface{} {
 	var document interface{}
-
 	switch coll.Name {
 	case "main_group":
 		main_groups := []data.Main_Group{}
@@ -86,13 +91,11 @@ func GetDocuments(coll *mgo.Collection, tagged bool, tag string,
 		db.Find(coll, &accessibilities, tagged, tag, value)
 		document = accessibilities
 	}
-
 	return document
 }
 
 func GetIds(coll *mgo.Collection) []int {
 	var ids []int
-
 	switch coll.Name {
 	case "main_group":
 		main_groups := []data.Main_Group{}
@@ -119,14 +122,12 @@ func GetIds(coll *mgo.Collection) []int {
 			ids = append(ids, accessibility.Id)
 		}
 	}
-
 	return ids
 }
 
 func Get(coll *mgo.Collection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		allowOrigin(w, r)
-
 		tag := r.FormValue("tag")
 		if tag == "" {
 			documents := GetDocuments(coll, false, "", 0)
@@ -151,17 +152,14 @@ func Get(coll *mgo.Collection) http.HandlerFunc {
 func GetOne(coll *mgo.Collection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		allowOrigin(w, r)
-
 		document := GetDocument(coll.Name)
 		tag := r.FormValue("tag")
 		value := GetValue(r)
-
 		db.FindOne(coll, &document, tag, value)
 		err := json.NewEncoder(w).Encode(document);
 		if err != nil {
 			log.Panic(err)
 		}
-
 		log.Println(document)
 	}
 }
@@ -169,18 +167,46 @@ func GetOne(coll *mgo.Collection) http.HandlerFunc {
 func Set(coll *mgo.Collection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		allowOrigin(w, r)
-
-		document := GetDocument(coll.Name)
 		decoder := json.NewDecoder(r.Body)
+		var err error
 		defer r.Body.Close()
-
-		err := decoder.Decode(&document)
+		switch coll.Name {
+		case "main_group":
+			documentMaxId := data.Main_Group{}
+			document := data.Main_Group{}
+			db.FindMaxId(coll, &documentMaxId)
+			err = decoder.Decode(&document)
+			document.Id = documentMaxId.Id + 1
+			db.Insert(coll, document)
+			log.Println(document)
+		case "sub_group":
+			documentMaxId := data.Sub_Group{}
+			document := data.Sub_Group{}
+			db.FindMaxId(coll, &documentMaxId)
+			err = decoder.Decode(&document)
+			document.Id = documentMaxId.Id + 1
+			db.Insert(coll, document)
+			log.Println(document)
+		case "criterion":
+			documentMaxId := data.Criterion{}
+			document := data.Criterion{}
+			db.FindMaxId(coll, &documentMaxId)
+			err = decoder.Decode(&document)
+			document.Id = documentMaxId.Id + 1
+			db.Insert(coll, document)
+			log.Println(document)
+		case "accessibility":
+			documentMaxId := data.Accessibility{}
+			document := data.Accessibility{}
+			db.FindMaxId(coll, &documentMaxId)
+			err = decoder.Decode(&document)
+			document.Id = documentMaxId.Id + 1
+			db.Insert(coll, document)
+			log.Println(document)
+		}
 		if err != nil {
 			log.Panic(err)
 		}
-		db.Insert(coll, &document)
-
-		log.Println(document)
 	}
 }
 
@@ -188,39 +214,31 @@ func Update(coll *mgo.Collection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		allowOrigin(w, r)
 		giveAccess(w, "PUT")
-
 		newDocument := GetDocument(coll.Name)
 		oldDocument := GetDocument(coll.Name)
-
 		decoder := json.NewDecoder(r.Body)
 		defer r.Body.Close()
-
 		err := decoder.Decode(&newDocument)
 		if err != nil {
 			log.Panic(err)
 		}
-
 		id, err := strconv.Atoi(r.FormValue("_id"))
 		if err != nil {
 			log.Panic(err)
 		}
 		db.FindOne(coll, &oldDocument, "_id", id)
-
 		db.Update(coll, oldDocument, newDocument)
 		db.FindOne(coll, &oldDocument, "_id", id)
-
 		log.Println(oldDocument)
 	}
 }
 
 func RecursiveDelete(coll *mgo.Collection, id int) {
 	var child_coll *mgo.Collection
-
 	document := GetDocument(coll.Name)
 	db.FindOne(coll, &document, "_id", id)
 	db.Delete(coll, "_id", id)
 	log.Println(document)
-
 	switch coll.Name {
 	case "main_group":
 		sub_groups := []data.Sub_Group{}
@@ -249,7 +267,6 @@ func RecursiveDelete(coll *mgo.Collection, id int) {
 func Delete(coll *mgo.Collection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		allowOrigin(w, r)
-
 		id_str := r.FormValue("_id")
 		if (id_str == "") {
 			ids := GetIds(coll)
