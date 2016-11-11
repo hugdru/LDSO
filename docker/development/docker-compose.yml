@@ -33,9 +33,9 @@ services:
     networks:
       app-network:
         aliases:
-          - api.lp4a.tk
-          - www.lp4a.tk
-          - lp4a.tk
+          - api.lp4adev.tk
+          - www.lp4adev.tk
+          - lp4adev.tk
     restart: always
   go1:
     image: dev/golang
