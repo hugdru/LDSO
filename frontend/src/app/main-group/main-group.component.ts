@@ -18,8 +18,6 @@ export class MainGroupComponent implements OnInit {
 	selectedShowSubGroup: MainGroup;
 	errorMsg: string;
 
-	@ViewChild(MainGroupEditComponent) editView: MainGroupEditComponent;
-
 	constructor(private mainGroupService: MainGroupService) {
 
 	}
@@ -31,7 +29,7 @@ export class MainGroupComponent implements OnInit {
 	initMainGroups(): void {
 		this.mainGroupService.getMainGroups().subscribe(
 			data => this.mainGroups = data,
-			error => this.errorMsg = <any> error
+				error => this.errorMsg = <any> error
 		);
 	}
 
@@ -43,48 +41,13 @@ export class MainGroupComponent implements OnInit {
 		this.selectedAddMainGroup = true;
 	}
 
-	selectShowSubGroup(mainGroup: MainGroup): void {
+	onShow(mainGroup: MainGroup): void {
 		this.selectedShowSubGroup = mainGroup;
 	}
 
-	deleteMainGroup(mainGroup: MainGroup): void {
+	onDelete(mainGroup: MainGroup): void {
 		this.mainGroupService.removeMainGroup(mainGroup._id).subscribe();
-		let position: number;
-		for(let i in this.mainGroups) {
-			if(this.mainGroups[i]._id = mainGroup._id) {
-				position = Number(i);
-				break;
-			}
-		}
-		this.mainGroups.splice(position, 1);
 	}
 
-	onAction(): void {
-		this.selectedMainGroup = null;
-	}
 
-	onAdd(newMainGroup: MainGroup): void {
-		if(newMainGroup != null) {
-			this.mainGroups.push(newMainGroup);
-		}
-		this.selectedAddMainGroup = false;
-	}
-
-	sumPercentageForAdd(): number {
-		let result: number = 0;
-		for (let group of this.mainGroups) {
-			result += group.weight;
-		}
-		return result;
-	}
-
-	sumPercentage(): number {
-		let result: number = 0;
-		for (let group of this.mainGroups) {
-			if (group._id != this.selectedMainGroup._id) {
-				result += group.weight;
-			}
-		}
-		return result;
-	}
 }
