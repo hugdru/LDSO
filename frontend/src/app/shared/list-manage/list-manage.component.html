@@ -1,7 +1,7 @@
 <div>
 	<button *ngIf="!selectedAddObject" class="btn btn-primary round outline"
 			(click)="selectAddObject()">
-		 Adicionar Novo<i class="glyphicon glyphicon-plus"></i>
+		 Adicionar Novo <i class="glyphicon glyphicon-plus"></i>
 	</button>
 	<div *ngIf="selectedAddObject">
 		<div [ngSwitch]="findType(selectedEditObject)">
@@ -14,6 +14,7 @@
 					(onAdd)="onAdd($event)"></sub-group-add>
 	</div>
 </div>
+<div></div>
 <div class="list" *ngFor= 'let obj of objects'>
 	<div *ngIf="!selectedEditObject">
 		<table (click)="showChildren(obj)">

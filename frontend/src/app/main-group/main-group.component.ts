@@ -6,7 +6,7 @@ import { MainGroupEditComponent } from 'main-group/main-group-edit.component';
 
 @Component({
 	selector: 'main-group',
-	templateUrl: 'main-group.component.html',
+	templateUrl: 'html/main-group.component.html',
 	styleUrls: [ 'main-group.component.css' ],
 	providers: [ MainGroupService ]
 })
@@ -31,12 +31,12 @@ export class MainGroupComponent implements OnInit {
 		);
 	}
 
-	onShow(mainGroup: MainGroup): void {
-		this.selectedShowSubGroup = mainGroup;
-	}
-
 	onDelete(mainGroup: MainGroup): void {
 		this.mainGroupService.removeMainGroup(mainGroup._id).subscribe();
+	}
+
+	onShow(mainGroup: MainGroup): void {
+		this.selectedShowSubGroup = mainGroup;
 	}
 
 }

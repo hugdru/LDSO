@@ -34,7 +34,7 @@ export class ListManageComponent {
 		this.onDelete.emit(obj);
 		let position: number;
 		for(let i in this.objects) {
-			if(this.objects[i]._id = obj._id) {
+			if(this.objects[i]._id == obj._id) {
 				position = Number(i);
 				break;
 			}

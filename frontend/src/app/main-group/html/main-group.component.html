@@ -1,5 +1,9 @@
-<ul class="MainGroup">
-	<li *ngFor="let group of groups">
-		{{ group.name }}
-	</li>
-</ul>
+<div>
+	<list-manage [objects]="mainGroups"
+			(onDelete)="onDelete($event)"
+			(onShow)="onShow($event)">
+	</list-manage>
+</div>
+<div *ngIf="selectedShowSubGroup">
+	<sub-group [selectedShowSubGroup]="selectedShowSubGroup"></sub-group>
+</div>
