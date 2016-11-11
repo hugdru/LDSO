@@ -1,6 +1,5 @@
 import {
 	Component,
-	OnInit,
 	Input,
 	Output,
 	EventEmitter
@@ -8,6 +7,7 @@ import {
 
 import { SubGroup } from 'sub-group/sub-group';
 import { MainGroup } from 'main-group/main-group';
+import { Identifier } from 'identifier.interface';
 
 @Component({
 	selector: 'list-manage',
@@ -15,102 +15,60 @@ import { MainGroup } from 'main-group/main-group';
 	styleUrls: [ '../../main-group/main-group.component.css' ],
 })
 
-export class ListManageComponent implements OnInit {
-	selectedEditObject: Object;
+export class ListManageComponent {
+	selectedEditObject: Identifier;
 	isMainGroup: boolean = false;
 	isSubGroup: boolean = false;
 	selectedAddObject: boolean = false;
 
-	@Input() objects: Object[];
+	@Input() objects: Identifier[];
 	@Output() onShow = new EventEmitter<Object>();
 	@Output() onDelete = new EventEmitter<Object>();
 
-	ngOnInit(): void {
-		if(this.objects instanceof MainGroup) {
-			this.isMainGroup = true;
-		} else {
-			this.isSubGroup = true;
-		}
-	}
-
-	showChildren(obj: Object){
+	showChildren(obj: Identifier){
 		this.onShow.emit(obj);
 	}
 
-	deleteObject(obj: Object): void{
+	deleteObject(obj: Identifier): void {
 		this.onDelete.emit(obj);
 		let position: number;
-		if(this.isMainGroup) {
-			let objects = this.objects as MainGroup[];
-			let object = obj as MainGroup;
-			for(let i in objects) {
-				if(objects[i]._id = object._id) {
-					position = Number(i);
-					break;
-				}
-			}
-		} else {
-			let objects = this.objects as SubGroup[];
-			let object = obj as SubGroup;
-			for(let i in objects) {
-				if(objects[i]._id = object._id) {
-					position = Number(i);
-					break;
-				}
+		for(let i in this.objects) {
+			if(this.objects[i]._id = obj._id) {
+				position = Number(i);
+				break;
 			}
 		}
 		this.objects.splice(position, 1);
 	}
 
-	onAdd(newObject: Object): void {
+	onAdd(newObject: Identifier): void {
 		if(newObject != null) {
 			this.objects.push(newObject);
 		}
 		this.selectedAddObject = false;
 	}
 
-	selectAddObject(){
+	selectAddObject() {
 		this.selectedAddObject = true;
 	}
 
-	selectEditObject(obj: Object){
+	selectEditObject(obj: Identifier) {
 		this.selectedEditObject = obj;
 	}
 
 	sumPercentageForAdd(): number {
 		let result: number = 0;
-
-		if(this.isMainGroup) {
-			let objects = this.objects as MainGroup[];
-			for (let obj of objects) {
-				result += obj.weight;
-			}
-		} else {
-			let objects = this.objects as SubGroup[];
-			for (let obj of objects) {
-				result += obj.weight;
-			}
+		for (let obj of this.objects) {
+			result += obj.weight;
 		}
 		return result;
 	}
 
 	sumPercentage(): number {
 		let result: number = 0;
-		if(this.isMainGroup) {
-			let objects = this.objects as MainGroup[];
-			let object = this.selectedEditObject as MainGroup;
-			for (let obj of objects) {
-				if (obj._id != object._id) {
-					result += obj.weight;
-				}
-			}
-		} else {
-			let objects = this.objects as SubGroup[];
-			let object = this.selectedEditObject as SubGroup;
-			for (let obj of objects) {
-				if (obj._id != object._id) {
-					result += obj.weight;
-				}
+		for (let obj of this.objects) {
+			if (obj._id != this.selectedEditObject._id) {
+				result += obj.weight;
 			}
 		}
 		return result;
