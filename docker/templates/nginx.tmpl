@@ -115,7 +115,7 @@ http {
 
  ## Static files
   server {
-{{if ne (default .Env.BUILD "") "development"}}
+{{if ne (default .Env.BUILD "") "dev"}}
       add_header  Cache-Control "public";
 {{else}}
       add_header  Cache-Control "no-store";
@@ -123,15 +123,15 @@ http {
       add_header  X-Frame-Options "DENY";
       access_log  /var/log/nginx/access.log main buffer=32k;
       error_log   /var/log/nginx/error.log error;
-{{if ne (default .Env.BUILD "") "development"}}
+{{if ne (default .Env.BUILD "") "dev"}}
       expires     1d;
 {{end}}
       limit_req   zone=gulag burst=200 nodelay;
       listen      80;
       root        /server/frontend/dist;
-{{if eq (default .Env.BUILD "") "production"}}
+{{if eq (default .Env.BUILD "") "prod"}}
       server_name lp4a.tk www.lp4a.tk;
-{{else if eq (default .Env.BUILD "") "development"}}
+{{else if eq (default .Env.BUILD "") "dev"}}
       server_name lp4adev.tk www.lp4adev.tk;
 {{else}}
       server_name lp4astaging.tk www.lp4astaging.tk;
@@ -162,7 +162,7 @@ http {
 
  # Reverse Proxy
   server {
-{{if eq (default .Env.BUILD "") "development"}}
+{{if eq (default .Env.BUILD "") "dev"}}
      add_header  Cache-Control "no-store";
 {{end}}
      # add_header  Cache-Control "public";
@@ -173,9 +173,9 @@ http {
      # expires     1h;
      listen      80 sndbuf=128k;
      limit_req   zone=gulag  burst=1000 nodelay;
-{{if eq (default .Env.BUILD "") "production"}}
+{{if eq (default .Env.BUILD "") "prod"}}
      server_name api.lp4a.tk;
-{{else if eq (default .Env.BUILD "") "development"}}
+{{else if eq (default .Env.BUILD "") "dev"}}
      server_name api.lp4adev.tk;
 {{else}}
      server_name api.lp4astaging.tk;
