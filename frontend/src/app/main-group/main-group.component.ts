@@ -13,8 +13,6 @@ import { MainGroupEditComponent } from 'main-group/main-group-edit.component';
 
 export class MainGroupComponent implements OnInit {
 	mainGroups: MainGroup[];
-	selectedMainGroup: MainGroup = null;
-	selectedAddMainGroup: boolean = false;
 	selectedShowSubGroup: MainGroup;
 	errorMsg: string;
 
@@ -33,14 +31,6 @@ export class MainGroupComponent implements OnInit {
 		);
 	}
 
-	selectMainGroup(mainGroup: MainGroup): void {
-		this.selectedMainGroup = mainGroup;
-	}
-
-	selectAddMainGroup(): void {
-		this.selectedAddMainGroup = true;
-	}
-
 	onShow(mainGroup: MainGroup): void {
 		this.selectedShowSubGroup = mainGroup;
 	}
@@ -48,6 +38,5 @@ export class MainGroupComponent implements OnInit {
 	onDelete(mainGroup: MainGroup): void {
 		this.mainGroupService.removeMainGroup(mainGroup._id).subscribe();
 	}
-
 
 }

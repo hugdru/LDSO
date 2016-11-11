@@ -9,24 +9,22 @@
 				(onAdd)="onAdd($event)"></main-group-add>
 	</div>
 </div>
-<div *ngFor= 'let obj of objects'>
+<div class="list" *ngFor= 'let obj of objects'>
 	<div *ngIf="!selectedEditObject">
-		<div (click)="showChildren(obj)">
-			<label class="col-form-label">
-				{{obj.name}}
-			</label>
-			<label >
-				{{obj.weight}}%
-			</label>
-		</div>
-		<button class="btn btn-neutral round outline"
-			(click)="selectEditObject(obj)">
-			<i class="glyphicon glyphicon-pencil"></i>
-		</button>
-		<button type="button" class="btn btn-delete round outline"
-			(click)="deleteObject(obj)">
-			<span class="glyphicon glyphicon-trash"></span>
-		</button>
+		<table (click)="showChildren(obj)">
+			<tr>
+				<th> {{obj.name}} </th>
+				<th > {{obj.weight}}% </th>
+				<th><button class="btn btn-neutral round outline"
+					(click)="selectEditObject(obj)">
+					<i class="glyphicon glyphicon-pencil"></i>
+				</button></th>
+				<th><button type="button" class="btn btn-delete round outline"
+					(click)="deleteObject(obj)">
+					<span class="glyphicon glyphicon-trash"></span>
+				</button></th>
+			</tr>
+		</table>
 	</div>
 	<div *ngIf="selectedEditObject">
 		<div *ngIf="selectedEditObject.name == obj.name">
@@ -47,12 +45,8 @@
 		</div>
 		<div *ngIf="selectedEditObject.name != obj.name"
 				(click)="showChildren(obj)">
-			<label class="col-form-label">
-				{{obj.name}}
-			</label>
-			<label>
-				{{obj.weight}}%
-			</label>
+			<label> {{obj.name}} </label>
+			<label> {{obj.weight}}% </label>
 		</div>
 	</div>
 </div>
