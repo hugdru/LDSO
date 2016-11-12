@@ -46,7 +46,7 @@ import { HandlerService } from 'handler.service';
 		NgbModule.forRoot()
 	],
 	providers: [ HandlerService ],
-	bootstrap: [ AppComponent ]
+	bootstrap: [ AppComponent]
 })
 
 export class AppModule {
