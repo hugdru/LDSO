@@ -28,6 +28,7 @@ export class CriterionComponent implements OnInit, OnChanges {
 	ngOnChanges(changes: SimpleChanges): void {
 		for(let i in changes) {
 			this.initCriteria(changes[i].currentValue._id);
+			this.parentCriterion = undefined;
 		}
 	}
 

@@ -9,7 +9,12 @@ import { Identifier } from 'identifier.interface';
 })
 
 export class ListShowValueComponent {
+	@Input() weight: number;
 	@Input() object: Identifier;
 	@Input() objType: string;
+
+	checkPercentage(): boolean {
+		return this.weight > 100;
+	}
 }
 

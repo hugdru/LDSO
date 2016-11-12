@@ -15,10 +15,11 @@
 <div></div>
 <div class="list" *ngFor= 'let obj of objects'>
 	<div *ngIf="!selectedEditObject">
-		<table (click)="showChildren(obj)">
+		<table class="cursor-pointer" (click)="showChildren(obj)">
 			<tr>
 				<list-show-value
 					[object]="obj"
+					[weight]="sumPercentageForAdd()"
 					[objType]="findType()">
 				</list-show-value>
 				<th><button class="btn btn-neutral round outline"
@@ -44,6 +45,7 @@
 		<div *ngIf="selectedEditObject.name != obj.name">
 			<list-show-value
 				[object]="obj"
+				[weight]="sumPercentageForAdd()"
 				[objType]="findType()">
 			</list-show-value>
 		</div>

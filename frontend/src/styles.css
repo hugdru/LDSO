@@ -1,8 +1,11 @@
 @import url("//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css");
+
 @import url("css/btn-primary-buttons.css");
 @import url("css/btn-neutral-buttons.css");
 @import url("css/btn-success-buttons.css");
 @import url("css/btn-delete-buttons.css");
+
+/* @import url("css/tooltip-warning-percentage.css"); */
 
 .btn-circle {
 	width: 30px;
@@ -34,4 +37,13 @@
 
 .btn:focus, .btn:active:focus, .btn.active:focus {
     outline: 0 none;
+}
+
+.cursor-pointer {
+	cursor: pointer;
+}
+
+.warning{
+	color: #DF282B;
+	text-color: #DF282B;
 }
