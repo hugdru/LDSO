@@ -19,9 +19,9 @@ import { SubGroup } from 'sub-group/sub-group';
 
 export class CriterionComponent implements OnInit, OnChanges {
 	criteria: Criterion[];
-	selectedShowAccessibilities: Criterion;
+	parentCriterion: Criterion;
 
-	@Input() selectedShowCriteria: SubGroup;
+	@Input() parentSubGroup: SubGroup;
 
 	constructor(private criterionService: CriterionService){ }
 
@@ -32,7 +32,7 @@ export class CriterionComponent implements OnInit, OnChanges {
 	}
 
 	ngOnInit() {
-		this.initCriteria(this.selectedShowCriteria._id);
+		this.initCriteria(this.parentSubGroup._id);
 	}
 
 	initCriteria(subGroupId: number): void {
@@ -47,7 +47,7 @@ export class CriterionComponent implements OnInit, OnChanges {
 	}
 
 	onShow(criterion: Criterion): void {
-		this.selectedShowAccessibilities = criterion;
+		this.parentCriterion = criterion;
 	}
 
 }

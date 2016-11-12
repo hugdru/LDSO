@@ -20,6 +20,13 @@ import { SubGroupAddComponent } from 'sub-group/sub-group-add.component';
 import { CriterionComponent } from 'criterion/criterion.component';
 import { CriterionEditComponent } from 'criterion/criterion-edit.component';
 import { CriterionAddComponent } from 'criterion/criterion-add.component';
+import { AccessibilityComponent } from 'accessibility/accessibility.component';
+import {
+	AccessibilityEditComponent
+} from 'accessibility/accessibility-edit.component';
+import {
+	AccessibilityAddComponent
+} from 'accessibility/accessibility-add.component';
 import { ListManageComponent } from 'shared/list-manage/list-manage.component';
 
 import { HandlerService } from 'handler.service';
@@ -40,6 +47,9 @@ import { HandlerService } from 'handler.service';
 		CriterionComponent,
 		CriterionEditComponent,
 		CriterionAddComponent,
+		AccessibilityComponent,
+		AccessibilityEditComponent,
+		AccessibilityAddComponent,
 		ListManageComponent
 	],
 	imports: [

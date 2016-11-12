@@ -16,6 +16,10 @@
 					[weight]="sumPercentageForAdd()"
 					[subGroup]="father"
 					(onAdd)="onAdd($event)"></criterion-add>
+			<accessibility-add *ngSwitchCase="'Accessibility'"
+					[weight]="sumPercentageForAdd()"
+					[criterion]="father"
+					(onAdd)="onAdd($event)"></accessibility-add>
 	</div>
 </div>
 <div></div>
@@ -54,6 +58,11 @@
 						[weight]="sumPercentage()"
 						(onAction)="onAction()">
 				</criterion-edit>
+				<accessibility-edit *ngSwitchCase="'Accessibility'"
+						[selectedObject]="selectedEditObject"
+						[weight]="sumPercentage()"
+						(onAction)="onAction()">
+				</accessibility-edit>
 			</div>
 		</div>
 		<div *ngIf="selectedEditObject.name != obj.name">

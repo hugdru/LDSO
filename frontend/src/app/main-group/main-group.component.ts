@@ -13,7 +13,7 @@ import { MainGroupEditComponent } from 'main-group/main-group-edit.component';
 
 export class MainGroupComponent implements OnInit {
 	mainGroups: MainGroup[];
-	selectedShowSubGroup: MainGroup;
+	parentMainGroup: MainGroup;
 	errorMsg: string;
 
 	constructor(private mainGroupService: MainGroupService) {
@@ -36,7 +36,7 @@ export class MainGroupComponent implements OnInit {
 	}
 
 	onShow(mainGroup: MainGroup): void {
-		this.selectedShowSubGroup = mainGroup;
+		this.parentMainGroup = mainGroup;
 	}
 
 }

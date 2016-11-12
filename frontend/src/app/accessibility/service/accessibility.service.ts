@@ -27,9 +27,9 @@ export class AccessibilityService {
 				value);
 	}
 
-	updateAccessibility(accessibiliy: Accessibility):Observable<Response> {
+	updateAccessibility(accessibility: Accessibility):Observable<Response> {
 		return this.handler.update<Accessibility>(accessibilitiesUrl,
-				accessibiliy, accessibility._id);
+				accessibility, accessibility._id);
 	}
 
 	setAccessibility(accessibility: Accessibility): Observable<Response> {

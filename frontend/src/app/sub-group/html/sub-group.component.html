@@ -1,12 +1,12 @@
 <div>
-	<h2>{{selectedShowSubGroup.name}}</h2>
+	<h2>{{parentMainGroup.name}}</h2>
 	<hr>
 	<list-manage [objects]="subGroups"
-				[father]="selectedShowSubGroup"
+				[father]="parentMainGroup"
 				(onDelete)="onDelete($event)"
 				(onShow)="onShow($event)">
 	</list-manage>
 </div>
-<div *ngIf="selectedShowCriteria">
-	<criterion [selectedShowCriteria]="selectedShowCriteria"></criterion>
+<div *ngIf="parentSubGroup">
+	<criterion [parentSubGroup]="parentSubGroup"></criterion>
 </div>
