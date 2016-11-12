@@ -29,7 +29,6 @@ export class CriterionEditComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
-		console.log(this.objType);
 		this.backupCriterion = new Criterion();
 		this.backupCriterion.name = this.selectedObject.name;
 		this.backupCriterion.weight = this.selectedObject.weight;

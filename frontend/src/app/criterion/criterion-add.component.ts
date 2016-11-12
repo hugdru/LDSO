@@ -13,7 +13,9 @@ import { SubGroup } from 'sub-group/sub-group';
 
 export class CriterionAddComponent implements OnInit {
 	selectedObject: Criterion;
+	goodPratice: boolean = false;
 
+	@Input() objType: string;
 	@Input() subGroup: SubGroup;
 	@Input() weight: number;
 	@Output() onAdd = new EventEmitter<Criterion>();
