@@ -21,23 +21,18 @@ export class CriterionComponent implements OnInit, OnChanges {
 	criteria: Criterion[];
 	selectedShowAccessibilities: Criterion;
 
-	@Input() selectedShowCriterion: SubGroup;
+	@Input() selectedShowCriteria: SubGroup;
 
 	constructor(private criterionService: CriterionService){ }
 
 	ngOnChanges(changes: SimpleChanges): void {
 		for(let i in changes) {
-			console.log(changes[i].previousValue);
-			console.log(changes[i].currentValue);
 			this.initCriteria(changes[i].currentValue._id);
-			console.log(this.criteria);
 		}
 	}
 
 	ngOnInit() {
-		this.initCriteria(this.selectedShowCriterion._id);
-		console.log(this.selectedShowCriterion);
-		console.log(this.criteria);
+		this.initCriteria(this.selectedShowCriteria._id);
 	}
 
 	initCriteria(subGroupId: number): void {

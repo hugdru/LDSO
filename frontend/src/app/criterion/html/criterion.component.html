@@ -1,8 +1,8 @@
 <div>
-    <h2>{{selectedShowCriterion.name}}</h2>
+    <h2>{{selectedShowCriteria.name}}</h2>
     <hr>
     <list-manage [objects]="criteria"
-                 [father]="selectedShowCriterion"
+                 [father]="selectedShowCriteria"
                  (onDelete)="onDelete($event)"
                  (onShow)="onShow($event)">
     </list-manage>

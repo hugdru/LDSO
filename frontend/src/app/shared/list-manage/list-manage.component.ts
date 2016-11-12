@@ -16,7 +16,6 @@ import { Identifier } from 'identifier.interface';
 	styleUrls: [ '../../main-group/main-group.component.css' ],
 })
 
-// enum TYPE {Mai}
 export class ListManageComponent {
 	selectedEditObject: Identifier;
 	selectedAddObject: boolean = false;
@@ -69,6 +68,8 @@ export class ListManageComponent {
 	}
 
 	findType(): string {
+		console.log("findtype");
+		console.log(this.father);
 		if(this.father === undefined) {
 			return "MainGroup";
 		}

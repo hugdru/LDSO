@@ -6,7 +6,7 @@ export const mainGroupsFindUrl = mainGroupsUrl + '/find';
 export const subGroupsUrl = serverUrl + '/subGroups';
 export const subGroupsFindUrl = subGroupsUrl + '/find';
 
-export const criteriaUrl = serverUrl + '/criterion';
+export const criteriaUrl = serverUrl + '/criteria';
 export const criteriaFindUrl = criteriaUrl + '/find';
 
 export const accessibilitiesUrl = serverUrl + '/accessibilities';

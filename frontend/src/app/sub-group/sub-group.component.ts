@@ -27,17 +27,12 @@ export class SubGroupComponent implements OnInit, OnChanges {
 
 	ngOnChanges(changes: SimpleChanges): void {
 		for(let i in changes) {
-			console.log(changes[i].previousValue);
-			console.log(changes[i].currentValue);
 			this.initSubGroups(changes[i].currentValue._id);
-			console.log(this.subGroups);
 		}
 	}
 
 	ngOnInit() {
 		this.initSubGroups(this.selectedShowSubGroup._id);
-		console.log(this.selectedShowSubGroup);
-		console.log(this.subGroups);
 	}
 
 	initSubGroups(mainGroupId: number): void {

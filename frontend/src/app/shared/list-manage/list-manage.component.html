@@ -4,7 +4,7 @@
 		 Adicionar Novo <i class="glyphicon glyphicon-plus"></i>
 	</button>
 	<div *ngIf="selectedAddObject">
-		<div [ngSwitch]="findType(selectedEditObject)">
+		<div [ngSwitch]="findType()">
 			<main-group-add *ngSwitchCase="'MainGroup'"
 					[weight]="sumPercentageForAdd()"
 					(onAdd)="onAdd($event)"></main-group-add>
@@ -12,6 +12,10 @@
 					[weight]="sumPercentageForAdd()"
 					[mainGroup]="father"
 					(onAdd)="onAdd($event)"></sub-group-add>
+			<criterion-add *ngSwitchCase="'Criterion'"
+					[weight]="sumPercentageForAdd()"
+					[subGroup]="father"
+					(onAdd)="onAdd($event)"></criterion-add>
 	</div>
 </div>
 <div></div>
@@ -34,7 +38,7 @@
 	</div>
 	<div *ngIf="selectedEditObject">
 		<div *ngIf="selectedEditObject.name == obj.name">
-			<div [ngSwitch]="findType(selectedEditObject)">
+			<div [ngSwitch]="findType()">
 				<main-group-edit *ngSwitchCase="'MainGroup'"
 						[selectedObject]="selectedEditObject"
 						[weight]="sumPercentage()"
@@ -45,6 +49,11 @@
 						[weight]="sumPercentage()"
 						(onAction)="onAction()">
 				</sub-group-edit>
+				<criterion-edit *ngSwitchCase="'Criterion'"
+						[selectedObject]="selectedEditObject"
+						[weight]="sumPercentage()"
+						(onAction)="onAction()">
+				</criterion-edit>
 			</div>
 		</div>
 		<div *ngIf="selectedEditObject.name != obj.name">
