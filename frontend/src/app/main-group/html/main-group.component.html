@@ -4,6 +4,6 @@
 			(onShow)="onShow($event)">
 	</list-manage>
 </div>
-<div *ngIf="selectedShowSubGroup">
-	<sub-group [selectedShowSubGroup]="selectedShowSubGroup"></sub-group>
+<div *ngIf="parentMainGroup">
+	<sub-group [parentMainGroup]="parentMainGroup"></sub-group>
 </div>

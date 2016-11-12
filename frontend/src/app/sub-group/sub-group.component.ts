@@ -19,9 +19,9 @@ import { MainGroup } from 'main-group/main-group';
 
 export class SubGroupComponent implements OnInit, OnChanges {
 	subGroups: SubGroup[];
-	selectedShowCriteria: SubGroup;
+	parentSubGroup: SubGroup;
 
-	@Input() selectedShowSubGroup: MainGroup;
+	@Input() parentMainGroup: MainGroup;
 
 	constructor(private subGroupService: SubGroupService){ }
 
@@ -32,7 +32,7 @@ export class SubGroupComponent implements OnInit, OnChanges {
 	}
 
 	ngOnInit() {
-		this.initSubGroups(this.selectedShowSubGroup._id);
+		this.initSubGroups(this.parentMainGroup._id);
 	}
 
 	initSubGroups(mainGroupId: number): void {
@@ -47,7 +47,7 @@ export class SubGroupComponent implements OnInit, OnChanges {
 	}
 
 	onShow(subGroup: SubGroup): void {
-		this.selectedShowCriteria = subGroup;
+		this.parentSubGroup = subGroup;
 	}
 
 }

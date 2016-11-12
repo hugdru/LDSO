@@ -20,6 +20,13 @@ import { SubGroupAddComponent } from 'sub-group/sub-group-add.component';
 import { CriterionComponent } from 'criterion/criterion.component';
 import { CriterionEditComponent } from 'criterion/criterion-edit.component';
 import { CriterionAddComponent } from 'criterion/criterion-add.component';
+import { AccessibilityComponent } from 'accessibility/accessibility.component';
+import {
+	AccessibilityEditComponent
+} from 'accessibility/accessibility-edit.component';
+import {
+	AccessibilityAddComponent
+} from 'accessibility/accessibility-add.component';
 import { ListManageComponent } from 'shared/list-manage/list-manage.component';
 import {
 	ListSelectAddComponent
@@ -46,9 +53,16 @@ import { HandlerService } from 'handler.service';
 		CriterionComponent,
 		CriterionEditComponent,
 		CriterionAddComponent,
+<<<<<<< HEAD
 		ListManageComponent,
 		ListSelectAddComponent,
 		ListSelectEditComponent
+=======
+		AccessibilityComponent,
+		AccessibilityEditComponent,
+		AccessibilityAddComponent,
+		ListManageComponent
+>>>>>>> 89269e7be96ed5786cefb69bb0cc7134ffe12f65
 	],
 	imports: [
 		AppRoutingModule,
