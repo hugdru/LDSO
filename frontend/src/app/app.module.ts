@@ -21,6 +21,12 @@ import { CriterionComponent } from 'criterion/criterion.component';
 import { CriterionEditComponent } from 'criterion/criterion-edit.component';
 import { CriterionAddComponent } from 'criterion/criterion-add.component';
 import { ListManageComponent } from 'shared/list-manage/list-manage.component';
+import {
+	ListSelectAddComponent
+} from 'shared/list-select/list-select-add.component';
+import {
+	ListSelectEditComponent
+} from 'shared/list-select/list-select-edit.component';
 
 import { HandlerService } from 'handler.service';
 
@@ -40,7 +46,9 @@ import { HandlerService } from 'handler.service';
 		CriterionComponent,
 		CriterionEditComponent,
 		CriterionAddComponent,
-		ListManageComponent
+		ListManageComponent,
+		ListSelectAddComponent,
+		ListSelectEditComponent
 	],
 	imports: [
 		AppRoutingModule,

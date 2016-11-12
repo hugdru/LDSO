@@ -28,6 +28,7 @@ export class MainGroupEditComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
+		this.backupMainGroup = new MainGroup();
 		this.backupMainGroup.name = this.selectedObject.name;
 		this.backupMainGroup.weight = this.selectedObject.weight;
 	}

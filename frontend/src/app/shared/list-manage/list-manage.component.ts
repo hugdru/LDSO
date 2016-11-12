@@ -68,8 +68,6 @@ export class ListManageComponent {
 	}
 
 	findType(): string {
-		console.log("findtype");
-		console.log(this.father);
 		if(this.father === undefined) {
 			return "MainGroup";
 		}
