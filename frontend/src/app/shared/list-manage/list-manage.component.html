@@ -17,8 +17,10 @@
 	<div *ngIf="!selectedEditObject">
 		<table (click)="showChildren(obj)">
 			<tr>
-				<th> {{obj.name}} </th>
-				<th> {{obj.weight}}% </th>
+				<list-show-value
+					[object]="obj"
+					[objType]="findType()">
+				</list-show-value>
 				<th><button class="btn btn-neutral round outline"
 					(click)="selectEditObject(obj)">
 					<i class="glyphicon glyphicon-pencil"></i>
@@ -40,8 +42,10 @@
 			</list-select-edit>
 		</div>
 		<div *ngIf="selectedEditObject.name != obj.name">
-			<label> {{obj.name}} </label>
-			<label> {{obj.weight}}% </label>
+			<list-show-value
+				[object]="obj"
+				[objType]="findType()">
+			</list-show-value>
 		</div>
 	</div>
 </div>

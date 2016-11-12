@@ -19,6 +19,7 @@ import { Criterion } from 'criterion/criterion';
 export class CriterionEditComponent implements OnInit {
 	backupCriterion: Criterion;
 
+	@Input() objType: string;
 	@Input() selectedObject: Criterion;
 	@Input() weight: number;
 	@Output() onAction = new EventEmitter();
@@ -28,6 +29,7 @@ export class CriterionEditComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
+		console.log(this.objType);
 		this.backupCriterion = new Criterion();
 		this.backupCriterion.name = this.selectedObject.name;
 		this.backupCriterion.weight = this.selectedObject.weight;

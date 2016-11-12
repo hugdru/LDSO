@@ -11,6 +11,7 @@
 	</sub-group-edit>
 	<criterion-edit *ngSwitchCase="'Criterion'"
 			[selectedObject]="selectedEditObject"
+			[objType]="objType"
 			[weight]="weight"
 			(onAction)="onAction()">
 	</criterion-edit>

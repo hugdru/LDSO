@@ -34,6 +34,9 @@ import {
 import {
 	ListSelectEditComponent
 } from 'shared/list-select/list-select-edit.component';
+import {
+	ListShowValueComponent
+} from 'shared/list-show-value/list-show-value.component';
 
 import { HandlerService } from 'handler.service';
 
@@ -58,7 +61,8 @@ import { HandlerService } from 'handler.service';
 		AccessibilityAddComponent,
 		ListManageComponent,
 		ListSelectAddComponent,
-		ListSelectEditComponent
+		ListSelectEditComponent,
+		ListShowValueComponent
 	],
 	imports: [
 		AppRoutingModule,

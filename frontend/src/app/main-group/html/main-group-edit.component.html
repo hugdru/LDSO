@@ -1,5 +1,9 @@
 <div>
-	<input [(ngModel)]="selectedObject.name" placeholder="name"/>
+	<input [(ngModel)]="selectedObject.name"
+			placeholder="name"/>
+	<input *ngIf="objType=='Criterion'"
+			[(ngModel)]="selectedObject.legislation"
+			placeholder="name"/>
 	<input type="number" [(ngModel)]="selectedObject.weight"
 			placeholder="weight" [class.warning]="checkPercentage()"/>
 	<button class="btn btn-success round outline"
