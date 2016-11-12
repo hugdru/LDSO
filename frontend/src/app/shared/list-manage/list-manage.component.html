@@ -18,7 +18,11 @@
 		<table class="cursor-pointer" (click)="showChildren(obj)">
 			<tr>
 				<th> {{obj.name}} </th>
-				<th> {{obj.weight}}% </th>
+				<th [class.warning]="checkPercentage()"
+						data-toggle="tooltip" data-placement="top"
+						title="A soma das percentegens deve ser inferior a 100%">
+					{{obj.weight}}%
+				</th>
 				<th><button class="btn btn-neutral round outline"
 					(click)="selectEditObject(obj)">
 					<i class="glyphicon glyphicon-pencil"></i>

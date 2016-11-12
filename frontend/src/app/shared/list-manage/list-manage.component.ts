@@ -67,6 +67,10 @@ export class ListManageComponent {
 		return result;
 	}
 
+	checkPercentage(): boolean {
+		return this.sumPercentageForAdd() > 100;
+	}
+
 	findType(): string {
 		if(this.father === undefined) {
 			return "MainGroup";
