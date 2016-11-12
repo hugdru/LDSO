@@ -15,7 +15,7 @@
 <div></div>
 <div class="list" *ngFor= 'let obj of objects'>
 	<div *ngIf="!selectedEditObject">
-		<table (click)="showChildren(obj)">
+		<table class="cursor-pointer" (click)="showChildren(obj)">
 			<tr>
 				<th> {{obj.name}} </th>
 				<th> {{obj.weight}}% </th>

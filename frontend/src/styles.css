@@ -35,3 +35,7 @@
 .btn:focus, .btn:active:focus, .btn.active:focus {
     outline: 0 none;
 }
+
+.cursor-pointer {
+	cursor: pointer;
+}

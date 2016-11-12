@@ -28,6 +28,7 @@ export class SubGroupComponent implements OnInit, OnChanges {
 	ngOnChanges(changes: SimpleChanges): void {
 		for(let i in changes) {
 			this.initSubGroups(changes[i].currentValue._id);
+			this.parentSubGroup = undefined;
 		}
 	}
 
