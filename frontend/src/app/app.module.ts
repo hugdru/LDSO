@@ -53,16 +53,12 @@ import { HandlerService } from 'handler.service';
 		CriterionComponent,
 		CriterionEditComponent,
 		CriterionAddComponent,
-<<<<<<< HEAD
-		ListManageComponent,
-		ListSelectAddComponent,
-		ListSelectEditComponent
-=======
 		AccessibilityComponent,
 		AccessibilityEditComponent,
 		AccessibilityAddComponent,
-		ListManageComponent
->>>>>>> 89269e7be96ed5786cefb69bb0cc7134ffe12f65
+		ListManageComponent,
+		ListSelectAddComponent,
+		ListSelectEditComponent
 	],
 	imports: [
 		AppRoutingModule,

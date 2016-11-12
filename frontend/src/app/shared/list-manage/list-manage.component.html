@@ -4,31 +4,12 @@
 		 Adicionar Novo <i class="glyphicon glyphicon-plus"></i>
 	</button>
 	<div *ngIf="selectedAddObject">
-<<<<<<< HEAD
 		<list-select-add
 				[father]="father"
 				[weight]="sumPercentageForAdd()"
 				[objType]="findType()"
 				(add)="onAdd($event)">
 		</list-select-add>
-=======
-		<div [ngSwitch]="findType()">
-			<main-group-add *ngSwitchCase="'MainGroup'"
-					[weight]="sumPercentageForAdd()"
-					(onAdd)="onAdd($event)"></main-group-add>
-			<sub-group-add *ngSwitchCase="'SubGroup'"
-					[weight]="sumPercentageForAdd()"
-					[mainGroup]="father"
-					(onAdd)="onAdd($event)"></sub-group-add>
-			<criterion-add *ngSwitchCase="'Criterion'"
-					[weight]="sumPercentageForAdd()"
-					[subGroup]="father"
-					(onAdd)="onAdd($event)"></criterion-add>
-			<accessibility-add *ngSwitchCase="'Accessibility'"
-					[weight]="sumPercentageForAdd()"
-					[criterion]="father"
-					(onAdd)="onAdd($event)"></accessibility-add>
->>>>>>> 89269e7be96ed5786cefb69bb0cc7134ffe12f65
 	</div>
 </div>
 <div></div>
@@ -51,37 +32,12 @@
 	</div>
 	<div *ngIf="selectedEditObject">
 		<div *ngIf="selectedEditObject.name == obj.name">
-<<<<<<< HEAD
 			<list-select-edit
 					   [selectedEditObject]="selectedEditObject"
 					   [weight]="sumPercentage()"
 					   [objType]="findType()"
 					   (action)="onAction()">
 			</list-select-edit>
-=======
-			<div [ngSwitch]="findType()">
-				<main-group-edit *ngSwitchCase="'MainGroup'"
-						[selectedObject]="selectedEditObject"
-						[weight]="sumPercentage()"
-						(onAction)="onAction()">
-				</main-group-edit>
-				<sub-group-edit *ngSwitchCase="'SubGroup'"
-						[selectedObject]="selectedEditObject"
-						[weight]="sumPercentage()"
-						(onAction)="onAction()">
-				</sub-group-edit>
-				<criterion-edit *ngSwitchCase="'Criterion'"
-						[selectedObject]="selectedEditObject"
-						[weight]="sumPercentage()"
-						(onAction)="onAction()">
-				</criterion-edit>
-				<accessibility-edit *ngSwitchCase="'Accessibility'"
-						[selectedObject]="selectedEditObject"
-						[weight]="sumPercentage()"
-						(onAction)="onAction()">
-				</accessibility-edit>
-			</div>
->>>>>>> 89269e7be96ed5786cefb69bb0cc7134ffe12f65
 		</div>
 		<div *ngIf="selectedEditObject.name != obj.name">
 			<label> {{obj.name}} </label>
