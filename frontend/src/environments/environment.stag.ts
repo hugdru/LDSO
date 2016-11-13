@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  api: 'api.lp4astaging.tk'
+  api: 'http://api.lp4astaging.tk'
 };

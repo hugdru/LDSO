@@ -1,4 +1,6 @@
-export const serverUrl = 'http://go1:8080';
+import {environment} from '../../environments/environment'
+
+export const serverUrl = environment.api;
 
 export const mainGroupsUrl = serverUrl + '/mainGroups';
 export const mainGroupsFindUrl = mainGroupsUrl + '/find';
