@@ -14,7 +14,8 @@ ENV \
   PERSISTENT_APT_PACKAGES="git ca-certificates python make g++" \
   TEMPORARY_APT_PACKAGES="curl xz-utils" \
   DOCKERIZE_VERSION="v0.2.0" \
-  DOCKERIZE_DOWNLOAD_SHA256="c0e2e33cfe066036941bf8f2598090bd8e01fdc05128490238b2a64cf988ecfb"
+  DOCKERIZE_DOWNLOAD_SHA256="c0e2e33cfe066036941bf8f2598090bd8e01fdc05128490238b2a64cf988ecfb" \
+  YARN_VERSION="0.16.1"
 
 ENV HOME="/$USER"
 ENV FRONTEND_DIR="$HOME/frontend"
@@ -64,7 +65,7 @@ WORKDIR "$HOME"
 
 ENV PATH="$PREFIX/bin:/usr/local/node/bin:$PATH"
 RUN \
-      mkdir -p "$PREFIX/bin" && npm install -g yarn && \
+      mkdir -p "$PREFIX/bin" && npm install -g yarn@"$YARN_VERSION" && \
       yarn global add angular-cli && cd "$FRONTEND_DIR" && yarn install && ng build --env="$BUILD" && \
       find . -maxdepth 1 ! \( -name 'dist' -o -name "." -o -name ".." \) -exec rm -rf {} + && \
       cd "$HOME" && \

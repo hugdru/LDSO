@@ -10,26 +10,6 @@ import (
 	"strconv"
 )
 
-func giveAccess(w http.ResponseWriter, methods string) {
-	w.Header().Set("Access-Control-Allow-Methods", methods)
-	w.Header().Set("Access-Control-Allow-Headers",
-		"Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token")
-}
-
-func allowOrigin(w http.ResponseWriter, r *http.Request) {
-	origin := r.Header.Get("Origin")
-	if origin != "" {
-		w.Header().Set("Access-Control-Allow-Origin", origin)
-	}
-}
-
-func Accept() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		allowOrigin(w, r)
-		giveAccess(w, "PUT, DELETE")
-	}
-}
-
 func Decode(r *http.Request, document interface{}) {
 	decoder := json.NewDecoder(r.Body)
 	defer r.Body.Close()
@@ -127,7 +107,6 @@ func GetIds(coll *mgo.Collection) []int {
 
 func Get(coll *mgo.Collection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		allowOrigin(w, r)
 		tag := r.FormValue("tag")
 		if tag == "" {
 			documents := GetDocuments(coll, false, "", 0)
@@ -151,7 +130,6 @@ func Get(coll *mgo.Collection) http.HandlerFunc {
 
 func GetOne(coll *mgo.Collection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		allowOrigin(w, r)
 		document := GetDocument(coll.Name)
 		tag := r.FormValue("tag")
 		value := GetValue(r)
@@ -166,7 +144,6 @@ func GetOne(coll *mgo.Collection) http.HandlerFunc {
 
 func Set(coll *mgo.Collection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		allowOrigin(w, r)
 		decoder := json.NewDecoder(r.Body)
 		var err error
 		defer r.Body.Close()
@@ -231,8 +208,6 @@ func Set(coll *mgo.Collection) http.HandlerFunc {
 
 func Update(coll *mgo.Collection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		allowOrigin(w, r)
-		giveAccess(w, "PUT")
 		newDocument := GetDocument(coll.Name)
 		oldDocument := GetDocument(coll.Name)
 		decoder := json.NewDecoder(r.Body)
@@ -285,7 +260,6 @@ func RecursiveDelete(coll *mgo.Collection, id int) {
 
 func Delete(coll *mgo.Collection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		allowOrigin(w, r)
 		id_str := r.FormValue("_id")
 		if (id_str == "") {
 			ids := GetIds(coll)

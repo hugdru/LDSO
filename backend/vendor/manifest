@@ -1,23 +1,42 @@
 {
-  "version": 0,
-  "dependencies": [
-    {
-      "importpath": "github.com/alexedwards/scs",
-      "repository": "https://github.com/alexedwards/scs",
-      "revision": "8131b3f249566da11ff348e7f664dd016e082292",
-      "branch": "master"
-    },
-    {
-      "importpath": "github.com/pressly/chi",
-      "repository": "https://github.com/pressly/chi",
-      "revision": "2cad94402baa6eb7584258df02fed068f1502ada",
-      "branch": "master"
-    },
-    {
-      "importpath": "gopkg.in/mgo.v2",
-      "repository": "https://gopkg.in/mgo.v2",
-      "revision": "3f83fa5005286a7fe593b055f0d7771a7dce4655",
-      "branch": "v2"
-    }
-  ]
+	"version": 0,
+	"dependencies": [
+		{
+			"importpath": "github.com/alexedwards/scs",
+			"repository": "https://github.com/alexedwards/scs",
+			"revision": "8131b3f249566da11ff348e7f664dd016e082292",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/pressly/chi",
+			"repository": "https://github.com/pressly/chi",
+			"revision": "2cad94402baa6eb7584258df02fed068f1502ada",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/rs/cors",
+			"repository": "https://github.com/rs/cors",
+			"revision": "a62a804a8a009876ca59105f7899938a1349f4b3",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/rs/xhandler",
+			"repository": "https://github.com/rs/xhandler",
+			"revision": "ed27b6fd65218132ee50cd95f38474a3d8a2cd12",
+			"branch": "master"
+		},
+		{
+			"importpath": "golang.org/x/net/context",
+			"repository": "https://go.googlesource.com/net",
+			"revision": "cac22060de4e495155959e69adcb4b45763ccb10",
+			"branch": "master",
+			"path": "/context"
+		},
+		{
+			"importpath": "gopkg.in/mgo.v2",
+			"repository": "https://gopkg.in/mgo.v2",
+			"revision": "3f83fa5005286a7fe593b055f0d7771a7dce4655",
+			"branch": "v2"
+		}
+	]
 }

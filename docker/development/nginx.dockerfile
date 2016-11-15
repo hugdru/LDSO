@@ -14,7 +14,8 @@ ENV \
   PERSISTENT_APT_PACKAGES="git libpcre++0 libpcre3 ca-certificates python make g++" \
   TEMPORARY_APT_PACKAGES="autoconf automake build-essential curl python-dev xz-utils libpcre3-dev libpcre++-dev wget ca-certificates" \
   DOCKERIZE_VERSION="v0.2.0" \
-  DOCKERIZE_DOWNLOAD_SHA256="c0e2e33cfe066036941bf8f2598090bd8e01fdc05128490238b2a64cf988ecfb"
+  DOCKERIZE_DOWNLOAD_SHA256="c0e2e33cfe066036941bf8f2598090bd8e01fdc05128490238b2a64cf988ecfb" \
+  YARN_VERSION="0.16.1"
 
 
 ENV HOME="/$USER"
@@ -76,7 +77,7 @@ WORKDIR "$HOME"
 
 ENV PREFIX="$NPM_YARN_PACKAGES_DIR" YARN_PREFIX="$NPM_YARN_PACKAGES_DIR"
 ENV PATH="$NPM_YARN_PACKAGES_DIR/bin:$SCRIPTS_DIR:/usr/local/node/bin:$PATH"
-RUN mkdir -p "$NPM_YARN_PACKAGES_DIR/bin" && npm install -g yarn && yarn global add angular-cli
+RUN mkdir -p "$NPM_YARN_PACKAGES_DIR/bin" && npm install -g yarn@"$YARN_VERSION" && yarn global add angular-cli
 
 EXPOSE 80 443 4200
 
