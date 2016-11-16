@@ -1,9 +1,9 @@
 package db
 
 import (
-	"log"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+	"log"
 )
 
 var (
@@ -62,7 +62,7 @@ func FindMaxId(c *mgo.Collection, document interface{}) {
 
 func Find(c *mgo.Collection, documents interface{}, tagged bool, tag string, value interface{}) {
 	var err error
-	if (tagged) {
+	if tagged {
 		err = c.Find(bson.M{tag: value}).Iter().All(documents)
 	} else {
 		err = c.Find(bson.M{}).Iter().All(documents)

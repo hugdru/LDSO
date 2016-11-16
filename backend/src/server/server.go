@@ -1,11 +1,11 @@
 package main
 
 import (
+	"github.com/pressly/chi"
+	"github.com/rs/cors"
 	"net/http"
 	"server/conn"
 	"server/db"
-	"github.com/pressly/chi"
-	"github.com/rs/cors"
 )
 
 func main() {
@@ -14,7 +14,7 @@ func main() {
 	router := chi.NewRouter()
 
 	db.SetCollections(dbSession, "Places4All", "main_group", "sub_group",
-			"criterion", "accessibility", "property")
+		"criterion", "accessibility", "property", "audit")
 
 	cors := cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},
@@ -29,6 +29,8 @@ func main() {
 	setRouter(router, "/subGroups", "sub_group")
 	setRouter(router, "/criteria", "criterion")
 	setRouter(router, "/accessibilities", "accessibility")
+	setRouter(router, "/audits", "audit")
+	setRouter(router, "/properties", "property")
 
 	if err := http.ListenAndServe(":8080", router); err != nil {
 		panic(err)
@@ -37,7 +39,7 @@ func main() {
 
 func setRouter(router *chi.Mux, url, coll string) {
 	router.Get(url, conn.Get(db.GetCollection(coll)))
-	router.Get(url + "/find", conn.GetOne(db.GetCollection(coll)))
+	router.Get(url+"/find", conn.GetOne(db.GetCollection(coll)))
 	router.Post(url, conn.Set(db.GetCollection(coll)))
 	router.Put(url, conn.Update(db.GetCollection(coll)))
 	router.Delete(url, conn.Delete(db.GetCollection(coll)))

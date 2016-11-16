@@ -1,14 +1,8 @@
 {
-	"name": "Casa",
-	"owner": {
-		"name": "Joao"
-	},
-	"image_path": "pic1.png"
+  "_id": 1,
+  "name": "Casa"
 }
 {
-	"name": "Hotel Sunny",
-	"owner": {
-		"name": "Carlos"
-	},
-	"image_path": "pic2.png"
+  "_id": 2,
+  "name": "Hotel Sunny"
 }
