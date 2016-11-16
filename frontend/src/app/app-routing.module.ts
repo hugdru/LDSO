@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 import { MainGroupComponent } from 'main-group/main-group.component';
-import { SubGroupComponent } from 'sub-group/sub-group.component';
+import { AuditComponent } from 'audit/audit.component';
 
 const routes: Routes = [
 	{
@@ -13,6 +13,10 @@ const routes: Routes = [
 	{
 		path: 'main-group',
 		component: MainGroupComponent
+	},
+	{
+		path: 'audit/:id',
+		component: AuditComponent
 	}
 ];
 
