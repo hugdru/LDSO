@@ -4,7 +4,7 @@ cd "${0%/*}"
 ./../../../../database/populate.sh
 
 EXE="curl -X"
-URL="http://go1:8080/"
+URL="http://api.lp4adev.tk:8080/"
 
 PostTests=( \
 		"{\"name\":\"Coisas\",\"weight\":30}" \
@@ -76,12 +76,12 @@ do
 	$EXE GET $URL$t
 done
 
-#for t in ${DeleteTests[@]}
-#do
-#	$EXE DELETE $URL$t
-#done
-#
-#for t in ${GetTests2[@]}
-#do
-#	$EXE GET $URL$t
-#done
+for t in ${DeleteTests[@]}
+do
+	$EXE DELETE $URL$t
+done
+
+for t in ${GetTests2[@]}
+do
+	$EXE GET $URL$t
+done
