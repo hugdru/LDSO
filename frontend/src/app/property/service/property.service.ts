@@ -1,31 +1,39 @@
+import { Response } from '@angular/http';
 import { Injectable } from '@angular/core';
-import { Http, Response } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 
-import 'rxjs/add/operator/map';
-
-import { Property } from './property';
+import { propertiesUrl, propertiesFindUrl } from 'shared/shared-data';
+import { HandlerService } from 'handler.service';
+import { Property } from 'property/property';
 
 @Injectable()
 export class PropertyService {
-	prop = 'Hotel Sunny';
-	// property: Observable<Property>;
-	property: Property;
 
-	url = 'http://localhost:8080';
-	urlGetProp = this.url + '/property';
+	constructor(private handler: HandlerService) { }
 
-	constructor(private http: Http) {}
+	getProperties(): Observable<Property[]> {
+		return this.handler.getAll<Property[]>(propertiesUrl);
+	}
 
+	getSomeProperties(tag: string, type: string, value: any)
+	: Observable<Property[]> {
+		return this.handler.get<Property[]>(propertiesUrl, tag, type,
+			value);
+	}
 
-	getProperty(prop: string): Observable<Property> {
-		return this.http.get(this.urlGetProp + '?label=name&value=' + prop)
-				.map((result: Response) => result.json())
-				.map((data: any) => {
-					 let result: Property = null;
-					 if(data) {
-						this.property = data;
-					 }
-					return this.property;});
+	getProperty(tag: string, type: string, value: any): Observable<Property> {
+		return this.handler.get<Property>(propertiesFindUrl, tag, type, value);
+	}
+
+	updateProperty(property: Property): Observable<Response> {
+		return this.handler.update<Property>(propertiesUrl, property, property._id);
+	}
+
+	setProperty(property: Property): Observable<Response> {
+		return this.handler.set<Property>(propertiesUrl, property);
+	}
+
+	removeProperty(id: number): Observable<Response> {
+		return this.handler.delete(propertiesUrl, id);
 	}
 }

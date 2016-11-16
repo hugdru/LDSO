@@ -13,3 +13,9 @@ export const criteriaFindUrl = criteriaUrl + '/find';
 
 export const accessibilitiesUrl = serverUrl + '/accessibilities';
 export const accessibilitiesFindUrl = accessibilitiesUrl + '/find';
+
+export const propertiesUrl = serverUrl + '/properties';
+export const propertiesFindUrl = propertiesUrl + '/find';
+
+export const auditsUrl = serverUrl + '/audits';
+export const auditsFindUrl = auditsUrl + '/find';

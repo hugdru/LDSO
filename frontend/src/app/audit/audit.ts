@@ -1,8 +1,11 @@
-import { Property } from './property/property';
-import { Note } from './note/note';
+export class AuditCriterion {
+	criterion: number;
+	rating: number;
+}
 
 export class Audit {
-	property: Property;
-	notes: Note[];
-	value: number;
+	_id: number;
+	property: number;
+	rating: number;
+	criteria: AuditCriterion[];
 }
