@@ -68,25 +68,25 @@ GetTests2=( \
 
 for (( t=0; t<${#PostTests[@]}; t=t+2))
 do
-  $EXE POST -d "${PostTests[$t]}" $URL${PostTests[$t+1]}
+  $EXE POST -d "${PostTests[$t]}" "$URL${PostTests[$t+1]}"
 done
 
 for (( t=0; t<${#PutTests[@]}; t=t+2))
 do
-  $EXE PUT -d "${PutTests[$t]}" $URL${PutTests[$t+1]}
+  $EXE PUT -d "${PutTests[$t]}" "$URL${PutTests[$t+1]}"
 done
 
-for t in ${GetTests1[@]}
+for t in "${GetTests1[@]}"
 do
-  $EXE GET $URL$t
+  $EXE GET "$URL$t"
 done
 
-for t in ${DeleteTests[@]}
+for t in "${DeleteTests[@]}"
 do
-	$EXE DELETE $URL$t
+  $EXE DELETE "$URL$t"
 done
 
-for t in ${GetTests2[@]}
+for t in "${GetTests2[@]}"
 do
-	$EXE GET $URL$t
+  $EXE GET "$URL$t"
 done
