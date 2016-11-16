@@ -37,6 +37,9 @@ import {
 import {
 	ListShowValueComponent
 } from 'shared/list-show-value/list-show-value.component';
+import {
+	ListPropertiesComponent
+} from 'property/list-properties.component';
 
 import { HandlerService } from 'handler.service';
 
@@ -62,7 +65,8 @@ import { HandlerService } from 'handler.service';
 		ListManageComponent,
 		ListSelectAddComponent,
 		ListSelectEditComponent,
-		ListShowValueComponent
+		ListShowValueComponent,
+		ListPropertiesComponent
 	],
 	imports: [
 		AppRoutingModule,
