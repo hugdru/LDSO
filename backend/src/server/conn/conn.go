@@ -1,10 +1,10 @@
 package conn
 
 import (
-	"log"
 	"encoding/json"
-	"net/http"
 	"gopkg.in/mgo.v2"
+	"log"
+	"net/http"
 	"server/data"
 	"server/db"
 	"strconv"
@@ -47,11 +47,16 @@ func GetDocument(coll_name string) interface{} {
 		document = data.Criterion{}
 	case "accessibility":
 		document = data.Accessibility{}
+	case "property":
+		document = data.Property{}
+	case "audit":
+		document = data.Audit{}
 	}
 	return document
 }
 
-func GetDocuments(coll *mgo.Collection, tagged bool, tag string, value interface{}) interface{} {
+func GetDocuments(coll *mgo.Collection, tagged bool, tag string,
+		value interface{}) interface{} {
 	var document interface{}
 	switch coll.Name {
 	case "main_group":
@@ -70,7 +75,16 @@ func GetDocuments(coll *mgo.Collection, tagged bool, tag string, value interface
 		accessibilities := []data.Accessibility{}
 		db.Find(coll, &accessibilities, tagged, tag, value)
 		document = accessibilities
+	case "property":
+		properties := []data.Property{}
+		db.Find(coll, &properties, tagged, tag, value)
+		document = properties
+	case "audit":
+		audits := []data.Audit{}
+		db.Find(coll, &audits, tagged, tag, value)
+		document = audits
 	}
+
 	return document
 }
 
@@ -101,6 +115,18 @@ func GetIds(coll *mgo.Collection) []int {
 		for _, accessibility := range accessibilities {
 			ids = append(ids, accessibility.Id)
 		}
+	case "property":
+		properties := []data.Property{}
+		db.Find(coll, &properties, false, "", 0)
+		for _, property := range properties {
+			ids = append(ids, property.Id)
+		}
+	case "audit":
+		audits := []data.Audit{}
+		db.Find(coll, &audits, false, "", 0)
+		for _, audit := range audits {
+			ids = append(ids, audit.Id)
+		}
 	}
 	return ids
 }
@@ -110,7 +136,7 @@ func Get(coll *mgo.Collection) http.HandlerFunc {
 		tag := r.FormValue("tag")
 		if tag == "" {
 			documents := GetDocuments(coll, false, "", 0)
-			err := json.NewEncoder(w).Encode(documents);
+			err := json.NewEncoder(w).Encode(documents)
 			if err != nil {
 				log.Panic(err)
 			}
@@ -118,7 +144,7 @@ func Get(coll *mgo.Collection) http.HandlerFunc {
 		} else {
 			value := GetValue(r)
 			documents := GetDocuments(coll, true, tag, value)
-			err := json.NewEncoder(w).Encode(documents);
+			err := json.NewEncoder(w).Encode(documents)
 			if err != nil {
 				log.Panic(err)
 			}
@@ -134,7 +160,7 @@ func GetOne(coll *mgo.Collection) http.HandlerFunc {
 		tag := r.FormValue("tag")
 		value := GetValue(r)
 		db.FindOne(coll, &document, tag, value)
-		err := json.NewEncoder(w).Encode(document);
+		err := json.NewEncoder(w).Encode(document)
 		if err != nil {
 			log.Panic(err)
 		}
@@ -197,8 +223,32 @@ func Set(coll *mgo.Collection) http.HandlerFunc {
 			document.Id = id
 			db.Insert(coll, document)
 			log.Println(document)
+		case "property":
+			documentMaxId := data.Property{}
+			document := data.Property{}
+			db.FindMaxId(coll, &documentMaxId)
+			err = decoder.Decode(&document)
+			if err != nil {
+				log.Panic(err)
+			}
+			id = documentMaxId.Id + 1
+			document.Id = id
+			db.Insert(coll, document)
+			log.Println(document)
+		case "audit":
+			documentMaxId := data.Audit{}
+			document := data.Audit{}
+			db.FindMaxId(coll, &documentMaxId)
+			err = decoder.Decode(&document)
+			if err != nil {
+				log.Panic(err)
+			}
+			id = documentMaxId.Id + 1
+			document.Id = id
+			db.Insert(coll, document)
+			log.Println(document)
 		}
-		err = json.NewEncoder(w).Encode(id);
+		err = json.NewEncoder(w).Encode(id)
 		if err != nil {
 			log.Panic(err)
 		}
@@ -236,7 +286,7 @@ func RecursiveDelete(coll *mgo.Collection, id int) {
 	switch coll.Name {
 	case "main_group":
 		sub_groups := []data.Sub_Group{}
-		child_coll = db.GetCollection("sub_group");
+		child_coll = db.GetCollection("sub_group")
 		db.Find(child_coll, &sub_groups, true, "main_group", id)
 		for _, sub_group := range sub_groups {
 			RecursiveDelete(child_coll, sub_group.Id)
@@ -261,7 +311,7 @@ func RecursiveDelete(coll *mgo.Collection, id int) {
 func Delete(coll *mgo.Collection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id_str := r.FormValue("_id")
-		if (id_str == "") {
+		if id_str == "" {
 			ids := GetIds(coll)
 			for _, id := range ids {
 				RecursiveDelete(coll, id)

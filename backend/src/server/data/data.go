@@ -1,31 +1,31 @@
 package data
 
 type Main_Group struct {
-	Id int`json:"_id" bson:"_id,omitempty"`
-	Name string `json:"name"`
-	Weight int `json:"weight"`
+	Id     int    `json:"_id" bson:"_id,omitempty"`
+	Name   string `json:"name"`
+	Weight int    `json:"weight"`
 }
 
 type Sub_Group struct {
-	Id int `json:"_id" bson:"_id,omitempty"`
-	Name string `json:"name"`
-	Weight int `json:"weight"`
-	Main_Group int `json:"main_group"`
+	Id         int    `json:"_id" bson:"_id,omitempty"`
+	Name       string `json:"name"`
+	Weight     int    `json:"weight"`
+	Main_Group int    `json:"main_group"`
 }
 
 type Criterion struct {
-	Id int `json:"_id" bson:"_id,omitempty"`
-	Name string `json:"name"`
-	Weight int `json:"weight"`
+	Id          int    `json:"_id" bson:"_id,omitempty"`
+	Name        string `json:"name"`
+	Weight      int    `json:"weight"`
 	Legislation string `json:"legislation"`
-	Sub_Group int `json:"sub_group"`
+	Sub_Group   int    `json:"sub_group"`
 }
 
 type Accessibility struct {
-	Id int `json:"_id" bson:"_id,omitempty"`
-	Name string `json:"name"`
-	Weight int `json:"weight"`
-	Criterion int `json:"criterion"`
+	Id        int    `json:"_id" bson:"_id,omitempty"`
+	Name      string `json:"name"`
+	Weight    int    `json:"weight"`
+	Criterion int    `json:"criterion"`
 }
 
 type Owner struct {
@@ -33,19 +33,24 @@ type Owner struct {
 }
 
 type Property struct {
+	Id   int    `json:"_id" bson:"_id,omitempty"`
 	Name string `json:"name"`
-	Owner Owner `json:"owner"`
-	Image_path string `json:"image_path"`
-}
-
-type Note struct {
-	Data []string `json:"data"`
-	Criterion Criterion `json:"criterion"`
-	Image_path []string `json:"image_path"`
 }
 
 type Audit struct {
-	Property Property `json:"property"`
-	Notes []Note `json:"notes"`
-	Value int `json:"value"`
+	Id       int              `json:"_id" bson:"_id,omitempty"`
+	Property int              `json:"property"`
+	Rating   int              `json:"rating"`
+	Criteria []AuditCriterion `json:"criteria"`
+}
+
+type AuditCriterion struct {
+	Criterion int `json:"criterion"`
+	Value     int `json:"value"`
+}
+
+type Note struct {
+	Data       []string  `json:"data"`
+	Criterion  Criterion `json:"criterion"`
+	Image_path []string  `json:"image_path"`
 }
