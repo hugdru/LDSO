@@ -9,3 +9,4 @@ backend/mongo.sh
 frontend/angular.sh
 frontend/karma.sh
 **/karma.conf.js
+database/classdiagram.png
