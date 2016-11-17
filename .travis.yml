@@ -1,17 +1,16 @@
+language: generic 
 sudo: required
-dist: trusty
+install: true
 
-language: generic
 
 env:
   global:
-    - GOLANG_VERSION="1.7.3"
-    - GOLANG_DOWNLOAD_SHA256="508028aac0654e993564b6e2014bf2d4a9751e3b286661b0b0040046cf18028e"
-
-services:
-  - docker
-  - mongodb
-  - redis-server
+    - GIMME_OS=linux GIMME_ARCH=amd64 GIMME_GO_VERSION=1.7.3
+    - IMAGE_NAME=tsuru/api
+    - NODE_VERSION=6.9.1
+    - PROJECT="$PWD" 
+    - FRONTEND="$PROJECT/frontend"
+    - BACKEND="$PROJECT/backend"
 
 addons:
   hosts:
@@ -26,11 +25,31 @@ addons:
     - www.lp4a.tk
     - lp4a.tk
 
-before_install: .ci/before_install.sh
-install:        .ci/install.sh
-before_script:  .ci/before_script.sh
-script:         .ci/script.sh
-after_success:  .ci/after_success.sh
-after_failure:  .ci/after_failure.sh
-before_deploy:  .ci/before_deploy.sh
-deploy:         .ci/deploy.sh
+before_install:
+  - eval "$(gimme)"
+  - nvm install $NODE_VERSION
+  - nvm use $NODE_VERSION
+  - sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
+  - echo "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/3.2 main" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.list
+  - sudo apt-get update
+  - sudo apt-get install -y mongodb-org
+  - go get github.com/constabulary/gb/...
+script:
+   - cd "$FRONTEND" 
+   - npm install -g angular-cli  
+   - npm install
+   #- ng test
+   - cd "$BACKEND" 
+   - gb vendor restore
+   - gb test server
+
+notifications:
+  slack: ldso51:CK9j3GCfFoj0QpTTTxDdt8lZ
+
+services:
+  - docker
+  - mongodb
+
+
+
+
