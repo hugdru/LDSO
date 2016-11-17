@@ -13,3 +13,4 @@ node_modules
 **/karma.conf.js
 database/cluster
 database/uml/classdiagram.png
+
