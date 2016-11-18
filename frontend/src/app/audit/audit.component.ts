@@ -16,7 +16,6 @@ import { MainGroupEditComponent } from 'main-group/main-group-edit.component';
 })
 
 export class AuditComponent implements OnInit {
-
 	property: Property;
 	mainGroups: MainGroup[];
 	errorMsg: string;
