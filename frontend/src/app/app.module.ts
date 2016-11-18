@@ -44,6 +44,7 @@ import{
 		PropertiesInfoComponent,
 } from 'property/property-info.component';
 import { AuditComponent } from 'audit/audit.component';
+import { AuditListGroupsComponent } from 'audit/audit-list-groups.component';
 
 import { HandlerService } from 'handler.service';
 
@@ -72,7 +73,8 @@ import { HandlerService } from 'handler.service';
 		ListShowValueComponent,
 		ListPropertiesComponent,
 		PropertiesInfoComponent,
-		AuditComponent
+		AuditComponent,
+		AuditListGroupsComponent
 	],
 	imports: [
 		AppRoutingModule,

@@ -2,17 +2,5 @@
 	<properties-info (property_id)="property._id">
 	</properties-info>
 </div>
-<div>
-  <div>
-    <ul style="list-style: none;">
-      <li *ngFor="let criterion of criteria"
-          (click)="showSubCriteria(criterion)">
-        {{criterion.name}}
-      </li>
-    </ul>
-  </div>
-  <div *ngIf="selectedCriterion">
-
-  </div>
-
-</div>
+<audit-list-groups (subGroups)="">
+</audit-list-groups>
