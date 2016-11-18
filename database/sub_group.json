@@ -10,3 +10,39 @@
   "weight": 40,
   "main_group": 1
 }
+{
+  "_id": 3,
+  "name": "Coisas",
+  "weight": 50,
+  "main_group": 2
+}
+{
+  "_id": 4,
+  "name": "Cenas",
+  "weight": 50,
+  "main_group": 2
+}
+{
+  "_id": 5,
+  "name": "Paletes",
+  "weight": 60,
+  "main_group": 3
+}
+{
+  "_id": 6,
+  "name": "Resmas",
+  "weight": 40,
+  "main_group": 3
+}
+{
+  "_id": 7,
+  "name": "Kilobytes",
+  "weight": 60,
+  "main_group": 4
+}
+{
+  "_id": 8,
+  "name": "Babies",
+  "weight": 40,
+  "main_group": 4
+}

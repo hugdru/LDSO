@@ -56,7 +56,7 @@ func GetDocument(coll_name string) interface{} {
 }
 
 func GetDocuments(coll *mgo.Collection, tagged bool, tag string,
-		value interface{}) interface{} {
+	value interface{}) interface{} {
 	var document interface{}
 	switch coll.Name {
 	case "main_group":
