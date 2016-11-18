@@ -40,6 +40,9 @@ import {
 import {
 	ListPropertiesComponent
 } from 'property/list-properties.component';
+import{
+		PropertiesInfoComponent,
+} from 'property/property-info.component';
 import { AuditComponent } from 'audit/audit.component';
 import { AuditSelectComponent } from 'audit/audit-select.component';
 
@@ -69,6 +72,7 @@ import { HandlerService } from 'handler.service';
 		ListSelectEditComponent,
 		ListShowValueComponent,
 		ListPropertiesComponent,
+		PropertiesInfoComponent,
 		AuditComponent,
 		AuditSelectComponent
 	],
