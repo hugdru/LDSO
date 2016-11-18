@@ -11,8 +11,7 @@ import { PropertyService } from './service/property.service';
 
 export class PropertiesInfoComponent implements OnInit {
 	property: Property;
-	// @Input() property_id: number;
-	property_id: number = 2;
+	@Input() property_id: number;
 
 	constructor(private propertyService: PropertyService) {
 	}
