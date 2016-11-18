@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 import { MainGroupComponent } from 'main-group/main-group.component';
-import { AuditComponent } from 'audit/audit.component';
+import { AuditSelectComponent } from 'audit/audit-select.component';
 import {ListPropertiesComponent} from "./property/list-properties.component";
 
 const routes: Routes = [
@@ -17,7 +17,7 @@ const routes: Routes = [
 	},
 	{
 		path: 'audit/:id',
-		component: AuditComponent
+		component: AuditSelectComponent
 	},
 	{
 		path: 'listProperties',

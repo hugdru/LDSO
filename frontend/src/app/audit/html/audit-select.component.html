@@ -1,0 +1,21 @@
+<div class="list" *ngFor='let mainGroup of mainGroups'>
+    <table class="cursor-pointer" (click)="showChildren(mainGroup)">
+        <tr>
+            {{mainGroup.name}}
+        </tr>
+    </table>
+</div>
+<hr>
+<div *ngIf='subGroups'>
+    <div *ngFor='let subGroup of subGroups'>
+        <table>
+            <tr>
+                {{subGroup.name}} <!--<input type="checkbox"
+                                         [[(ngModel)]="selectSubGroup"
+                                         (change)="!selectSubGroup">-->
+            </tr>
+        </table>
+
+    </div>
+</div>
+
