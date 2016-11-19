@@ -9,46 +9,43 @@ abstract Person {
   +email: VARCHAR
   +username: VARCHAR
   +password: VARCHAR
-  +created: TIMESTAMP
   +imagePath: VARCHAR
   +banned: BOOLEAN
   +dateBanned: TIMESTAMP
-  +reason: VARCHAR
+  +reason: TEXT
   +mobilephone: VARCHAR
   +telephone: VARCHAR
-}
-
-class LocalAdmin {
+  +created: TIMESTAMP
 }
 
 class SuperAdmin {
 }
 
+class LocalAdmin {
+}
+
 class Auditor {
 }
 
-class Owner {
-}
-
-class User {
+class Client {
 }
 
 class Image {
   +name: VARCHAR
-  +description: VARCHAR
+  +description: TEXT
   +imagePath: VARCHAR
   +created: TIMESTAMP
 }
 
 class Gallery {
   +name: VARCHAR
-  +description: VARCHAR
+  +description: TEXT
   +created: TIMESTAMP
 }
 
 class Property {
   +name: VARCHAR
-  +details: VARCHAR
+  +details: TEXT
   +created: TIMESTAMP
 }
 
@@ -72,63 +69,64 @@ class Tag {
 }
 
 class Audit {
+  +rating: INTEGER
+  +observation: TEXT
   +created: TIMESTAMP
   +finished: TIMESTAMP
-  +observation: VARCHAR
-  +rating: INTEGER
 }
 
 class Template {
-  +created: TIMESTAMP
+  +name: VARCHAR
   +description: TEXT
+  +created: TIMESTAMP
 }
 
 class Maingroup {
   +name: VARCHAR
-  +description: VARCHAR
+  +weight: INTEGER
+  +description: TEXT
   +imagePath: VARCHAR
   +created: TIMESTAMP
-  +weight: INTEGER
 }
 
 class Subgroup {
   +name: VARCHAR
-  +description: VARCHAR
+  +weight: INTEGER
+  +description: TEXT
   +imagePath: VARCHAR
   +created: TIMESTAMP
-  +weight: INTEGER
 }
 
 class Criterion {
   +name: VARCHAR
-  +description: VARCHAR
+  +weight: INTEGER
+  +description: TEXT
   +imagePath: VARCHAR
   +created: TIMESTAMP
-  +weight: INTEGER
+}
+
+class Accessibility {
+  +name: VARCHAR
+  +description: TEXT
+  +imagePath: VARCHAR
 }
 
 class Legislation {
   +name: VARCHAR
 }
 
-class Accessibility {
-  +name: VARCHAR
-  +description: VARCHAR
-  +imagePath: VARCHAR
-}
-
 Person <|-- LocalAdmin
 Person <|-- SuperAdmin
 Person <|-- Auditor
-Person <|-- Owner
-Person <|-- User
+Person <|-- Client
+Person "*" -- "1" Country
 
 Address "*" -- "1" Country
 Image "1..n" -- "1" Gallery
 Property "1" -- "*" Gallery
 Property "1..n" -- "1" Address
 Property "*" -- "*" Tag
-Property "*" -- "1..n" Owner
+Property "*" -- "1..n" Client
 Property "1" -- "*" Audit
 
 Audit "*" -- "1" Auditor
@@ -137,8 +135,8 @@ Audit "*" -- "1..n" Subgroup : selects a subset of >
 Audit "*" -- "*" Criterion : sets values to >
 (Audit, Criterion) .. AuditCriterion
 class AuditCriterion {
-  +value: TEXT
-  +observation: TEXT
+  +value: INTEGER
+  +observation: VARCHAR
 }
 
 Template "1..n" -- "1..n" Maingroup
