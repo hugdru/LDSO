@@ -26,9 +26,9 @@ main() {
 }
 
 init() {
-  stop
+  stop || true
   timeout "$timeout_duration" killall postgres --wait || true
-  rm -rf "$cluster_path"
+  rm -rf "$cluster_path" || true
   mkdir -p "$cluster_path"
   pg_ctl init --pgdata "$cluster_path" -o '--locale="en_US.UTF-8" --encoding="UTF8"'
   pg_ctl start --pgdata "$cluster_path"

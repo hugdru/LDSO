@@ -62,6 +62,7 @@ class Address {
 
 class Country {
   +name: VARCHAR
+  +iso2: CHAR
 }
 
 class Tag {
