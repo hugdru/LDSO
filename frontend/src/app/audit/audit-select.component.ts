@@ -19,6 +19,7 @@ export class AuditSelectComponent implements OnInit {
 	mainGroups: MainGroup[];
 	subGroups: SubGroup[];
 	errorMsg: string;
+	selectedSubgroups: number[];
 
 	constructor(
 		private mainGroupService: MainGroupService,
@@ -29,6 +30,7 @@ export class AuditSelectComponent implements OnInit {
 	ngOnInit(): void {
 		this.property_id = +this.route.snapshot.params['id'];
 		this.initMainGroups();
+        this.selectedSubgroups = [];
 	}
 
 	initMainGroups(): void {
@@ -43,5 +45,22 @@ export class AuditSelectComponent implements OnInit {
 			data => this.subGroups = data
 		);
 	}
+
+    toggleSubGroup(id: number): void {
+        var index = this.selectedSubgroups.indexOf(id);
+        if (index > -1) {
+            this.selectedSubgroups.splice(index, 1);
+        }
+        else {
+            this.selectedSubgroups.push(id);
+        }
+    }
+
+   checkedSubGroup(id: number): boolean {
+       if (this.selectedSubgroups.indexOf(id) > -1) {
+           return true;
+       }
+       return false;
+   }
 
 }

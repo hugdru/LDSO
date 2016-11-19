@@ -10,12 +10,13 @@
     <div *ngFor='let subGroup of subGroups'>
         <table>
             <tr>
-                {{subGroup.name}} <!--<input type="checkbox"
-                                         [[(ngModel)]="selectSubGroup"
-                                         (change)="!selectSubGroup">-->
+                {{subGroup.name}} <input type="checkbox" [checked]="checkedSubGroup(subGroup._id)" (change)="toggleSubGroup(subGroup._id)">
             </tr>
         </table>
 
     </div>
 </div>
-
+<hr>
+<div>
+    {{selectedSubgroups}}
+</div>
