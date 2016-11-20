@@ -10,3 +10,4 @@ frontend/angular.sh
 frontend/karma.sh
 **/karma.conf.js
 database/classdiagram.png
+node_modules
