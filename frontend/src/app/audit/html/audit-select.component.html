@@ -10,13 +10,22 @@
     <div *ngFor='let subGroup of subGroups'>
         <table>
             <tr>
-                {{subGroup.name}} <input type="checkbox" [checked]="checkedSubGroup(subGroup._id)" (change)="toggleSubGroup(subGroup._id)">
+                {{subGroup.name}} <input type="checkbox"
+                                         [checked]="checkedSubGroup(subGroup)"
+                                         (change)="toggleSubGroup(subGroup)">
             </tr>
         </table>
-
     </div>
 </div>
 <hr>
 <div>
-    {{selectedSubgroups}}
+    <div *ngIf='selectedSubGroups'>
+        <span *ngFor='let subGroup of selectedSubGroups'>
+            {{subGroup._id}}
+        </span>
+    </div>
+    <button class="btn btn-success round outline"
+            (click)="pressed()">
+        <i class="glyphicon glyphicon-ok"></i>
+    </button>
 </div>
