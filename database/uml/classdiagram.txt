@@ -1,0 +1,152 @@
+@startuml
+
+hide empty members
+hide empty fields
+hide empty methods
+
+abstract entity {
+  +name: VARCHAR
+  +email: VARCHAR
+  +username: VARCHAR
+  +password: VARCHAR
+  +image_url: VARCHAR
+  +banned: TIMESTAMP
+  +reason: TEXT
+  +mobilephone: VARCHAR
+  +telephone: VARCHAR
+  +created: TIMESTAMP
+}
+
+class superadmin {
+}
+
+class localadmin {
+}
+
+class auditor {
+}
+
+class client {
+}
+
+class image {
+  +name: VARCHAR
+  +description: TEXT
+  +image_url: VARCHAR
+  +created: TIMESTAMP
+}
+
+class gallery {
+  +name: VARCHAR
+  +description: TEXT
+  +created: TIMESTAMP
+}
+
+class property {
+  +name: VARCHAR
+  +details: TEXT
+  +created: TIMESTAMP
+}
+
+class address {
+  +address_line1: VARCHAR
+  +address_line2: VARCHAR
+  +address_line3: VARCHAR
+  +town_city: VARCHAR
+  +county: VARCHAR
+  +postcode: VARCHAR
+  +latitude: DECIMAL
+  +longitude: DECIMAL
+}
+
+class country {
+  +name: VARCHAR
+  +iso2: CHAR
+}
+
+class tag {
+  +name: VARCHAR
+}
+
+class audit {
+  +rating: INTEGER
+  +observation: TEXT
+  +created: TIMESTAMP
+  +finished: TIMESTAMP
+}
+
+class template {
+  +name: VARCHAR
+  +description: TEXT
+  +created: TIMESTAMP
+}
+
+class maingroup {
+  +name: VARCHAR
+  +weight: INTEGER
+  +description: TEXT
+  +image_url: VARCHAR
+  +created: TIMESTAMP
+}
+
+class subgroup {
+  +name: VARCHAR
+  +weight: INTEGER
+  +description: TEXT
+  +image_url: VARCHAR
+  +created: TIMESTAMP
+}
+
+class criterion {
+  +name: VARCHAR
+  +weight: INTEGER
+  +description: TEXT
+  +image_url: VARCHAR
+  +created: TIMESTAMP
+}
+
+class accessibility {
+  +name: VARCHAR
+  +description: TEXT
+  +image_url: VARCHAR
+}
+
+class legislation {
+  +name: VARCHAR
+}
+
+person <|-- localAdmin
+person <|-- superAdmin
+person <|-- auditor
+person <|-- client
+person "*" -- "1" country
+
+address "*" -- "1" country
+image "1..n" -- "1" gallery
+property "1" -- "*" gallery
+property "1..n" -- "1" address
+property "*" -- "*" tag
+property "*" -- "1..n" client
+property "1" -- "*" audit
+
+audit "*" -- "1" auditor
+audit "*" -- "1" template : obeys a >
+audit "*" -- "1..n" subgroup : selects a subset of >
+audit "*" -- "*" criterion : sets values to >
+(audit, criterion) .. audit_criterion
+class audit_criterion {
+  +value: INTEGER
+  +observation: VARCHAR
+}
+
+template "1..n" -- "1..n" maingroup
+maingroup "1..n" -- "1..n" subgroup
+subgroup "1..n" -- "1..n" criterion
+criterion "*" -- "4" accessibility
+(criterion, accessibility) .. criterion_accessibility
+class criterion_accessibility {
+  +weight: INTEGER
+}
+criterion "*" -- "1" legislation
+
+@enduml

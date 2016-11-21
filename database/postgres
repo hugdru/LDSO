@@ -5,7 +5,7 @@ set -e
 cd "${0%/*}"
 
 usage="$0 (init|start|stop|restart)"
-cluster_path="./cluster"
+cluster_dir="./cluster"
 timeout_duration="10"
 db_name="places4all"
 
@@ -28,25 +28,25 @@ main() {
 init() {
   stop || true
   timeout "$timeout_duration" killall postgres --wait || true
-  rm -rf "$cluster_path" || true
-  mkdir -p "$cluster_path"
-  pg_ctl init --pgdata "$cluster_path" -o '--locale="en_US.UTF-8" --encoding="UTF8"'
-  pg_ctl start --pgdata "$cluster_path"
-  cd "$cluster_path"
+  rm -rf "$cluster_dir" || true
+  mkdir -p "$cluster_dir"
+  pg_ctl init --pgdata "$cluster_dir" -o '--locale="en_US.UTF-8" --encoding="UTF8"'
+  pg_ctl start --pgdata "$cluster_dir"
+  cd "$cluster_dir"
   createuser --superuser --pwprompt --echo admin
   createdb "$db_name" --username admin
 }
 
 start() {
-  pg_ctl start --pgdata "$cluster_path"
+  pg_ctl start --pgdata "$cluster_dir"
 }
 
 stop() {
-  pg_ctl stop --pgdata "$cluster_path"
+  pg_ctl stop --pgdata "$cluster_dir"
 }
 
 restart() {
-  pg_ctl restart --pgdata "$cluster_path"
+  pg_ctl restart --pgdata "$cluster_dir"
 }
 
 main "$@"
