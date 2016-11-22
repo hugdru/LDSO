@@ -12,7 +12,7 @@ import { SubGroup } from 'sub-group/sub-group';
 })
 
 export class AuditListGroupsComponent implements OnInit {
-	@Input() subGroups: SubGroup[];
+	@Input() selectedSubGroups: SubGroup[];
 	mainGroups: MainGroup[];
 	mainGroupsId: number[];
 	selectedMainGroup: MainGroup;
@@ -33,7 +33,7 @@ export class AuditListGroupsComponent implements OnInit {
 	}
 
 	findMainGroups(): void {
-		for(let subGroup of this.subGroups) {
+		for(let subGroup of this.selectedSubGroups) {
 			if(!this.mainGroupsId.includes(subGroup.main_group)) {
 				this.mainGroupsId.push(subGroup.main_group);
 			}

@@ -20,7 +20,7 @@ export class AuditSelectComponent implements OnInit {
     subGroups: SubGroup[];
     errorMsg: string;
     selectedSubGroups: SubGroup[];
-    @Output() onAction = new EventEmitter<SubGroup[]>();
+    @Output() onDone = new EventEmitter<SubGroup[]>();
 
     constructor(private mainGroupService: MainGroupService,
                 private subGroupService: SubGroupService,
@@ -66,7 +66,7 @@ export class AuditSelectComponent implements OnInit {
     }
 
     pressed(): void {
-        this.onAction.emit(this.selectedSubGroups);
+        this.onDone.emit(this.selectedSubGroups);
     }
 
 }
