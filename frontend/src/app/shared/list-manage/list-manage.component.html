@@ -1,53 +1,57 @@
 <div>
-	<button *ngIf="!selectedAddObject" class="btn btn-primary round outline"
-			(click)="selectAddObject()">
-		 Adicionar Novo <i class="glyphicon glyphicon-plus"></i>
-	</button>
-	<div *ngIf="selectedAddObject">
-		<list-select-add
-				[father]="father"
-				[weight]="sumPercentageForAdd()"
-				[objType]="findType()"
-				(add)="onAdd($event)">
-		</list-select-add>
-	</div>
+    <button *ngIf="!selectedAddObject" class="btn btn-primary round outline"
+            (click)="selectAddObject()">
+        Adicionar Novo <i class="glyphicon glyphicon-plus"></i>
+    </button>
+    <div *ngIf="selectedAddObject">
+        <list-select-add
+                [father]="father"
+                [weight]="sumPercentageForAdd()"
+                [objType]="findType()"
+                (add)="onAdd($event)">
+        </list-select-add>
+    </div>
 </div>
 <div></div>
 <div class="list" *ngFor='let obj of objects'>
-	<div *ngIf="!selectedEditObject">
-		<table class="cursor-pointer" (click)="showChildren(obj)">
-			<tr>
-				<list-show-value
-					[object]="obj"
-					[weight]="sumPercentageForAdd()"
-					[objType]="findType()">
-				</list-show-value>
-				<th><button class="btn btn-neutral round outline"
-					(click)="selectEditObject(obj)">
-					<i class="glyphicon glyphicon-pencil"></i>
-				</button></th>
-				<th><button type="button" class="btn btn-delete round outline"
-					(click)="deleteObject(obj)">
-					<span class="glyphicon glyphicon-trash"></span>
-				</button></th>
-			</tr>
-		</table>
-	</div>
-	<div *ngIf="selectedEditObject">
-		<div *ngIf="selectedEditObject.name == obj.name">
-			<list-select-edit
-					   [selectedEditObject]="selectedEditObject"
-					   [weight]="sumPercentage()"
-					   [objType]="findType()"
-					   (action)="onAction()">
-			</list-select-edit>
-		</div>
-		<div *ngIf="selectedEditObject.name != obj.name">
-			<list-show-value
-				[object]="obj"
-				[weight]="sumPercentageForAdd()"
-				[objType]="findType()">
-			</list-show-value>
-		</div>
-	</div>
+    <div *ngIf="!selectedEditObject">
+        <table class="cursor-pointer" (click)="showChildren(obj)">
+            <tr>
+                <list-show-value
+                        [object]="obj"
+                        [weight]="sumPercentageForAdd()"
+                        [objType]="findType()">
+                </list-show-value>
+                <th>
+                    <button class="btn btn-neutral round outline"
+                            (click)="selectEditObject(obj)">
+                        <i class="glyphicon glyphicon-pencil"></i>
+                    </button>
+                </th>
+                <th>
+                    <button type="button" class="btn btn-delete round outline"
+                            (click)="deleteObject(obj)">
+                        <span class="glyphicon glyphicon-trash"></span>
+                    </button>
+                </th>
+            </tr>
+        </table>
+    </div>
+    <div *ngIf="selectedEditObject">
+        <div *ngIf="selectedEditObject.name == obj.name">
+            <list-select-edit
+                    [selectedEditObject]="selectedEditObject"
+                    [weight]="sumPercentage()"
+                    [objType]="findType()"
+                    (action)="onAction()">
+            </list-select-edit>
+        </div>
+        <div *ngIf="selectedEditObject.name != obj.name">
+            <list-show-value
+                    [object]="obj"
+                    [weight]="sumPercentageForAdd()"
+                    [objType]="findType()">
+            </list-show-value>
+        </div>
+    </div>
 </div>

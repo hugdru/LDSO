@@ -1,25 +1,22 @@
+import {TestBed, getTestBed, async, inject} from "@angular/core/testing";
 import {
-    TestBed,
-    getTestBed,
-    async,
-    inject
-} from '@angular/core/testing';
-
-import {
-    Headers, BaseRequestOptions,
-    Response, HttpModule, Http, XHRBackend, RequestMethod
-} from '@angular/http';
-
-import { ResponseOptions } from '@angular/http';
-import { MockBackend, MockConnection } from '@angular/http/testing';
-import { PropertyService } from 'property/service/property.service';
-import { HandlerService } from 'handler.service';
+        BaseRequestOptions,
+        Response,
+        HttpModule,
+        Http,
+        XHRBackend,
+        RequestMethod,
+        ResponseOptions
+} from "@angular/http";
+import {MockBackend, MockConnection} from "@angular/http/testing";
+import {PropertyService} from "property/service/property.service";
+import {HandlerService} from "handler.service";
 
 const mockArray = [
     {_id: 26, name: "ana", image_path: "bla"},
     {_id: 14, name: "joao", image_path: "ble"}
 ];
-const mock = { _id: 26, name: "ana", image_path: "bla"};
+const mock = {_id: 26, name: "ana", image_path: "bla"};
 
 describe('Property Service w/ Mock Service', () => {
     let mockBackend: MockBackend;
@@ -40,7 +37,7 @@ describe('Property Service w/ Mock Service', () => {
                     },
                 }
             ],
-            imports: [ HttpModule ]
+            imports: [HttpModule]
         });
 
         mockBackend = getTestBed().get(MockBackend);
@@ -105,32 +102,32 @@ describe('Property Service w/ Mock Service', () => {
     }));
 
     it('Add a new property',
-        async(inject([PropertyService], (propertyService) => {
-            mockBackend.connections
-                .subscribe((connection: MockConnection) => {
-                    expect(connection.request.method).toBe(RequestMethod.Post);
-                    connection.mockRespond(new Response(
-                        new ResponseOptions({status: 201})));
-                });
+            async(inject([PropertyService], (propertyService) => {
+                mockBackend.connections
+                        .subscribe((connection: MockConnection) => {
+                            expect(connection.request.method).toBe(RequestMethod.Post);
+                            connection.mockRespond(new Response(
+                                    new ResponseOptions({status: 201})));
+                        });
 
-            propertyService.setProperty(mock).subscribe((result => {
-                expect(result).toBeDefined();
-                expect(result.status).toBe(201);
-            }));
-        })));
+                propertyService.setProperty(mock).subscribe((result => {
+                    expect(result).toBeDefined();
+                    expect(result.status).toBe(201);
+                }));
+            })));
 
     it('Delete a property',
-        async(inject([PropertyService], (propertyService) => {
-            mockBackend.connections
-                .subscribe((connection: MockConnection) => {
-                    expect(connection.request.method).toBe(RequestMethod.Delete);
-                    connection.mockRespond(new Response(
-                        new ResponseOptions({status: 204})));
-                });
+            async(inject([PropertyService], (propertyService) => {
+                mockBackend.connections
+                        .subscribe((connection: MockConnection) => {
+                            expect(connection.request.method).toBe(RequestMethod.Delete);
+                            connection.mockRespond(new Response(
+                                    new ResponseOptions({status: 204})));
+                        });
 
-            propertyService.removeProperty(15).subscribe((result => {
-                expect(result).toBeDefined();
-                expect(result.status).toBe(204);
-            }));
-        })));
+                propertyService.removeProperty(15).subscribe((result => {
+                    expect(result).toBeDefined();
+                    expect(result.status).toBe(204);
+                }));
+            })));
 });

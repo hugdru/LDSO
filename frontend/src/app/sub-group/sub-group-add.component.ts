@@ -1,46 +1,45 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
-
-import { SubGroupService } from 'sub-group/service/sub-group.service';
-import { SubGroup } from 'sub-group/sub-group';
-import { MainGroup } from 'main-group/main-group';
+import {Component, Input, Output, EventEmitter, OnInit} from "@angular/core";
+import {SubGroupService} from "sub-group/service/sub-group.service";
+import {SubGroup} from "sub-group/sub-group";
+import {MainGroup} from "main-group/main-group";
 
 @Component({
-	selector: 'sub-group-add',
-	templateUrl: '../main-group/html/main-group-edit.component.html',
-	styleUrls: [ '../main-group/main-group-edit.component.css' ],
-	providers: [ SubGroupService ]
+    selector: 'sub-group-add',
+    templateUrl: '../main-group/html/main-group-edit.component.html',
+    styleUrls: ['../main-group/main-group-edit.component.css'],
+    providers: [SubGroupService]
 })
 
 export class SubGroupAddComponent implements OnInit {
-	selectedObject: SubGroup;
+    selectedObject: SubGroup;
 
-	@Input() mainGroup: MainGroup;
-	@Input() weight: number;
-	@Output() onAdd = new EventEmitter<SubGroup>();
+    @Input() mainGroup: MainGroup;
+    @Input() weight: number;
+    @Output() onAdd = new EventEmitter<SubGroup>();
 
-	constructor(private subGroupService: SubGroupService) {
+    constructor(private subGroupService: SubGroupService) {
 
-	}
+    }
 
-	ngOnInit(): void {
-		this.selectedObject = new SubGroup();
-	}
+    ngOnInit(): void {
+        this.selectedObject = new SubGroup();
+    }
 
-	pressed(newSubGroup: SubGroup): void {
-		if(newSubGroup) {
-			this.addSubGroup();
-		}
-		this.onAdd.emit(newSubGroup);
-	}
+    pressed(newSubGroup: SubGroup): void {
+        if (newSubGroup) {
+            this.addSubGroup();
+        }
+        this.onAdd.emit(newSubGroup);
+    }
 
-	addSubGroup(): void {
-		this.selectedObject.main_group = this.mainGroup._id;
-		this.subGroupService.setSubGroup(this.selectedObject).subscribe(
-			response => this.selectedObject._id = response.json()
-		);
-	}
+    addSubGroup(): void {
+        this.selectedObject.main_group = this.mainGroup._id;
+        this.subGroupService.setSubGroup(this.selectedObject).subscribe(
+                response => this.selectedObject._id = response.json()
+        );
+    }
 
-	checkPercentage(): boolean {
-		return this.selectedObject.weight + this.weight > 100;
-	}
+    checkPercentage(): boolean {
+        return this.selectedObject.weight + this.weight > 100;
+    }
 }

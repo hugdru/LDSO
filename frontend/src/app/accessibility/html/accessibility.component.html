@@ -1,9 +1,9 @@
 <div>
-	<h2>{{parentCriterion.name}}</h2>
-	<hr>
-	<list-manage [objects]="accessibilities"
-			[father]="parentCriterion"
-			(onDelete)="onDelete($event)"
-			(onShow)="onShow($event)">
-	</list-manage>
+    <h2>{{parentCriterion.name}}</h2>
+    <hr>
+    <list-manage [objects]="accessibilities"
+                 [father]="parentCriterion"
+                 (onDelete)="onDelete($event)"
+                 (onShow)="onShow($event)">
+    </list-manage>
 </div>

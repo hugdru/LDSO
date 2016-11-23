@@ -1,0 +1,29 @@
+<div *ngFor='let mainGroup of mainGroups'>
+    <table class="cursor-pointer" (click)="showSubGroups(mainGroup)">
+        <tr>
+            {{mainGroup.name}}
+        </tr>
+    </table>
+</div>
+<hr>
+<div *ngIf="selectedMainGroup">
+    <div *ngFor="let subGroup of selectedSubGroups">
+        <table class="cursor-pointer"
+               *ngIf="subGroup.main_group == selectedMainGroup._id"
+               (click)="showCriteria(subGroup)">
+            <tr>
+                {{subGroup.name}}
+            </tr>
+        </table>
+    </div>
+</div>
+<hr>
+<div *ngIf="criteria">
+    <div class="cursor-pointer" *ngFor="let criterion of criteria">
+        <table>
+            <tr>
+                {{criterion.name}}
+            </tr>
+        </table>
+    </div>
+</div>

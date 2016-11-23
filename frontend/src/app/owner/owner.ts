@@ -1,3 +1,3 @@
 export class Owner {
-	name: string;
+    name: string;
 }

@@ -1,23 +1,23 @@
 <div [ngSwitch]="objType">
-	<main-group-edit *ngSwitchCase="'MainGroup'"
-			[selectedObject]="selectedEditObject"
-			[weight]="weight"
-			(onAction)="onAction()">
-	</main-group-edit>
-	<sub-group-edit *ngSwitchCase="'SubGroup'"
-			[selectedObject]="selectedEditObject"
-			[weight]="weight"
-			(onAction)="onAction()">
-	</sub-group-edit>
-	<criterion-edit *ngSwitchCase="'Criterion'"
-			[selectedObject]="selectedEditObject"
-			[objType]="objType"
-			[weight]="weight"
-			(onAction)="onAction()">
-	</criterion-edit>
-	<accessibility-edit *ngSwitchCase="'Accessibility'"
-			[selectedObject]="selectedEditObject"
-			[weight]="weight"
-			(onAction)="onAction()">
-	</accessibility-edit>
+    <main-group-edit *ngSwitchCase="'MainGroup'"
+                     [selectedObject]="selectedEditObject"
+                     [weight]="weight"
+                     (onAction)="onAction()">
+    </main-group-edit>
+    <sub-group-edit *ngSwitchCase="'SubGroup'"
+                    [selectedObject]="selectedEditObject"
+                    [weight]="weight"
+                    (onAction)="onAction()">
+    </sub-group-edit>
+    <criterion-edit *ngSwitchCase="'Criterion'"
+                    [selectedObject]="selectedEditObject"
+                    [objType]="objType"
+                    [weight]="weight"
+                    (onAction)="onAction()">
+    </criterion-edit>
+    <accessibility-edit *ngSwitchCase="'Accessibility'"
+                        [selectedObject]="selectedEditObject"
+                        [weight]="weight"
+                        (onAction)="onAction()">
+    </accessibility-edit>
 </div>

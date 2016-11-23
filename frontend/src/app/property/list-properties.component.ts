@@ -1,15 +1,11 @@
-import {
-    Component,
-    OnInit
-} from '@angular/core';
-
-import { Property } from 'property/property';
-import { PropertyService } from 'property/service/property.service';
+import {Component, OnInit} from "@angular/core";
+import {Property} from "property/property";
+import {PropertyService} from "property/service/property.service";
 
 @Component({
     selector: 'list-properties',
     templateUrl: 'html/list-properties.component.html',
-    providers: [ PropertyService ]
+    providers: [PropertyService]
 })
 
 export class ListPropertiesComponent implements OnInit {
@@ -26,7 +22,7 @@ export class ListPropertiesComponent implements OnInit {
 
     initProperties(): void {
         this.propertyService.getProperties().subscribe(
-            data => this.properties = data
+                data => this.properties = data
         );
     }
 

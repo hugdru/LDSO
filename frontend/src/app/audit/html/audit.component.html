@@ -1,7 +1,12 @@
-<div>
-	<properties-info (property_id)="property._id">
+<!--<div *ngIf="property._id" xmlns="http://www.w3.org/1999/html">
+	<properties-info [property_id]="property._id">
 	</properties-info>
+</div>-->
+<div *ngIf="!selectedSubGroups">
+    <audit-select (onDone)="onDone($event)">
+    </audit-select>
 </div>
-<!-- <audit-list-groups (subGroups)=""> -->
-<audit-list-groups>
-</audit-list-groups>
+<div *ngIf="selectedSubGroups">
+    <audit-evaluate [selectedSubGroups]="selectedSubGroups">
+    </audit-evaluate>
+</div>

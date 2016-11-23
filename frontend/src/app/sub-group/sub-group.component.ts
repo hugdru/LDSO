@@ -1,54 +1,54 @@
 import {
-	Component,
-	OnInit,
-	OnChanges,
-	SimpleChanges,
-	Input
-} from '@angular/core';
-
-import { SubGroupService } from 'sub-group/service/sub-group.service';
-import { SubGroup } from 'sub-group/sub-group';
-import { MainGroup } from 'main-group/main-group';
+        Component,
+        OnInit,
+        OnChanges,
+        SimpleChanges,
+        Input
+} from "@angular/core";
+import {SubGroupService} from "sub-group/service/sub-group.service";
+import {SubGroup} from "sub-group/sub-group";
+import {MainGroup} from "main-group/main-group";
 
 @Component({
-	selector: 'sub-group',
-	templateUrl: './html/sub-group.component.html',
-	styleUrls: [ '../main-group/main-group.component.css' ],
-	providers: [ SubGroupService ]
+    selector: 'sub-group',
+    templateUrl: './html/sub-group.component.html',
+    styleUrls: ['../main-group/main-group.component.css'],
+    providers: [SubGroupService]
 })
 
 export class SubGroupComponent implements OnInit, OnChanges {
-	subGroups: SubGroup[];
-	parentSubGroup: SubGroup;
+    subGroups: SubGroup[];
+    parentSubGroup: SubGroup;
 
-	@Input() parentMainGroup: MainGroup;
+    @Input() parentMainGroup: MainGroup;
 
-	constructor(private subGroupService: SubGroupService){ }
+    constructor(private subGroupService: SubGroupService) {
+    }
 
-	ngOnChanges(changes: SimpleChanges): void {
-		for(let i in changes) {
-			this.initSubGroups(changes[i].currentValue._id);
-			this.parentSubGroup = undefined;
-		}
-	}
+    ngOnChanges(changes: SimpleChanges): void {
+        for (let i in changes) {
+            this.initSubGroups(changes[i].currentValue._id);
+            this.parentSubGroup = undefined;
+        }
+    }
 
-	ngOnInit() {
-		this.initSubGroups(this.parentMainGroup._id);
-	}
+    ngOnInit() {
+        this.initSubGroups(this.parentMainGroup._id);
+    }
 
-	initSubGroups(mainGroupId: number): void {
-		this.subGroupService
-				.getSomeSubGroups("main_group", "int", mainGroupId)
-				.subscribe(data => this.subGroups = data);
+    initSubGroups(mainGroupId: number): void {
+        this.subGroupService
+                .getSomeSubGroups("main_group", "int", mainGroupId)
+                .subscribe(data => this.subGroups = data);
 
-	}
+    }
 
-	onDelete(subGroup: SubGroup): void {
-		this.subGroupService.removeSubGroup(subGroup._id).subscribe();
-	}
+    onDelete(subGroup: SubGroup): void {
+        this.subGroupService.removeSubGroup(subGroup._id).subscribe();
+    }
 
-	onShow(subGroup: SubGroup): void {
-		this.parentSubGroup = subGroup;
-	}
+    onShow(subGroup: SubGroup): void {
+        this.parentSubGroup = subGroup;
+    }
 
 }

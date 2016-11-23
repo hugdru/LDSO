@@ -24,7 +24,8 @@
             {{subGroup._id}}
         </span>
     </div>
-    <button class="btn btn-success round outline"
+    <button *ngIf='selectedSubGroups.length > 0'
+            class="btn btn-success round outline"
             (click)="pressed()">
         <i class="glyphicon glyphicon-ok"></i>
     </button>

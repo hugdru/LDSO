@@ -1,4 +1,4 @@
 export interface Identifier {
-	_id: number;
-	weight: number;
+    _id: number;
+    weight: number;
 }

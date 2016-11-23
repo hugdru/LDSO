@@ -1,25 +1,25 @@
 <div>
-	<input [(ngModel)]="selectedObject.name"
-			placeholder="name"/>
-	<label *ngIf="objType=='Criterion'">
-		Boa Pratica <input type="checkbox"
-					 [(ngModel)]="goodPratice"
-					 (change)="!goodPratice
+    <input [(ngModel)]="selectedObject.name"
+           placeholder="name"/>
+    <label *ngIf="objType=='Criterion'">
+        Boa Pratica <input type="checkbox"
+                           [(ngModel)]="goodPratice"
+                           (change)="!goodPratice
 							 ? selectedObject.legislation='Boa Pratica'
 							 : selectedObject.legislation=''">
-	</label>
-	<input *ngIf="objType=='Criterion'"
-			[(ngModel)]="selectedObject.legislation"
-			[disabled]="goodPratice"
-			placeholder="legislação"/>
-	<input type="number" [(ngModel)]="selectedObject.weight"
-			placeholder="peso" [class.warning]="checkPercentage()"/>
-	<button class="btn btn-success round outline"
-			(click)="pressed(selectedObject)">
-		<i class="glyphicon glyphicon-ok"></i>
-	</button>
-	<button class="btn btn-neutral round outline"
-			(click)="pressed(null)">
-		<i class="glyphicon glyphicon-remove"></i>
-	</button>
+    </label>
+    <input *ngIf="objType=='Criterion'"
+           [(ngModel)]="selectedObject.legislation"
+           [disabled]="goodPratice"
+           placeholder="legislação"/>
+    <input type="number" [(ngModel)]="selectedObject.weight"
+           placeholder="peso" [class.warning]="checkPercentage()"/>
+    <button class="btn btn-success round outline"
+            (click)="pressed(selectedObject)">
+        <i class="glyphicon glyphicon-ok"></i>
+    </button>
+    <button class="btn btn-neutral round outline"
+            (click)="pressed(null)">
+        <i class="glyphicon glyphicon-remove"></i>
+    </button>
 </div>

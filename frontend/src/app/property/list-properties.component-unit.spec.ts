@@ -1,6 +1,6 @@
-import {Observable} from 'rxjs/Rx';
-import {ListPropertiesComponent} from 'property/list-properties.component';
-import {PropertyService} from 'property/service/property.service';
+import {Observable} from "rxjs/Rx";
+import {ListPropertiesComponent} from "property/list-properties.component";
+import {PropertyService} from "property/service/property.service";
 
 class MockPropertyService extends PropertyService {
     constructor() {
@@ -17,7 +17,7 @@ class MockPropertyService extends PropertyService {
 
 describe('Property unit test', () => {
     let listPropertiesComponent: ListPropertiesComponent,
-        propertyService: PropertyService;
+            propertyService: PropertyService;
 
     beforeEach(() => {
         propertyService = new MockPropertyService();

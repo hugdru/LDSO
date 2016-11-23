@@ -1,28 +1,31 @@
+import {TestBed, getTestBed, async, inject} from "@angular/core/testing";
 import {
-    TestBed,
-    getTestBed,
-    async,
-    inject
-} from '@angular/core/testing';
-
-import {
-    Headers, BaseRequestOptions,
-    Response, HttpModule, Http, XHRBackend, RequestMethod
-} from '@angular/http';
-
-import { ResponseOptions } from '@angular/http';
-import { MockBackend, MockConnection } from '@angular/http/testing';
-import { AuditService } from 'audit/service/audit.service';
-import { HandlerService } from 'handler.service';
+        BaseRequestOptions,
+        Response,
+        HttpModule,
+        Http,
+        XHRBackend,
+        RequestMethod,
+        ResponseOptions
+} from "@angular/http";
+import {MockBackend, MockConnection} from "@angular/http/testing";
+import {AuditService} from "audit/service/audit.service";
+import {HandlerService} from "handler.service";
 
 const mockArray = [
-    {_id: 26, property: 10, rating: 85,
-        criteria: [{criterion: 1, rating: 10}, {criterion: 2, rating: 25}]},
-    {_id: 26, property: 12, rating: 76,
-        criteria: [{criterion: 10, rating: 10}, {criterion: 2, rating: 25}]}
+    {
+        _id: 26, property: 10, rating: 85,
+        criteria: [{criterion: 1, rating: 10}, {criterion: 2, rating: 25}]
+    },
+    {
+        _id: 26, property: 12, rating: 76,
+        criteria: [{criterion: 10, rating: 10}, {criterion: 2, rating: 25}]
+    }
 ];
-const mock = {_id: 26, property: 10, rating: 85,
-    criteria: [{criterion: 1, rating: 10}, {criterion: 2, rating: 25}]};
+const mock = {
+    _id: 26, property: 10, rating: 85,
+    criteria: [{criterion: 1, rating: 10}, {criterion: 2, rating: 25}]
+};
 
 
 describe('Audit Service w/ Mock Service', () => {
@@ -44,7 +47,7 @@ describe('Audit Service w/ Mock Service', () => {
                     },
                 }
             ],
-            imports: [ HttpModule ]
+            imports: [HttpModule]
         });
 
         mockBackend = getTestBed().get(MockBackend);
@@ -109,32 +112,32 @@ describe('Audit Service w/ Mock Service', () => {
     }));
 
     it('Add a new audit',
-        async(inject([AuditService], (auditService) => {
-            mockBackend.connections
-                .subscribe((connection: MockConnection) => {
-                    expect(connection.request.method).toBe(RequestMethod.Post);
-                    connection.mockRespond(new Response(
-                        new ResponseOptions({status: 201})));
-                });
+            async(inject([AuditService], (auditService) => {
+                mockBackend.connections
+                        .subscribe((connection: MockConnection) => {
+                            expect(connection.request.method).toBe(RequestMethod.Post);
+                            connection.mockRespond(new Response(
+                                    new ResponseOptions({status: 201})));
+                        });
 
-            auditService.setAudit(mock).subscribe((result => {
-                expect(result).toBeDefined();
-                expect(result.status).toBe(201);
-            }));
-        })));
+                auditService.setAudit(mock).subscribe((result => {
+                    expect(result).toBeDefined();
+                    expect(result.status).toBe(201);
+                }));
+            })));
 
     it('Delete a audit',
-        async(inject([AuditService], (auditService) => {
-            mockBackend.connections
-                .subscribe((connection: MockConnection) => {
-                    expect(connection.request.method).toBe(RequestMethod.Delete);
-                    connection.mockRespond(new Response(
-                        new ResponseOptions({status: 204})));
-                });
+            async(inject([AuditService], (auditService) => {
+                mockBackend.connections
+                        .subscribe((connection: MockConnection) => {
+                            expect(connection.request.method).toBe(RequestMethod.Delete);
+                            connection.mockRespond(new Response(
+                                    new ResponseOptions({status: 204})));
+                        });
 
-            auditService.removeAudit(15).subscribe((result => {
-                expect(result).toBeDefined();
-                expect(result.status).toBe(204);
-            }));
-        })));
+                auditService.removeAudit(15).subscribe((result => {
+                    expect(result).toBeDefined();
+                    expect(result.status).toBe(204);
+                }));
+            })));
 });
