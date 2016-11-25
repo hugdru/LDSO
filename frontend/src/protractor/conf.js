@@ -6,8 +6,8 @@ exports.config = {
   useAllAngular2AppRoots: true ,
   specs: [
     'spec_title.js',
-    'spec_click_edit_crietiar.js',
-    'spec_click_adicionar_novo.js'
+    'spec_click_addeditdelete.js',
+    'spec_click_addeditdeleteSub.js'
      ],
   multiCapabilities: [
       { browserName: 'firefox'}
