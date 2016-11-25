@@ -20,10 +20,21 @@
 <hr>
 <div *ngIf="criteria">
     <div class="cursor-pointer" *ngFor="let criterion of criteria">
-        <table>
+        <table (click)="auditModal.open()">
             <tr>
                 {{criterion.name}}
             </tr>
         </table>
     </div>
+    <modal #auditModal>
+        <modal-header>
+            <h1>Modal header</h1>
+        </modal-header>
+        <modal-content>
+            Hello Modal!
+        </modal-content>
+        <modal-footer>
+            <button class="btn btn-primary" (click)="auditModal.close()">close</button>
+        </modal-footer>
+    </modal>
 </div>
