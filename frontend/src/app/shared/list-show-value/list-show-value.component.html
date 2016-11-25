@@ -1,4 +1,4 @@
-<th> {{object.name}} </th>
+<th class={{object.name}}> {{object.name}} </th>
 <th *ngIf="objType=='Criterion'"> {{object.legislation}} </th>
 <th [class.warning]="checkPercentage()"
 		data-toggle="tooltip" data-placement="top"
