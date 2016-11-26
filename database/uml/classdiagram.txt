@@ -108,11 +108,11 @@ class legislation {
   +name: VARCHAR
 }
 
-person <|-- localAdmin
-person <|-- superAdmin
-person <|-- auditor
-person <|-- client
-person "*" -- "1" country
+entity <|-- localAdmin
+entity <|-- superAdmin
+entity <|-- auditor
+entity <|-- client
+entity "*" -- "1" country
 
 address "*" -- "1" country
 image "1..n" -- "1" gallery
