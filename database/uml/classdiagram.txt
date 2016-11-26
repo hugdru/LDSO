@@ -9,12 +9,13 @@ abstract entity {
   +email: VARCHAR
   +username: VARCHAR
   +password: VARCHAR
-  +image_url: VARCHAR
-  +banned: TIMESTAMP
+  +image: BYTEA
+  +banned_date: TIMESTAMP
+  +banned: BOOLEAN
   +reason: TEXT
   +mobilephone: VARCHAR
   +telephone: VARCHAR
-  +created: TIMESTAMP
+  +created_date: TIMESTAMP
 }
 
 class superadmin {
@@ -32,20 +33,20 @@ class client {
 class image {
   +name: VARCHAR
   +description: TEXT
-  +image_url: VARCHAR
-  +created: TIMESTAMP
+  +image: BYTEA
+  +created_date: TIMESTAMP
 }
 
 class gallery {
   +name: VARCHAR
   +description: TEXT
-  +created: TIMESTAMP
+  +created_date: TIMESTAMP
 }
 
 class property {
   +name: VARCHAR
   +details: TEXT
-  +created: TIMESTAMP
+  +created_date: TIMESTAMP
 }
 
 class address {
@@ -71,44 +72,36 @@ class tag {
 class audit {
   +rating: INTEGER
   +observation: TEXT
-  +created: TIMESTAMP
-  +finished: TIMESTAMP
+  +created_date: TIMESTAMP
+  +finished_date: TIMESTAMP
 }
 
 class template {
   +name: VARCHAR
   +description: TEXT
-  +created: TIMESTAMP
+  +created_date: TIMESTAMP
 }
 
 class maingroup {
   +name: VARCHAR
   +weight: INTEGER
-  +description: TEXT
-  +image_url: VARCHAR
-  +created: TIMESTAMP
+  +created_date: TIMESTAMP
 }
 
 class subgroup {
   +name: VARCHAR
   +weight: INTEGER
-  +description: TEXT
-  +image_url: VARCHAR
-  +created: TIMESTAMP
+  +created_date: TIMESTAMP
 }
 
 class criterion {
   +name: VARCHAR
   +weight: INTEGER
-  +description: TEXT
-  +image_url: VARCHAR
-  +created: TIMESTAMP
+  +created_date: TIMESTAMP
 }
 
 class accessibility {
   +name: VARCHAR
-  +description: TEXT
-  +image_url: VARCHAR
 }
 
 class legislation {
@@ -136,12 +129,12 @@ audit "*" -- "*" criterion : sets values to >
 (audit, criterion) .. audit_criterion
 class audit_criterion {
   +value: INTEGER
-  +observation: VARCHAR
+  +observation: TEXT
 }
 
-template "1..n" -- "1..n" maingroup
-maingroup "1..n" -- "1..n" subgroup
-subgroup "1..n" -- "1..n" criterion
+template "1" -- "1..n" maingroup
+maingroup "1" -- "1..n" subgroup
+subgroup "1" -- "1..n" criterion
 criterion "*" -- "4" accessibility
 (criterion, accessibility) .. criterion_accessibility
 class criterion_accessibility {

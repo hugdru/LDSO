@@ -1,20 +1,22 @@
 package datastore
 
 import (
-	"database/sql"
 	"errors"
 	"server/datastore/metadata"
 	"time"
 )
 
 type Subgroup struct {
-	Id          int64          `json:"id" db:"id"`
-	Name        string         `json:"name" db:"name"`
-	Weight      int            `json:"weight" db:"weight"`
-	Description sql.NullString `json:"description" db:"description"`
-	ImageUrl    sql.NullString `json:"imageUrl" db:"image_url"`
-	Created     *time.Time     `json:"created" db:"created"`
-	meta        metadata.Metadata
+	Id          int64     `json:"id" db:"id"`
+	IdMaingroup int64     `json:"IdMaingroup" db:"id_maingroup"`
+	Name        string    `json:"name" db:"name"`
+	Weight      int       `json:"weight" db:"weight"`
+	CreatedDate time.Time `json:"createdDate" db:"created_date"`
+
+	// Objects
+	Criteria []*Criterion `json:"criteria,omitempty"`
+
+	meta metadata.Metadata
 }
 
 func (s *Subgroup) SetExists() {
@@ -33,31 +35,46 @@ func (s *Subgroup) Deleted() bool {
 	return s.meta.Deleted
 }
 
+func ASubgroup(allocateObjects bool) Subgroup {
+	subgroup := Subgroup{}
+	if allocateObjects {
+		subgroup.Criteria = make([]*Criterion, 0)
+	}
+	return subgroup
+}
+
+func NewSubgroup(allocateObjects bool) *Subgroup {
+	subgroup := ASubgroup(allocateObjects)
+	return &subgroup
+}
+
 func (ds *Datastore) InsertSubgroup(s *Subgroup) error {
-	var err error
 
 	if s.Exists() {
 		return errors.New("insert failed: already exists")
 	}
 
 	const sql = `INSERT INTO places4all.subgroup (` +
-		`name, weight, description, image_url, created` +
+		`id_maingroup, name, weight, created_date` +
 		`) VALUES (` +
-		`$1, $2, $3, $4, $5` +
+		`$1, $2, $3, $4` +
 		`) RETURNING id`
 
-	err = ds.postgres.QueryRow(sql, s.Name, s.Weight, s.Description, s.ImageUrl, s.Created).Scan(&s.Id)
+	res, err := ds.postgres.Exec(sql, s.IdMaingroup, s.Name, s.Weight, s.CreatedDate)
+	if err != nil {
+		return err
+	}
+	s.Id, err = res.LastInsertId()
 	if err != nil {
 		return err
 	}
 
 	s.SetExists()
 
-	return nil
+	return err
 }
 
 func (ds *Datastore) UpdateSubgroup(s *Subgroup) error {
-	var err error
 
 	if !s.Exists() {
 		return errors.New("update failed: does not exist")
@@ -68,12 +85,12 @@ func (ds *Datastore) UpdateSubgroup(s *Subgroup) error {
 	}
 
 	const sql = `UPDATE places4all.subgroup SET (` +
-		`name, weight, description, image_url, created` +
+		`id_maingroup, name, weight, created_date` +
 		`) = ( ` +
-		`$1, $2, $3, $4, $5` +
-		`) WHERE id = $6`
+		`$1, $2, $3, $4` +
+		`) WHERE id = $5`
 
-	_, err = ds.postgres.Exec(sql, s.Name, s.Weight, s.Description, s.ImageUrl, s.Created, s.Id)
+	_, err := ds.postgres.Exec(sql, s.IdMaingroup, s.Name, s.Weight, s.CreatedDate, s.Id)
 	return err
 }
 
@@ -86,34 +103,32 @@ func (ds *Datastore) SaveSubgroup(s *Subgroup) error {
 }
 
 func (ds *Datastore) UpsertSubgroup(s *Subgroup) error {
-	var err error
 
 	if s.Exists() {
 		return errors.New("insert failed: already exists")
 	}
 
 	const sql = `INSERT INTO places4all.subgroup (` +
-		`id, name, weight, description, image_url, created` +
+		`id, id_maingroup, name, weight, created_date` +
 		`) VALUES (` +
-		`$1, $2, $3, $4, $5, $6` +
+		`$1, $2, $3, $4, $5` +
 		`) ON CONFLICT (id) DO UPDATE SET (` +
-		`id, name, weight, description, image_url, created` +
+		`id, id_maingroup, name, weight, created_date` +
 		`) = (` +
-		`EXCLUDED.id, EXCLUDED.name, EXCLUDED.weight, EXCLUDED.description, EXCLUDED.image_url, EXCLUDED.created` +
+		`EXCLUDED.id, EXCLUDED.id_maingroup, EXCLUDED.name, EXCLUDED.weight, EXCLUDED.created_date` +
 		`)`
 
-	_, err = ds.postgres.Exec(sql, s.Id, s.Name, s.Weight, s.Description, s.ImageUrl, s.Created)
+	_, err := ds.postgres.Exec(sql, s.Id, s.IdMaingroup, s.Name, s.Weight, s.CreatedDate)
 	if err != nil {
 		return err
 	}
 
 	s.SetExists()
 
-	return nil
+	return err
 }
 
 func (ds *Datastore) DeleteSubgroup(s *Subgroup) error {
-	var err error
 
 	if !s.Exists() {
 		return nil
@@ -125,31 +140,56 @@ func (ds *Datastore) DeleteSubgroup(s *Subgroup) error {
 
 	const sql = `DELETE FROM places4all.subgroup WHERE id = $1`
 
-	_, err = ds.postgres.Exec(sql, s.Id)
+	_, err := ds.postgres.Exec(sql, s.Id)
 	if err != nil {
 		return err
 	}
 
 	s.SetDeleted()
 
-	return nil
+	return err
 }
 
 func (ds *Datastore) GetSubgroupById(id int64) (*Subgroup, error) {
-	var err error
 
 	const sql = `SELECT ` +
-		`id, name, weight, description, image_url, created ` +
+		`id, id_maingroup, name, weight, created_date ` +
 		`FROM places4all.subgroup ` +
 		`WHERE id = $1`
 
-	s := Subgroup{}
+	s := ASubgroup(false)
 	s.SetExists()
 
-	err = ds.postgres.QueryRow(sql, id).Scan(&s.Id, &s.Name, &s.Weight, &s.Description, &s.ImageUrl, &s.Created)
+	err := ds.postgres.QueryRowx(sql, id).StructScan(&s)
 	if err != nil {
 		return nil, err
 	}
 
-	return &s, nil
+	return &s, err
+}
+
+func (ds *Datastore) GetSubgroupsByMaingroupId(idMaingroup int64) ([]*Subgroup, error) {
+	subgroups := make([]*Subgroup, 0)
+	rows, err := ds.postgres.Queryx(
+		`SELECT subgroup.id, subgroup.id_maingroup, subgroup.name, subgroup.weight, subgroup.created_date `+
+			`FROM places4all.subgroup `+
+			`WHERE subgroup.id_maingroup = $1`, idMaingroup)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		subgroup := NewSubgroup(false)
+		err := rows.StructScan(subgroup)
+		if err != nil {
+			return nil, err
+		}
+		subgroups = append(subgroups, subgroup)
+		subgroup.Criteria, err = ds.GetCriteriaBySubgroupId(subgroup.Id)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return subgroups, err
 }

@@ -7,8 +7,12 @@ import (
 
 type Auditor struct {
 	Id       int64 `json:"id" db:"id"`
-	IdEntity int64 `json:"idPerson" db:"id_entity"`
-	meta     metadata.Metadata
+	IdEntity int64 `json:"IdEntity" db:"id_entity"`
+
+	// Objects
+	Entity *Entity `json:"entity,omitempty"`
+
+	meta metadata.Metadata
 }
 
 func (a *Auditor) SetExists() {
@@ -27,31 +31,45 @@ func (a *Auditor) Deleted() bool {
 	return a.meta.Deleted
 }
 
+func AAuditor(allocateObjects bool) Auditor {
+	auditor := Auditor{}
+	if allocateObjects {
+		auditor.Entity = NewEntity(true)
+	}
+	return auditor
+}
+func NewAuditor(allocateObjects bool) *Auditor {
+	auditor := AAuditor(allocateObjects)
+	return &auditor
+}
+
 func (ds *Datastore) InsertAuditor(a *Auditor) error {
-	var err error
 
 	if a.Exists() {
 		return errors.New("insert failed: already exists")
 	}
 
 	const sql = `INSERT INTO places4all.auditor (` +
-		`id_person` +
+		`id_entity` +
 		`) VALUES (` +
 		`$1` +
 		`) RETURNING id`
 
-	err = ds.postgres.QueryRow(sql, a.IdPerson).Scan(&a.Id)
+	res, err := ds.postgres.Exec(sql, a.IdEntity)
+	if err != nil {
+		return err
+	}
+	a.Id, err = res.LastInsertId()
 	if err != nil {
 		return err
 	}
 
 	a.SetExists()
 
-	return nil
+	return err
 }
 
 func (ds *Datastore) UpdateAuditor(a *Auditor) error {
-	var err error
 
 	if !a.Exists() {
 		return errors.New("update failed: does not exist")
@@ -62,12 +80,12 @@ func (ds *Datastore) UpdateAuditor(a *Auditor) error {
 	}
 
 	const sql = `UPDATE places4all.auditor SET (` +
-		`id_person` +
+		`id_entity` +
 		`) = ( ` +
 		`$1` +
 		`) WHERE id = $2`
 
-	_, err = ds.postgres.Exec(sql, a.IdPerson, a.Id)
+	_, err := ds.postgres.Exec(sql, a.IdEntity, a.Id)
 	return err
 }
 
@@ -80,34 +98,32 @@ func (ds *Datastore) SaveAuditor(a *Auditor) error {
 }
 
 func (ds *Datastore) UpsertAuditor(a *Auditor) error {
-	var err error
 
 	if a.Exists() {
 		return errors.New("insert failed: already exists")
 	}
 
 	const sql = `INSERT INTO places4all.auditor (` +
-		`id, id_person` +
+		`id, id_entity` +
 		`) VALUES (` +
 		`$1, $2` +
 		`) ON CONFLICT (id) DO UPDATE SET (` +
-		`id, id_person` +
+		`id, id_entity` +
 		`) = (` +
-		`EXCLUDED.id, EXCLUDED.id_person` +
+		`EXCLUDED.id, EXCLUDED.id_entity` +
 		`)`
 
-	_, err = ds.postgres.Exec(sql, a.Id, a.IdPerson)
+	_, err := ds.postgres.Exec(sql, a.Id, a.IdEntity)
 	if err != nil {
 		return err
 	}
 
 	a.SetExists()
 
-	return nil
+	return err
 }
 
 func (ds *Datastore) DeleteAuditor(a *Auditor) error {
-	var err error
 
 	if !a.Exists() {
 		return nil
@@ -119,35 +135,35 @@ func (ds *Datastore) DeleteAuditor(a *Auditor) error {
 
 	const sql = `DELETE FROM places4all.auditor WHERE id = $1`
 
-	_, err = ds.postgres.Exec(sql, a.Id)
+	_, err := ds.postgres.Exec(sql, a.Id)
 	if err != nil {
 		return err
 	}
 
 	a.SetDeleted()
 
-	return nil
+	return err
 }
 
-func (ds *Datastore) GetAuditorPerson(a *Auditor) (*Person, error) {
-	return ds.GetPersonById(a.IdPerson)
+func (ds *Datastore) GetAuditorEntity(a *Auditor) (*Entity, error) {
+	return ds.GetEntityById(a.IdEntity)
 }
 
 func (ds *Datastore) GetAuditorById(id int64) (*Auditor, error) {
 	var err error
 
 	const sql = `SELECT ` +
-		`id, id_person ` +
+		`id, id_entity ` +
 		`FROM places4all.auditor ` +
 		`WHERE id = $1`
 
-	a := Auditor{}
+	a := AAuditor(false)
 	a.SetExists()
 
-	err = ds.postgres.QueryRow(sql, id).Scan(&a.Id, &a.IdPerson)
+	err = ds.postgres.QueryRowx(sql, id).Scan(&a.Id, &a.IdEntity)
 	if err != nil {
 		return nil, err
 	}
 
-	return &a, nil
+	return &a, err
 }

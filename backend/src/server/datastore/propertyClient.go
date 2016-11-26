@@ -8,7 +8,8 @@ import (
 type PropertyClient struct {
 	IdProperty int64 `json:"idProperty" db:"id_property"`
 	IdClient   int64 `json:"idClient" db:"id_client"`
-	meta       metadata.Metadata
+
+	meta metadata.Metadata
 }
 
 func (p *PropertyClient) SetExists() {
@@ -28,7 +29,6 @@ func (p *PropertyClient) Deleted() bool {
 }
 
 func (ds *Datastore) InsertPropertyClient(pc *PropertyClient) error {
-	var err error
 
 	if pc.Exists() {
 		return errors.New("insert failed: already exists")
@@ -40,18 +40,17 @@ func (ds *Datastore) InsertPropertyClient(pc *PropertyClient) error {
 		`$1` +
 		`) RETURNING id_client`
 
-	err = ds.postgres.QueryRow(sql, pc.IdProperty).Scan(&pc.IdClient)
+	err := ds.postgres.QueryRow(sql, pc.IdProperty).Scan(&pc.IdClient)
 	if err != nil {
 		return err
 	}
 
 	pc.SetExists()
 
-	return nil
+	return err
 }
 
 func (ds *Datastore) UpdatePropertyClient(pc *PropertyClient) error {
-	var err error
 
 	if !pc.Exists() {
 		return errors.New("update failed: does not exist")
@@ -67,7 +66,7 @@ func (ds *Datastore) UpdatePropertyClient(pc *PropertyClient) error {
 		`$1` +
 		`) WHERE id_client = $2`
 
-	_, err = ds.postgres.Exec(sql, pc.IdProperty, pc.IdClient)
+	_, err := ds.postgres.Exec(sql, pc.IdProperty, pc.IdClient)
 	return err
 }
 
@@ -80,7 +79,6 @@ func (ds *Datastore) SavePropertyClient(pc *PropertyClient) error {
 }
 
 func (ds *Datastore) UpsertPropertyClient(pc *PropertyClient) error {
-	var err error
 
 	if pc.Exists() {
 		return errors.New("insert failed: already exists")
@@ -96,18 +94,17 @@ func (ds *Datastore) UpsertPropertyClient(pc *PropertyClient) error {
 		`EXCLUDED.id_property, EXCLUDED.id_client` +
 		`)`
 
-	_, err = ds.postgres.Exec(sql, pc.IdProperty, pc.IdClient)
+	_, err := ds.postgres.Exec(sql, pc.IdProperty, pc.IdClient)
 	if err != nil {
 		return err
 	}
 
 	pc.SetExists()
 
-	return nil
+	return err
 }
 
 func (ds *Datastore) DeletePropertyClient(pc *PropertyClient) error {
-	var err error
 
 	if !pc.Exists() {
 		return nil
@@ -119,14 +116,14 @@ func (ds *Datastore) DeletePropertyClient(pc *PropertyClient) error {
 
 	const sql = `DELETE FROM places4all.property_client WHERE id_client = $1`
 
-	_, err = ds.postgres.Exec(sql, pc.IdClient)
+	_, err := ds.postgres.Exec(sql, pc.IdClient)
 	if err != nil {
 		return err
 	}
 
 	pc.SetDeleted()
 
-	return nil
+	return err
 }
 
 func (ds *Datastore) GetPropertyClientClient(pc *PropertyClient) (*Client, error) {
@@ -138,7 +135,6 @@ func (ds *Datastore) GetPropertyClientProperty(pc *PropertyClient) (*Property, e
 }
 
 func (ds *Datastore) GetPropertyClientByIds(idProperty, idClient int64) (*PropertyClient, error) {
-	var err error
 
 	const sql = `SELECT ` +
 		`id_property, id_client ` +
@@ -148,10 +144,10 @@ func (ds *Datastore) GetPropertyClientByIds(idProperty, idClient int64) (*Proper
 	pc := PropertyClient{}
 	pc.SetExists()
 
-	err = ds.postgres.QueryRow(sql, idProperty, idClient).Scan(&pc.IdProperty, &pc.IdClient)
+	err := ds.postgres.QueryRow(sql, idProperty, idClient).Scan(&pc.IdProperty, &pc.IdClient)
 	if err != nil {
 		return nil, err
 	}
 
-	return &pc, nil
+	return &pc, err
 }

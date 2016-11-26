@@ -1,19 +1,20 @@
 package datastore
 
 import (
-	"database/sql"
 	"errors"
+	"gopkg.in/guregu/null.v3/zero"
 	"server/datastore/metadata"
 	"time"
 )
 
 type Gallery struct {
-	Id          int64          `json:"id" db:"id"`
-	IdProperty  int64          `json:"idProperty" db:"id_property"`
-	Name        string         `json:"name" db:"name"`
-	Description sql.NullString `json:"description" db:"description"`
-	Created     *time.Time     `json:"created" db:"created"`
-	meta        metadata.Metadata
+	Id          int64       `json:"id" db:"id"`
+	IdProperty  int64       `json:"idProperty" db:"id_property"`
+	Name        string      `json:"name" db:"name"`
+	Description zero.String `json:"description" db:"description"`
+	CreatedDate time.Time   `json:"createdDate" db:"created_date"`
+
+	meta metadata.Metadata
 }
 
 func (g *Gallery) SetExists() {
@@ -32,31 +33,45 @@ func (g *Gallery) Deleted() bool {
 	return g.meta.Deleted
 }
 
+func AGallery(allocateObjects bool) Gallery {
+	gallery := Gallery{}
+	//if allocateObjects {
+	//}
+	return gallery
+}
+
+func NewGallery(allocateObjects bool) *Gallery {
+	gallery := AGallery(allocateObjects)
+	return &gallery
+}
+
 func (ds *Datastore) InsertGallery(g *Gallery) error {
-	var err error
 
 	if g.Exists() {
 		return errors.New("insert failed: already exists")
 	}
 
 	const sql = `INSERT INTO places4all.gallery (` +
-		`id_property, name, description, created` +
+		`id_property, name, description, created_date` +
 		`) VALUES (` +
 		`$1, $2, $3, $4` +
 		`) RETURNING id`
 
-	err = ds.postgres.QueryRow(sql, g.IdProperty, g.Name, g.Description, g.Created).Scan(&g.Id)
+	res, err := ds.postgres.Exec(sql, g.IdProperty, g.Name, g.Description, g.CreatedDate)
+	if err != nil {
+		return err
+	}
+	g.Id, err = res.LastInsertId()
 	if err != nil {
 		return err
 	}
 
 	g.SetExists()
 
-	return nil
+	return err
 }
 
 func (ds *Datastore) UpdateGallery(g *Gallery) error {
-	var err error
 
 	if !g.Exists() {
 		return errors.New("update failed: does not exist")
@@ -67,12 +82,12 @@ func (ds *Datastore) UpdateGallery(g *Gallery) error {
 	}
 
 	const sql = `UPDATE places4all.gallery SET (` +
-		`id_property, name, description, created` +
+		`id_property, name, description, created_date` +
 		`) = ( ` +
 		`$1, $2, $3, $4` +
 		`) WHERE id = $5`
 
-	_, err = ds.postgres.Exec(sql, g.IdProperty, g.Name, g.Description, g.Created, g.Id)
+	_, err := ds.postgres.Exec(sql, g.IdProperty, g.Name, g.Description, g.CreatedDate, g.Id)
 	return err
 }
 
@@ -85,34 +100,32 @@ func (ds *Datastore) SaveGallery(g *Gallery) error {
 }
 
 func (ds *Datastore) UpsertGallery(g *Gallery) error {
-	var err error
 
 	if g.Exists() {
 		return errors.New("insert failed: already exists")
 	}
 
 	const sql = `INSERT INTO places4all.gallery (` +
-		`id, id_property, name, description, created` +
+		`id, id_property, name, description, created_date` +
 		`) VALUES (` +
 		`$1, $2, $3, $4, $5` +
 		`) ON CONFLICT (id) DO UPDATE SET (` +
-		`id, id_property, name, description, created` +
+		`id, id_property, name, description, created_date` +
 		`) = (` +
-		`EXCLUDED.id, EXCLUDED.id_property, EXCLUDED.name, EXCLUDED.description, EXCLUDED.created` +
+		`EXCLUDED.id, EXCLUDED.id_property, EXCLUDED.name, EXCLUDED.description, EXCLUDED.created_date` +
 		`)`
 
-	_, err = ds.postgres.Exec(sql, g.Id, g.IdProperty, g.Name, g.Description, g.Created)
+	_, err := ds.postgres.Exec(sql, g.Id, g.IdProperty, g.Name, g.Description, g.CreatedDate)
 	if err != nil {
 		return err
 	}
 
 	g.SetExists()
 
-	return nil
+	return err
 }
 
 func (ds *Datastore) DeleteGallery(g *Gallery) error {
-	var err error
 
 	if !g.Exists() {
 		return nil
@@ -124,14 +137,14 @@ func (ds *Datastore) DeleteGallery(g *Gallery) error {
 
 	const sql = `DELETE FROM places4all.gallery WHERE id = $1`
 
-	_, err = ds.postgres.Exec(sql, g.Id)
+	_, err := ds.postgres.Exec(sql, g.Id)
 	if err != nil {
 		return err
 	}
 
 	g.SetDeleted()
 
-	return nil
+	return err
 }
 
 func (ds *Datastore) GetGalleryProperty(g *Gallery) (*Property, error) {
@@ -139,20 +152,19 @@ func (ds *Datastore) GetGalleryProperty(g *Gallery) (*Property, error) {
 }
 
 func (ds *Datastore) GetGalleryById(id int64) (*Gallery, error) {
-	var err error
 
 	const sql = `SELECT ` +
-		`id, id_property, name, description, created ` +
+		`id, id_property, name, description, created_date ` +
 		`FROM places4all.gallery ` +
 		`WHERE id = $1`
 
-	g := Gallery{}
+	g := AGallery(false)
 	g.SetExists()
 
-	err = ds.postgres.QueryRow(sql, id).Scan(&g.Id, &g.IdProperty, &g.Name, &g.Description, &g.Created)
+	err := ds.postgres.QueryRow(sql, id).Scan(&g.Id, &g.IdProperty, &g.Name, &g.Description, &g.CreatedDate)
 	if err != nil {
 		return nil, err
 	}
 
-	return &g, nil
+	return &g, err
 }

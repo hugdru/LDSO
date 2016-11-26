@@ -9,6 +9,7 @@ type Country struct {
 	Id   int64  `json:"id" db:"id"`
 	Name string `json:"name" db:"name"`
 	Iso2 string `json:"iso2" db:"iso2"`
+
 	meta metadata.Metadata
 }
 
@@ -28,8 +29,16 @@ func (c *Country) Deleted() bool {
 	return c.meta.Deleted
 }
 
+func ACountry(allocateObjects bool) Country {
+	return Country{}
+}
+
+func NewCountry(allocateObjects bool) *Country {
+	country := ACountry(allocateObjects)
+	return &country
+}
+
 func (ds *Datastore) InsertCountry(c *Country) error {
-	var err error
 
 	if c.Exists() {
 		return errors.New("insert failed: already exists")
@@ -41,18 +50,17 @@ func (ds *Datastore) InsertCountry(c *Country) error {
 		`$1, $2` +
 		`) RETURNING id`
 
-	err = ds.postgres.QueryRow(sql, c.Name, c.Iso2).Scan(&c.Id)
+	err := ds.postgres.QueryRow(sql, c.Name, c.Iso2).Scan(&c.Id)
 	if err != nil {
 		return err
 	}
 
 	c.SetExists()
 
-	return nil
+	return err
 }
 
 func (ds *Datastore) UpdateCountry(c *Country) error {
-	var err error
 
 	if !c.Exists() {
 		return errors.New("update failed: does not exist")
@@ -68,7 +76,7 @@ func (ds *Datastore) UpdateCountry(c *Country) error {
 		`$1, $2` +
 		`) WHERE id = $3`
 
-	_, err = ds.postgres.Exec(sql, c.Name, c.Iso2, c.Id)
+	_, err := ds.postgres.Exec(sql, c.Name, c.Iso2, c.Id)
 	return err
 }
 
@@ -81,7 +89,6 @@ func (ds *Datastore) SaveCountry(c *Country) error {
 }
 
 func (ds *Datastore) UpsertCountry(c *Country) error {
-	var err error
 
 	if c.Exists() {
 		return errors.New("insert failed: already exists")
@@ -97,18 +104,17 @@ func (ds *Datastore) UpsertCountry(c *Country) error {
 		`EXCLUDED.id, EXCLUDED.name, EXCLUDED.iso2` +
 		`)`
 
-	_, err = ds.postgres.Exec(sql, c.Id, c.Name, c.Iso2)
+	_, err := ds.postgres.Exec(sql, c.Id, c.Name, c.Iso2)
 	if err != nil {
 		return err
 	}
 
 	c.SetExists()
 
-	return nil
+	return err
 }
 
 func (ds *Datastore) DeleteCountry(c *Country) error {
-	var err error
 
 	if !c.Exists() {
 		return nil
@@ -120,18 +126,17 @@ func (ds *Datastore) DeleteCountry(c *Country) error {
 
 	const sql = `DELETE FROM places4all.country WHERE id = $1`
 
-	_, err = ds.postgres.Exec(sql, c.Id)
+	_, err := ds.postgres.Exec(sql, c.Id)
 	if err != nil {
 		return err
 	}
 
 	c.SetDeleted()
 
-	return nil
+	return err
 }
 
 func (ds *Datastore) GetCountryByName(name string) (*Country, error) {
-	var err error
 
 	const sql = `SELECT ` +
 		`id, name, iso2 ` +
@@ -141,29 +146,53 @@ func (ds *Datastore) GetCountryByName(name string) (*Country, error) {
 	c := Country{}
 	c.SetExists()
 
-	err = ds.postgres.QueryRow(sql, name).Scan(&c.Id, &c.Name, &c.Iso2)
+	err := ds.postgres.QueryRow(sql, name).Scan(&c.Id, &c.Name, &c.Iso2)
 	if err != nil {
 		return nil, err
 	}
 
-	return &c, nil
+	return &c, err
 }
 
 func (ds *Datastore) GetCountryById(id int64) (*Country, error) {
-	var err error
 
 	const sql = `SELECT ` +
 		`id, name, iso2 ` +
 		`FROM places4all.country ` +
 		`WHERE id = $1`
 
-	c := Country{}
+	c := ACountry(true)
 	c.SetExists()
 
-	err = ds.postgres.QueryRow(sql, id).Scan(&c.Id, &c.Name, &c.Iso2)
+	err := ds.postgres.QueryRow(sql, id).Scan(&c.Id, &c.Name, &c.Iso2)
 	if err != nil {
 		return nil, err
 	}
 
-	return &c, nil
+	return &c, err
+}
+
+func (ds *Datastore) GetCountries() ([]*Country, error) {
+
+	const sql = `SELECT ` +
+		`id, name, iso2 ` +
+		`FROM places4all.country`
+
+	rows, err := ds.postgres.Queryx(sql)
+	if err != nil {
+		return nil, err
+	}
+
+	countries := make([]*Country, 0)
+	for rows.Next() {
+		c := NewCountry(true)
+		c.SetExists()
+		err = rows.StructScan(c)
+		if err != nil {
+			return nil, err
+		}
+		countries = append(countries, c)
+	}
+
+	return countries, err
 }

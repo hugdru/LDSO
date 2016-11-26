@@ -1,23 +1,23 @@
 package datastore
 
 import (
-	"database/sql"
 	"errors"
-	"github.com/lib/pq"
+	"gopkg.in/guregu/null.v3/zero"
 	"server/datastore/metadata"
 	"time"
 )
 
 type Audit struct {
-	Id          int64          `json:"id" db:"id"`
-	IdProperty  int64          `json:"id_property" db:"id_property"`
-	IdAuditor   int64          `json:"id_auditor" db:"id_auditor"`
-	IdTemplate  int64          `json:"id_template" db:"id_template"`
-	Rating      sql.NullInt64  `json:"rating" db:"rating"`
-	Observation sql.NullString `json:"observation" db:"observation"`
-	Created     *time.Time     `json:"created" db:"created"`
-	Finished    pq.NullTime    `json:"finished" db:"finished"`
-	meta        metadata.Metadata
+	Id           int64       `json:"id" db:"id"`
+	IdProperty   int64       `json:"id_property" db:"id_property"`
+	IdAuditor    int64       `json:"id_auditor" db:"id_auditor"`
+	IdTemplate   int64       `json:"id_template" db:"id_template"`
+	Rating       zero.Int    `json:"rating" db:"rating"`
+	Observation  zero.String `json:"observation" db:"observation"`
+	CreatedDate  time.Time   `json:"createdDate" db:"created_date"`
+	FinishedDate zero.Time   `json:"finishedDate" db:"finished_date"`
+
+	meta metadata.Metadata
 }
 
 func (a *Audit) SetExists() {
@@ -36,31 +36,43 @@ func (a *Audit) Deleted() bool {
 	return a.meta.Deleted
 }
 
+func AAudit(allocateObjects bool) Audit {
+	audit := Audit{}
+	//if allocateObjects {
+	//}
+	return audit
+}
+func NewAudit(allocateObjects bool) *Audit {
+	audit := AAudit(allocateObjects)
+	return &audit
+}
+
 func (ds *Datastore) InsertAudit(a *Audit) error {
-	var err error
 
 	if a.Exists() {
 		return errors.New("insert failed: already exists")
 	}
 
 	const sql = `INSERT INTO places4all.audit (` +
-		`id_property, id_auditor, id_template, rating, observation, created, finished` +
+		`id_property, id_auditor, id_template, rating, observation, created_date, finished_date` +
 		`) VALUES (` +
 		`$1, $2, $3, $4, $5, $6, $7` +
 		`) RETURNING id`
 
-	err = ds.postgres.QueryRow(sql, a.IdProperty, a.IdAuditor, a.IdTemplate, a.Rating, a.Observation, a.Created, a.Finished).Scan(&a.Id)
+	result, err := ds.postgres.Exec(sql, a.IdProperty, a.IdAuditor, a.IdTemplate, a.Rating, a.Observation, a.CreatedDate, a.FinishedDate)
 	if err != nil {
 		return err
 	}
-
+	a.Id, err = result.LastInsertId()
+	if err != nil {
+		return err
+	}
 	a.SetExists()
 
 	return nil
 }
 
 func (ds *Datastore) UpdateAudit(a *Audit) error {
-	var err error
 
 	if !a.Exists() {
 		return errors.New("update failed: does not exist")
@@ -71,12 +83,12 @@ func (ds *Datastore) UpdateAudit(a *Audit) error {
 	}
 
 	const sql = `UPDATE places4all.audit SET (` +
-		`id_property, id_auditor, id_template, rating, observation, created, finished` +
-		`) = ( ` +
+		`id_property, id_auditor, id_template, rating, observation, created_date, finished_date` +
+		`) = (` +
 		`$1, $2, $3, $4, $5, $6, $7` +
 		`) WHERE id = $8`
 
-	_, err = ds.postgres.Exec(sql, a.IdProperty, a.IdAuditor, a.IdTemplate, a.Rating, a.Observation, a.Created, a.Finished, a.Id)
+	_, err := ds.postgres.Exec(sql, a.IdProperty, a.IdAuditor, a.IdTemplate, a.Rating, a.Observation, a.CreatedDate, a.FinishedDate, a.Id)
 	return err
 }
 
@@ -89,34 +101,32 @@ func (ds *Datastore) SaveAudit(a *Audit) error {
 }
 
 func (ds *Datastore) UpsertAudit(a *Audit) error {
-	var err error
 
 	if a.Exists() {
 		return errors.New("insert failed: already exists")
 	}
 
 	const sql = `INSERT INTO places4all.audit (` +
-		`id, id_property, id_auditor, id_template, rating, observation, created, finished` +
+		`id, id_property, id_auditor, id_template, rating, observation, created_date, finished_date` +
 		`) VALUES (` +
 		`$1, $2, $3, $4, $5, $6, $7, $8` +
 		`) ON CONFLICT (id) DO UPDATE SET (` +
-		`id, id_property, id_auditor, id_template, rating, observation, created, finished` +
+		`id, id_property, id_auditor, id_template, rating, observation, created_date, finished_date` +
 		`) = (` +
-		`EXCLUDED.id, EXCLUDED.id_property, EXCLUDED.id_auditor, EXCLUDED.id_template, EXCLUDED.rating, EXCLUDED.observation, EXCLUDED.created, EXCLUDED.finished` +
+		`EXCLUDED.id, EXCLUDED.id_property, EXCLUDED.id_auditor, EXCLUDED.id_template, EXCLUDED.rating, EXCLUDED.observation, EXCLUDED.created_date, EXCLUDED.finished_date` +
 		`)`
 
-	_, err = ds.postgres.Exec(sql, a.Id, a.IdProperty, a.IdAuditor, a.IdTemplate, a.Rating, a.Observation, a.Created, a.Finished)
+	_, err := ds.postgres.Exec(sql, a.Id, a.IdProperty, a.IdAuditor, a.IdTemplate, a.Rating, a.Observation, a.CreatedDate, a.FinishedDate)
 	if err != nil {
 		return err
 	}
 
 	a.SetExists()
 
-	return nil
+	return err
 }
 
 func (ds *Datastore) DeleteAudit(a *Audit) error {
-	var err error
 
 	if !a.Exists() {
 		return nil
@@ -128,14 +138,14 @@ func (ds *Datastore) DeleteAudit(a *Audit) error {
 
 	const sql = `DELETE FROM places4all.audit WHERE id = $1`
 
-	_, err = ds.postgres.Exec(sql, a.Id)
+	_, err := ds.postgres.Exec(sql, a.Id)
 	if err != nil {
 		return err
 	}
 
 	a.SetDeleted()
 
-	return nil
+	return err
 }
 
 func (ds *Datastore) GetAuditAuditor(a *Audit) (*Auditor, error) {
@@ -151,20 +161,19 @@ func (ds *Datastore) GetAuditTemplate(a *Audit) (*Template, error) {
 }
 
 func (ds *Datastore) GetAuditById(id int64) (*Audit, error) {
-	var err error
 
 	const sql = `SELECT ` +
-		`id, id_property, id_auditor, id_template, rating, observation, created, finished ` +
+		`id, id_property, id_auditor, id_template, rating, observation, created_date, finished_date ` +
 		`FROM places4all.audit ` +
 		`WHERE id = $1`
 
-	a := Audit{}
+	a := AAudit(true)
 	a.SetExists()
 
-	err = ds.postgres.QueryRow(sql, id).Scan(&a.Id, &a.IdProperty, &a.IdAuditor, &a.IdTemplate, &a.Rating, &a.Observation, &a.Created, &a.Finished)
+	err := ds.postgres.QueryRowx(sql, id).StructScan(&a)
 	if err != nil {
 		return nil, err
 	}
 
-	return &a, nil
+	return &a, err
 }

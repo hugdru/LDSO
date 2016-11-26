@@ -64,6 +64,12 @@
 			"revision": "4971afdc2f162e82d185353533d3cf16188a9f4e",
 			"branch": "master",
 			"path": "/context"
+		},
+		{
+			"importpath": "gopkg.in/guregu/null.v3",
+			"repository": "https://gopkg.in/guregu/null.v3",
+			"revision": "41961cea0328defc5f95c1c473f89ebf0d1813f6",
+			"branch": "master"
 		}
 	]
 }

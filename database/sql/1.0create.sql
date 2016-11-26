@@ -1,3 +1,5 @@
+DROP ROLE IF EXISTS admin;
+CREATE ROLE admin WITH LOGIN ENCRYPTED PASSWORD 'admin';
 DROP SCHEMA IF EXISTS "places4all" CASCADE;
 CREATE SCHEMA "places4all";
 SET SCHEMA 'places4all';
@@ -36,12 +38,13 @@ CREATE TABLE entity (
     CHECK (username ~* '^[A-Za-z][A-Za-z0-9\.\-_]{2,15}$'),
   password VARCHAR NOT NULL
     CHECK (LENGTH(password) >= 6),
-  image_url VARCHAR(2083),
-  banned TIMESTAMP,
+  image BYTEA,
+  banned BOOLEAN,
+  banned_date TIMESTAMP,
   reason TEXT,
   mobilephone VARCHAR(20),
   telephone VARCHAR(20),
-  created TIMESTAMP NOT NULL
+  created_date TIMESTAMP NOT NULL
 );
 
 CREATE TABLE superadmin (
@@ -69,7 +72,7 @@ CREATE TABLE property (
   id_address INTEGER NOT NULL REFERENCES address(id),
   name VARCHAR(150) NOT NULL,
   details TEXT NOT NULL,
-  created TIMESTAMP NOT NULL
+  created_date TIMESTAMP NOT NULL
 );
 
 CREATE TABLE gallery (
@@ -77,7 +80,7 @@ CREATE TABLE gallery (
   id_property INTEGER NOT NULL REFERENCES property(id),
   name VARCHAR(100) NOT NULL,
   description TEXT,
-  created TIMESTAMP NOT NULL
+  created_date TIMESTAMP NOT NULL
 );
 
 CREATE TABLE image (
@@ -85,8 +88,8 @@ CREATE TABLE image (
   id_gallery INTEGER NOT NULL REFERENCES gallery(id),
   name VARCHAR(100) NOT NULL,
   description TEXT,
-  image_url VARCHAR(2083) NOT NULL,
-  created TIMESTAMP NOT NULL
+  image BYTEA NOT NULL,
+  created_date TIMESTAMP NOT NULL
 );
 
 CREATE TABLE property_tag (
@@ -105,66 +108,45 @@ CREATE TABLE template (
   id SERIAL PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
   description TEXT,
-  created TIMESTAMP NOT NULL
+  created_date TIMESTAMP NOT NULL
 );
 
 CREATE TABLE maingroup (
   id SERIAL PRIMARY KEY,
+  id_template INTEGER NOT NULL REFERENCES template(id),
   name VARCHAR(100) NOT NULL,
   weight INTEGER NOT NULL,
-  description TEXT,
-  image_url VARCHAR(2083),
-  created TIMESTAMP NOT NULL
-);
-
-CREATE TABLE template_maingroup (
-  id_template INTEGER REFERENCES template(id),
-  id_maingroup INTEGER REFERENCES maingroup(id),
-  PRIMARY KEY(id_template, id_maingroup)
+  created_date TIMESTAMP NOT NULL
 );
 
 CREATE TABLE subgroup (
   id SERIAL PRIMARY KEY,
+  id_maingroup INTEGER NOT NULL REFERENCES maingroup(id),
   name VARCHAR(100) NOT NULL,
   weight INTEGER NOT NULL,
-  description TEXT,
-  image_url VARCHAR(2083),
-  created TIMESTAMP NOT NULL
+  created_date TIMESTAMP NOT NULL
 );
 
-CREATE TABLE maingroup_subgroup (
-  id_maingroup INTEGER REFERENCES maingroup(id),
-  id_subgroup INTEGER REFERENCES subgroup(id),
-  PRIMARY KEY(id_maingroup, id_subgroup)
-);
 
 CREATE TABLE legislation (
   id SERIAL PRIMARY KEY,
-  name VARCHAR(200),
+  name VARCHAR(400) NOT NULL,
+  description TEXT,
   url VARCHAR(2083)
 );
 
 CREATE TABLE criterion (
   id SERIAL PRIMARY KEY,
+  id_subgroup INTEGER NOT NULL REFERENCES subgroup(id),
   id_legislation INTEGER REFERENCES legislation(id),
   name VARCHAR(100) NOT NULL,
   weight INTEGER NOT NULL,
-  description TEXT,
-  image_url VARCHAR(2083),
-  created TIMESTAMP NOT NULL
-);
-
-CREATE TABLE subgroup_criterion (
-  id_subgroup INTEGER REFERENCES subgroup(id),
-  id_criterion INTEGER REFERENCES criterion(id),
-  PRIMARY KEY(id_subgroup, id_criterion)
+  created_date TIMESTAMP NOT NULL
 );
 
 CREATE TABLE accessibility (
   id SERIAL PRIMARY KEY,
-  name VARCHAR(100) NOT NULL,
-  description TEXT,
-  image_url VARCHAR(2083)
+  name VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE criterion_accessibility (
@@ -181,14 +163,24 @@ CREATE TABLE audit (
   id_template INTEGER NOT NULL REFERENCES template(id),
   rating INTEGER,
   observation TEXT,
-  created TIMESTAMP NOT NULL,
-  finished TIMESTAMP
+  created_date TIMESTAMP NOT NULL,
+  finished_date TIMESTAMP
 );
+
+CREATE TABLE audit_subgroup (
+  id_audit INTEGER REFERENCES audit(id),
+  id_subgroup INTEGER REFERENCES subgroup(id),
+  PRIMARY KEY(id_audit, id_criterion)
+)
 
 CREATE TABLE audit_criterion (
   id_audit INTEGER REFERENCES audit(id),
   id_criterion INTEGER REFERENCES criterion(id),
   value INTEGER,
-  observation VARCHAR,
+  observation TEXT,
   PRIMARY KEY(id_audit, id_criterion)
 );
+
+GRANT ALL ON DATABASE "places4all" to admin;
+GRANT ALL ON SCHEMA "places4all" TO admin;
+GRANT ALL ON ALL TABLES IN SCHEMA "places4all" TO admin;

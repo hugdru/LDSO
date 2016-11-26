@@ -1,17 +1,18 @@
 package datastore
 
 import (
-	"database/sql"
 	"errors"
 	"server/datastore/metadata"
 )
 
 type Accessibility struct {
-	Id          int64          `json:"id" db:"id"`
-	Name        string         `json:"name" db:"name"`
-	Description sql.NullString `json:"description" db:"description"`
-	ImageUrl    sql.NullString `json:"imageUrl" db:"image_url"`
-	meta        metadata.Metadata
+	Id   int64  `json:"id" db:"id"`
+	Name string `json:"name" db:"name"`
+
+	// Objects
+	Weight int `json:"weight,omitempty" db:"weight"` // Only used when in relation to a certain criterion
+
+	meta metadata.Metadata
 }
 
 func (a *Accessibility) SetExists() {
@@ -30,31 +31,39 @@ func (a *Accessibility) Deleted() bool {
 	return a.meta.Deleted
 }
 
+func AAccessibility(allocateObjects bool) Accessibility {
+	accessibility := Accessibility{}
+	//if allocateObjects {
+	//}
+	return accessibility
+}
+
+func NewAccessibility(allocateObjects bool) *Accessibility {
+	accessibility := AAccessibility(allocateObjects)
+	return &accessibility
+}
+
 func (ds *Datastore) InsertAccessibility(a *Accessibility) error {
-	var err error
 
 	if a.Exists() {
 		return errors.New("insert failed: already exists")
 	}
 
-	const sql = `INSERT INTO places4all.accessibility (` +
-		`name, description, image_url` +
-		`) VALUES (` +
-		`$1, $2, $3` +
-		`) RETURNING id`
-
-	err = ds.postgres.QueryRow(sql, a.Name, a.Description, a.ImageUrl).Scan(&a.Id)
+	const sql = `INSERT INTO places4all.accessibility(name) VALUES ($1) RETURNING id`
+	result, err := ds.postgres.Exec(sql, a.Name)
 	if err != nil {
 		return err
 	}
-
+	a.Id, err = result.LastInsertId()
+	if err != nil {
+		return err
+	}
 	a.SetExists()
 
-	return nil
+	return err
 }
 
 func (ds *Datastore) UpdateAccessibility(a *Accessibility) error {
-	var err error
 
 	if !a.Exists() {
 		return errors.New("update failed: does not exist")
@@ -64,13 +73,9 @@ func (ds *Datastore) UpdateAccessibility(a *Accessibility) error {
 		return errors.New("update failed: marked for deletion")
 	}
 
-	const sql = `UPDATE places4all.accessibility SET (` +
-		`name, description, image_url` +
-		`) = ( ` +
-		`$1, $2, $3` +
-		`) WHERE id = $4`
+	const sql = `UPDATE places4all.accessibility SET name = $1 WHERE id = $2`
 
-	_, err = ds.postgres.Exec(sql, a.Name, a.Description, a.ImageUrl, a.Id)
+	_, err := ds.postgres.Exec(sql, a.Name, a.Id)
 	return err
 }
 
@@ -82,34 +87,27 @@ func (ds *Datastore) SaveAccessibility(a *Accessibility) error {
 }
 
 func (ds *Datastore) UpsertAccessibility(a *Accessibility) error {
-	var err error
 
 	if a.Exists() {
 		return errors.New("insert failed: already exists")
 	}
 
-	const sql = `INSERT INTO places4all.accessibility (` +
-		`id, name, description, image_url` +
-		`) VALUES (` +
-		`$1, $2, $3, $4` +
-		`) ON CONFLICT (id) DO UPDATE SET (` +
-		`id, name, description, image_url` +
-		`) = (` +
-		`EXCLUDED.id, EXCLUDED.name, EXCLUDED.description, EXCLUDED.image_url` +
-		`)`
+	const sql = `INSERT INTO places4all.accessibility (id, name) ` +
+		`VALUES ($1, $2) ON CONFLICT (id) DO UPDATE SET ` +
+		`(id, name, description, image_url) = ` +
+		`(EXCLUDED.id, EXCLUDED.name)`
 
-	_, err = ds.postgres.Exec(sql, a.Id, a.Name, a.Description, a.ImageUrl)
+	_, err := ds.postgres.Exec(sql, a.Id, a.Name)
 	if err != nil {
 		return err
 	}
 
 	a.SetExists()
 
-	return nil
+	return err
 }
 
 func (ds *Datastore) DeleteAccessibility(a *Accessibility) error {
-	var err error
 
 	if !a.Exists() {
 		return nil
@@ -121,31 +119,50 @@ func (ds *Datastore) DeleteAccessibility(a *Accessibility) error {
 
 	const sql = `DELETE FROM places4all.accessibility WHERE id = $1`
 
-	_, err = ds.postgres.Exec(sql, a.Id)
+	_, err := ds.postgres.Exec(sql, a.Id)
 	if err != nil {
 		return err
 	}
 
 	a.SetDeleted()
 
-	return nil
+	return err
 }
 
 func (ds *Datastore) GetAccessibilityById(id int64) (*Accessibility, error) {
-	var err error
 
-	const sql = `SELECT ` +
-		`id, name, description, image_url ` +
-		`FROM places4all.accessibility ` +
-		`WHERE id = $1`
+	const sql = `SELECT id, name FROM places4all.accessibility WHERE id = $1`
 
-	a := Accessibility{}
+	a := AAccessibility(true)
 	a.SetExists()
 
-	err = ds.postgres.QueryRow(sql, id).Scan(&a.Id, &a.Name, &a.Description, &a.ImageUrl)
+	err := ds.postgres.QueryRowx(sql, id).StructScan(&a)
 	if err != nil {
 		return nil, err
 	}
 
-	return &a, nil
+	return &a, err
+}
+
+func (ds *Datastore) GetAccessibilitiesByCriterionId(idCriterion int64) ([]*Accessibility, error) {
+	accessibilities := make([]*Accessibility, 0)
+	rows, err := ds.postgres.Queryx(
+		`SELECT accessibility.id, accessibility.name, criterion_accessibility.weight `+
+			`FROM places4all.criterion_accessibility `+
+			`JOIN places4all.accessibility ON accessibility.id = criterion_accessibility.id_accessibility `+
+			`WHERE criterion_accessibility.id_criterion = $1`, idCriterion)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		accessibility := NewAccessibility(false)
+		err := rows.StructScan(accessibility)
+		if err != nil {
+			return nil, err
+		}
+		accessibilities = append(accessibilities, accessibility)
+	}
+
+	return accessibilities, err
 }

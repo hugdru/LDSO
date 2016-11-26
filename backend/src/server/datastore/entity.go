@@ -1,69 +1,89 @@
 package datastore
 
 import (
-	"database/sql"
 	"errors"
-	"github.com/lib/pq"
+	"gopkg.in/guregu/null.v3/zero"
 	"server/datastore/metadata"
 	"time"
 )
 
-type Person struct {
-	Id          int64          `json:"id" db:"id"`
-	IdCountry   int64          `json:"idCountry" db:"id_country"`
-	Name        string         `json:"name" db:"name"`
-	Email       string         `json:"email" db:"email"`
-	Username    string         `json:"username" db:"username"`
-	Password    string         `json:"password" db:"password"`
-	ImageUrl    sql.NullString `json:"imageUrl" db:"image_url"`
-	Banned      pq.NullTime    `json:"banned" db:"banned"`
-	Reason      sql.NullString `json:"reason" db:"reason"`
-	Mobilephone sql.NullString `json:"mobilephone" db:"mobilephone"`
-	Telephone   sql.NullString `json:"telephone" db:"telephone"`
-	Created     *time.Time     `json:"created" db:"created"`
-	meta        metadata.Metadata
+type Entity struct {
+	Id          int64       `json:"id" db:"id"`
+	IdCountry   int64       `json:"idCountry" db:"id_country"`
+	Name        string      `json:"name" db:"name"`
+	Email       string      `json:"email" db:"email"`
+	Username    string      `json:"username" db:"username"`
+	Password    string      `json:"-" db:"password"`
+	Image       []byte      `json:"image" db:"image"`
+	Banned      zero.Bool   `json:"banned" db:"banned"`
+	BannedDate  zero.Time   `json:"bannedDate" db:"banned_date"`
+	Reason      zero.String `json:"reason" db:"reason"`
+	Mobilephone zero.String `json:"mobilephone" db:"mobilephone"`
+	Telephone   zero.String `json:"telephone" db:"telephone"`
+	CreatedDate time.Time   `json:"createdDate" db:"created_date"`
+
+	// Objects
+	Country *Country `json:"country,omitempty"`
+
+	meta metadata.Metadata
 }
 
-func (p *Person) SetExists() {
+func AEntity(allocateObjects bool) Entity {
+	entity := Entity{}
+	if allocateObjects {
+		entity.Country = NewCountry(allocateObjects)
+	}
+	return entity
+}
+
+func NewEntity(allocateObjects bool) *Entity {
+	entity := AEntity(allocateObjects)
+	return &entity
+}
+
+func (p *Entity) SetExists() {
 	p.meta.Exists = true
 }
 
-func (p *Person) SetDeleted() {
+func (p *Entity) SetDeleted() {
 	p.meta.Deleted = true
 }
 
-func (p *Person) Exists() bool {
+func (p *Entity) Exists() bool {
 	return p.meta.Exists
 }
 
-func (p *Person) Deleted() bool {
+func (p *Entity) Deleted() bool {
 	return p.meta.Deleted
 }
 
-func (ds *Datastore) InsertPerson(p *Person) error {
-	var err error
+func (ds *Datastore) InsertEntity(p *Entity) error {
 
 	if p.Exists() {
 		return errors.New("insert failed: already exists")
 	}
 
-	const sql = `INSERT INTO places4all.person (` +
-		`id_country, name, email, username, password, image_url, banned, reason, mobilephone, telephone, created` +
+	const sql = `INSERT INTO places4all.entity (` +
+		`id_country, name, email, username, password, image, banned, banned_date, reason, mobilephone, telephone, created_date` +
 		`) VALUES (` +
-		`$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11` +
+		`$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12` +
 		`) RETURNING id`
 
-	err = ds.postgres.QueryRow(sql, p.IdCountry, p.Name, p.Email, p.Username, p.Password, p.ImageUrl, p.Banned, p.Reason, p.Mobilephone, p.Telephone, p.Created).Scan(&p.Id)
+	res, err := ds.postgres.Exec(sql, p.IdCountry, p.Name, p.Email, p.Username, p.Password, p.Image, p.Banned, p.BannedDate, p.Reason, p.Mobilephone, p.Telephone, p.CreatedDate)
+	if err != nil {
+		return err
+	}
+	p.Id, err = res.LastInsertId()
 	if err != nil {
 		return err
 	}
 
 	p.SetExists()
 
-	return nil
+	return err
 }
 
-func (ds *Datastore) UpdatePerson(p *Person) error {
+func (ds *Datastore) UpdateEntity(p *Entity) error {
 	var err error
 
 	if !p.Exists() {
@@ -74,53 +94,51 @@ func (ds *Datastore) UpdatePerson(p *Person) error {
 		return errors.New("update failed: marked for deletion")
 	}
 
-	const sql = `UPDATE places4all.person SET (` +
-		`id_country, name, email, username, password, image_url, banned, reason, mobilephone, telephone, created` +
+	const sql = `UPDATE places4all.entity SET (` +
+		`id_country, name, email, username, password, image, banned, banned_date, reason, mobilephone, telephone, created_date` +
 		`) = ( ` +
-		`$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11` +
-		`) WHERE id = $12`
+		`$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12` +
+		`) WHERE id = $13`
 
-	_, err = ds.postgres.Exec(sql, p.IdCountry, p.Name, p.Email, p.Username, p.Password, p.ImageUrl, p.Banned, p.Reason, p.Mobilephone, p.Telephone, p.Created, p.Id)
+	_, err = ds.postgres.Exec(sql, p.IdCountry, p.Name, p.Email, p.Username, p.Password, p.Image, p.Banned, p.BannedDate, p.Reason, p.Mobilephone, p.Telephone, p.CreatedDate, p.Id)
 	return err
 }
 
-func (ds *Datastore) SavePerson(p *Person) error {
+func (ds *Datastore) SaveEntity(p *Entity) error {
 	if p.Exists() {
-		return ds.UpdatePerson(p)
+		return ds.UpdateEntity(p)
 	}
 
-	return ds.InsertPerson(p)
+	return ds.InsertEntity(p)
 }
 
-func (ds *Datastore) UpsertPerson(p *Person) error {
-	var err error
+func (ds *Datastore) UpsertEntity(p *Entity) error {
 
 	if p.Exists() {
 		return errors.New("insert failed: already exists")
 	}
 
-	const sql = `INSERT INTO places4all.person (` +
-		`id, id_country, name, email, username, password, image_url, banned, reason, mobilephone, telephone, created` +
+	const sql = `INSERT INTO places4all.entity (` +
+		`id, id_country, name, email, username, password, image, banned, banned_date, reason, mobilephone, telephone, created_date` +
 		`) VALUES (` +
-		`$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12` +
+		`$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13` +
 		`) ON CONFLICT (id) DO UPDATE SET (` +
-		`id, id_country, name, email, username, password, image_url, banned, reason, mobilephone, telephone, created` +
+		`id, id_country, name, email, username, password, image, banned, banned_date, reason, mobilephone, telephone, created_date` +
 		`) = (` +
-		`EXCLUDED.id, EXCLUDED.id_country, EXCLUDED.name, EXCLUDED.email, EXCLUDED.username, EXCLUDED.password, EXCLUDED.image_url, EXCLUDED.banned, EXCLUDED.reason, EXCLUDED.mobilephone, EXCLUDED.telephone, EXCLUDED.created` +
+		`EXCLUDED.id, EXCLUDED.id_country, EXCLUDED.name, EXCLUDED.email, EXCLUDED.username, EXCLUDED.password, EXCLUDED.image, EXCLUDED.banned, EXCLUDED.banned_date, EXCLUDED.reason, EXCLUDED.mobilephone, EXCLUDED.telephone, EXCLUDED.created_date` +
 		`)`
 
-	_, err = ds.postgres.Exec(sql, p.Id, p.IdCountry, p.Name, p.Email, p.Username, p.Password, p.ImageUrl, p.Banned, p.Reason, p.Mobilephone, p.Telephone, p.Created)
+	_, err := ds.postgres.Exec(sql, p.Id, p.IdCountry, p.Name, p.Email, p.Username, p.Password, p.Image, p.Banned, p.BannedDate, p.Reason, p.Mobilephone, p.Telephone, p.CreatedDate)
 	if err != nil {
 		return err
 	}
 
 	p.SetExists()
 
-	return nil
+	return err
 }
 
-func (ds *Datastore) DeletePerson(p *Person) error {
-	var err error
+func (ds *Datastore) DeleteEntity(p *Entity) error {
 
 	if !p.Exists() {
 		return nil
@@ -130,75 +148,73 @@ func (ds *Datastore) DeletePerson(p *Person) error {
 		return nil
 	}
 
-	const sql = `DELETE FROM places4all.person WHERE id = $1`
+	const sql = `DELETE FROM places4all.entity WHERE id = $1`
 
-	_, err = ds.postgres.Exec(sql, p.Id)
+	_, err := ds.postgres.Exec(sql, p.Id)
 	if err != nil {
 		return err
 	}
 
 	p.SetDeleted()
 
-	return nil
+	return err
 }
 
-func (ds *Datastore) GetPersonCountry(p *Person) (*Country, error) {
+func (ds *Datastore) GetEntityCountry(p *Entity) (*Country, error) {
 	return ds.GetCountryById(p.IdCountry)
 }
 
-func (ds *Datastore) GetPersonByEmail(email string) (*Person, error) {
-	var err error
+func (ds *Datastore) GetEntityByEmail(email string) (*Entity, error) {
 
 	const sql = `SELECT ` +
-		`id, id_country, name, email, username, password, image_url, banned, reason, mobilephone, telephone, created ` +
-		`FROM places4all.person ` +
+		`id, id_country, name, email, username, password, image, banned, banned_date, reason, mobilephone, telephone, created_date ` +
+		`FROM places4all.entity ` +
 		`WHERE email = $1`
 
-	p := Person{}
+	p := AEntity(false)
 	p.SetExists()
 
-	err = ds.postgres.QueryRow(sql, email).Scan(&p.Id, &p.IdCountry, &p.Name, &p.Email, &p.Username, &p.Password, &p.ImageUrl, &p.Banned, &p.Reason, &p.Mobilephone, &p.Telephone, &p.Created)
+	err := ds.postgres.QueryRowx(sql, email).StructScan(&p)
 	if err != nil {
 		return nil, err
 	}
 
-	return &p, nil
+	return &p, err
 }
 
-func (ds *Datastore) GetPersonById(id int64) (*Person, error) {
-	var err error
+func (ds *Datastore) GetEntityById(id int64) (*Entity, error) {
 
 	const sql = `SELECT ` +
-		`id, id_country, name, email, username, password, image_url, banned, reason, mobilephone, telephone, created ` +
-		`FROM places4all.person ` +
+		`id, id_country, name, email, username, password, image, banned, banned_date, reason, mobilephone, telephone, created_date ` +
+		`FROM places4all.entity ` +
 		`WHERE id = $1`
 
-	p := Person{}
+	p := AEntity(false)
 	p.SetExists()
 
-	err = ds.postgres.QueryRow(sql, id).Scan(&p.Id, &p.IdCountry, &p.Name, &p.Email, &p.Username, &p.Password, &p.ImageUrl, &p.Banned, &p.Reason, &p.Mobilephone, &p.Telephone, &p.Created)
+	err := ds.postgres.QueryRowx(sql, id).Scan(&p)
 	if err != nil {
 		return nil, err
 	}
 
-	return &p, nil
+	return &p, err
 }
 
-func (ds *Datastore) GetPersonByUsername(username string) (*Person, error) {
+func (ds *Datastore) GetEntityByUsername(username string) (*Entity, error) {
 	var err error
 
 	const sql = `SELECT ` +
-		`id, id_country, name, email, username, password, image_url, banned, reason, mobilephone, telephone, created ` +
-		`FROM places4all.person ` +
+		`id, id_country, name, email, username, password, image, banned, banned_date, reason, mobilephone, telephone, created_date ` +
+		`FROM places4all.entity ` +
 		`WHERE username = $1`
 
-	p := Person{}
+	p := AEntity(false)
 	p.SetExists()
 
-	err = ds.postgres.QueryRow(sql, username).Scan(&p.Id, &p.IdCountry, &p.Name, &p.Email, &p.Username, &p.Password, &p.ImageUrl, &p.Banned, &p.Reason, &p.Mobilephone, &p.Telephone, &p.Created)
+	err = ds.postgres.QueryRowx(sql, username).StructScan(&p)
 	if err != nil {
 		return nil, err
 	}
 
-	return &p, nil
+	return &p, err
 }

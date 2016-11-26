@@ -8,7 +8,8 @@ import (
 type PropertyTag struct {
 	IdProperty int64 `json:"idProperty" db:"id_property"`
 	IdTag      int64 `json:"idTag" db:"id_tag"`
-	meta       metadata.Metadata
+
+	meta metadata.Metadata
 }
 
 func (pt *PropertyTag) SetExists() {
@@ -28,7 +29,6 @@ func (pt *PropertyTag) Deleted() bool {
 }
 
 func (ds *Datastore) InsertPropertyTag(pt *PropertyTag) error {
-	var err error
 
 	if pt.Exists() {
 		return errors.New("insert failed: already exists")
@@ -40,18 +40,17 @@ func (ds *Datastore) InsertPropertyTag(pt *PropertyTag) error {
 		`$1` +
 		`) RETURNING id_tag`
 
-	err = ds.postgres.QueryRow(sql, pt.IdProperty).Scan(&pt.IdTag)
+	err := ds.postgres.QueryRow(sql, pt.IdProperty).Scan(&pt.IdTag)
 	if err != nil {
 		return err
 	}
 
 	pt.SetExists()
 
-	return nil
+	return err
 }
 
 func (ds *Datastore) UpdatePropertyTag(pt *PropertyTag) error {
-	var err error
 
 	if !pt.Exists() {
 		return errors.New("update failed: does not exist")
@@ -67,7 +66,7 @@ func (ds *Datastore) UpdatePropertyTag(pt *PropertyTag) error {
 		`$1` +
 		`) WHERE id_tag = $2`
 
-	_, err = ds.postgres.Exec(sql, pt.IdProperty, pt.IdTag)
+	_, err := ds.postgres.Exec(sql, pt.IdProperty, pt.IdTag)
 	return err
 }
 
@@ -80,7 +79,6 @@ func (ds *Datastore) SavePropertyTag(pt *PropertyTag) error {
 }
 
 func (ds *Datastore) UpsertPropertyTag(pt *PropertyTag) error {
-	var err error
 
 	if pt.Exists() {
 		return errors.New("insert failed: already exists")
@@ -96,18 +94,17 @@ func (ds *Datastore) UpsertPropertyTag(pt *PropertyTag) error {
 		`EXCLUDED.id_property, EXCLUDED.id_tag` +
 		`)`
 
-	_, err = ds.postgres.Exec(sql, pt.IdProperty, pt.IdTag)
+	_, err := ds.postgres.Exec(sql, pt.IdProperty, pt.IdTag)
 	if err != nil {
 		return err
 	}
 
 	pt.SetExists()
 
-	return nil
+	return err
 }
 
 func (ds *Datastore) DeletePropertyTag(pt *PropertyTag) error {
-	var err error
 
 	if !pt.Exists() {
 		return nil
@@ -119,14 +116,14 @@ func (ds *Datastore) DeletePropertyTag(pt *PropertyTag) error {
 
 	const sql = `DELETE FROM places4all.property_tag WHERE id_tag = $1`
 
-	_, err = ds.postgres.Exec(sql, pt.IdTag)
+	_, err := ds.postgres.Exec(sql, pt.IdTag)
 	if err != nil {
 		return err
 	}
 
 	pt.SetDeleted()
 
-	return nil
+	return err
 }
 
 func (ds *Datastore) GetPropertyTagProperty(pt *PropertyTag) (*Property, error) {
@@ -138,7 +135,6 @@ func (ds *Datastore) GetPropertyTagTag(pt *PropertyTag) (*Tag, error) {
 }
 
 func (ds *Datastore) GetPropertyTagByIds(idProperty, idTag int64) (*PropertyTag, error) {
-	var err error
 
 	const sql = `SELECT ` +
 		`id_property, id_tag ` +
@@ -148,10 +144,10 @@ func (ds *Datastore) GetPropertyTagByIds(idProperty, idTag int64) (*PropertyTag,
 	pt := PropertyTag{}
 	pt.SetExists()
 
-	err = ds.postgres.QueryRow(sql, idProperty, idTag).Scan(&pt.IdProperty, &pt.IdTag)
+	err := ds.postgres.QueryRow(sql, idProperty, idTag).Scan(&pt.IdProperty, &pt.IdTag)
 	if err != nil {
 		return nil, err
 	}
 
-	return &pt, nil
+	return &pt, err
 }

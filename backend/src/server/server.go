@@ -20,9 +20,10 @@ func main() {
 	})
 	router.Use(cors.Handler)
 	store := datastore.Connect()
+	defer store.Close()
 	hand := &handler.Handler{Datastore: store}
 
-	router.Route(hand.CountryMain(), hand.CountrySubroutes)
+	hand.Init(router)
 
 	if err := http.ListenAndServe(":8080", router); err != nil {
 		panic(err)

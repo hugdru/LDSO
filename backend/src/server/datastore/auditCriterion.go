@@ -1,17 +1,18 @@
 package datastore
 
 import (
-	"database/sql"
 	"errors"
+	"gopkg.in/guregu/null.v3/zero"
 	"server/datastore/metadata"
 )
 
 type AuditCriterion struct {
-	IdAudit     int64          `json:"id_audit" db:"id_audit"`
-	IdCriterion int64          `json:"id_criterion" db:"id_criterion"`
-	Value       sql.NullInt64  `json:"value" db:"value"`
-	Observation sql.NullString `json:"observation" db:"observation"`
-	meta        metadata.Metadata
+	IdAudit     int64       `json:"id_audit" db:"id_audit"`
+	IdCriterion int64       `json:"id_criterion" db:"id_criterion"`
+	Value       zero.Int    `json:"value" db:"value"`
+	Observation zero.String `json:"observation" db:"observation"`
+
+	meta metadata.Metadata
 }
 
 func (ac *AuditCriterion) SetExists() {
@@ -30,31 +31,40 @@ func (ac *AuditCriterion) Deleted() bool {
 	return ac.meta.Deleted
 }
 
+func AAuditCriterion(allocateObjects bool) AuditCriterion {
+	auditCriterion := AuditCriterion{}
+	//if allocateObjects {
+	//}
+	return auditCriterion
+}
+func NewAuditCriterion(allocateObjects bool) *AuditCriterion {
+	auditCriterion := AAuditCriterion(allocateObjects)
+	return &auditCriterion
+}
+
 func (ds *Datastore) InsertAuditCriterion(ac *AuditCriterion) error {
-	var err error
 
 	if ac.Exists() {
 		return errors.New("insert failed: already exists")
 	}
 
 	const sql = `INSERT INTO places4all.audit_criterion (` +
-		`id_audit, value, observation` +
+		`id_audit, id_criterion, value, observation` +
 		`) VALUES (` +
-		`$1, $2, $3` +
-		`) RETURNING id_criterion`
+		`$1, $2, $3, $4` +
+		`)`
 
-	err = ds.postgres.QueryRow(sql, ac.IdAudit, ac.Value, ac.Observation).Scan(&ac.IdCriterion)
+	_, err := ds.postgres.Exec(sql, ac.IdAudit, ac.IdCriterion, ac.Value, ac.Observation)
 	if err != nil {
 		return err
 	}
 
 	ac.SetExists()
 
-	return nil
+	return err
 }
 
 func (ds *Datastore) UpdateAuditCriterion(ac *AuditCriterion) error {
-	var err error
 
 	if !ac.Exists() {
 		return errors.New("update failed: does not exist")
@@ -65,12 +75,12 @@ func (ds *Datastore) UpdateAuditCriterion(ac *AuditCriterion) error {
 	}
 
 	const sql = `UPDATE places4all.audit_criterion SET (` +
-		`id_audit, value, observation` +
-		`) = ( ` +
-		`$1, $2, $3` +
-		`) WHERE id_criterion = $4`
+		`value, observation` +
+		`) = (` +
+		`$1, $2` +
+		`) WHERE id_audit = $3 AND id_criterion = $4`
 
-	_, err = ds.postgres.Exec(sql, ac.IdAudit, ac.Value, ac.Observation, ac.IdCriterion)
+	_, err := ds.postgres.Exec(sql, ac.Value, ac.Observation, ac.IdAudit, ac.IdCriterion)
 	return err
 }
 
@@ -82,7 +92,6 @@ func (ds *Datastore) SaveAuditCriterion(ac *AuditCriterion) error {
 	return ds.InsertAuditCriterion(ac)
 }
 func (ds *Datastore) UpsertAuditCriterion(ac *AuditCriterion) error {
-	var err error
 
 	if ac.Exists() {
 		return errors.New("insert failed: already exists")
@@ -92,24 +101,23 @@ func (ds *Datastore) UpsertAuditCriterion(ac *AuditCriterion) error {
 		`id_audit, id_criterion, value, observation` +
 		`) VALUES (` +
 		`$1, $2, $3, $4` +
-		`) ON CONFLICT (id_criterion) DO UPDATE SET (` +
+		`) ON CONFLICT (id_audit, id_criterion) DO UPDATE SET (` +
 		`id_audit, id_criterion, value, observation` +
 		`) = (` +
 		`EXCLUDED.id_audit, EXCLUDED.id_criterion, EXCLUDED.value, EXCLUDED.observation` +
 		`)`
 
-	_, err = ds.postgres.Exec(sql, ac.IdAudit, ac.IdCriterion, ac.Value, ac.Observation)
+	_, err := ds.postgres.Exec(sql, ac.IdAudit, ac.IdCriterion, ac.Value, ac.Observation)
 	if err != nil {
 		return err
 	}
 
 	ac.SetExists()
 
-	return nil
+	return err
 }
 
 func (ds *Datastore) DeleteAuditCriterion(ac *AuditCriterion) error {
-	var err error
 
 	if !ac.Exists() {
 		return nil
@@ -119,16 +127,16 @@ func (ds *Datastore) DeleteAuditCriterion(ac *AuditCriterion) error {
 		return nil
 	}
 
-	const sql = `DELETE FROM places4all.audit_criterion WHERE id_criterion = $1`
+	const sql = `DELETE FROM places4all.audit_criterion WHERE id_audit = $1 AND id_criterion = $2`
 
-	_, err = ds.postgres.Exec(sql, ac.IdCriterion)
+	_, err := ds.postgres.Exec(sql, ac.IdAudit, ac.IdCriterion)
 	if err != nil {
 		return err
 	}
 
 	ac.SetDeleted()
 
-	return nil
+	return err
 }
 
 func (ds *Datastore) GetAuditCriterionAudit(ac *AuditCriterion) (*Audit, error) {
@@ -147,13 +155,13 @@ func (ds *Datastore) GetAuditCriterionById(idAudit, idCriterion int64) (*AuditCr
 		`FROM places4all.audit_criterion ` +
 		`WHERE id_audit = $1 AND id_criterion = $2`
 
-	ac := AuditCriterion{}
+	ac := AAuditCriterion(true)
 	ac.SetExists()
 
-	err = ds.postgres.QueryRow(sql, idAudit, idCriterion).Scan(&ac.IdAudit, &ac.IdCriterion, &ac.Value, &ac.Observation)
+	err = ds.postgres.QueryRowx(sql, idAudit, idCriterion).StructScan(&ac)
 	if err != nil {
 		return nil, err
 	}
 
-	return &ac, nil
+	return &ac, err
 }

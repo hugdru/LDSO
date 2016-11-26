@@ -7,8 +7,12 @@ import (
 
 type LocalAdmin struct {
 	Id       int64 `json:"id" db:"id"`
-	IdEntity int64 `json:"idPerson" db:"id_entity"`
-	meta     metadata.Metadata
+	IdEntity int64 `json:"IdEntity" db:"id_entity"`
+
+	// Objects
+	Entity *Entity `json:"entity,omitempty"`
+
+	meta metadata.Metadata
 }
 
 func (l *LocalAdmin) SetExists() {
@@ -27,31 +31,45 @@ func (l *LocalAdmin) Deleted() bool {
 	return l.meta.Deleted
 }
 
+func ALocalAdmin(allocateObjects bool) LocalAdmin {
+	localAdmin := LocalAdmin{}
+	if allocateObjects {
+		localAdmin.Entity = NewEntity(true)
+	}
+	return localAdmin
+}
+func NewLocalAdmin(allocateObjects bool) *LocalAdmin {
+	localAdmin := ALocalAdmin(allocateObjects)
+	return &localAdmin
+}
+
 func (ds *Datastore) InsertLocalAdmin(l *LocalAdmin) error {
-	var err error
 
 	if l.Exists() {
 		return errors.New("insert failed: already exists")
 	}
 
 	const sql = `INSERT INTO places4all.localadmin (` +
-		`id_person` +
+		`id_entity` +
 		`) VALUES (` +
 		`$1` +
 		`) RETURNING id`
 
-	err = ds.postgres.QueryRow(sql, l.IdPerson).Scan(&l.Id)
+	res, err := ds.postgres.Exec(sql, l.IdEntity)
+	if err != nil {
+		return err
+	}
+	l.Id, err = res.LastInsertId()
 	if err != nil {
 		return err
 	}
 
 	l.SetExists()
 
-	return nil
+	return err
 }
 
 func (ds *Datastore) UpdateLocalAdmin(l *LocalAdmin) error {
-	var err error
 
 	if !l.Exists() {
 		return errors.New("update failed: does not exist")
@@ -62,12 +80,12 @@ func (ds *Datastore) UpdateLocalAdmin(l *LocalAdmin) error {
 	}
 
 	const sql = `UPDATE places4all.localadmin SET (` +
-		`id_person` +
+		`id_entity` +
 		`) = ( ` +
 		`$1` +
 		`) WHERE id = $2`
 
-	_, err = ds.postgres.Exec(sql, l.IdPerson, l.Id)
+	_, err := ds.postgres.Exec(sql, l.IdEntity, l.Id)
 	return err
 }
 
@@ -80,34 +98,32 @@ func (ds *Datastore) SaveLocalAdmin(l *LocalAdmin) error {
 }
 
 func (ds *Datastore) UpsertLocalAdmin(l *LocalAdmin) error {
-	var err error
 
 	if l.Exists() {
 		return errors.New("insert failed: already exists")
 	}
 
-	const sqlstr = `INSERT INTO places4all.localadmin (` +
-		`id, id_person` +
+	const sql = `INSERT INTO places4all.localadmin (` +
+		`id, id_entity` +
 		`) VALUES (` +
 		`$1, $2` +
 		`) ON CONFLICT (id) DO UPDATE SET (` +
-		`id, id_person` +
+		`id, id_entity` +
 		`) = (` +
-		`EXCLUDED.id, EXCLUDED.id_person` +
+		`EXCLUDED.id, EXCLUDED.id_entity` +
 		`)`
 
-	_, err = ds.postgres.Exec(sqlstr, l.Id, l.IdPerson)
+	_, err := ds.postgres.Exec(sql, l.Id, l.IdEntity)
 	if err != nil {
 		return err
 	}
 
 	l.SetExists()
 
-	return nil
+	return err
 }
 
 func (ds *Datastore) DeleteLocalAdmin(l *LocalAdmin) error {
-	var err error
 
 	if !l.Exists() {
 		return nil
@@ -119,35 +135,34 @@ func (ds *Datastore) DeleteLocalAdmin(l *LocalAdmin) error {
 
 	const sql = `DELETE FROM places4all.localadmin WHERE id = $1`
 
-	_, err = ds.postgres.Exec(sql, l.Id)
+	_, err := ds.postgres.Exec(sql, l.Id)
 	if err != nil {
 		return err
 	}
 
 	l.SetDeleted()
 
-	return nil
+	return err
 }
 
-func (ds *Datastore) GetLocalAdminPerson(l *LocalAdmin) (*Person, error) {
-	return ds.GetPersonById(l.IdPerson)
+func (ds *Datastore) GetLocalAdminEntity(l *LocalAdmin) (*Entity, error) {
+	return ds.GetEntityById(l.IdEntity)
 }
 
 func (ds *Datastore) GetLocalAdminById(id int64) (*LocalAdmin, error) {
-	var err error
 
 	const sql = `SELECT ` +
-		`id, id_person ` +
+		`id, id_entity ` +
 		`FROM places4all.localadmin ` +
 		`WHERE id = $1`
 
-	l := LocalAdmin{}
+	l := ALocalAdmin(false)
 	l.SetExists()
 
-	err = ds.postgres.QueryRow(sql, id).Scan(&l.Id, &l.IdPerson)
+	err := ds.postgres.QueryRow(sql, id).Scan(&l.Id, &l.IdEntity)
 	if err != nil {
 		return nil, err
 	}
 
-	return &l, nil
+	return &l, err
 }
