@@ -53,3 +53,415 @@
   "criterion": 2
 
 }
+{
+  "_id": 9,
+  "name": "fisica",
+  "weight": 25,
+  "criterion": 3
+}
+{
+  "_id": 10,
+  "name": "auditiva",
+  "weight": 25,
+  "criterion": 3
+
+}
+{
+  "_id": 11,
+  "name": "visual",
+  "weight": 25,
+  "criterion": 3
+
+}
+{
+  "_id": 12,
+  "name": "cognitiva",
+  "weight": 25,
+  "criterion": 3
+
+}
+{
+  "_id": 13,
+  "name": "fisica",
+  "weight": 40,
+  "criterion": 4
+
+}
+{
+  "_id": 14,
+  "name": "auditiva",
+  "weight": 40,
+  "criterion": 4
+
+}
+{
+  "_id": 15,
+  "name": "visual",
+  "weight": 10,
+  "criterion": 4
+
+}
+{
+  "_id": 16,
+  "name": "cognitiva",
+  "weight": 10,
+  "criterion": 4
+
+}
+{
+  "_id": 17,
+  "name": "fisica",
+  "weight": 25,
+  "criterion": 5
+}
+{
+  "_id": 18,
+  "name": "auditiva",
+  "weight": 25,
+  "criterion": 5
+
+}
+{
+  "_id": 19,
+  "name": "visual",
+  "weight": 25,
+  "criterion": 5
+
+}
+{
+  "_id": 20,
+  "name": "cognitiva",
+  "weight": 25,
+  "criterion": 5
+
+}
+{
+  "_id": 21,
+  "name": "fisica",
+  "weight": 40,
+  "criterion": 6
+
+}
+{
+  "_id": 22,
+  "name": "auditiva",
+  "weight": 40,
+  "criterion": 6
+
+}
+{
+  "_id": 23,
+  "name": "visual",
+  "weight": 10,
+  "criterion": 6
+
+}
+{
+  "_id": 24,
+  "name": "cognitiva",
+  "weight": 10,
+  "criterion": 6
+
+}
+{
+  "_id": 25,
+  "name": "fisica",
+  "weight": 25,
+  "criterion": 7
+}
+{
+  "_id": 26,
+  "name": "auditiva",
+  "weight": 25,
+  "criterion": 7
+
+}
+{
+  "_id": 27,
+  "name": "visual",
+  "weight": 25,
+  "criterion": 7
+
+}
+{
+  "_id": 28,
+  "name": "cognitiva",
+  "weight": 25,
+  "criterion": 7
+
+}
+{
+  "_id": 29,
+  "name": "fisica",
+  "weight": 40,
+  "criterion": 8
+
+}
+{
+  "_id": 30,
+  "name": "auditiva",
+  "weight": 40,
+  "criterion": 8
+
+}
+{
+  "_id": 31,
+  "name": "visual",
+  "weight": 10,
+  "criterion": 8
+
+}
+{
+  "_id": 32,
+  "name": "cognitiva",
+  "weight": 10,
+  "criterion": 8
+
+}
+{
+  "_id": 33,
+  "name": "fisica",
+  "weight": 25,
+  "criterion": 9
+}
+{
+  "_id": 34,
+  "name": "auditiva",
+  "weight": 25,
+  "criterion": 9
+
+}
+{
+  "_id": 35,
+  "name": "visual",
+  "weight": 25,
+  "criterion": 9
+
+}
+{
+  "_id": 36,
+  "name": "cognitiva",
+  "weight": 25,
+  "criterion": 9
+
+}
+{
+  "_id": 37,
+  "name": "fisica",
+  "weight": 40,
+  "criterion": 10
+
+}
+{
+  "_id": 38,
+  "name": "auditiva",
+  "weight": 40,
+  "criterion": 10
+
+}
+{
+  "_id": 39,
+  "name": "visual",
+  "weight": 10,
+  "criterion": 10
+
+}
+{
+  "_id": 40,
+  "name": "cognitiva",
+  "weight": 10,
+  "criterion": 10
+
+}
+{
+  "_id": 41,
+  "name": "fisica",
+  "weight": 25,
+  "criterion": 11
+}
+{
+  "_id": 42,
+  "name": "auditiva",
+  "weight": 25,
+  "criterion": 11
+
+}
+{
+  "_id": 43,
+  "name": "visual",
+  "weight": 25,
+  "criterion": 11
+
+}
+{
+  "_id": 44,
+  "name": "cognitiva",
+  "weight": 25,
+  "criterion": 11
+
+}
+{
+  "_id": 45,
+  "name": "fisica",
+  "weight": 40,
+  "criterion": 12
+
+}
+{
+  "_id": 46,
+  "name": "auditiva",
+  "weight": 40,
+  "criterion": 12
+
+}
+{
+  "_id": 47,
+  "name": "visual",
+  "weight": 10,
+  "criterion": 12
+
+}
+{
+  "_id": 48,
+  "name": "cognitiva",
+  "weight": 10,
+  "criterion": 12
+
+}
+{
+  "_id": 49,
+  "name": "fisica",
+  "weight": 25,
+  "criterion": 13
+}
+{
+  "_id": 50,
+  "name": "auditiva",
+  "weight": 25,
+  "criterion": 13
+
+}
+{
+  "_id": 51,
+  "name": "visual",
+  "weight": 25,
+  "criterion": 13
+
+}
+{
+  "_id": 52,
+  "name": "cognitiva",
+  "weight": 25,
+  "criterion": 13
+
+}
+{
+  "_id": 53,
+  "name": "fisica",
+  "weight": 40,
+  "criterion": 14
+
+}
+{
+  "_id": 54,
+  "name": "auditiva",
+  "weight": 40,
+  "criterion": 14
+
+}
+{
+  "_id": 55,
+  "name": "visual",
+  "weight": 10,
+  "criterion": 14
+
+}
+{
+  "_id": 56,
+  "name": "cognitiva",
+  "weight": 10,
+  "criterion": 14
+
+}
+{
+  "_id": 57,
+  "name": "fisica",
+  "weight": 25,
+  "criterion": 15
+}
+{
+  "_id": 58,
+  "name": "auditiva",
+  "weight": 25,
+  "criterion": 15
+
+}
+{
+  "_id": 59,
+  "name": "visual",
+  "weight": 25,
+  "criterion": 15
+
+}
+{
+  "_id": 60,
+  "name": "cognitiva",
+  "weight": 25,
+  "criterion": 15
+
+}
+{
+  "_id": 61,
+  "name": "fisica",
+  "weight": 40,
+  "criterion": 16
+
+}
+{
+  "_id": 62,
+  "name": "auditiva",
+  "weight": 40,
+  "criterion": 16
+
+}
+{
+  "_id": 63,
+  "name": "visual",
+  "weight": 10,
+  "criterion": 16
+
+}
+{
+  "_id": 64,
+  "name": "cognitiva",
+  "weight": 10,
+  "criterion": 16
+
+}
+{
+  "_id": 65,
+  "name": "fisica",
+  "weight": 25,
+  "criterion": 17
+}
+{
+  "_id": 66,
+  "name": "auditiva",
+  "weight": 25,
+  "criterion": 17
+
+}
+{
+  "_id": 67,
+  "name": "visual",
+  "weight": 25,
+  "criterion": 17
+
+}
+{
+  "_id": 68,
+  "name": "cognitiva",
+  "weight": 25,
+  "criterion": 17
+
+}
