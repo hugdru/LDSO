@@ -10,9 +10,9 @@
     <div *ngFor='let subGroup of subGroups'>
         <table>
             <tr>
-                {{subGroup.name}} <input type="checkbox"
-                                         [checked]="checkedSubGroup(subGroup)"
-                                         (change)="toggleSubGroup(subGroup)">
+                {{subGroup.name}}
+				<input type="checkbox" [checked]="checkedSubGroup(subGroup)"
+						(change)="toggleSubGroup(subGroup)">
             </tr>
         </table>
     </div>

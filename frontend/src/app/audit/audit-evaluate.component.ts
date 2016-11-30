@@ -57,6 +57,11 @@ export class AuditEvaluateComponent implements OnInit {
                 subGroup._id).subscribe(data => this.criteria = data);
     }
 
+	checkedNoCriterion(criterion: Criterion): void {
 
+	}
 
+	uncheckedNoCriterion(criterion: Criterion): void {
+
+	}
 }

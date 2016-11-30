@@ -25,16 +25,23 @@
                 {{criterion.name}}
             </tr>
         </table>
+		<modal #auditModal>
+			<modal-header>
+				<h3>{{criterion.name}}</h3>
+			</modal-header>
+			<modal-content>
+				Não Aplicavel 
+				<input type="checkbox" [checked]="checkedNoCriterion(criterion)"
+						(change)="uncheckedNoCriterion(criterion)">
+				<br>
+				{{criterion.legislation}}
+				<br>
+				Avaliação: <input type="number">
+				<!-- [(ngModel)]="selectedObject.weight" placeholder="peso" [class.warning]="checkPercentage()"/> -->
+			</modal-content>
+			<modal-footer>
+				<button class="btn btn-primary" (click)="auditModal.close()">close</button>
+			</modal-footer>
+		</modal>
     </div>
-    <modal #auditModal>
-        <modal-header>
-            <h1>Modal header</h1>
-        </modal-header>
-        <modal-content>
-            Hello Modal!
-        </modal-content>
-        <modal-footer>
-            <button class="btn btn-primary" (click)="auditModal.close()">close</button>
-        </modal-footer>
-    </modal>
 </div>
