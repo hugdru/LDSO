@@ -55,11 +55,7 @@ func (ds *Datastore) InsertLocalAdmin(l *LocalAdmin) error {
 		`$1` +
 		`) RETURNING id`
 
-	res, err := ds.postgres.Exec(sql, l.IdEntity)
-	if err != nil {
-		return err
-	}
-	l.Id, err = res.LastInsertId()
+	err := ds.postgres.QueryRow(sql, l.IdEntity).Scan(&l.Id)
 	if err != nil {
 		return err
 	}

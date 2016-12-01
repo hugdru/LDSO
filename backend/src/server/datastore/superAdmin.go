@@ -56,11 +56,7 @@ func (ds *Datastore) InsertSuperAdmin(s *SuperAdmin) error {
 		`$1` +
 		`) RETURNING id`
 
-	res, err := ds.postgres.Exec(sql, s.IdEntity)
-	if err != nil {
-		return err
-	}
-	s.Id, err = res.LastInsertId()
+	err := ds.postgres.QueryRow(sql, s.IdEntity).Scan(&s.Id)
 	if err != nil {
 		return err
 	}

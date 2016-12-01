@@ -56,11 +56,7 @@ func (ds *Datastore) InsertClient(c *Client) error {
 		`$1` +
 		`) RETURNING id`
 
-	res, err := ds.postgres.Exec(sql, c.IdEntity)
-	if err != nil {
-		return err
-	}
-	c.Id, err = res.LastInsertId()
+	err := ds.postgres.QueryRow(sql, c.IdEntity).Scan(&c.Id)
 	if err != nil {
 		return err
 	}

@@ -1,53 +1,53 @@
 SET SCHEMA 'places4all';
 
-INSERT INTO template(id, name, created_date) VALUES
-  (1, 'O meu primeiro template', '2016-11-25T14:46:26.680513Z'),
-  (2, 'O meu segundo template', '2016-11-25T14:46:26.680513Z');
+INSERT INTO template(name, created_date) VALUES
+  ('O meu primeiro template', '2016-11-25T14:46:26.680513Z'), -- 1
+  ('O meu segundo template', '2016-11-25T14:46:26.680513Z'); -- 2
 
-INSERT INTO maingroup(id, id_template, name, weight, created_date) VALUES
-  (1, 1, 'T1-M1', 40, '2016-11-25T14:46:26.680513Z'),
-  (2, 1, 'T1-M2', 60, '2016-11-25T14:46:26.680513Z'),
-  (3, 2, 'T2-M3', 100, '2016-11-25T14:46:26.680513Z');
+INSERT INTO maingroup(id_template, name, weight, created_date) VALUES
+  (1, 'T1-M1', 40, '2016-11-25T14:46:26.680513Z'), -- 1
+  (1, 'T1-M2', 60, '2016-11-25T14:46:26.680513Z'), -- 2
+  (2, 'T2-M3', 100, '2016-11-25T14:46:26.680513Z'); -- 3
 
-INSERT INTO subgroup(id, id_maingroup, name, weight, created_date) VALUES
-  (1, 1, 'M1-S1', 25, '2016-11-25T14:46:26.680513Z'),
-  (2, 1, 'M1-S2', 42, '2016-11-25T14:46:26.680513Z'),
-  (3, 1, 'M1-S3', 33, '2016-11-25T14:46:26.680513Z'),
-  (4, 2, 'M2-S4', 40, '2016-11-25T14:46:26.680513Z'),
-  (5, 2, 'M2-S5', 60, '2016-11-25T14:46:26.680513Z'),
-  (6, 3, 'M3-S6', 100, '2016-11-25T14:46:26.680513Z');
+INSERT INTO subgroup(id_maingroup, name, weight, created_date) VALUES
+  (1, 'M1-S1', 25, '2016-11-25T14:46:26.680513Z'), -- 1
+  (1, 'M1-S2', 42, '2016-11-25T14:46:26.680513Z'), -- 2
+  (1, 'M1-S3', 33, '2016-11-25T14:46:26.680513Z'), -- 3
+  (2, 'M2-S4', 40, '2016-11-25T14:46:26.680513Z'), -- 4
+  (2, 'M2-S5', 60, '2016-11-25T14:46:26.680513Z'), -- 5
+  (3, 'M3-S6', 100, '2016-11-25T14:46:26.680513Z'); -- 6
 
-INSERT INTO legislation(id, name, description, url) VALUES
-  (1, 'O gamanço', 'lei aprovada pelos ladrões', 'https://www.priberam.pt/dlpo/gaman%C3%A7o'),
-  (2, 'O ananás', NULL, NULL),
-  (3, 'O banco', 'quem sabe sabe e o BES sempre soube', 'https://www.priberam.pt/dlpo/roubo');
+INSERT INTO legislation(name, description, url) VALUES
+  ('O gamanço', 'lei aprovada pelos ladrões', 'https://www.priberam.pt/dlpo/gaman%C3%A7o'), -- 1
+  ('O ananás', NULL, NULL), -- 2
+  ('O banco', 'quem sabe sabe e o BES sempre soube', 'https://www.priberam.pt/dlpo/roubo'); -- 3
 
-INSERT INTO criterion(id, id_subgroup, id_legislation, name, weight, created_date) VALUES
-  (1, 1, 1, 'S1-C1', 11, '2016-11-25T14:46:26.680513Z'),
-  (2, 1, NULL, 'S1-C2', 11, '2016-11-25T14:46:26.680513Z'),
-  (3, 1, 1, 'S1-C3', 78, '2016-11-25T14:46:26.680513Z'),
-  (4, 2, NULL, 'S2-C4', 33, '2016-11-25T14:46:26.680513Z'),
-  (5, 2, 1, 'S2-C5', 7, '2016-11-25T14:46:26.680513Z'),
-  (6, 2, NULL, 'S2-C6', 25, '2016-11-25T14:46:26.680513Z'),
-  (7, 2, 2, 'S2-C7', 15, '2016-11-25T14:46:26.680513Z'),
-  (8, 2, NULL, 'S2-C8', 1, '2016-11-25T14:46:26.680513Z'),
-  (9, 2, 2, 'S2-C9', 19, '2016-11-25T14:46:26.680513Z'),
-  (10, 3, NULL, 'S3-C10', 64, '2016-11-25T14:46:26.680513Z'),
-  (11, 3, 3, 'S3-C11', 36, '2016-11-25T14:46:26.680513Z'),
-  (12, 4, NULL, 'S4-C12', 100, '2016-11-25T14:46:26.680513Z'),
-  (13, 5, 3, 'S5-C13', 9, '2016-11-25T14:46:26.680513Z'),
-  (14, 5, NULL, 'S5-C14', 9, '2016-11-25T14:46:26.680513Z'),
-  (15, 5, 3, 'S5-C15', 82, '2016-11-25T14:46:26.680513Z'),
-  (16, 6, NULL, 'S6-C16', 11, '2016-11-25T14:46:26.680513Z'),
-  (17, 6, 1, 'S6-C17', 11, '2016-11-25T14:46:26.680513Z'),
-  (18, 6, 2, 'S6-C18', 11, '2016-11-25T14:46:26.680513Z'),
-  (19, 6, 3, 'S6-C19', 11, '2016-11-25T14:46:26.680513Z'),
-  (20, 6, NULL, 'S6-C20', 56, '2016-11-25T14:46:26.680513Z');
+INSERT INTO criterion(id_subgroup, id_legislation, name, weight, created_date) VALUES
+  (1, 1, 'S1-C1', 11, '2016-11-25T14:46:26.680513Z'), -- 1
+  (1, NULL, 'S1-C2', 11, '2016-11-25T14:46:26.680513Z'), -- 2
+  (1, 1, 'S1-C3', 78, '2016-11-25T14:46:26.680513Z'), -- 3
+  (2, NULL, 'S2-C4', 33, '2016-11-25T14:46:26.680513Z'), -- 4
+  (2, 1, 'S2-C5', 7, '2016-11-25T14:46:26.680513Z'), -- 5
+  (2, NULL, 'S2-C6', 25, '2016-11-25T14:46:26.680513Z'), --6
+  (2, 2, 'S2-C7', 15, '2016-11-25T14:46:26.680513Z'), -- 7
+  (2, NULL, 'S2-C8', 1, '2016-11-25T14:46:26.680513Z'), -- 8
+  (2, 2, 'S2-C9', 19, '2016-11-25T14:46:26.680513Z'), -- 9
+  (3, NULL, 'S3-C10', 64, '2016-11-25T14:46:26.680513Z'), -- 10
+  (3, 3, 'S3-C11', 36, '2016-11-25T14:46:26.680513Z'), -- 11
+  (4, NULL, 'S4-C12', 100, '2016-11-25T14:46:26.680513Z'), -- 12
+  (5, 3, 'S5-C13', 9, '2016-11-25T14:46:26.680513Z'), -- 13
+  (5, NULL, 'S5-C14', 9, '2016-11-25T14:46:26.680513Z'), -- 14
+  (5, 3, 'S5-C15', 82, '2016-11-25T14:46:26.680513Z'), -- 15
+  (6, NULL, 'S6-C16', 11, '2016-11-25T14:46:26.680513Z'), -- 16
+  (6, 1, 'S6-C17', 11, '2016-11-25T14:46:26.680513Z'), -- 17
+  (6, 2, 'S6-C18', 11, '2016-11-25T14:46:26.680513Z'), -- 18
+  (6, 3, 'S6-C19', 11, '2016-11-25T14:46:26.680513Z'), -- 19
+  (6, NULL, 'S6-C20', 56, '2016-11-25T14:46:26.680513Z'); -- 20
 
-INSERT INTO accessibility(id, name) VALUES
-  (1, 'Visual'),
-  (2, 'Auditiva'),
-  (3, 'Física');
+INSERT INTO accessibility(name) VALUES
+  ('Visual'), -- 1
+  ('Auditiva'), -- 2
+  ('Física'); -- 3
 
 INSERT INTO criterion_accessibility(id_criterion, id_accessibility, weight) VALUES
   (1, 1, 20),

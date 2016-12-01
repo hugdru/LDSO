@@ -4,6 +4,7 @@ import (
 	"errors"
 	"gopkg.in/guregu/null.v3/zero"
 	"server/datastore/metadata"
+	"strconv"
 	"time"
 )
 
@@ -64,11 +65,7 @@ func (ds *Datastore) InsertCriterion(c *Criterion) error {
 		`$1, $2, $3, $4, $5` +
 		`) RETURNING id`
 
-	res, err := ds.postgres.Exec(sql, c.IdSubgroup, c.IdLegislation, c.Name, c.Weight, c.CreatedDate)
-	if err != nil {
-		return err
-	}
-	c.Id, err = res.LastInsertId()
+	err := ds.postgres.QueryRow(sql, c.IdSubgroup, c.IdLegislation, c.Name, c.Weight, c.CreatedDate).Scan(&c.Id)
 	if err != nil {
 		return err
 	}
@@ -153,6 +150,18 @@ func (ds *Datastore) DeleteCriterion(c *Criterion) error {
 	return err
 }
 
+func (ds *Datastore) DeleteCriterionById(id int64) error {
+
+	const sql = `DELETE FROM places4all.criterion WHERE id = $1`
+
+	_, err := ds.postgres.Exec(sql, id)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
 func (ds *Datastore) GetCriterionLegislation(c *Criterion) (*Legislation, error) {
 	return ds.GetLegislationById(c.IdLegislation.Int64)
 }
@@ -203,6 +212,29 @@ func (ds *Datastore) GetCriteriaBySubgroupId(idSubgroup int64) ([]*Criterion, er
 		if err != nil {
 			return nil, err
 		}
+	}
+
+	return criteria, err
+}
+
+func (ds *Datastore) GetCriteria(limit, offset int) ([]*Criterion, error) {
+	criteria := make([]*Criterion, 0)
+	rows, err := ds.postgres.Queryx(
+		`SELECT criterion.id, criterion.id_subgroup, criterion.id_legislation, criterion.name, criterion.weight,criterion.created_date ` +
+			`FROM places4all.criterion ` +
+			`ORDER BY criterion.id DESC LIMIT ` + strconv.Itoa(limit) +
+			` OFFSET ` + strconv.Itoa(offset))
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		criterion := NewCriterion(false)
+		err := rows.StructScan(criterion)
+		if err != nil {
+			return nil, err
+		}
+		criteria = append(criteria, criterion)
 	}
 
 	return criteria, err

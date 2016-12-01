@@ -60,12 +60,7 @@ func (ds *Datastore) InsertTemplate(t *Template) error {
 		`) VALUES (` +
 		`$1, $2, $3` +
 		`) RETURNING id`
-
-	res, err := ds.postgres.Exec(sql, t.Name, t.Description, t.CreatedDate)
-	if err != nil {
-		return err
-	}
-	t.Id, err = res.LastInsertId()
+	err := ds.postgres.QueryRow(sql, t.Name, t.Description, t.CreatedDate).Scan(&t.Id)
 	if err != nil {
 		return err
 	}
@@ -151,6 +146,18 @@ func (ds *Datastore) DeleteTemplate(t *Template) error {
 	return err
 }
 
+func (ds *Datastore) DeleteTemplateById(id int64) error {
+
+	const sql = `DELETE FROM places4all.template WHERE id = $1`
+
+	_, err := ds.postgres.Exec(sql, id)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
 func (ds *Datastore) GetTemplateById(id int64) (*Template, error) {
 
 	const sql = `SELECT ` +
@@ -194,4 +201,23 @@ func (ds *Datastore) GetTemplates(limit, offset int) ([]*Template, error) {
 	}
 
 	return templates, err
+}
+
+func (ds *Datastore) GetTemplate(id int64) (*Template, error) {
+	rows := ds.postgres.QueryRowx(
+		`SELECT template.id, template.name, template.description, template.created_date `+
+			`FROM places4all.template `+
+			`WHERE id = $1`, id)
+
+	template := NewTemplate(false)
+	err := rows.StructScan(template)
+	if err != nil {
+		return nil, err
+	}
+	template.Maingroups, err = ds.GetMaingroupsByTemplateId(template.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	return template, err
 }

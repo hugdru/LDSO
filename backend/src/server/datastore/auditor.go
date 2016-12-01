@@ -55,11 +55,7 @@ func (ds *Datastore) InsertAuditor(a *Auditor) error {
 		`$1` +
 		`) RETURNING id`
 
-	res, err := ds.postgres.Exec(sql, a.IdEntity)
-	if err != nil {
-		return err
-	}
-	a.Id, err = res.LastInsertId()
+	err := ds.postgres.QueryRow(sql, a.IdEntity).Scan(&a.Id)
 	if err != nil {
 		return err
 	}

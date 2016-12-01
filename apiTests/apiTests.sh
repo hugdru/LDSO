@@ -23,10 +23,27 @@ gets=(
   ['addresses/1']='address1.spec'
   ['clients/1']='client1.spec'
   ['templates']='templates.spec'
+  ['templates/1']='template1.spec'
+  ['templates/2']='template2.spec'
+  ['maingroups']='maingroups.spec'
+  ['maingroups/1']='maingroup1.spec'
+  ['maingroups/2']='maingroup2.spec'
+  ['subgroups']='subgroups.spec'
+  ['subgroups/1']='subgroup1.spec'
+  ['subgroups/2']='subgroup2.spec'
+  ['legislations']='legislations.spec'
+  ['legislations/1']='legislation1.spec'
+  ['legislations/2']='legislation2.spec'
+  ['criteria']='criteria.spec'
+  ['criteria/1']='criterion1.spec'
+  ['criteria/2']='criterion2.spec'
 )
 
 main() {
-  "$database_script" init
+
+  if [[ "$1" != noinit ]]; then
+    "$database_script" init
+  fi
   "$database_script" ddl
   "$database_script" examples
   bail=false

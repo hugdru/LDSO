@@ -3,6 +3,7 @@ package datastore
 import (
 	"errors"
 	"server/datastore/metadata"
+	"strconv"
 	"time"
 )
 
@@ -60,11 +61,7 @@ func (ds *Datastore) InsertSubgroup(s *Subgroup) error {
 		`$1, $2, $3, $4` +
 		`) RETURNING id`
 
-	res, err := ds.postgres.Exec(sql, s.IdMaingroup, s.Name, s.Weight, s.CreatedDate)
-	if err != nil {
-		return err
-	}
-	s.Id, err = res.LastInsertId()
+	err := ds.postgres.QueryRow(sql, s.IdMaingroup, s.Name, s.Weight, s.CreatedDate).Scan(&s.Id)
 	if err != nil {
 		return err
 	}
@@ -150,6 +147,18 @@ func (ds *Datastore) DeleteSubgroup(s *Subgroup) error {
 	return err
 }
 
+func (ds *Datastore) DeleteSubgroupById(id int64) error {
+
+	const sql = `DELETE FROM places4all.subgroup WHERE id = $1`
+
+	_, err := ds.postgres.Exec(sql, id)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
 func (ds *Datastore) GetSubgroupById(id int64) (*Subgroup, error) {
 
 	const sql = `SELECT ` +
@@ -189,6 +198,29 @@ func (ds *Datastore) GetSubgroupsByMaingroupId(idMaingroup int64) ([]*Subgroup, 
 		if err != nil {
 			return nil, err
 		}
+	}
+
+	return subgroups, err
+}
+
+func (ds *Datastore) GetSubgroups(limit, offset int) ([]*Subgroup, error) {
+	subgroups := make([]*Subgroup, 0)
+	rows, err := ds.postgres.Queryx(
+		`SELECT subgroup.id, subgroup.id_maingroup, subgroup.name, subgroup.weight, subgroup.created_date ` +
+			`FROM places4all.subgroup ` +
+			`ORDER BY subgroup.id DESC LIMIT ` + strconv.Itoa(limit) +
+			` OFFSET ` + strconv.Itoa(offset))
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		subgroup := NewSubgroup(false)
+		err := rows.StructScan(subgroup)
+		if err != nil {
+			return nil, err
+		}
+		subgroups = append(subgroups, subgroup)
 	}
 
 	return subgroups, err

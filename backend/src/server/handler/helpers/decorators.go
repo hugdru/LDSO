@@ -2,7 +2,7 @@ package helpers
 
 import "net/http"
 
-func PostJson(f http.HandlerFunc) http.HandlerFunc {
+func RequestJson(f http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		contentType := r.Header.Get("Content-type")
 		if contentType != "application/json" {

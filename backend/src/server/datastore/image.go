@@ -58,11 +58,7 @@ func (ds *Datastore) InsertImage(i *Image) error {
 		`$1, $2, $3, $4, $5` +
 		`) RETURNING id`
 
-	res, err := ds.postgres.Exec(sql, i.IdGallery, i.Name, i.Description, i.Image, i.CreatedDate)
-	if err != nil {
-		return err
-	}
-	i.Id, err = res.LastInsertId()
+	err := ds.postgres.QueryRow(sql, i.IdGallery, i.Name, i.Description, i.Image, i.CreatedDate).Scan(&i.Id)
 	if err != nil {
 		return err
 	}

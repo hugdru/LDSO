@@ -16,17 +16,17 @@ func (h *Handler) getClient(w http.ResponseWriter, r *http.Request) {
 	idClient := chi.URLParam(r, "id")
 	id, err := strconv.ParseInt(idClient, 10, 64)
 	if err != nil {
-		http.Error(w, helpers.Error("Bad Client id"), 400)
+		http.Error(w, helpers.Error(err.Error()), 400)
 		return
 	}
 	client, err := h.Datastore.GetClientById(id)
 	if err != nil {
-		http.Error(w, helpers.Error("Invalid Client id"), 400)
+		http.Error(w, helpers.Error(err.Error()), 400)
 		return
 	}
 	clientSlice, err := json.Marshal(client)
 	if err != nil {
-		http.Error(w, helpers.Error("Failed converting Client to JSON"), 500)
+		http.Error(w, helpers.Error(err.Error()), 500)
 		return
 	}
 	w.Write(clientSlice)

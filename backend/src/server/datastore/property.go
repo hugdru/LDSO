@@ -65,11 +65,7 @@ func (ds *Datastore) InsertProperty(p *Property) error {
 		`$1, $2, $3, $4` +
 		`) RETURNING id`
 
-	res, err := ds.postgres.Exec(sql, p.IdAddress, p.Name, p.Details, p.CreatedDate)
-	if err != nil {
-		return err
-	}
-	p.Id, err = res.LastInsertId()
+	err := ds.postgres.QueryRow(sql, p.IdAddress, p.Name, p.Details, p.CreatedDate).Scan(&p.Id)
 	if err != nil {
 		return err
 	}

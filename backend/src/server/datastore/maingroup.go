@@ -3,6 +3,7 @@ package datastore
 import (
 	"errors"
 	"server/datastore/metadata"
+	"strconv"
 	"time"
 )
 
@@ -60,11 +61,7 @@ func (ds *Datastore) InsertMaingroup(m *Maingroup) error {
 		`$1, $2, $3, $4` +
 		`) RETURNING id`
 
-	res, err := ds.postgres.Exec(sql, m.IdTemplate, m.Name, m.Weight, m.CreatedDate)
-	if err != nil {
-		return err
-	}
-	m.Id, err = res.LastInsertId()
+	err := ds.postgres.QueryRow(sql, m.IdTemplate, m.Name, m.Weight, m.CreatedDate).Scan(&m.Id)
 	if err != nil {
 		return err
 	}
@@ -150,6 +147,18 @@ func (ds *Datastore) DeleteMaingroup(m *Maingroup) error {
 	return err
 }
 
+func (ds *Datastore) DeleteMaingroupById(id int64) error {
+
+	const sql = `DELETE FROM places4all.maingroup WHERE id = $1`
+
+	_, err := ds.postgres.Exec(sql, id)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
 func (ds *Datastore) GetMaingroupById(id int64) (*Maingroup, error) {
 
 	const sql = `SELECT ` +
@@ -189,6 +198,29 @@ func (ds *Datastore) GetMaingroupsByTemplateId(idTemplate int64) ([]*Maingroup, 
 		if err != nil {
 			return nil, err
 		}
+	}
+
+	return maingroups, err
+}
+
+func (ds *Datastore) GetMaingroups(limit, offset int) ([]*Maingroup, error) {
+	maingroups := make([]*Maingroup, 0)
+	rows, err := ds.postgres.Queryx(
+		`SELECT maingroup.id, maingroup.id_template, maingroup.name, maingroup.weight, maingroup.created_date ` +
+			`FROM places4all.maingroup ` +
+			`ORDER BY maingroup.id DESC LIMIT ` + strconv.Itoa(limit) +
+			` OFFSET ` + strconv.Itoa(offset))
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		maingroup := NewMaingroup(false)
+		err := rows.StructScan(maingroup)
+		if err != nil {
+			return nil, err
+		}
+		maingroups = append(maingroups, maingroup)
 	}
 
 	return maingroups, err

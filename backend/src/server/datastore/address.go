@@ -64,14 +64,11 @@ func (ds *Datastore) InsertAddress(a *Address) error {
 		`$1, $2, $3, $4, $5, $6, $7, $8, $9` +
 		`) RETURNING id`
 
-	result, err := ds.postgres.Exec(sql, a.IdCountry, a.AddressLine1, a.AddressLine2, a.AddressLine3, a.TownCity, a.County, a.Postcode, a.Latitude, a.Longitude)
+	err := ds.postgres.QueryRow(sql, a.IdCountry, a.AddressLine1, a.AddressLine2, a.AddressLine3, a.TownCity, a.County, a.Postcode, a.Latitude, a.Longitude).Scan(&a.Id)
 	if err != nil {
 		return err
 	}
-	a.Id, err = result.LastInsertId()
-	if err != nil {
-		return err
-	}
+
 	a.SetExists()
 
 	return err

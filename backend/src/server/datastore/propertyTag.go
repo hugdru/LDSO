@@ -28,6 +28,17 @@ func (pt *PropertyTag) Deleted() bool {
 	return pt.meta.Deleted
 }
 
+func APropertyTag(allocateObjects bool) PropertyTag {
+	propertyTag := PropertyTag{}
+	//if allocateObjects {
+	//}
+	return propertyTag
+}
+func NewPropertyTag(allocateObjects bool) *PropertyTag {
+	propertyTag := APropertyTag(allocateObjects)
+	return &propertyTag
+}
+
 func (ds *Datastore) InsertPropertyTag(pt *PropertyTag) error {
 
 	if pt.Exists() {
@@ -35,12 +46,12 @@ func (ds *Datastore) InsertPropertyTag(pt *PropertyTag) error {
 	}
 
 	const sql = `INSERT INTO places4all.property_tag (` +
-		`id_property` +
+		`id_property, id_tag` +
 		`) VALUES (` +
-		`$1` +
-		`) RETURNING id_tag`
+		`$1, $2` +
+		`)`
 
-	err := ds.postgres.QueryRow(sql, pt.IdProperty).Scan(&pt.IdTag)
+	_, err := ds.postgres.Exec(sql, pt.IdProperty, pt.IdTag)
 	if err != nil {
 		return err
 	}
@@ -52,22 +63,23 @@ func (ds *Datastore) InsertPropertyTag(pt *PropertyTag) error {
 
 func (ds *Datastore) UpdatePropertyTag(pt *PropertyTag) error {
 
-	if !pt.Exists() {
-		return errors.New("update failed: does not exist")
-	}
-
-	if pt.Deleted() {
-		return errors.New("update failed: marked for deletion")
-	}
-
-	const sql = `UPDATE places4all.property_tag SET (` +
-		`id_property` +
-		`) = ( ` +
-		`$1` +
-		`) WHERE id_tag = $2`
-
-	_, err := ds.postgres.Exec(sql, pt.IdProperty, pt.IdTag)
-	return err
+	//if !pt.Exists() {
+	//	return errors.New("update failed: does not exist")
+	//}
+	//
+	//if pt.Deleted() {
+	//	return errors.New("update failed: marked for deletion")
+	//}
+	//
+	//const sql = `UPDATE places4all.property_tag SET (` +
+	//	`` +
+	//	`) = ( ` +
+	//	`` +
+	//	`) WHERE id_property $1 AND id_tag = $2`
+	//
+	//_, err := ds.postgres.Exec(sql, pt.IdProperty, pt.IdTag)
+	//return err
+	return errors.New("TO BE COMPLETED IF WE GET MORE DATABASE ROWS")
 }
 
 func (ds *Datastore) SavePropertyTag(pt *PropertyTag) error {
@@ -114,9 +126,9 @@ func (ds *Datastore) DeletePropertyTag(pt *PropertyTag) error {
 		return nil
 	}
 
-	const sql = `DELETE FROM places4all.property_tag WHERE id_tag = $1`
+	const sql = `DELETE FROM places4all.property_tag WHERE id_property = $1 AND id_tag = $2`
 
-	_, err := ds.postgres.Exec(sql, pt.IdTag)
+	_, err := ds.postgres.Exec(sql, pt.IdProperty, pt.IdTag)
 	if err != nil {
 		return err
 	}
@@ -141,7 +153,7 @@ func (ds *Datastore) GetPropertyTagByIds(idProperty, idTag int64) (*PropertyTag,
 		`FROM places4all.property_tag ` +
 		`WHERE id_property = $1 AND id_tag = $2`
 
-	pt := PropertyTag{}
+	pt := APropertyTag(false)
 	pt.SetExists()
 
 	err := ds.postgres.QueryRow(sql, idProperty, idTag).Scan(&pt.IdProperty, &pt.IdTag)

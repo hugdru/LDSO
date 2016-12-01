@@ -69,11 +69,7 @@ func (ds *Datastore) InsertEntity(p *Entity) error {
 		`$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12` +
 		`) RETURNING id`
 
-	res, err := ds.postgres.Exec(sql, p.IdCountry, p.Name, p.Email, p.Username, p.Password, p.Image, p.Banned, p.BannedDate, p.Reason, p.Mobilephone, p.Telephone, p.CreatedDate)
-	if err != nil {
-		return err
-	}
-	p.Id, err = res.LastInsertId()
+	err := ds.postgres.QueryRow(sql, p.IdCountry, p.Name, p.Email, p.Username, p.Password, p.Image, p.Banned, p.BannedDate, p.Reason, p.Mobilephone, p.Telephone, p.CreatedDate).Scan(&p.Id)
 	if err != nil {
 		return err
 	}

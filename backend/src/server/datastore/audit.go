@@ -59,14 +59,11 @@ func (ds *Datastore) InsertAudit(a *Audit) error {
 		`$1, $2, $3, $4, $5, $6, $7` +
 		`) RETURNING id`
 
-	result, err := ds.postgres.Exec(sql, a.IdProperty, a.IdAuditor, a.IdTemplate, a.Rating, a.Observation, a.CreatedDate, a.FinishedDate)
+	err := ds.postgres.QueryRow(sql, a.IdProperty, a.IdAuditor, a.IdTemplate, a.Rating, a.Observation, a.CreatedDate, a.FinishedDate).Scan(&a.Id)
 	if err != nil {
 		return err
 	}
-	a.Id, err = result.LastInsertId()
-	if err != nil {
-		return err
-	}
+
 	a.SetExists()
 
 	return nil

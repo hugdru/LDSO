@@ -4,6 +4,7 @@ import (
 	"errors"
 	"gopkg.in/guregu/null.v3/zero"
 	"server/datastore/metadata"
+	"strconv"
 )
 
 type Legislation struct {
@@ -47,12 +48,12 @@ func (ds *Datastore) InsertLegislation(l *Legislation) error {
 	}
 
 	const sql = `INSERT INTO places4all.legislation (` +
-		`name, url` +
+		`name, description, url` +
 		`) VALUES (` +
-		`$1, $2` +
+		`$1, $2, $3` +
 		`) RETURNING id`
 
-	err := ds.postgres.QueryRow(sql, l.Name, l.Url).Scan(&l.Id)
+	err := ds.postgres.QueryRow(sql, l.Name, l.Description, l.Url).Scan(&l.Id)
 	if err != nil {
 		return err
 	}
@@ -73,12 +74,12 @@ func (ds *Datastore) UpdateLegislation(l *Legislation) error {
 	}
 
 	const sql = `UPDATE places4all.legislation SET (` +
-		`name, url` +
+		`name, description, url` +
 		`) = ( ` +
-		`$1, $2` +
-		`) WHERE id = $3`
+		`$1, $2, $3` +
+		`) WHERE id = $4`
 
-	_, err := ds.postgres.Exec(sql, l.Name, l.Url, l.Id)
+	_, err := ds.postgres.Exec(sql, l.Name, l.Description, l.Url, l.Id)
 	return err
 }
 
@@ -97,16 +98,16 @@ func (ds *Datastore) UpsertLegislation(l *Legislation) error {
 	}
 
 	const sql = `INSERT INTO places4all.legislation (` +
-		`id, name, url` +
+		`id, name, description, url` +
 		`) VALUES (` +
-		`$1, $2, $3` +
+		`$1, $2, $3, $4` +
 		`) ON CONFLICT (id) DO UPDATE SET (` +
-		`id, name, url` +
+		`id, name, description, url` +
 		`) = (` +
-		`EXCLUDED.id, EXCLUDED.name, EXCLUDED.url` +
+		`EXCLUDED.id, EXCLUDED.name, EXCLUDED.description, EXCLUDED.url` +
 		`)`
 
-	_, err := ds.postgres.Exec(sql, l.Id, l.Name, l.Url)
+	_, err := ds.postgres.Exec(sql, l.Id, l.Name, l.Description, l.Url)
 	if err != nil {
 		return err
 	}
@@ -138,20 +139,57 @@ func (ds *Datastore) DeleteLegislation(l *Legislation) error {
 	return err
 }
 
+func (ds *Datastore) DeleteLegislationById(id int64) error {
+
+	const sql = `DELETE FROM places4all.legislation WHERE id = $1`
+
+	_, err := ds.postgres.Exec(sql, id)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
 func (ds *Datastore) GetLegislationById(id int64) (*Legislation, error) {
 
 	const sql = `SELECT ` +
-		`id, name, url ` +
+		`id, name, description, url ` +
 		`FROM places4all.legislation ` +
 		`WHERE id = $1`
 
-	l := Legislation{}
+	l := ALegislation(true)
 	l.SetExists()
 
-	err := ds.postgres.QueryRow(sql, id).Scan(&l.Id, &l.Name, &l.Url)
+	err := ds.postgres.QueryRow(sql, id).Scan(&l.Id, &l.Name, &l.Description, &l.Url)
 	if err != nil {
 		return nil, err
 	}
 
 	return &l, err
+}
+
+func (ds *Datastore) GetLegislations(limit, offset int) ([]*Legislation, error) {
+
+	rows, err := ds.postgres.Queryx(`SELECT ` +
+		`id, name, description, url ` +
+		`FROM places4all.legislation ` +
+		`ORDER BY legislation.id DESC LIMIT ` + strconv.Itoa(limit) +
+		` OFFSET ` + strconv.Itoa(offset))
+	if err != nil {
+		return nil, err
+	}
+
+	legislations := make([]*Legislation, 0)
+	for rows.Next() {
+		l := NewLegislation(true)
+		l.SetExists()
+		err = rows.StructScan(l)
+		if err != nil {
+			return nil, err
+		}
+		legislations = append(legislations, l)
+	}
+
+	return legislations, err
 }

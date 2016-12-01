@@ -16,17 +16,17 @@ func (h *Handler) getAddress(w http.ResponseWriter, r *http.Request) {
 	idAddress := chi.URLParam(r, "id")
 	id, err := strconv.ParseInt(idAddress, 10, 64)
 	if err != nil {
-		http.Error(w, helpers.Error("Bad Address id"), 400)
+		http.Error(w, helpers.Error(err.Error()), 400)
 		return
 	}
 	address, err := h.Datastore.GetAddressById(id)
 	if err != nil {
-		http.Error(w, helpers.Error("Invalid Address id"), 400)
+		http.Error(w, helpers.Error(err.Error()), 400)
 		return
 	}
 	addressSlice, err := json.Marshal(address)
 	if err != nil {
-		http.Error(w, helpers.Error("Failed converting Address to JSON"), 500)
+		http.Error(w, helpers.Error(err.Error()), 500)
 		return
 	}
 	w.Write(addressSlice)

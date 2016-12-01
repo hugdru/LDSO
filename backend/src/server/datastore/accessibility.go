@@ -50,14 +50,11 @@ func (ds *Datastore) InsertAccessibility(a *Accessibility) error {
 	}
 
 	const sql = `INSERT INTO places4all.accessibility(name) VALUES ($1) RETURNING id`
-	result, err := ds.postgres.Exec(sql, a.Name)
+	err := ds.postgres.QueryRow(sql, a.Name).Scan(&a.Id)
 	if err != nil {
 		return err
 	}
-	a.Id, err = result.LastInsertId()
-	if err != nil {
-		return err
-	}
+
 	a.SetExists()
 
 	return err

@@ -57,11 +57,7 @@ func (ds *Datastore) InsertGallery(g *Gallery) error {
 		`$1, $2, $3, $4` +
 		`) RETURNING id`
 
-	res, err := ds.postgres.Exec(sql, g.IdProperty, g.Name, g.Description, g.CreatedDate)
-	if err != nil {
-		return err
-	}
-	g.Id, err = res.LastInsertId()
+	err := ds.postgres.QueryRow(sql, g.IdProperty, g.Name, g.Description, g.CreatedDate).Scan(&g.Id)
 	if err != nil {
 		return err
 	}

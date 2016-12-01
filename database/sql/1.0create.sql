@@ -170,8 +170,8 @@ CREATE TABLE audit (
 CREATE TABLE audit_subgroup (
   id_audit INTEGER REFERENCES audit(id),
   id_subgroup INTEGER REFERENCES subgroup(id),
-  PRIMARY KEY(id_audit, id_criterion)
-)
+  PRIMARY KEY(id_audit, id_subgroup)
+);
 
 CREATE TABLE audit_criterion (
   id_audit INTEGER REFERENCES audit(id),
@@ -184,3 +184,4 @@ CREATE TABLE audit_criterion (
 GRANT ALL ON DATABASE "places4all" to admin;
 GRANT ALL ON SCHEMA "places4all" TO admin;
 GRANT ALL ON ALL TABLES IN SCHEMA "places4all" TO admin;
+GRANT SELECT, USAGE ON ALL SEQUENCES IN SCHEMA "places4all" to admin;

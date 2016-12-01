@@ -108,8 +108,8 @@ class legislation {
   +name: VARCHAR
 }
 
-entity <|-- localAdmin
-entity <|-- superAdmin
+entity <|-- localadmin
+entity <|-- superadmin
 entity <|-- auditor
 entity <|-- client
 entity "*" -- "1" country
