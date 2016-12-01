@@ -2,8 +2,9 @@ import {Component, OnInit, Input} from "@angular/core";
 import {MainGroupService} from "main-group/service/main-group.service";
 import {MainGroup} from "main-group/main-group";
 import {SubGroup} from "sub-group/sub-group";
-import {CriterionService} from "../criterion/service/criterion.service";
-import {Criterion} from "../criterion/criterion";
+import {CriterionService} from "criterion/service/criterion.service";
+import {Criterion} from "criterion/criterion";
+import {Remark} from "remark/remark";
 
 @Component({
     selector: 'audit-evaluate',
@@ -14,10 +15,14 @@ import {Criterion} from "../criterion/criterion";
 
 export class AuditEvaluateComponent implements OnInit {
     @Input() selectedSubGroups: SubGroup[];
+
     mainGroups: MainGroup[] = [];
     mainGroupsId: number[] = [];
     selectedMainGroup: MainGroup;
     criteria: Criterion[];
+	selectedAdd: boolean = false;
+	remark: Remark;
+	remarks: Remark[];
 
     constructor(private mainGroupService: MainGroupService,
                 private criterionService: CriterionService) {
@@ -26,6 +31,7 @@ export class AuditEvaluateComponent implements OnInit {
     ngOnInit(): void {
         this.findMainGroups();
         this.getMainGroups();
+		this.remarks = [];
     }
 
     getMainGroups(): void {
@@ -63,5 +69,16 @@ export class AuditEvaluateComponent implements OnInit {
 
 	uncheckedNoCriterion(criterion: Criterion): void {
 
+	}
+
+	selectAdd(): void {
+		this.selectedAdd = true;
+	}
+
+	onAdd(remark: Remark): void {
+		if (remark != null) {
+			this.remarks.push(remark);
+		}
+		this.selectedAdd = false;
 	}
 }

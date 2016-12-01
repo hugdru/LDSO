@@ -19,11 +19,6 @@
 </div>
 <hr>
 <div>
-    <div *ngIf='selectedSubGroups'>
-        <span *ngFor='let subGroup of selectedSubGroups'>
-            {{subGroup._id}}
-        </span>
-    </div>
     <button *ngIf='selectedSubGroups.length > 0'
             class="btn btn-success round outline"
             (click)="pressed()">

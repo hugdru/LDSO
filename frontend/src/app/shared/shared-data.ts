@@ -19,3 +19,5 @@ export const propertiesFindUrl = propertiesUrl + '/find';
 
 export const auditsUrl = serverUrl + '/audits';
 export const auditsFindUrl = auditsUrl + '/find';
+
+export const imageUploadUrl = serverUrl + '/image';
