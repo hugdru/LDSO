@@ -19,33 +19,22 @@ func (h *Handler) legislationsRoutes(router chi.Router) {
 }
 
 func (h *Handler) getLegislations(w http.ResponseWriter, r *http.Request) {
-	var limit, offset int = 10, 0
-	var err error
 
-	limitString := r.FormValue("limit")
-	offsetString := r.FormValue("offset")
-
-	if limitString != "" {
-		limit, err = strconv.Atoi(limitString)
-		if err != nil {
-			http.Error(w, helpers.Error(err.Error()), 400)
-			return
-		}
-	}
-	if offsetString != "" {
-		offset, err = strconv.Atoi(offsetString)
-		if err != nil {
-			http.Error(w, helpers.Error(err.Error()), 400)
-			return
-		}
-	}
-
-	if limit <= 0 || offset < 0 || limit > 100 {
-		http.Error(w, helpers.Error("0<limit<=100 && offset > 0"), 400)
+	limit, offset, err := helpers.PaginationParse(r)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 400)
 		return
 	}
 
-	legislations, err := h.Datastore.GetLegislations(limit, offset)
+	filter := helpers.GetQueryArgs([][]string{
+		[]string{"id"}, []string{"name"}, []string{"description"},
+	}, r)
+	if filter == nil {
+		http.Error(w, helpers.Error("Failed to create filter"), 500)
+		return
+	}
+
+	legislations, err := h.Datastore.GetLegislations(limit, offset, filter)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return

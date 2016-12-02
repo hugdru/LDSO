@@ -2,6 +2,9 @@ package helpers
 
 import (
 	"bytes"
+	"errors"
+	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -46,4 +49,58 @@ func escapeJsonString(s string) (string, error) {
 	}
 
 	return buf.String(), nil
+}
+
+func PaginationParse(r *http.Request) (int, int, error) {
+	const max_limit = 200
+
+	var limit, offset int = 100, 0
+	var err error
+
+	limitString := r.FormValue("limit")
+	offsetString := r.FormValue("offset")
+
+	if limitString != "" {
+		limit, err = strconv.Atoi(limitString)
+		if err != nil {
+			return 0, 0, err
+		}
+	}
+	if offsetString != "" {
+		offset, err = strconv.Atoi(offsetString)
+		if err != nil {
+			return 0, 0, err
+		}
+	}
+
+	if limit <= 0 || offset < 0 || limit > max_limit {
+		return 0, 0, errors.New("0<limit<=" + strconv.FormatInt(max_limit, 10) + "&& offset > 0")
+	}
+
+	return limit, offset, nil
+}
+
+func GetQueryArgs(args [][]string, r *http.Request) map[string]string {
+	filter := make(map[string]string)
+	for _, names := range args {
+		namesLength := len(names)
+		switch namesLength {
+		case 1:
+			inputName := names[0]
+			value := r.FormValue(inputName)
+			if value != "" {
+				filter[inputName] = value
+			}
+		case 2:
+			inputName := names[0]
+			dbName := names[1]
+			value := r.FormValue(inputName)
+			if value != "" {
+				filter[dbName] = value
+			}
+		default:
+			return nil
+		}
+	}
+	return filter
 }

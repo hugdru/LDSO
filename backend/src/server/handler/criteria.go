@@ -3,12 +3,12 @@ package handler
 import (
 	"encoding/json"
 	"github.com/pressly/chi"
+	"gopkg.in/guregu/null.v3/zero"
 	"net/http"
 	"server/datastore"
 	"server/handler/helpers"
 	"strconv"
 	"time"
-	"gopkg.in/guregu/null.v3/zero"
 )
 
 func (h *Handler) criteriaRoutes(router chi.Router) {
@@ -20,33 +20,25 @@ func (h *Handler) criteriaRoutes(router chi.Router) {
 }
 
 func (h *Handler) getCriteria(w http.ResponseWriter, r *http.Request) {
-	var limit, offset int = 10, 0
-	var err error
 
-	limitString := r.FormValue("limit")
-	offsetString := r.FormValue("offset")
-
-	if limitString != "" {
-		limit, err = strconv.Atoi(limitString)
-		if err != nil {
-			http.Error(w, helpers.Error(err.Error()), 400)
-			return
-		}
-	}
-	if offsetString != "" {
-		offset, err = strconv.Atoi(offsetString)
-		if err != nil {
-			http.Error(w, helpers.Error(err.Error()), 400)
-			return
-		}
-	}
-
-	if limit <= 0 || offset < 0 || limit > 100 {
-		http.Error(w, helpers.Error("0<limit<=100 && offset > 0"), 400)
+	limit, offset, err := helpers.PaginationParse(r)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 400)
 		return
 	}
 
-	criteria, err := h.Datastore.GetCriteria(limit, offset)
+	filter := helpers.GetQueryArgs([][]string{
+		[]string{"id"},
+		[]string{"idSubgroup", "id_subgroup"},
+		[]string{"idLegislation", "id_legislation"},
+		[]string{"name"},
+	}, r)
+	if filter == nil {
+		http.Error(w, helpers.Error("Failed to create filter"), 500)
+		return
+	}
+
+	criteria, err := h.Datastore.GetCriteria(limit, offset, filter)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
@@ -156,8 +148,8 @@ func (h *Handler) updateCriterion(w http.ResponseWriter, r *http.Request) {
 
 	var input struct {
 		IdLegislation int64
-		Name   string
-		Weight int
+		Name          string
+		Weight        int
 	}
 	input.Weight = -1
 

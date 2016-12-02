@@ -3,6 +3,7 @@ package datastore
 import (
 	"errors"
 	"gopkg.in/guregu/null.v3/zero"
+	"server/datastore/generators"
 	"server/datastore/metadata"
 	"strconv"
 	"time"
@@ -176,17 +177,23 @@ func (ds *Datastore) GetTemplateById(id int64) (*Template, error) {
 	return &t, err
 }
 
-func (ds *Datastore) GetTemplates(limit, offset int) ([]*Template, error) {
-	templates := make([]*Template, 0)
-	rows, err := ds.postgres.Queryx(
-		`SELECT template.id, template.name, template.description, template.created_date ` +
-			`FROM places4all.template ` +
-			`ORDER BY template.id DESC LIMIT ` + strconv.Itoa(limit) +
-			` OFFSET ` + strconv.Itoa(offset))
+func (ds *Datastore) GetTemplates(limit, offset int, filter map[string]string) ([]*Template, error) {
+
+	where, values := generators.GenerateSearchClause(filter)
+
+	sql := `SELECT template.id, template.name, template.description, template.created_date ` +
+		`FROM places4all.template ` +
+		where +
+		`ORDER BY template.id DESC LIMIT ` + strconv.Itoa(limit) +
+		` OFFSET ` + strconv.Itoa(offset)
+	sql = ds.postgres.Rebind(sql)
+
+	rows, err := ds.postgres.Queryx(sql, values...)
 	if err != nil {
 		return nil, err
 	}
 
+	templates := make([]*Template, 0)
 	for rows.Next() {
 		template := NewTemplate(false)
 		err := rows.StructScan(template)

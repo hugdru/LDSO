@@ -3,6 +3,7 @@ package datastore
 import (
 	"errors"
 	"gopkg.in/guregu/null.v3/zero"
+	"server/datastore/generators"
 	"server/datastore/metadata"
 	"strconv"
 )
@@ -169,13 +170,19 @@ func (ds *Datastore) GetLegislationById(id int64) (*Legislation, error) {
 	return &l, err
 }
 
-func (ds *Datastore) GetLegislations(limit, offset int) ([]*Legislation, error) {
+func (ds *Datastore) GetLegislations(limit, offset int, filter map[string]string) ([]*Legislation, error) {
 
-	rows, err := ds.postgres.Queryx(`SELECT ` +
+	where, values := generators.GenerateSearchClause(filter)
+
+	sql := `SELECT ` +
 		`id, name, description, url ` +
 		`FROM places4all.legislation ` +
+		where +
 		`ORDER BY legislation.id DESC LIMIT ` + strconv.Itoa(limit) +
-		` OFFSET ` + strconv.Itoa(offset))
+		` OFFSET ` + strconv.Itoa(offset)
+	sql = ds.postgres.Rebind(sql)
+
+	rows, err := ds.postgres.Queryx(sql, values...)
 	if err != nil {
 		return nil, err
 	}

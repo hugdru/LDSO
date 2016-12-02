@@ -2,6 +2,7 @@ package datastore
 
 import (
 	"errors"
+	"server/datastore/generators"
 	"server/datastore/metadata"
 	"strconv"
 	"time"
@@ -203,17 +204,23 @@ func (ds *Datastore) GetSubgroupsByMaingroupId(idMaingroup int64) ([]*Subgroup, 
 	return subgroups, err
 }
 
-func (ds *Datastore) GetSubgroups(limit, offset int) ([]*Subgroup, error) {
-	subgroups := make([]*Subgroup, 0)
-	rows, err := ds.postgres.Queryx(
-		`SELECT subgroup.id, subgroup.id_maingroup, subgroup.name, subgroup.weight, subgroup.created_date ` +
-			`FROM places4all.subgroup ` +
-			`ORDER BY subgroup.id DESC LIMIT ` + strconv.Itoa(limit) +
-			` OFFSET ` + strconv.Itoa(offset))
+func (ds *Datastore) GetSubgroups(limit, offset int, filter map[string]string) ([]*Subgroup, error) {
+
+	where, values := generators.GenerateSearchClause(filter)
+
+	sql := `SELECT subgroup.id, subgroup.id_maingroup, subgroup.name, subgroup.weight, subgroup.created_date ` +
+		`FROM places4all.subgroup ` +
+		where +
+		`ORDER BY subgroup.id DESC LIMIT ` + strconv.Itoa(limit) +
+		` OFFSET ` + strconv.Itoa(offset)
+	sql = ds.postgres.Rebind(sql)
+
+	rows, err := ds.postgres.Queryx(sql, values...)
 	if err != nil {
 		return nil, err
 	}
 
+	subgroups := make([]*Subgroup, 0)
 	for rows.Next() {
 		subgroup := NewSubgroup(false)
 		err := rows.StructScan(subgroup)

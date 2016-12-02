@@ -3,6 +3,7 @@ package datastore
 import (
 	"errors"
 	"gopkg.in/guregu/null.v3/zero"
+	"server/datastore/generators"
 	"server/datastore/metadata"
 	"strconv"
 	"time"
@@ -217,17 +218,23 @@ func (ds *Datastore) GetCriteriaBySubgroupId(idSubgroup int64) ([]*Criterion, er
 	return criteria, err
 }
 
-func (ds *Datastore) GetCriteria(limit, offset int) ([]*Criterion, error) {
-	criteria := make([]*Criterion, 0)
-	rows, err := ds.postgres.Queryx(
-		`SELECT criterion.id, criterion.id_subgroup, criterion.id_legislation, criterion.name, criterion.weight,criterion.created_date ` +
-			`FROM places4all.criterion ` +
-			`ORDER BY criterion.id DESC LIMIT ` + strconv.Itoa(limit) +
-			` OFFSET ` + strconv.Itoa(offset))
+func (ds *Datastore) GetCriteria(limit, offset int, filter map[string]string) ([]*Criterion, error) {
+
+	where, values := generators.GenerateSearchClause(filter)
+
+	sql := `SELECT criterion.id, criterion.id_subgroup, criterion.id_legislation, criterion.name, criterion.weight,criterion.created_date ` +
+		`FROM places4all.criterion ` +
+		where +
+		`ORDER BY criterion.id DESC LIMIT ` + strconv.Itoa(limit) +
+		` OFFSET ` + strconv.Itoa(offset)
+	sql = ds.postgres.Rebind(sql)
+
+	rows, err := ds.postgres.Queryx(sql, values...)
 	if err != nil {
 		return nil, err
 	}
 
+	criteria := make([]*Criterion, 0)
 	for rows.Next() {
 		criterion := NewCriterion(false)
 		err := rows.StructScan(criterion)

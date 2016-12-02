@@ -2,6 +2,7 @@ package datastore
 
 import (
 	"errors"
+	"server/datastore/generators"
 	"server/datastore/metadata"
 	"strconv"
 	"time"
@@ -203,13 +204,19 @@ func (ds *Datastore) GetMaingroupsByTemplateId(idTemplate int64) ([]*Maingroup, 
 	return maingroups, err
 }
 
-func (ds *Datastore) GetMaingroups(limit, offset int) ([]*Maingroup, error) {
+func (ds *Datastore) GetMaingroups(limit, offset int, filter map[string]string) ([]*Maingroup, error) {
+
+	where, values := generators.GenerateSearchClause(filter)
+
+	sql := `SELECT maingroup.id, maingroup.id_template, maingroup.name, maingroup.weight, maingroup.created_date ` +
+		`FROM places4all.maingroup ` +
+		where +
+		`ORDER BY maingroup.id DESC LIMIT ` + strconv.Itoa(limit) +
+		` OFFSET ` + strconv.Itoa(offset)
+	sql = ds.postgres.Rebind(sql)
+
 	maingroups := make([]*Maingroup, 0)
-	rows, err := ds.postgres.Queryx(
-		`SELECT maingroup.id, maingroup.id_template, maingroup.name, maingroup.weight, maingroup.created_date ` +
-			`FROM places4all.maingroup ` +
-			`ORDER BY maingroup.id DESC LIMIT ` + strconv.Itoa(limit) +
-			` OFFSET ` + strconv.Itoa(offset))
+	rows, err := ds.postgres.Queryx(sql, values...)
 	if err != nil {
 		return nil, err
 	}

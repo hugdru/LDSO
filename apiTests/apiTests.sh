@@ -23,18 +23,26 @@ gets=(
   ['addresses/1']='address1.spec'
   ['clients/1']='client1.spec'
   ['templates']='templates.spec'
+  ['templates?id=2']='templatesId2.spec'
+  ['templates?id=2&name=O+meu+segundo+template']='templatesId2Name.spec'
+  ['templates?name=O+meu+primeiro+template']='templatesName1.spec'
   ['templates/1']='template1.spec'
   ['templates/2']='template2.spec'
   ['maingroups']='maingroups.spec'
+  ['maingroups?idTemplate=1']='maingroupsIdTemplate1.spec'
+  ['maingroups?idTemplate=1&name=T1-M2']='maingroupsIdTemplate1Name.spec'
   ['maingroups/1']='maingroup1.spec'
   ['maingroups/2']='maingroup2.spec'
   ['subgroups']='subgroups.spec'
+  ['subgroups?idMaingroup=2']='subgroupsIdMaingroup2.spec'
   ['subgroups/1']='subgroup1.spec'
   ['subgroups/2']='subgroup2.spec'
   ['legislations']='legislations.spec'
+  ['legislations?name=O+banco']='legislationsName1.spec'
   ['legislations/1']='legislation1.spec'
   ['legislations/2']='legislation2.spec'
   ['criteria']='criteria.spec'
+  ['criteria?idSubgroup=5']='criteriaIdSubgroup5.spec'
   ['criteria/1']='criterion1.spec'
   ['criteria/2']='criterion2.spec'
 )
@@ -67,13 +75,19 @@ get() {
 
   local counter=1
   for resource in "${!gets[@]}"; do
-    local output="$($EXE GET "$URL/$resource" 2>/dev/null)"
-    local spec=$(<"$specs_dir/${gets[$resource]}")
-    if [[ "$output" == "$spec" ]]; then
-      echo -e "\t${GREEN}$resource \t\t $counter/$n_tests"
-    else
-      echo -e "\t${RED}$resource \t\t $counter/$n_tests"
+    local spec_file="$specs_dir/${gets[$resource]}"
+    if [[ ! -f "$spec_file" ]]; then
+      echo -e "\t${RED}$resource \t\t $counter/$n_tests \t NO SPEC!"
       success=false
+    else
+      local output="$($EXE GET "$URL/$resource" 2>/dev/null)"
+      local spec=$(<"$spec_file")
+      if [[ "$output" == "$spec" ]]; then
+        echo -e "\t${GREEN}$resource \t\t $counter/$n_tests"
+      else
+        echo -e "\t${RED}$resource \t\t $counter/$n_tests"
+        success=false
+      fi
     fi
     ((counter++))
   done
