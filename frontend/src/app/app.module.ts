@@ -34,13 +34,14 @@ import {ListSelectEditComponent}
 		from "shared/list-select/list-select-edit.component";
 import {ListShowValueComponent}
 		from "shared/list-show-value/list-show-value.component";
+import {ShowListComponent}
+		from "shared/show-list/show-list.component";
 import {ListPropertiesComponent} from "property/list-properties.component";
 import {PropertiesInfoComponent} from "property/property-info.component";
 import {AuditComponent} from "audit/audit.component";
 import {AuditEvaluateComponent} from "audit/audit-evaluate.component";
 import {AuditSelectComponent} from "audit/audit-select.component";
 import {RemarkAddComponent} from "remark/remark-add.component";
-import {ImageUploadComponent} from 'images/image-upload.component';
 import {ImageSingleUploadComponent} from 'images/image-single-upload.component';
 import {HandlerService} from "handler.service";
 
@@ -70,12 +71,12 @@ import {HandlerService} from "handler.service";
         ListSelectEditComponent,
         ListShowValueComponent,
         ListPropertiesComponent,
+		ShowListComponent,
         PropertiesInfoComponent,
         AuditComponent,
         AuditEvaluateComponent,
         AuditSelectComponent,
 		RemarkAddComponent,
-		ImageUploadComponent,
 		ImageSingleUploadComponent
     ],
     imports: [
