@@ -27,10 +27,13 @@ typeset -A images
 images=(
   ["prod/nginx"]="./docker/production/nginx.dockerfile"
   ["prod/golang"]="./docker/production/go.dockerfile"
+  ["prod/postgres"]="./docker/common/postgres.dockerfile"
   ["dev/nginx"]="./docker/development/nginx.dockerfile"
   ["dev/golang"]="./docker/development/go.dockerfile"
+  ["dev/postgres"]="./docker/common/postgres.dockerfile"
   ["stag/nginx"]="./docker/production/nginx.dockerfile"
   ["stag/golang"]="./docker/production/go.dockerfile"
+  ["stag/postgres"]="./docker/common/postgres.dockerfile"
 )
 
 typeset -A builds_args

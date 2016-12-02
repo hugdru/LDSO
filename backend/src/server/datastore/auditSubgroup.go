@@ -2,6 +2,7 @@ package datastore
 
 import (
 	"errors"
+	"server/datastore/generators"
 	"server/datastore/metadata"
 )
 
@@ -108,4 +109,76 @@ func (ds *Datastore) GetAuditSubgroupById(idAudit, idSubgroup int64) (*AuditSubg
 	}
 
 	return &ac, err
+}
+
+func (ds *Datastore) GetAuditSubgroupsByIdAudit(idAudit int64, filter map[string]string) ([]int64, error) {
+
+	where, values := generators.GenerateSearchClause(filter)
+
+	sql := `SELECT ` +
+		`id_subgroup ` +
+		`FROM places4all.audit_subgroup ` +
+		where +
+		`WHERE id_audit = $1`
+	sql = ds.postgres.Rebind(sql)
+	values = append(values, idAudit)
+
+	rows, err := ds.postgres.Queryx(sql, values...)
+	if err != nil {
+		return nil, err
+	}
+
+	subgroups := make([]int64, 0)
+	for rows.Next() {
+		var idSubgroup int64
+		err := rows.Scan(&idSubgroup)
+		if err != nil {
+			return nil, err
+		}
+		subgroups = append(subgroups, idSubgroup)
+	}
+
+	return subgroups, err
+}
+
+// TODO: check if subgroup is from the template audit is using
+func (ds *Datastore) SaveAuditSubgroup(idAudit int64, idTemplate int64, idsSubgroups []int64) error {
+
+	const sql = `INSERT INTO places4all.audit_subgroup (` +
+		`id_audit, id_subgroup` +
+		`) VALUES (` +
+		`$1, $2` +
+		`)`
+
+	tx, err := ds.postgres.Begin()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+			return
+		}
+		err = tx.Commit()
+	}()
+
+	for _, idSubgroup := range idsSubgroups {
+		_, err := tx.Exec(sql, idAudit, idSubgroup)
+		if err != nil {
+			return err
+		}
+	}
+
+	return err
+}
+
+func (ds *Datastore) DeleteAuditSubgroupsByIdAudit(idAudit int64) error {
+	const sql = `DELETE FROM places4all.audit_subgroup WHERE id_audit = $1`
+
+	_, err := ds.postgres.Exec(sql, idAudit)
+	if err != nil {
+		return err
+	}
+
+	return err
 }

@@ -68,12 +68,12 @@ services:
       - app-network
     restart: always
   postgres:
-    image: postgres:latest
+    image: dev/postgres
     container_name: postgres
     environment:
       - BUILD=dev
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=admin
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgrespw
       - POSTGRES_PGDATA=/var/lib/postgresql/data/pgdata
       - POSTGRES_DB=places4all
     ports:
