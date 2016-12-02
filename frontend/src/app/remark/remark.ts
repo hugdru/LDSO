@@ -3,4 +3,5 @@ export class Remark {
 	data: string;
 	image: number;
 	criterion: number;
+	audit: number;
 }
