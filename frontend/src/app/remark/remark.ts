@@ -1,6 +1,7 @@
 export class Remark {
-	_id: number;
+	id: number;
 	data: string;
 	image: number;
 	criterion: number;
+	audit: number;
 }
