@@ -19,4 +19,5 @@ func (h *Handler) Init(mux *chi.Mux) {
 	mux.Route("/subgroups", h.subgroupsRoutes)
 	mux.Route("/legislations", h.legislationsRoutes)
 	mux.Route("/criteria", h.criteriaRoutes)
+	mux.Route("/audits", h.auditsRoutes)
 }

@@ -5,13 +5,14 @@ import (
 	"gopkg.in/guregu/null.v3/zero"
 	"server/datastore/metadata"
 	"time"
+	"strconv"
 )
 
 type Audit struct {
 	Id           int64       `json:"id" db:"id"`
-	IdProperty   int64       `json:"id_property" db:"id_property"`
-	IdAuditor    int64       `json:"id_auditor" db:"id_auditor"`
-	IdTemplate   int64       `json:"id_template" db:"id_template"`
+	IdProperty   int64       `json:"idProperty" db:"id_property"`
+	IdAuditor    int64       `json:"idAuditor" db:"id_auditor"`
+	IdTemplate   int64       `json:"idTemplate" db:"id_template"`
 	Rating       zero.Int    `json:"rating" db:"rating"`
 	Observation  zero.String `json:"observation" db:"observation"`
 	CreatedDate  time.Time   `json:"createdDate" db:"created_date"`
@@ -173,4 +174,40 @@ func (ds *Datastore) GetAuditById(id int64) (*Audit, error) {
 	}
 
 	return &a, err
+}
+func (ds *Datastore) GetAudits(limit, offset int) ([]*Audit, error) {
+
+	rows, err := ds.postgres.Queryx(`SELECT ` +
+		`id, id_property, id_auditor, id_template, rating, observation, created_date, finished_date ` +
+		`FROM places4all.audit ` +
+		`ORDER BY audit.id DESC LIMIT ` + strconv.Itoa(limit) +
+		` OFFSET ` + strconv.Itoa(offset))
+	if err != nil {
+		return nil, err
+	}
+
+	audit := make([]*Audit, 0)
+	for rows.Next() {
+		a := NewAudit(false)
+		a.SetExists()
+		err = rows.StructScan(a)
+		if err != nil {
+			return nil, err
+		}
+		audit = append(audit, a)
+	}
+
+	return audit, err
+}
+
+func (ds *Datastore) DeleteAuditById(id int64) error {
+
+	const sql = `DELETE FROM places4all.audit WHERE id = $1`
+
+	_, err := ds.postgres.Exec(sql, id)
+	if err != nil {
+		return err
+	}
+
+	return err
 }
