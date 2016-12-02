@@ -14,16 +14,16 @@ import {HandlerService} from "handler.service";
 
 const mockArray = [
     {
-        _id: 26, property: 10, rating: 85,
+        id: 26, property: 10, rating: 85,
         criteria: [{criterion: 1, rating: 10}, {criterion: 2, rating: 25}]
     },
     {
-        _id: 26, property: 12, rating: 76,
+        id: 26, property: 12, rating: 76,
         criteria: [{criterion: 10, rating: 10}, {criterion: 2, rating: 25}]
     }
 ];
 const mock = {
-    _id: 26, property: 10, rating: 85,
+    id: 26, property: 10, rating: 85,
     criteria: [{criterion: 1, rating: 10}, {criterion: 2, rating: 25}]
 };
 
@@ -76,7 +76,7 @@ describe('Audit Service w/ Mock Service', () => {
             })));
         });
 
-        auditService.getSomeAudits("weight", "string", "ana").subscribe((data) => {
+        auditService.getSomeAudits("weight", "ana").subscribe((data) => {
             expect(data).toBe(mockArray);
         });
     }));
@@ -90,7 +90,7 @@ describe('Audit Service w/ Mock Service', () => {
             })));
         });
 
-        auditService.getAudit("weight", "int", 1).subscribe((data) => {
+        auditService.getAudit(26).subscribe((data) => {
             expect(data).toBe(mock);
         });
     }));

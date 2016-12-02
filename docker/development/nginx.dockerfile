@@ -11,8 +11,8 @@ ENV \
   SUEXEC_VERSION="v0.2" \
   SUEXEC_DOWNLOAD_SHA256="ec4acbd8cde6ceeb2be67eda1f46c709758af6db35cacbcde41baac349855e25" \
   WATCHMAN_VERSION="v4.7.0" \
-  PERSISTENT_APT_PACKAGES="git libpcre++0 libpcre3 ca-certificates python make g++" \
-  TEMPORARY_APT_PACKAGES="autoconf automake build-essential curl python-dev xz-utils libpcre3-dev libpcre++-dev wget ca-certificates" \
+  PERSISTENT_APT_PACKAGES="git libpcre++0 libpcre3 ca-certificates python make g++ xz-utils bzip2" \
+  TEMPORARY_APT_PACKAGES="autoconf automake build-essential curl python-dev libpcre3-dev libpcre++-dev wget ca-certificates" \
   DOCKERIZE_VERSION="v0.2.0" \
   DOCKERIZE_DOWNLOAD_SHA256="c0e2e33cfe066036941bf8f2598090bd8e01fdc05128490238b2a64cf988ecfb" \
   YARN_VERSION="0.16.1"

@@ -33,10 +33,10 @@ export class AccessibilityAddComponent implements OnInit {
     }
 
     addAccessibility(): void {
-        this.selectedObject.criterion = this.criterion._id;
+        this.selectedObject.idCriterion = this.criterion.id;
         this.accessibilityService.setAccessibility(this.selectedObject)
                 .subscribe(
-                        response => this.selectedObject._id = response.json()
+                        response => this.selectedObject.id = response.json()
                 );
     }
 

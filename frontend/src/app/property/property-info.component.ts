@@ -10,13 +10,13 @@ import {PropertyService} from "./service/property.service";
 
 export class PropertiesInfoComponent implements OnInit {
     property: Property;
-    @Input() property_id: number;
+    @Input() propertyid: number;
 
     constructor(private propertyService: PropertyService) {
     }
 
     ngOnInit(): void {
-        this.propertyService.getProperty("_id", "int", this.property_id)
+        this.propertyService.getProperty(this.propertyid)
                 .subscribe(data => this.property = data);
     }
 

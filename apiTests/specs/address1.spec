@@ -1,0 +1,1 @@
+{"id":1,"idCountry":184,"addressLine1":"Via Futebol Clube do Porto","addressLine2":"","addressLine3":"","townCity":"Porto","county":"","postcode":"4350-415 Porto","latitude":"41.160611","longitude":"-8.582047","country":{"id":184,"name":"Portugal","iso2":"PT"}}

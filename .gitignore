@@ -8,4 +8,8 @@ backend/go.sh
 backend/mongo.sh
 frontend/angular.sh
 frontend/karma.sh
+database/classdiagram.png
+node_modules
 **/karma.conf.js
+database/cluster
+database/uml/classdiagram.png

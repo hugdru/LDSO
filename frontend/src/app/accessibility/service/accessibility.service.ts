@@ -1,7 +1,7 @@
 import {Response} from "@angular/http";
 import {Injectable} from "@angular/core";
 import {Observable} from "rxjs/Observable";
-import {accessibilitiesUrl, accessibilitiesFindUrl} from "shared/shared-data";
+import {accessibilitiesUrl, criteriaUrl} from "shared/shared-data";
 import {HandlerService} from "handler.service";
 import {Accessibility} from "accessibility/accessibility";
 
@@ -15,19 +15,19 @@ export class AccessibilityService {
         return this.handler.getAll<Accessibility[]>(accessibilitiesUrl);
     }
 
-    getSomeAccessibilities(tag: string, type: string, value: any): Observable<Accessibility[]> {
-        return this.handler.get<Accessibility[]>(accessibilitiesUrl,
-                tag, type, value);
+    getSomeAccessibilities(id: number): Observable<Accessibility[]> {
+        console.log(accessibilitiesUrl.replace(/#/g, id.toString()));
+        return this.handler.getAll<Accessibility[]>(
+                accessibilitiesUrl.replace(/$/, id.toString()));
     }
 
-    getAccessibility(tag: string, type: string, value: any): Observable<Accessibility> {
-        return this.handler.get<Accessibility>(accessibilitiesFindUrl, tag, type,
-                value);
+    getAccessibility(id: number): Observable<Accessibility> {
+        return this.handler.get<Accessibility>(accessibilitiesUrl, id);
     }
 
     updateAccessibility(accessibility: Accessibility): Observable<Response> {
         return this.handler.update<Accessibility>(accessibilitiesUrl,
-                accessibility, accessibility._id);
+                accessibility, accessibility.id);
     }
 
     setAccessibility(accessibility: Accessibility): Observable<Response> {

@@ -9,8 +9,8 @@ class MockPropertyService extends PropertyService {
 
     getProperties() {
         return Observable.of([
-            {_id: 26, name: "ana", image_path: "bla"},
-            {_id: 14, name: "joao", image_path: "ble"}
+            {id: 26, name: "ana", image_path: "bla"},
+            {id: 14, name: "joao", image_path: "ble"}
         ]);
     }
 }

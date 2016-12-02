@@ -1,6 +1,6 @@
 export class Accessibility {
-    _id: number;
+    id: number;
     name: string;
     weight: number;
-    criterion: number;
+    idCriterion: number;
 }

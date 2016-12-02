@@ -20,7 +20,7 @@ export class AuditComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.property._id = +this.route.snapshot.params['id'];
+        this.property.id = +this.route.snapshot.params['id'];
     }
 
     onDone(selectedSubGroups: SubGroup[]): void {

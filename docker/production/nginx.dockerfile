@@ -11,8 +11,8 @@ ENV \
   GROUP="server" \
   NPM_CONFIG_LOGLEVEL="info" \
   NODE_VERSION="6.9.1" \
-  PERSISTENT_APT_PACKAGES="git ca-certificates python make g++" \
-  TEMPORARY_APT_PACKAGES="curl xz-utils" \
+  PERSISTENT_APT_PACKAGES="git ca-certificates python make g++ bzip2 xz-utils curl" \
+  TEMPORARY_APT_PACKAGES="" \
   DOCKERIZE_VERSION="v0.2.0" \
   DOCKERIZE_DOWNLOAD_SHA256="c0e2e33cfe066036941bf8f2598090bd8e01fdc05128490238b2a64cf988ecfb" \
   YARN_VERSION="0.16.1"
@@ -49,7 +49,7 @@ RUN \
       curl -fsSL "https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz" -o dockerize.tar.gz && \
       echo "$DOCKERIZE_DOWNLOAD_SHA256  dockerize.tar.gz" | sha256sum -c - && \
       tar -C /usr/local/bin -xzvf dockerize.tar.gz && rm dockerize.tar.gz && \
-      apt-get remove --purge -y $TEMPORARY_APT_PACKAGES && \
+      # apt-get remove --purge -y $TEMPORARY_APT_PACKAGES && \
       rm -rf /var/lib/apt/lists/* && \
       apt-get autoremove -y && \
       apt-get clean all

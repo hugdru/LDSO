@@ -30,15 +30,15 @@ export class AuditEvaluateComponent implements OnInit {
 
     getMainGroups(): void {
         for (let mainGroupId of this.mainGroupsId) {
-            this.mainGroupService.getMainGroup("_id", "int", mainGroupId)
+            this.mainGroupService.getMainGroup(mainGroupId)
                     .subscribe(data => this.mainGroups.push(data));
         }
     }
 
     findMainGroups(): void {
         for (let subGroup of this.selectedSubGroups) {
-            if (!this.mainGroupsId.includes(subGroup.main_group)) {
-                this.mainGroupsId.push(subGroup.main_group);
+            if (!this.mainGroupsId.includes(subGroup.idMaingroup)) {
+                this.mainGroupsId.push(subGroup.idMaingroup);
             }
         }
     }
@@ -53,8 +53,8 @@ export class AuditEvaluateComponent implements OnInit {
     }
 
     initCriteria(subGroup: SubGroup): void {
-        this.criterionService.getSomeCriteria("sub_group", "int",
-                subGroup._id).subscribe(data => this.criteria = data);
+        this.criterionService.getSomeCriteria("idSubGroup",
+                subGroup.id).subscribe(data => this.criteria = data);
     }
 
 	checkedNoCriterion(criterion: Criterion): void {

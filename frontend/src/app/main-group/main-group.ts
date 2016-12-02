@@ -1,5 +1,6 @@
 export class MainGroup {
-    _id: number;
+    id: number;
     name: string;
     weight: number;
+    idTemplate: number;
 }

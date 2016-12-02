@@ -27,24 +27,24 @@ export class CriterionComponent implements OnInit, OnChanges {
 
     ngOnChanges(changes: SimpleChanges): void {
         for (let i in changes) {
-            this.initCriteria(changes[i].currentValue._id);
+            this.initCriteria(changes[i].currentValue.id);
             this.parentCriterion = undefined;
         }
     }
 
     ngOnInit() {
-        this.initCriteria(this.parentSubGroup._id);
+        this.initCriteria(this.parentSubGroup.id);
     }
 
     initCriteria(subGroupId: number): void {
         this.criterionService
-                .getSomeCriteria("sub_group", "int", subGroupId)
+                .getSomeCriteria("idSubgroup", subGroupId)
                 .subscribe(data => this.criteria = data);
 
     }
 
     onDelete(criterion: Criterion): void {
-        this.criterionService.removeCriterion(criterion._id).subscribe();
+        this.criterionService.removeCriterion(criterion.id).subscribe();
     }
 
     onShow(criterion: Criterion): void {

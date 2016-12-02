@@ -4,13 +4,46 @@
 		{
 			"importpath": "github.com/alexedwards/scs",
 			"repository": "https://github.com/alexedwards/scs",
-			"revision": "8131b3f249566da11ff348e7f664dd016e082292",
+			"revision": "05f2c051214a1a036c734bfa40a74ebe3516a72e",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/alexedwards/scs/engine/redisstore",
+			"repository": "https://github.com/alexedwards/scs",
+			"revision": "05f2c051214a1a036c734bfa40a74ebe3516a72e",
+			"branch": "master",
+			"path": "/engine/redisstore"
+		},
+		{
+			"importpath": "github.com/garyburd/redigo/internal",
+			"repository": "https://github.com/garyburd/redigo",
+			"revision": "80f7de34463b0ed3d7c61303e5619efe1b227f92",
+			"branch": "master",
+			"path": "/internal"
+		},
+		{
+			"importpath": "github.com/garyburd/redigo/redis",
+			"repository": "https://github.com/garyburd/redigo",
+			"revision": "80f7de34463b0ed3d7c61303e5619efe1b227f92",
+			"branch": "master",
+			"path": "/redis"
+		},
+		{
+			"importpath": "github.com/jmoiron/sqlx",
+			"repository": "https://github.com/jmoiron/sqlx",
+			"revision": "a9cfc4a06cca420057207ac0a619e7f45fcbf4b7",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/lib/pq",
+			"repository": "https://github.com/lib/pq",
+			"revision": "d8eeeb8bae8896dd8e1b7e514ab0d396c4f12a1b",
 			"branch": "master"
 		},
 		{
 			"importpath": "github.com/pressly/chi",
 			"repository": "https://github.com/pressly/chi",
-			"revision": "2cad94402baa6eb7584258df02fed068f1502ada",
+			"revision": "265a8fa9e1f3a4050178ed8aa902298875ec48db",
 			"branch": "master"
 		},
 		{
@@ -28,15 +61,15 @@
 		{
 			"importpath": "golang.org/x/net/context",
 			"repository": "https://go.googlesource.com/net",
-			"revision": "cac22060de4e495155959e69adcb4b45763ccb10",
+			"revision": "4971afdc2f162e82d185353533d3cf16188a9f4e",
 			"branch": "master",
 			"path": "/context"
 		},
 		{
-			"importpath": "gopkg.in/mgo.v2",
-			"repository": "https://gopkg.in/mgo.v2",
-			"revision": "3f83fa5005286a7fe593b055f0d7771a7dce4655",
-			"branch": "v2"
+			"importpath": "gopkg.in/guregu/null.v3",
+			"repository": "https://gopkg.in/guregu/null.v3",
+			"revision": "41961cea0328defc5f95c1c473f89ebf0d1813f6",
+			"branch": "master"
 		}
 	]
 }

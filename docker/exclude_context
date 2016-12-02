@@ -27,3 +27,4 @@ Thumbs.db
 ./backend/bin
 ./backend/pkg
 ./backend/vendor/src
+./database/cluster

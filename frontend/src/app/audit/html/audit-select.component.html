@@ -21,7 +21,7 @@
 <div>
     <div *ngIf='selectedSubGroups'>
         <span *ngFor='let subGroup of selectedSubGroups'>
-            {{subGroup._id}}
+            {{subGroup.id}}
         </span>
     </div>
     <button *ngIf='selectedSubGroups.length > 0'

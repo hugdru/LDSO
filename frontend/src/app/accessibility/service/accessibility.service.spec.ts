@@ -13,10 +13,10 @@ import {AccessibilityService} from "accessibility/service/accessibility.service"
 import {HandlerService} from "handler.service";
 
 const mockArray = [
-    {_id: 5, name: "carlos", weight: 25, criterion: 25},
-    {_id: 2, name: "pedro", weight: 30, criterion: 25}
+    {id: 5, name: "carlos", weight: 25, idCriterion: 25},
+    {id: 2, name: "pedro", weight: 30, idCriterion: 25}
 ];
-const mock = {_id: 5, name: "carlos", weight: 25, criterion: 25};
+const mock = {id: 5, name: "carlos", weight: 25, idCriterion: 25};
 
 describe('Accessibility Service w/ Mock Server', () => {
     let mockBackend: MockBackend;
@@ -68,7 +68,7 @@ describe('Accessibility Service w/ Mock Server', () => {
             })));
         });
 
-        accessibilityService.getSomeAccessibilities("criterion", "int", 12)
+        accessibilityService.getSomeAccessibilities(12)
                 .subscribe((data) => {
                     expect(data).toBe(mockArray);
                 });
@@ -84,7 +84,7 @@ describe('Accessibility Service w/ Mock Server', () => {
             })));
         });
 
-        accessibilityService.getAccessibility("name", "string", "clarlos")
+        accessibilityService.getAccessibility(5)
                 .subscribe((data) => {
                     expect(data).toBe(mock);
                 });

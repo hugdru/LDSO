@@ -27,7 +27,7 @@ export class ListManageComponent {
         this.onDelete.emit(obj);
         let position: number;
         for (let i in this.objects) {
-            if (this.objects[i]._id == obj._id) {
+            if (this.objects[i].id == obj.id) {
                 position = Number(i);
                 break;
             }
@@ -54,7 +54,7 @@ export class ListManageComponent {
     sumPercentage(): number {
         let result: number = 0;
         for (let obj of this.objects) {
-            if (obj._id != this.selectedEditObject._id) {
+            if (obj.id != this.selectedEditObject.id) {
                 result += obj.weight;
             }
         }
@@ -69,10 +69,10 @@ export class ListManageComponent {
         if (this.father === undefined) {
             return "MainGroup";
         }
-        else if ((<SubGroup>this.father).main_group !== undefined) {
+        else if ((<SubGroup>this.father).idMaingroup !== undefined) {
             return "Criterion";
         }
-        else if ((<Criterion>this.father).sub_group !== undefined) {
+        else if ((<Criterion>this.father).idSubgroup !== undefined) {
             return "Accessibility";
         }
         else {

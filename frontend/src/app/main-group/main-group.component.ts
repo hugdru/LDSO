@@ -30,7 +30,7 @@ export class MainGroupComponent implements OnInit {
     }
 
     onDelete(mainGroup: MainGroup): void {
-        this.mainGroupService.removeMainGroup(mainGroup._id).subscribe();
+        this.mainGroupService.removeMainGroup(mainGroup.id).subscribe();
     }
 
     onShow(mainGroup: MainGroup): void {

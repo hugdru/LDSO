@@ -1,7 +1,7 @@
 import {Response} from "@angular/http";
 import {Injectable} from "@angular/core";
 import {Observable} from "rxjs/Observable";
-import {propertiesUrl, propertiesFindUrl} from "shared/shared-data";
+import {propertiesUrl} from "shared/shared-data";
 import {HandlerService} from "handler.service";
 import {Property} from "property/property";
 
@@ -15,17 +15,16 @@ export class PropertyService {
         return this.handler.getAll<Property[]>(propertiesUrl);
     }
 
-    getSomeProperties(tag: string, type: string, value: any): Observable<Property[]> {
-        return this.handler.get<Property[]>(propertiesUrl, tag, type,
-                value);
+    getSomeProperties(tag: string, value: any): Observable<Property[]> {
+        return this.handler.getSome<Property[]>(propertiesUrl, tag, value);
     }
 
-    getProperty(tag: string, type: string, value: any): Observable<Property> {
-        return this.handler.get<Property>(propertiesFindUrl, tag, type, value);
+    getProperty(id: number): Observable<Property> {
+        return this.handler.get<Property>(propertiesUrl, id);
     }
 
     updateProperty(property: Property): Observable<Response> {
-        return this.handler.update<Property>(propertiesUrl, property, property._id);
+        return this.handler.update<Property>(propertiesUrl, property, property.id);
     }
 
     setProperty(property: Property): Observable<Response> {

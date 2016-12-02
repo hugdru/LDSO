@@ -1,5 +1,5 @@
 export class Property {
-    _id: number;
+    id: number;
     name: string;
     image_path: string;
 }

@@ -1,7 +1,7 @@
 import {Response} from "@angular/http";
 import {Injectable} from "@angular/core";
 import {Observable} from "rxjs/Observable";
-import {subGroupsUrl, subGroupsFindUrl} from "shared/shared-data";
+import {subGroupsUrl} from "shared/shared-data";
 import {HandlerService} from "handler.service";
 import {SubGroup} from "sub-group/sub-group";
 
@@ -14,17 +14,17 @@ export class SubGroupService {
         return this.handler.getAll<SubGroup[]>(subGroupsUrl);
     }
 
-    getSomeSubGroups(tag: string, type: string, value: any): Observable<SubGroup[]> {
-        return this.handler.get<SubGroup[]>(subGroupsUrl, tag, type, value);
+    getSomeSubGroups(tag: string, value: any): Observable<SubGroup[]> {
+        return this.handler.getSome<SubGroup[]>(subGroupsUrl, tag, value);
     }
 
-    getSubGroup(tag: string, type: string, value: any): Observable<SubGroup> {
-        return this.handler.get<SubGroup>(subGroupsFindUrl, tag, type, value);
+    getSubGroup(id: number): Observable<SubGroup> {
+        return this.handler.get<SubGroup>(subGroupsUrl, id);
     }
 
     updateSubGroup(subGroup: SubGroup): Observable<Response> {
         return this.handler.update<SubGroup>(subGroupsUrl, subGroup,
-                subGroup._id);
+                subGroup.id);
     }
 
     setSubGroup(subGroup: SubGroup): Observable<Response> {

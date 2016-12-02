@@ -9,7 +9,7 @@
 <div *ngIf="selectedMainGroup">
     <div *ngFor="let subGroup of selectedSubGroups">
         <table class="cursor-pointer"
-               *ngIf="subGroup.main_group == selectedMainGroup._id"
+               *ngIf="subGroup.idMaingroup == selectedMainGroup.id"
                (click)="showCriteria(subGroup)">
             <tr>
                 {{subGroup.name}}

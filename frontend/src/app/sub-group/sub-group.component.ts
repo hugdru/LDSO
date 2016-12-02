@@ -27,24 +27,24 @@ export class SubGroupComponent implements OnInit, OnChanges {
 
     ngOnChanges(changes: SimpleChanges): void {
         for (let i in changes) {
-            this.initSubGroups(changes[i].currentValue._id);
+            this.initSubGroups(changes[i].currentValue.id);
             this.parentSubGroup = undefined;
         }
     }
 
     ngOnInit() {
-        this.initSubGroups(this.parentMainGroup._id);
+        this.initSubGroups(this.parentMainGroup.id);
     }
 
     initSubGroups(mainGroupId: number): void {
         this.subGroupService
-                .getSomeSubGroups("main_group", "int", mainGroupId)
+                .getSomeSubGroups("idMaingroup", mainGroupId)
                 .subscribe(data => this.subGroups = data);
 
     }
 
     onDelete(subGroup: SubGroup): void {
-        this.subGroupService.removeSubGroup(subGroup._id).subscribe();
+        this.subGroupService.removeSubGroup(subGroup.id).subscribe();
     }
 
     onShow(subGroup: SubGroup): void {
