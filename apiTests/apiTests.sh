@@ -45,6 +45,8 @@ gets=(
   ['criteria?idSubgroup=5']='criteriaIdSubgroup5.spec'
   ['criteria/1']='criterion1.spec'
   ['criteria/2']='criterion2.spec'
+  ['auditors/1']='auditors1.spec'
+
 )
 
 main() {
