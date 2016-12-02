@@ -27,7 +27,9 @@ func (h *Handler) getLegislations(w http.ResponseWriter, r *http.Request) {
 	}
 
 	filter := helpers.GetQueryArgs([][]string{
-		[]string{"id"}, []string{"name"}, []string{"description"},
+		[]string{"id"},
+		[]string{"name"},
+		[]string{"description"},
 	}, r)
 	if filter == nil {
 		http.Error(w, helpers.Error("Failed to create filter"), 500)

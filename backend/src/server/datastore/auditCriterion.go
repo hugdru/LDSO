@@ -3,6 +3,7 @@ package datastore
 import (
 	"errors"
 	"gopkg.in/guregu/null.v3/zero"
+	"server/datastore/generators"
 	"server/datastore/metadata"
 )
 
@@ -139,6 +140,28 @@ func (ds *Datastore) DeleteAuditCriterion(ac *AuditCriterion) error {
 	return err
 }
 
+func (ds *Datastore) DeleteAuditCriterionById(idAudit, idCriterion int64) error {
+	const sql = `DELETE FROM places4all.audit_criterion WHERE id_audit = $1 AND id_criterion = $2`
+
+	_, err := ds.postgres.Exec(sql, idAudit, idCriterion)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
+func (ds *Datastore) DeleteAuditCriterionByIdAudit(idAudit int64) error {
+	const sql = `DELETE FROM places4all.audit_criterion WHERE id_audit = $1`
+
+	_, err := ds.postgres.Exec(sql, idAudit)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
 func (ds *Datastore) GetAuditCriterionAudit(ac *AuditCriterion) (*Audit, error) {
 	return ds.GetAuditById(ac.IdAudit)
 }
@@ -164,4 +187,34 @@ func (ds *Datastore) GetAuditCriterionById(idAudit, idCriterion int64) (*AuditCr
 	}
 
 	return &ac, err
+}
+
+func (ds *Datastore) GetAuditCriteria(idAudit int64, filter map[string]string) ([]*AuditCriterion, error) {
+
+	where, values := generators.GenerateSearchClause(filter)
+
+	sql := `SELECT id_audit, id_criterion, value, observation ` +
+		`FROM places4all.audit_criterion ` +
+		where
+	sql = ds.postgres.Rebind(sql)
+
+	rows, err := ds.postgres.Queryx(sql, values...)
+	if err != nil {
+		return nil, err
+	}
+
+	auditCriteria := make([]*AuditCriterion, 0)
+	for rows.Next() {
+		AuditCriterion := NewAuditCriterion(false)
+		err := rows.StructScan(AuditCriterion)
+		if err != nil {
+			return nil, err
+		}
+		auditCriteria = append(auditCriteria, AuditCriterion)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return auditCriteria, err
 }

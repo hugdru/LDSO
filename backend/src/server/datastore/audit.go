@@ -3,9 +3,10 @@ package datastore
 import (
 	"errors"
 	"gopkg.in/guregu/null.v3/zero"
+	"server/datastore/generators"
 	"server/datastore/metadata"
-	"time"
 	"strconv"
+	"time"
 )
 
 type Audit struct {
@@ -175,13 +176,18 @@ func (ds *Datastore) GetAuditById(id int64) (*Audit, error) {
 
 	return &a, err
 }
-func (ds *Datastore) GetAudits(limit, offset int) ([]*Audit, error) {
+func (ds *Datastore) GetAudits(limit, offset int, filter map[string]string) ([]*Audit, error) {
 
-	rows, err := ds.postgres.Queryx(`SELECT ` +
+	where, values := generators.GenerateSearchClause(filter)
+
+	sql := `SELECT ` +
 		`id, id_property, id_auditor, id_template, rating, observation, created_date, finished_date ` +
 		`FROM places4all.audit ` +
+		where +
 		`ORDER BY audit.id DESC LIMIT ` + strconv.Itoa(limit) +
-		` OFFSET ` + strconv.Itoa(offset))
+		` OFFSET ` + strconv.Itoa(offset)
+
+	rows, err := ds.postgres.Queryx(sql, values...)
 	if err != nil {
 		return nil, err
 	}
