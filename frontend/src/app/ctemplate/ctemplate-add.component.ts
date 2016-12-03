@@ -1,4 +1,4 @@
-import {Component, Output, EventEmitter, OnInit} from "@angular/core";
+import {Component, Output, EventEmitter, OnInit, Input} from "@angular/core";
 import {CtemplateService} from "ctemplate/service/ctemplate.service";
 import {Ctemplate} from "ctemplate/ctemplate";
 
@@ -12,6 +12,7 @@ import {Ctemplate} from "ctemplate/ctemplate";
 export class CtemplateAddComponent implements OnInit {
     selectedObject: Ctemplate;
 
+    @Input() objType: string;
     @Output() onAdd = new EventEmitter<Ctemplate>();
 
     constructor(private ctemplateService: CtemplateService) {
@@ -34,4 +35,5 @@ export class CtemplateAddComponent implements OnInit {
                 response => this.selectedObject.id = response.json()
         );
     }
+
 }

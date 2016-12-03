@@ -10,7 +10,7 @@ import (
 
 type Subgroup struct {
 	Id          int64     `json:"id" db:"id"`
-	IdMaingroup int64     `json:"IdMaingroup" db:"id_maingroup"`
+	IdMaingroup int64     `json:"idMaingroup" db:"id_maingroup"`
 	Name        string    `json:"name" db:"name"`
 	Weight      int       `json:"weight" db:"weight"`
 	CreatedDate time.Time `json:"createdDate" db:"created_date"`

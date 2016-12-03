@@ -27,7 +27,6 @@ export class CtemplateComponent implements OnInit {
                 data => this.ctemplates = data,
                 error => this.errorMsg = <any>error
         );
-        console.log(this.ctemplates)
     }
 
     onDelete(ctemplate: Ctemplate): void {

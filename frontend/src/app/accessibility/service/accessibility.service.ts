@@ -16,7 +16,6 @@ export class AccessibilityService {
     }
 
     getSomeAccessibilities(id: number): Observable<Accessibility[]> {
-        console.log(accessibilitiesUrl.replace(/#/g, id.toString()));
         return this.handler.getAll<Accessibility[]>(
                 accessibilitiesUrl.replace(/#/g, id.toString()));
     }

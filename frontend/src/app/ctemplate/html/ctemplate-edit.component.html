@@ -12,7 +12,8 @@
            [(ngModel)]="selectedObject.legislation"
            [disabled]="goodPratice"
            placeholder="legislação"/>
-    <input type="number" [(ngModel)]="selectedObject.weight"
+    <input *ngIf="objType!='Ctemplate'"
+           type="number" [(ngModel)]="selectedObject.weight"
            placeholder="peso" [class.warning]="checkPercentage()"/>
     <button class="btn btn-success round outline"
             (click)="pressed(selectedObject)">
