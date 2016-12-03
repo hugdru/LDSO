@@ -4,8 +4,8 @@ import {SubGroup} from "sub-group/sub-group";
 
 @Component({
     selector: 'sub-group-edit',
-    templateUrl: '../main-group/html/main-group-edit.component.html',
-    styleUrls: ['../main-group/main-group-edit.component.css'],
+    templateUrl: '../ctemplate/html/ctemplate-edit.component.html',
+    styleUrls: ['../ctemplate/ctemplate-edit.component.css'],
     providers: [SubGroupService]
 })
 

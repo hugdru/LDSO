@@ -1,6 +1,9 @@
 <div [ngSwitch]="objType">
+    <ctemplate-add *ngSwitchCase="'Ctemplate'"
+                    (onAdd)="onAdd($event)"></ctemplate-add>
     <main-group-add *ngSwitchCase="'MainGroup'"
                     [weight]="weight"
+                    [ctemplate]="father"
                     (onAdd)="onAdd($event)"></main-group-add>
     <sub-group-add *ngSwitchCase="'SubGroup'"
                    [weight]="weight"

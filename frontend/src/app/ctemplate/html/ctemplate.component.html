@@ -1,0 +1,9 @@
+<div>
+    <list-manage [objects]="ctemplates"
+                 (onDelete)="onDelete($event)"
+                 (onShow)="onShow($event)">
+    </list-manage>
+</div>
+<div *ngIf="parentCtemplate">
+    <main-group [parentCtemplate]="parentCtemplate"></main-group>
+</div>

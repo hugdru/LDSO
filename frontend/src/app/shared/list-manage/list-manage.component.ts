@@ -7,7 +7,7 @@ import {Identifier} from "identifier.interface";
 @Component({
     selector: 'list-manage',
     templateUrl: './list-manage.component.html',
-    styleUrls: ['../../main-group/main-group.component.css'],
+    styleUrls: ['../../ctemplate/ctemplate.component.css'],
 })
 
 export class ListManageComponent {
@@ -67,7 +67,10 @@ export class ListManageComponent {
 
     findType(): string {
         if (this.father === undefined) {
-            return "MainGroup";
+            return "Ctemplate";
+        }
+        else if ((<MainGroup>this.father).idTemplate !== undefined) {
+            return "SubGroup";
         }
         else if ((<SubGroup>this.father).idMaingroup !== undefined) {
             return "Criterion";
@@ -76,7 +79,7 @@ export class ListManageComponent {
             return "Accessibility";
         }
         else {
-            return "SubGroup";
+            return "MainGroup";
         }
     }
 

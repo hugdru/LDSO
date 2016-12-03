@@ -11,6 +11,9 @@ import {HeaderComponent} from "header/header.component";
 import {SidebarComponent} from "sidebar/sidebar.component";
 import {FootbarComponent} from "footbar/footbar.component";
 import {CenterComponent} from "center/center.component";
+import {CtemplateComponent} from "ctemplate/ctemplate.component";
+import {CtemplateEditComponent} from "ctemplate/ctemplate-edit.component";
+import {CtemplateAddComponent} from "ctemplate/ctemplate-add.component";
 import {MainGroupComponent} from "main-group/main-group.component";
 import {MainGroupEditComponent} from "main-group/main-group-edit.component";
 import {MainGroupAddComponent} from "main-group/main-group-add.component";
@@ -41,6 +44,9 @@ import {HandlerService} from "handler.service";
         SidebarComponent,
         FootbarComponent,
         CenterComponent,
+        CtemplateComponent,
+        CtemplateEditComponent,
+        CtemplateAddComponent,
         MainGroupComponent,
         MainGroupEditComponent,
         MainGroupAddComponent,

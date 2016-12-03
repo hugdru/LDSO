@@ -1,5 +1,8 @@
 <div>
+    <h2>{{parentCtemplate.name}}</h2>
+    <hr>
     <list-manage [objects]="mainGroups"
+                 [father]="parentCtemplate"
                  (onDelete)="onDelete($event)"
                  (onShow)="onShow($event)">
     </list-manage>
