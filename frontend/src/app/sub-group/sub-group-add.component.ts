@@ -35,7 +35,7 @@ export class SubGroupAddComponent implements OnInit {
     addSubGroup(): void {
         this.selectedObject.idMaingroup = this.mainGroup.id;
         this.subGroupService.setSubGroup(this.selectedObject).subscribe(
-                response => this.selectedObject.id = response.json()
+                response => this.selectedObject.id = response.json().id
         );
     }
 

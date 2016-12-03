@@ -31,6 +31,7 @@ export class CtemplateComponent implements OnInit {
 
     onDelete(ctemplate: Ctemplate): void {
         this.ctemplateService.removeCtemplate(ctemplate.id).subscribe();
+        this.parentCtemplate = undefined;
     }
 
     onShow(ctemplate: Ctemplate): void {

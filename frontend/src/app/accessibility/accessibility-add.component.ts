@@ -36,7 +36,7 @@ export class AccessibilityAddComponent implements OnInit {
         this.selectedObject.idCriterion = this.criterion.id;
         this.accessibilityService.setAccessibility(this.selectedObject)
                 .subscribe(
-                        response => this.selectedObject.id = response.json()
+                        response => this.selectedObject.id = response.json().id
                 );
     }
 

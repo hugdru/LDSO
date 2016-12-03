@@ -45,6 +45,7 @@ export class CriterionComponent implements OnInit, OnChanges {
 
     onDelete(criterion: Criterion): void {
         this.criterionService.removeCriterion(criterion.id).subscribe();
+        this.parentCriterion = undefined;
     }
 
     onShow(criterion: Criterion): void {

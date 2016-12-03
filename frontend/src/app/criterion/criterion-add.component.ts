@@ -37,7 +37,7 @@ export class CriterionAddComponent implements OnInit {
     addCriterion(): void {
         this.selectedObject.idSubgroup = this.subGroup.id;
         this.criterionService.setCriterion(this.selectedObject).subscribe(
-                response => this.selectedObject.id = response.json()
+                response => this.selectedObject.id = response.json().id
         );
     }
 

@@ -32,7 +32,7 @@ export class CtemplateAddComponent implements OnInit {
 
     addCtemplate(): void {
         this.ctemplateService.setCtemplate(this.selectedObject).subscribe(
-                response => this.selectedObject.id = response.json()
+                response => this.selectedObject.id = response.json().id
         );
     }
 

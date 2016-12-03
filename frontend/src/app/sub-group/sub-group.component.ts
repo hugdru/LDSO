@@ -45,6 +45,7 @@ export class SubGroupComponent implements OnInit, OnChanges {
 
     onDelete(subGroup: SubGroup): void {
         this.subGroupService.removeSubGroup(subGroup.id).subscribe();
+        this.parentSubGroup = undefined;
     }
 
     onShow(subGroup: SubGroup): void {
