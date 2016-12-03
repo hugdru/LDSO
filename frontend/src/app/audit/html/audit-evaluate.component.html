@@ -1,10 +1,4 @@
-<div *ngFor='let mainGroup of mainGroups'>
-    <table class="cursor-pointer" (click)="showSubGroups(mainGroup)">
-        <tr>
-            {{mainGroup.name}}
-        </tr>
-    </table>
-</div>
+<show-list [objectList]="mainGroups" (selected)="selected($event)"></show-list>
 <hr>
 <div *ngIf="selectedMainGroup">
     <div *ngFor="let subGroup of selectedSubGroups">
@@ -16,6 +10,9 @@
             </tr>
         </table>
     </div>
+<div *ngIf="subGroups">
+	<show-list [objectList]="subGroups" (selected)="selected($event)">
+	</show-list>
 </div>
 <hr>
 <div *ngIf="criteria">
@@ -38,9 +35,27 @@
 				<br>
 				Avaliação: <input type="number">
 				<!-- [(ngModel)]="selectedObject.weight" placeholder="peso" [class.warning]="checkPercentage()"/> -->
+				<h4>Observaçoes</h4>
+				<button *ngIf="!selectedAdd"
+						 class="btn btn-primary round outline"
+						(click)="selectAdd()">
+					Adicionar Observação
+					<i class="glyphicon glyphicon-plus"></i>
+				</button>
+				<div *ngIf="selectedAdd">
+					<remark-add
+							[criterion]="criterion"
+							(add)="onAdd($event)">
+					</remark-add>
+				</div>
+				<div *ngFor="let remark of remarks">
+					{{remark.data}}
+				</div>
 			</modal-content>
 			<modal-footer>
-				<button class="btn btn-primary" (click)="auditModal.close()">close</button>
+				<button class="btn btn-primary" (click)="auditModal.close()">
+					close
+				</button>
 			</modal-footer>
 		</modal>
     </div>

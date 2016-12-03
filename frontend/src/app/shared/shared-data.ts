@@ -15,3 +15,7 @@ export const accessibilitiesUrl = criteriaUrl + '/#/accessibilities';
 export const propertiesUrl = serverUrl + '/properties';
 
 export const auditsUrl = serverUrl + '/audits';
+
+export const auditsFindUrl = auditsUrl + '/find';
+
+export const imageUploadUrl = serverUrl + '/image';

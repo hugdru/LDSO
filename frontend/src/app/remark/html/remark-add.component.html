@@ -1,0 +1,13 @@
+<div>
+	<input [(ngModel)]="remark.data" placeholder="Descrição da observação"/>
+    <button class="btn btn-success round outline"
+            (click)="onAdd(remark)">
+        <i class="glyphicon glyphicon-ok"></i>
+    </button>
+    <button class="btn btn-neutral round outline"
+            (click)="onAdd(null)">
+        <i class="glyphicon glyphicon-remove"></i>
+    </button>
+</div>
+<image-single-upload>
+</image-single-upload>
