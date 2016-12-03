@@ -3,6 +3,7 @@ package datastore
 import (
 	"errors"
 	"server/datastore/metadata"
+	"strconv"
 )
 
 type Auditor struct {
@@ -148,18 +149,58 @@ func (ds *Datastore) GetAuditorEntity(a *Auditor) (*Entity, error) {
 func (ds *Datastore) GetAuditorById(id int64) (*Auditor, error) {
 	var err error
 
-	const sql = `SELECT ` +
-		`id, id_entity ` +
-		`FROM places4all.auditor ` +
-		`WHERE id = $1`
+	const sql = `SELECT
+		auditor.id, auditor.id_entity,
+		entity.id, entity.id_country, entity.name, entity.email,
+		entity.username, entity.password, entity.image, entity.banned, entity.banned_date,
+		entity.reason, entity.mobilephone, entity.telephone, entity.created_date,
+		country.id, country.name, country.iso2
+		FROM places4all.auditor
+		JOIN places4all.entity  on entity.id   = auditor.id_entity
+		JOIN places4all.country on country.id =  entity.id_country
+		WHERE auditor.id = $1 `
 
-	a := AAuditor(false)
+	a := AAuditor(true)
 	a.SetExists()
 
-	err = ds.postgres.QueryRowx(sql, id).Scan(&a.Id, &a.IdEntity)
+	err = ds.postgres.QueryRow(sql, id).Scan(
+		&a.Id, &a.IdEntity,
+		&a.Entity.Id, &a.Entity.IdCountry, &a.Entity.Name, &a.Entity.Email,
+		&a.Entity.Username, &a.Entity.Password, &a.Entity.Image, &a.Entity.Banned, &a.Entity.BannedDate,
+		&a.Entity.Reason, &a.Entity.Mobilephone, &a.Entity.Telephone, &a.Entity.CreatedDate,
+		&a.Entity.Country.Id, &a.Entity.Country.Name, &a.Entity.Country.Iso2,
+	)
+
 	if err != nil {
 		return nil, err
 	}
 
 	return &a, err
+}
+func (ds *Datastore) GetAuditors(limit, offset int) ([]*Auditor, error) {
+	//nao retor a info da entity
+	rows, err := ds.postgres.Queryx(`SELECT ` +
+		`auditor.id, auditor.id_entity ` + //, entity.email, entity.username, entity.password, entity.created_date ` +
+		`FROM places4all.auditor ` +
+		`JOIN places4all.entity on entity.id = auditor.id_entity ` +
+		//		`JOIN places4all.country on country.id = entity.id_country `+
+		`ORDER BY auditor.id DESC LIMIT ` + strconv.Itoa(limit) +
+		`OFFSET ` + strconv.Itoa(offset))
+
+	if err != nil {
+		return nil, err
+	}
+
+	auditor := make([]*Auditor, 0)
+	for rows.Next() {
+		a := NewAuditor(false)
+		a.SetExists()
+		err = rows.StructScan(a)
+		if err != nil {
+			return nil, err
+		}
+		auditor = append(auditor, a)
+	}
+
+	return auditor, err
 }

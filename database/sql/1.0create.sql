@@ -113,7 +113,7 @@ CREATE TABLE template (
 
 CREATE TABLE maingroup (
   id SERIAL PRIMARY KEY,
-  id_template INTEGER NOT NULL REFERENCES template(id),
+  id_template INTEGER NOT NULL REFERENCES template(id) ON DELETE CASCADE,
   name VARCHAR(100) NOT NULL,
   weight INTEGER NOT NULL,
   created_date TIMESTAMP NOT NULL
@@ -121,12 +121,11 @@ CREATE TABLE maingroup (
 
 CREATE TABLE subgroup (
   id SERIAL PRIMARY KEY,
-  id_maingroup INTEGER NOT NULL REFERENCES maingroup(id),
+  id_maingroup INTEGER NOT NULL REFERENCES maingroup(id) ON DELETE CASCADE,
   name VARCHAR(100) NOT NULL,
   weight INTEGER NOT NULL,
   created_date TIMESTAMP NOT NULL
 );
-
 
 CREATE TABLE legislation (
   id SERIAL PRIMARY KEY,
@@ -137,7 +136,7 @@ CREATE TABLE legislation (
 
 CREATE TABLE criterion (
   id SERIAL PRIMARY KEY,
-  id_subgroup INTEGER NOT NULL REFERENCES subgroup(id),
+  id_subgroup INTEGER NOT NULL REFERENCES subgroup(id) ON DELETE CASCADE,
   id_legislation INTEGER REFERENCES legislation(id),
   name VARCHAR(100) NOT NULL,
   weight INTEGER NOT NULL,
@@ -150,7 +149,7 @@ CREATE TABLE accessibility (
 );
 
 CREATE TABLE criterion_accessibility (
-  id_criterion INTEGER REFERENCES criterion(id),
+  id_criterion INTEGER REFERENCES criterion(id) ON DELETE CASCADE,
   id_accessibility INTEGER REFERENCES accessibility(id),
   weight INTEGER NOT NULL,
   PRIMARY KEY(id_criterion, id_accessibility)

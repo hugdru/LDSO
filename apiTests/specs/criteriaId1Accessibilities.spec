@@ -1,0 +1,1 @@
+[{"id":1,"name":"Visual","weight":20},{"id":2,"name":"Auditiva","weight":30},{"id":3,"name":"Física","weight":50}]

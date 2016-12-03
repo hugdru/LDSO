@@ -1,0 +1,1 @@
+[{"id":2,"idProperty":1,"idAuditor":2,"idTemplate":1,"rating":2,"observation":"audit 1","createdDate":"2016-12-26T14:47:26.680513Z","finishedDate":"0001-01-01T00:00:00Z"},{"id":1,"idProperty":1,"idAuditor":1,"idTemplate":1,"rating":2,"observation":"audit 1","createdDate":"2016-12-25T14:47:26.680513Z","finishedDate":"0001-01-01T00:00:00Z"}]

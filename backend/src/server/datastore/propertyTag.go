@@ -163,3 +163,29 @@ func (ds *Datastore) GetPropertyTagByIds(idProperty, idTag int64) (*PropertyTag,
 
 	return &pt, err
 }
+
+func (ds *Datastore) GetPropertyTagByIdProperty(idProperty int64) ([]*Tag, error) {
+
+	const sql = `SELECT ` +
+		`tag.id, tag.name ` +
+		`FROM places4all.tag ` +
+		`JOIN places4all.property_tag ON property_tag.id_tag = tag.id ` +
+		`WHERE property_tag.id_property = $1`
+
+	rows, err := ds.postgres.Queryx(sql, idProperty)
+	if err != nil {
+		return nil, err
+	}
+
+	tags := make([]*Tag, 0)
+	for rows.Next() {
+		tag := NewTag(false)
+		err := rows.StructScan(tag)
+		if err != nil {
+			return nil, err
+		}
+		tags = append(tags, tag)
+	}
+
+	return tags, err
+}

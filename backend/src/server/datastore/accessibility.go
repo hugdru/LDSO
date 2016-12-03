@@ -2,6 +2,7 @@ package datastore
 
 import (
 	"errors"
+	"server/datastore/generators"
 	"server/datastore/metadata"
 )
 
@@ -126,6 +127,43 @@ func (ds *Datastore) DeleteAccessibility(a *Accessibility) error {
 	return err
 }
 
+func (ds *Datastore) DeleteAccessibilityById(idAccessibility int64) error {
+
+	const sql = `DELETE FROM places4all.accessibility WHERE id = $1`
+
+	_, err := ds.postgres.Exec(sql, idAccessibility)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
+func (ds *Datastore) DeleteAccessibilitiesByCriterionId(idCriterion int64) error {
+	const sql = `DELETE FROM places4all.criterion_accessibility ` +
+		`WHERE criterion_accessibility.id_criterion = $1`
+
+	_, err := ds.postgres.Exec(sql, idCriterion)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
+func (ds *Datastore) DeleteAccessibilitiesByIds(idCriterion, idAccessibility int64) error {
+	const sql = `DELETE FROM places4all.criterion_accessibility ` +
+		`WHERE criterion_accessibility.id_criterion = $1 AND ` +
+		`criterion_accessibility.id_accessibility = $2`
+
+	_, err := ds.postgres.Exec(sql, idCriterion, idAccessibility)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
 func (ds *Datastore) GetAccessibilityById(id int64) (*Accessibility, error) {
 
 	const sql = `SELECT id, name FROM places4all.accessibility WHERE id = $1`
@@ -142,7 +180,6 @@ func (ds *Datastore) GetAccessibilityById(id int64) (*Accessibility, error) {
 }
 
 func (ds *Datastore) GetAccessibilitiesByCriterionId(idCriterion int64) ([]*Accessibility, error) {
-	accessibilities := make([]*Accessibility, 0)
 	rows, err := ds.postgres.Queryx(
 		`SELECT accessibility.id, accessibility.name, criterion_accessibility.weight `+
 			`FROM places4all.criterion_accessibility `+
@@ -152,8 +189,10 @@ func (ds *Datastore) GetAccessibilitiesByCriterionId(idCriterion int64) ([]*Acce
 		return nil, err
 	}
 
+	accessibilities := make([]*Accessibility, 0)
 	for rows.Next() {
 		accessibility := NewAccessibility(false)
+		accessibility.SetExists()
 		err := rows.StructScan(accessibility)
 		if err != nil {
 			return nil, err
@@ -162,4 +201,78 @@ func (ds *Datastore) GetAccessibilitiesByCriterionId(idCriterion int64) ([]*Acce
 	}
 
 	return accessibilities, err
+}
+
+func (ds *Datastore) GetAccessibilityByIds(idCriterion, idAccessibility int64) (*Accessibility, error) {
+	row := ds.postgres.QueryRowx(
+		`SELECT accessibility.id, accessibility.name, criterion_accessibility.weight `+
+			`FROM places4all.criterion_accessibility `+
+			`JOIN places4all.accessibility ON accessibility.id = criterion_accessibility.id_accessibility `+
+			`WHERE criterion_accessibility.id_criterion = $1 AND `+
+			`criterion_accessibility.id_accessibility = $2`, idCriterion, idAccessibility)
+
+	accessibility := NewAccessibility(false)
+	accessibility.SetExists()
+	err := row.StructScan(accessibility)
+	if err != nil {
+		return nil, err
+	}
+
+	return accessibility, err
+}
+
+func (ds *Datastore) GetAccessibilities(limit, offset int, filter map[string]string) ([]*Accessibility, error) {
+
+	where, values := generators.GenerateSearchClause(filter)
+
+	sql := `SELECT ` +
+		`id, name ` +
+		`FROM places4all.accessibility ` +
+		where
+	sql = ds.postgres.Rebind(sql)
+
+	rows, err := ds.postgres.Queryx(sql, values...)
+	if err != nil {
+		return nil, err
+	}
+
+	accessibilities := make([]*Accessibility, 0)
+	for rows.Next() {
+		a := NewAccessibility(true)
+		a.SetExists()
+		err = rows.StructScan(a)
+		if err != nil {
+			return nil, err
+		}
+		accessibilities = append(accessibilities, a)
+	}
+
+	return accessibilities, err
+}
+
+func (ds *Datastore) SaveAccessibilityByCriterionIdAccessibility(criterionId int64, accessibility *Accessibility) error {
+	if !accessibility.Exists() {
+		return errors.New("update failed: does not exist")
+	}
+
+	if accessibility.Deleted() {
+		return errors.New("update failed: marked for deletion")
+	}
+
+	const sql = `UPDATE places4all.criterion_accessibility SET weight = $1 WHERE id_criterion = $2 AND id_accessibility = $3`
+
+	_, err := ds.postgres.Exec(sql, accessibility.Weight, criterionId, accessibility.Id)
+	return err
+}
+
+func (ds *Datastore) InsertAccessibilityByCriterionId(criterionId, accessibilityId int64, weight int) error {
+	const sql = `INSERT INTO places4all.criterion_accessibility(id_criterion, id_accessibility, weight) VALUES($1, $2, $3)`
+
+	_, err := ds.postgres.Exec(sql, criterionId, accessibilityId, weight)
+	if err != nil {
+		return err
+	}
+
+	return err
+
 }

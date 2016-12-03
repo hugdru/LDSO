@@ -160,3 +160,31 @@ func (ds *Datastore) GetPropertyClientByIds(idProperty, idClient int64) (*Proper
 
 	return &pc, err
 }
+
+func (ds *Datastore) GetPropertyClientsByIdProperty(idProperty int64) ([]*Client, error) {
+
+	const sql = `SELECT client.id, client.id_entity, entity.id, entity.name, entity.username, entity.image ` +
+		`FROM places4all.entity ` +
+		`JOIN places4all.client ON client.id_entity = entity.id ` +
+		`JOIN places4all.property_client ON property_client.id_client = client.id ` +
+		`WHERE property_client.id_property = $1`
+
+	rows, err := ds.postgres.Queryx(sql, idProperty)
+	if err != nil {
+		return nil, err
+	}
+
+	clients := make([]*Client, 0)
+	for rows.Next() {
+		client := NewClient(false)
+		client.Entity = NewEntity(false)
+		client.SetExists()
+		err := rows.Scan(&client.Id, &client.IdEntity, &client.Entity.Id, &client.Entity.Name, &client.Entity.Username, &client.Entity.Image)
+		if err != nil {
+			return nil, err
+		}
+		clients = append(clients, client)
+	}
+
+	return clients, err
+}
