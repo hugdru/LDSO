@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/pressly/chi"
 	"gopkg.in/guregu/null.v3/zero"
@@ -17,6 +18,36 @@ func (h *Handler) criteriaRoutes(router chi.Router) {
 	router.Get("/:id", helpers.ReplyJson(h.getCriterion))
 	router.Put("/:id", helpers.RequestJson(helpers.ReplyJson(h.updateCriterion)))
 	router.Delete("/:id", helpers.ReplyJson(h.deleteCriterion))
+
+	router.Route("/:id/accessibilities", h.criteriaAccessibilitiesSubroutes)
+}
+
+func (h *Handler) criteriaAccessibilitiesSubroutes(router chi.Router) {
+	router.Use(h.criteriaAccessibilitiesContext)
+	router.Get("/", helpers.ReplyJson(h.getCriterionAccessibilities))
+	router.Post("/", helpers.RequestJson(helpers.ReplyJson(h.createCriterionAccessibility)))
+	router.Get("/:ida", helpers.ReplyJson(h.getCriterionAccessibility))
+	router.Put("/:ida", helpers.RequestJson(helpers.ReplyJson(h.updateCriterionAccessibility)))
+	router.Delete("/", helpers.ReplyJson(h.deleteCriterionAccessibilities))
+	router.Delete("/:ida", helpers.ReplyJson(h.deleteCriterionAccessibility))
+}
+
+func (h *Handler) criteriaAccessibilitiesContext(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		idCriterionStr := chi.URLParam(r, "id")
+		idCriterion, err := strconv.ParseInt(idCriterionStr, 10, 64)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+		criterion, err := h.Datastore.GetCriterionById(idCriterion)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+		ctx := context.WithValue(r.Context(), "criterion", criterion)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }
 
 func (h *Handler) getCriteria(w http.ResponseWriter, r *http.Request) {
@@ -201,4 +232,28 @@ func (h *Handler) deleteCriterion(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
 	}
+}
+
+func (h *Handler) getCriterionAccessibilities(w http.ResponseWriter, r *http.Request) {
+	//criterion := r.Context().Value("criterion").(*datastore.Criterion)
+}
+
+func (h *Handler) createCriterionAccessibility(w http.ResponseWriter, r *http.Request) {
+	//criterion := r.Context().Value("criterion").(*datastore.Criterion)
+}
+
+func (h *Handler) getCriterionAccessibility(w http.ResponseWriter, r *http.Request) {
+	//criterion := r.Context().Value("criterion").(*datastore.Criterion)
+}
+
+func (h *Handler) updateCriterionAccessibility(w http.ResponseWriter, r *http.Request) {
+	//criterion := r.Context().Value("criterion").(*datastore.Criterion)
+}
+
+func (h *Handler) deleteCriterionAccessibilities(w http.ResponseWriter, r *http.Request) {
+	//criterion := r.Context().Value("criterion").(*datastore.Criterion)
+}
+
+func (h *Handler) deleteCriterionAccessibility(w http.ResponseWriter, r *http.Request) {
+	//criterion := r.Context().Value("criterion").(*datastore.Criterion)
 }

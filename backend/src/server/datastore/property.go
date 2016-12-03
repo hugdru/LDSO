@@ -1,9 +1,10 @@
 package datastore
 
 import (
-	"encoding/json"
 	"errors"
+	"server/datastore/generators"
 	"server/datastore/metadata"
+	"strconv"
 	"time"
 )
 
@@ -159,51 +160,85 @@ func (ds *Datastore) GetPropertyById(id int64) (*Property, error) {
 
 	p := NewProperty(false)
 	p.Address = NewAddress(true)
-	var tagsJson, ownersJson string
-	err := ds.postgres.QueryRow(`
-	SELECT p.id, p.id_address, p.name, p.details, p.created_date, address.id,
-	address.address_line1, address.address_line2, address.address_line3,
-		address.town_city, address.county, address.postcode,
-		address.latitude, address.longitude, country.id,
-		country.name, country.iso2,
-		(SELECT json_agg(ts)
-		FROM (
-			SELECT tag.id, tag.name
-			FROM places4all.property_tag
-			JOIN places4all.tag on tag.id = property_tag.id_tag
-			WHERE property_tag.id_property = p.id
-		) ts) AS tags,
-		(SELECT json_agg(owrs)
-		FROM (
-			SELECT entity.id, entity.name, entity.image
-			FROM places4all.entity
-			JOIN places4all.client ON client.id_entity = entity.id
-			JOIN places4all.property_client ON property_client.id_client = client.id
-			WHERE id_property = p.id
-		) owrs) AS owners
-	FROM places4all.property AS p
-	JOIN places4all.address ON address.id = p.id_address
-	JOIN places4all.country ON country.id = address.id_country
-	WHERE p.id = $1;
-	`, id).Scan(&p.Id, &p.IdAddress, &p.Name, &p.Details, &p.CreatedDate, &p.Address.Id,
+	err := ds.postgres.QueryRow(`SELECT `+
+		`p.id, p.id_address, p.name, p.details, p.created_date, address.id, address.id_country, `+
+		`address.address_line1, address.address_line2, address.address_line3, `+
+		`address.town_city, address.county, address.postcode, `+
+		`address.latitude, address.longitude, country.id, `+
+		`country.name, country.iso2 `+
+		`FROM places4all.property AS p `+
+		`JOIN places4all.address ON address.id = p.id_address `+
+		`JOIN places4all.country ON country.id = address.id_country `+
+		`WHERE p.id = $1; `,
+		id).Scan(&p.Id, &p.IdAddress, &p.Name, &p.Details, &p.CreatedDate, &p.Address.Id, &p.Address.IdCountry,
 		&p.Address.AddressLine1, &p.Address.AddressLine2, &p.Address.AddressLine3,
 		&p.Address.TownCity, &p.Address.County, &p.Address.Postcode,
 		&p.Address.Latitude, &p.Address.Longitude, &p.Address.Country.Id,
-		&p.Address.Country.Name, &p.Address.Country.Iso2,
-		&tagsJson, &ownersJson,
-	)
+		&p.Address.Country.Name, &p.Address.Country.Iso2)
 	if err != nil {
 		return nil, err
 	}
 
-	err = json.Unmarshal([]byte(tagsJson), &p.Tags)
+	p.Tags, err = ds.GetPropertyTagByIdProperty(p.Id)
 	if err != nil {
 		return nil, err
 	}
-	err = json.Unmarshal([]byte(ownersJson), &p.Owners)
+	p.Owners, err = ds.GetPropertyClientsByIdProperty(p.Id)
 	if err != nil {
 		return nil, err
 	}
 
 	return p, err
+}
+
+func (ds *Datastore) GetProperties(limit, offset int, filter map[string]string) ([]*Property, error) {
+
+	where, values := generators.GenerateSearchClause(filter)
+
+	sql := `SELECT p.id, p.id_address, p.name, p.details, p.created_date, ` +
+		`address.id, address.id_country, address.address_line1, address.address_line2, ` +
+		`address.address_line3, address.town_city, address.county, ` +
+		`address.postcode, address.latitude, address.longitude, ` +
+		`country.id, country.name, country.iso2 ` +
+		`FROM places4all.property AS p ` +
+		`JOIN places4all.address ON address.id = p.id_address ` +
+		`JOIN places4all.country ON country.id = address.id_country ` +
+		where + `ORDER BY p.id DESC LIMIT ` + strconv.Itoa(limit) +
+		` OFFSET ` + strconv.Itoa(offset)
+	sql = ds.postgres.Rebind(sql)
+
+	rows, err := ds.postgres.Queryx(sql, values...)
+	if err != nil {
+		return nil, err
+	}
+
+	properties := make([]*Property, 0)
+	for rows.Next() {
+		p := NewProperty(false)
+		p.SetExists()
+		p.Address = NewAddress(true)
+		p.Address.SetExists()
+		err := rows.Scan(&p.Id, &p.IdAddress, &p.Name, &p.Details, &p.CreatedDate, &p.Address.Id,
+			&p.Address.IdCountry, &p.Address.AddressLine1, &p.Address.AddressLine2, &p.Address.AddressLine3,
+			&p.Address.TownCity, &p.Address.County, &p.Address.Postcode,
+			&p.Address.Latitude, &p.Address.Longitude, &p.Address.Country.Id,
+			&p.Address.Country.Name, &p.Address.Country.Iso2)
+		if err != nil {
+			return nil, err
+		}
+		p.Tags, err = ds.GetPropertyTagByIdProperty(p.Id)
+		if err != nil {
+			return nil, err
+		}
+		p.Owners, err = ds.GetPropertyClientsByIdProperty(p.Id)
+		if err != nil {
+			return nil, err
+		}
+		properties = append(properties, p)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return properties, err
 }

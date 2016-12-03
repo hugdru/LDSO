@@ -147,17 +147,16 @@ func (ds *Datastore) GetClientEntity(c *Client) (*Entity, error) {
 
 func (ds *Datastore) GetClientById(id int64) (*Client, error) {
 
-	const sql = `SELECT
-		client.id, client.id_entity,
-		entity.id, entity.id_country, entity.name, entity.email,
-		entity.username, entity.password, entity.image, entity.banned, entity.banned_date,
-		entity.reason, entity.mobilephone, entity.telephone, entity.created_date,
-		country.id, country.name, country.iso2
-		FROM places4all.client
-		JOIN places4all.entity on entity.id = client.id_entity
-		JOIN places4all.country on country.id = entity.id_country
-		WHERE client.id = $1
-	`
+	const sql = `SELECT ` +
+		`client.id, client.id_entity, ` +
+		`entity.id, entity.id_country, entity.name, entity.email, ` +
+		`entity.username, entity.password, entity.image, entity.banned, entity.banned_date, ` +
+		`entity.reason, entity.mobilephone, entity.telephone, entity.created_date, ` +
+		`country.id, country.name, country.iso2 ` +
+		`FROM places4all.client ` +
+		`JOIN places4all.entity ON entity.id = client.id_entity ` +
+		`JOIN places4all.country ON country.id = entity.id_country ` +
+		`WHERE client.id = $1`
 
 	c := NewClient(true)
 	c.SetExists()

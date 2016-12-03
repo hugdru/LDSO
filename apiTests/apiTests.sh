@@ -20,6 +20,7 @@ gets=(
   ['countries']='countries.spec'
   ['countries/1']='country1.spec'
   ['properties/1']='property1.spec'
+  ['properties']='properties.spec'
   ['addresses/1']='address1.spec'
   ['clients/1']='client1.spec'
   ['templates']='templates.spec'
@@ -45,6 +46,7 @@ gets=(
   ['criteria?idSubgroup=5']='criteriaIdSubgroup5.spec'
   ['criteria/1']='criterion1.spec'
   ['criteria/2']='criterion2.spec'
+  ['audits']='audits.spec'
 )
 
 main() {

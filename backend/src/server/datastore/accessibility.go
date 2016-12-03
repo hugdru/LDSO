@@ -2,6 +2,7 @@ package datastore
 
 import (
 	"errors"
+	"server/datastore/generators"
 	"server/datastore/metadata"
 )
 
@@ -126,6 +127,18 @@ func (ds *Datastore) DeleteAccessibility(a *Accessibility) error {
 	return err
 }
 
+func (ds *Datastore) DeleteAccessibilityById(idAccessibility int64) error {
+
+	const sql = `DELETE FROM places4all.accessibility WHERE id = $1`
+
+	_, err := ds.postgres.Exec(sql, idAccessibility)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
 func (ds *Datastore) GetAccessibilityById(id int64) (*Accessibility, error) {
 
 	const sql = `SELECT id, name FROM places4all.accessibility WHERE id = $1`
@@ -159,6 +172,35 @@ func (ds *Datastore) GetAccessibilitiesByCriterionId(idCriterion int64) ([]*Acce
 			return nil, err
 		}
 		accessibilities = append(accessibilities, accessibility)
+	}
+
+	return accessibilities, err
+}
+
+func (ds *Datastore) GetAccessibilities(limit, offset int, filter map[string]string) ([]*Accessibility, error) {
+
+	where, values := generators.GenerateSearchClause(filter)
+
+	sql := `SELECT ` +
+		`id, name ` +
+		`FROM places4all.accessibility ` +
+		where
+	sql = ds.postgres.Rebind(sql)
+
+	rows, err := ds.postgres.Queryx(sql, values...)
+	if err != nil {
+		return nil, err
+	}
+
+	accessibilities := make([]*Accessibility, 0)
+	for rows.Next() {
+		a := NewAccessibility(true)
+		a.SetExists()
+		err = rows.StructScan(a)
+		if err != nil {
+			return nil, err
+		}
+		accessibilities = append(accessibilities, a)
 	}
 
 	return accessibilities, err
