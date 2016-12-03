@@ -48,6 +48,8 @@ gets=(
   ['criteria/2']='criterion2.spec'
   ['audits']='audits.spec'
   ['auditors/1']='auditors1.spec'
+  ['criteria/1/accessibilities']='criteriaId1Accessibilities.spec'
+  ['criteria/1/accessibilities/1']='criteriaId1Accessibility1.spec'
 )
 
 main() {
@@ -80,15 +82,15 @@ get() {
   for resource in "${!gets[@]}"; do
     local spec_file="$specs_dir/${gets[$resource]}"
     if [[ ! -f "$spec_file" ]]; then
-      echo -e "\t${RED}$resource \t\t $counter/$n_tests \t NO SPEC!"
+      echo -e "${RED}\t$counter/$n_tests \t$resource \tNO SPEC!${NOCOLOR}"
       success=false
     else
       local output="$($EXE GET "$URL/$resource" 2>/dev/null)"
       local spec=$(<"$spec_file")
       if [[ "$output" == "$spec" ]]; then
-        echo -e "\t${GREEN}$resource \t\t $counter/$n_tests"
+        echo -e "${GREEN}\t$counter/$n_tests \t${resource}${NOCOLOR}"
       else
-        echo -e "\t${RED}$resource \t\t $counter/$n_tests"
+        echo -e "${RED}\t$counter/$n_tests \t${resource}${NOCOLOR}"
         success=false
       fi
     fi

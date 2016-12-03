@@ -4,7 +4,6 @@ import (
 	"errors"
 	"server/datastore/metadata"
 	"strconv"
-
 )
 
 type Auditor struct {
@@ -150,7 +149,6 @@ func (ds *Datastore) GetAuditorEntity(a *Auditor) (*Entity, error) {
 func (ds *Datastore) GetAuditorById(id int64) (*Auditor, error) {
 	var err error
 
-
 	const sql = `SELECT
 		auditor.id, auditor.id_entity,
 		entity.id, entity.id_country, entity.name, entity.email,
@@ -180,12 +178,12 @@ func (ds *Datastore) GetAuditorById(id int64) (*Auditor, error) {
 	return &a, err
 }
 func (ds *Datastore) GetAuditors(limit, offset int) ([]*Auditor, error) {
-//nao retor a info da entity
+	//nao retor a info da entity
 	rows, err := ds.postgres.Queryx(`SELECT ` +
-		`auditor.id, auditor.id_entity `+ //, entity.email, entity.username, entity.password, entity.created_date ` +
-		`FROM places4all.auditor `+
-		`JOIN places4all.entity on entity.id = auditor.id_entity `+
-//		`JOIN places4all.country on country.id = entity.id_country `+
+		`auditor.id, auditor.id_entity ` + //, entity.email, entity.username, entity.password, entity.created_date ` +
+		`FROM places4all.auditor ` +
+		`JOIN places4all.entity on entity.id = auditor.id_entity ` +
+		//		`JOIN places4all.country on country.id = entity.id_country `+
 		`ORDER BY auditor.id DESC LIMIT ` + strconv.Itoa(limit) +
 		`OFFSET ` + strconv.Itoa(offset))
 
