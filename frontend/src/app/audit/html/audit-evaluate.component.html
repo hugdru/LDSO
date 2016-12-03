@@ -1,15 +1,5 @@
 <show-list [objectList]="mainGroups" (selected)="selected($event)"></show-list>
 <hr>
-<div *ngIf="selectedMainGroup">
-    <div *ngFor="let subGroup of selectedSubGroups">
-        <table class="cursor-pointer"
-               *ngIf="subGroup.idMaingroup == selectedMainGroup.id"
-               (click)="showCriteria(subGroup)">
-            <tr>
-                {{subGroup.name}}
-            </tr>
-        </table>
-    </div>
 <div *ngIf="subGroups">
 	<show-list [objectList]="subGroups" (selected)="selected($event)">
 	</show-list>
@@ -27,7 +17,7 @@
 				<h3>{{criterion.name}}</h3>
 			</modal-header>
 			<modal-content>
-				Não Aplicavel 
+				Não Aplicavel
 				<input type="checkbox" [checked]="checkedNoCriterion(criterion)"
 						(change)="uncheckedNoCriterion(criterion)">
 				<br>

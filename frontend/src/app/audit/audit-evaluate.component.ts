@@ -52,7 +52,7 @@ export class AuditEvaluateComponent implements OnInit {
     }
 
     selected(object: Object): void {
-        if ((<SubGroup>object).main_group !== undefined) {
+        if ((<SubGroup>object).idMaingroup !== undefined) {
 			this.showCriteria(<SubGroup>object);
         }
         // else if ((<Criterion>object).sub_group !== undefined) {
@@ -74,8 +74,8 @@ export class AuditEvaluateComponent implements OnInit {
     }
 
 	initSubGroups(mainGroup: MainGroup): void {
-        this.subGroupService.getSomeSubGroups("main_group", "int",
-                mainGroup._id).subscribe(data => this.subGroups = data);
+        this.subGroupService.getSomeSubGroups("idMainGroup",
+                mainGroup.id).subscribe(data => this.subGroups = data);
 	}
 
 	checkedNoCriterion(criterion: Criterion): void {
