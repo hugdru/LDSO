@@ -13,9 +13,6 @@ export class ListShowValueComponent {
     @Input() objType: string;
 
     checkPercentage(): boolean {
-        if (this.weight != 100) {
-            console.log(this.object)
-        }
         return this.weight != 100;
     }
 }

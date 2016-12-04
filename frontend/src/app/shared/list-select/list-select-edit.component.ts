@@ -11,6 +11,7 @@ export class ListSelectEditComponent {
     @Input() objType: string;
     @Input() selectedEditObject: Identifier;
     @Input() weight: number;
+    @Input() father: Identifier;
     @Output() action = new EventEmitter();
 
     onAction(): void {

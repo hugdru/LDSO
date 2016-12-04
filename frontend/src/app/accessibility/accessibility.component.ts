@@ -42,7 +42,8 @@ export class AccessibilityComponent implements OnInit, OnChanges {
     }
 
     onDelete(accessibility: Accessibility): void {
-        this.accessibilityService.removeAccessibility(accessibility.id)
+        this.accessibilityService
+                .removeAccessibility(accessibility.id, this.parentCriterion.id)
                 .subscribe();
     }
 

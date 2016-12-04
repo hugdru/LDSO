@@ -15,27 +15,32 @@ export class AccessibilityService {
         return this.handler.getAll<Accessibility[]>(accessibilitiesUrl);
     }
 
-    getSomeAccessibilities(id: number): Observable<Accessibility[]> {
+    getSomeAccessibilities(criterionId: number): Observable<Accessibility[]> {
         return this.handler.getAll<Accessibility[]>(
-                accessibilitiesUrl.replace(/#/g, id.toString()));
+                accessibilitiesUrl.replace(/#/g, criterionId.toString()));
     }
 
     getAccessibility(id: number): Observable<Accessibility> {
         return this.handler.get<Accessibility>(accessibilitiesUrl, id);
     }
 
-    updateAccessibility(accessibility: Accessibility): Observable<Response> {
-        return this.handler.update<Accessibility>(accessibilitiesUrl,
+    updateAccessibility(accessibility: Accessibility,
+                        criterionId: number): Observable<Response> {
+        return this.handler.update<Accessibility>(
+                accessibilitiesUrl.replace(/#/g, criterionId.toString()),
                 accessibility, accessibility.id);
     }
 
-    setAccessibility(accessibility: Accessibility): Observable<Response> {
-        return this.handler.set<Accessibility>(accessibilitiesUrl,
+    setAccessibility(accessibility: Accessibility,
+                     criterionId: number): Observable<Response> {
+        return this.handler.set<Accessibility>(
+                accessibilitiesUrl.replace(/#/g, criterionId.toString()),
                 accessibility);
     }
 
-    removeAccessibility(id: number): Observable<Response> {
-        return this.handler.delete(accessibilitiesUrl, id);
+    removeAccessibility(id: number, criterionId: number): Observable<Response> {
+        return this.handler.delete(
+                accessibilitiesUrl.replace(/#/g, criterionId.toString()), id);
     }
 
 }

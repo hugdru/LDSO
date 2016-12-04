@@ -1,6 +1,7 @@
 import {Component, Input, Output, EventEmitter, OnInit} from "@angular/core";
 import {AccessibilityService} from "accessibility/service/accessibility.service";
 import {Accessibility} from "accessibility/accessibility";
+import {Criterion} from "../criterion/criterion";
 
 @Component({
     selector: 'accessibility-edit',
@@ -12,6 +13,7 @@ import {Accessibility} from "accessibility/accessibility";
 export class AccessibilityEditComponent implements OnInit {
     backupAccessibility: Accessibility;
 
+    @Input() criterion: Criterion;
     @Input() selectedObject: Accessibility;
     @Input() weight: number;
     @Output() onAction = new EventEmitter();
@@ -37,7 +39,8 @@ export class AccessibilityEditComponent implements OnInit {
     }
 
     updateAccessibility(): void {
-        this.accessibilityService.updateAccessibility(this.selectedObject)
+        this.accessibilityService
+                .updateAccessibility(this.selectedObject, this.criterion.id)
                 .subscribe();
     }
 
