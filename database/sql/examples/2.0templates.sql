@@ -1,8 +1,8 @@
 SET SCHEMA 'places4all';
 
 INSERT INTO template(name, created_date) VALUES
-  ('O meu primeiro template', '2016-11-25T14:46:26.680513Z'), -- 1
-  ('O meu segundo template', '2016-11-25T14:46:26.680513Z'); -- 2
+  ('T1', '2016-11-25T14:46:26.680513Z'), -- 1
+  ('T2', '2016-11-25T14:46:26.680513Z'); -- 2
 
 INSERT INTO maingroup(id_template, name, weight, created_date) VALUES
   (1, 'T1-M1', 40, '2016-11-25T14:46:26.680513Z'), -- 1
@@ -18,9 +18,9 @@ INSERT INTO subgroup(id_maingroup, name, weight, created_date) VALUES
   (3, 'M3-S6', 100, '2016-11-25T14:46:26.680513Z'); -- 6
 
 INSERT INTO legislation(name, description, url) VALUES
-  ('O gamanço', 'lei aprovada pelos ladrões', 'https://www.priberam.pt/dlpo/gaman%C3%A7o'), -- 1
-  ('O ananás', NULL, NULL), -- 2
-  ('O banco', 'quem sabe sabe e o BES sempre soube', 'https://www.priberam.pt/dlpo/roubo'); -- 3
+  ('lei 1', NULL, NULL), -- 1
+  ('lei 2', NULL, NULL), -- 2
+  ('lei 3', NULL, NULL); -- 3
 
 INSERT INTO criterion(id_subgroup, id_legislation, name, weight, created_date) VALUES
   (1, 1, 'S1-C1', 11, '2016-11-25T14:46:26.680513Z'), -- 1
@@ -45,68 +45,89 @@ INSERT INTO criterion(id_subgroup, id_legislation, name, weight, created_date) V
   (6, NULL, 'S6-C20', 56, '2016-11-25T14:46:26.680513Z'); -- 20
 
 INSERT INTO accessibility(name) VALUES
-  ('Visual'), -- 1
-  ('Auditiva'), -- 2
-  ('Física'); -- 3
+  ('Auditiva'), -- 1
+  ('Cognitiva'), -- 2
+  ('Física'), -- 3
+  ('Visual'); -- 4
 
 INSERT INTO criterion_accessibility(id_criterion, id_accessibility, weight) VALUES
   (1, 1, 20),
   (1, 2, 30),
-  (1, 3, 50),
+  (1, 3, 30),
+  (1, 4, 20),
   (2, 1, 15),
   (2, 2, 20),
-  (2, 3, 65),
+  (2, 3, 55),
+  (2, 4, 10),
   (3, 1, 11),
   (3, 2, 11),
-  (3, 3, 78),
+  (3, 3, 11),
+  (3, 4, 67),
   (4, 1, 20),
   (4, 2, 20),
   (4, 3, 60),
+  (4, 4, 0),
   (5, 1, 13),
   (5, 2, 32),
   (5, 3, 55),
+  (5, 4, 0),
   (6, 1, 33),
   (6, 2, 33),
   (6, 3, 34),
+  (6, 4, 0),
   (7, 1, 55),
   (7, 2, 40),
   (7, 3, 5),
+  (7, 4, 0),
   (8, 1, 98),
   (8, 2, 1),
   (8, 3, 1),
+  (8, 4, 0),
   (9, 1, 77),
   (9, 2, 13),
   (9, 3, 10),
+  (9, 4, 0),
   (10, 1, 19),
   (10, 2, 75),
   (10, 3, 6),
+  (10, 4, 0),
   (11, 1, 88),
   (11, 2, 4),
   (11, 3, 8),
+  (11, 4, 0),
   (12, 1, 66),
   (12, 2, 24),
   (12, 3, 10),
+  (12, 4, 0),
   (13, 1, 17),
   (13, 2, 17),
   (13, 3, 66),
+  (13, 4, 0),
   (14, 1, 55),
   (14, 2, 33),
   (14, 3, 12),
+  (14, 4, 0),
   (15, 1, 54),
   (15, 2, 6),
   (15, 3, 40),
+  (15, 4, 0),
   (16, 1, 9),
   (16, 2, 8),
   (16, 3, 83),
+  (16, 4, 0),
   (17, 1, 15),
   (17, 2, 15),
   (17, 3, 70),
+  (17, 4, 0),
   (18, 1, 76),
   (18, 2, 14),
   (18, 3, 10),
+  (18, 4, 0),
   (19, 1, 32),
   (19, 2, 23),
   (19, 3, 45),
+  (19, 4, 0),
   (20, 1, 20),
   (20, 2, 30),
-  (20, 3, 50);
+  (20, 3, 30),
+  (20, 4, 20);
