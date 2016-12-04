@@ -1,7 +1,7 @@
 <th class={{object.name}}> {{object.name}}</th>
 <th *ngIf="objType=='Criterion'"> {{object.legislation}}</th>
-<th [class.warning]="checkPercentage()"
+<th *ngIf="objType!='Ctemplate'" [class.warning]="checkPercentage()"
     data-toggle="tooltip" data-placement="top"
-    title="A soma das percentegens deve ser inferior a 100%">
+    title="A soma das percentegens deve ser 100%">
     {{object.weight}}%
 </th>

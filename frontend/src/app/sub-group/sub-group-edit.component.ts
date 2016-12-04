@@ -42,7 +42,7 @@ export class SubGroupEditComponent implements OnInit {
     }
 
     checkPercentage(): boolean {
-        return this.selectedObject.weight + this.weight > 100;
+        return this.selectedObject.weight + this.weight != 100;
     }
 
 }

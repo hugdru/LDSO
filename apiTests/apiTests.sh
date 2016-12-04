@@ -25,8 +25,8 @@ gets=(
   ['clients/1']='client1.spec'
   ['templates']='templates.spec'
   ['templates?id=2']='templatesId2.spec'
-  ['templates?id=2&name=O+meu+segundo+template']='templatesId2Name.spec'
-  ['templates?name=O+meu+primeiro+template']='templatesName1.spec'
+  ['templates?id=2&name=T2']='templatesId2Name.spec'
+  ['templates?name=T1']='templatesName1.spec'
   ['templates/1']='template1.spec'
   ['templates/2']='template2.spec'
   ['maingroups']='maingroups.spec'
@@ -39,7 +39,7 @@ gets=(
   ['subgroups/1']='subgroup1.spec'
   ['subgroups/2']='subgroup2.spec'
   ['legislations']='legislations.spec'
-  ['legislations?name=O+banco']='legislationsName1.spec'
+  ['legislations?name=lei+1']='legislationsName1.spec'
   ['legislations/1']='legislation1.spec'
   ['legislations/2']='legislation2.spec'
   ['criteria']='criteria.spec'
@@ -48,7 +48,7 @@ gets=(
   ['criteria/2']='criterion2.spec'
   ['audits']='audits.spec'
   ['auditors/1']='auditors1.spec'
-  ['criteria/1/accessibilities']='criteriaId1Accessibilities.spec'
+  ['criteria/19/accessibilities']='criteriaId19Accessibilities.spec'
   ['criteria/1/accessibilities/1']='criteriaId1Accessibility1.spec'
 )
 
@@ -90,7 +90,7 @@ get() {
       if [[ "$output" == "$spec" ]]; then
         echo -e "${GREEN}\t$counter/$n_tests \t${resource}${NOCOLOR}"
       else
-        echo -e "${RED}\t$counter/$n_tests \t${resource}${NOCOLOR}"
+        echo -e "${RED}\t$counter/$n_tests \t${resource}${NOCOLOR}\t${output}"
         success=false
       fi
     fi

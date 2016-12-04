@@ -62,7 +62,7 @@ export class ListManageComponent {
     }
 
     checkPercentage(): boolean {
-        return this.sumPercentageForAdd() > 100;
+        return this.sumPercentageForAdd() != 100;
     }
 
     findType(): string {
