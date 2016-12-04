@@ -18,7 +18,7 @@ type Criterion struct {
 	CreatedDate   time.Time `json:"createdDate" db:"created_date"`
 
 	// Objects
-	Legislation     *Legislation     `json:"legislation,omitempty"`
+	Legislation            *Legislation              `json:"legislation,omitempty"`
 	CriterionAccessibility []*CriterionAccessibility `json:"accessibilities,omitempty"`
 
 	meta metadata.Metadata
