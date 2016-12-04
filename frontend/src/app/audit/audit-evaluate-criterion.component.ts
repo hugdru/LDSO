@@ -17,7 +17,6 @@ export class AuditEvaluateCriterionComponent {
 	@Input() auditId: number;
 
 	unselectedCriteria: Criterion[] = [];
-
 	remark: Remark;
 	remarks: Remark[];
 	selectedAdd: boolean = false;
@@ -70,5 +69,4 @@ export class AuditEvaluateCriterionComponent {
 		}
 		this.selectedAdd = false;
 	}
-
 }
