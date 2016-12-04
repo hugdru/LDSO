@@ -236,22 +236,22 @@ func (h *Handler) deleteCriterion(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) getCriterionAccessibilities(w http.ResponseWriter, r *http.Request) {
 	criterion := r.Context().Value("criterion").(*datastore.Criterion)
-	accessibilities, err := h.Datastore.GetAccessibilitiesByCriterionId(criterion.Id)
+	criterionAccessibilities, err := h.Datastore.GetCriterionAccessibilitiesByCriterionId(criterion.Id)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
 	}
-	accessibilitiesSlice, err := json.Marshal(accessibilities)
+	criterionAccessibilitiesSlice, err := json.Marshal(criterionAccessibilities)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
 	}
-	w.Write(accessibilitiesSlice)
+	w.Write(criterionAccessibilitiesSlice)
 }
 
 func (h *Handler) deleteCriterionAccessibilities(w http.ResponseWriter, r *http.Request) {
 	criterion := r.Context().Value("criterion").(*datastore.Criterion)
-	err := h.Datastore.DeleteAccessibilitiesByCriterionId(criterion.Id)
+	err := h.Datastore.DeleteCriterionAccessibilitiesByCriterionId(criterion.Id)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
@@ -268,17 +268,17 @@ func (h *Handler) getCriterionAccessibility(w http.ResponseWriter, r *http.Reque
 
 	criterion := r.Context().Value("criterion").(*datastore.Criterion)
 
-	accessibility, err := h.Datastore.GetAccessibilityByIds(criterion.Id, idAccessibility)
+	criterionAccessibility, err := h.Datastore.GetCriterionAccessibilityByIds(criterion.Id, idAccessibility)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
 	}
-	accessibilitySlice, err := json.Marshal(accessibility)
+	criterionAccessibilitySlice, err := json.Marshal(criterionAccessibility)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
 	}
-	w.Write(accessibilitySlice)
+	w.Write(criterionAccessibilitySlice)
 }
 
 func (h *Handler) createCriterionAccessibility(w http.ResponseWriter, r *http.Request) {
@@ -307,7 +307,7 @@ func (h *Handler) createCriterionAccessibility(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	err = h.Datastore.InsertAccessibilityByCriterionId(criterion.Id, input.IdAccessibility, input.Weight)
+	err = h.Datastore.InsertCriterionAccessibilityByIds(criterion.Id, input.IdAccessibility, input.Weight)
 
 }
 
@@ -321,7 +321,7 @@ func (h *Handler) updateCriterionAccessibility(w http.ResponseWriter, r *http.Re
 
 	criterion := r.Context().Value("criterion").(*datastore.Criterion)
 
-	accessibility, err := h.Datastore.GetAccessibilityByIds(criterion.Id, idAccessibility)
+	criterionAccessibility, err := h.Datastore.GetCriterionAccessibilityByIds(criterion.Id, idAccessibility)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
@@ -349,9 +349,9 @@ func (h *Handler) updateCriterionAccessibility(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	accessibility.Weight = input.Weight
+	criterionAccessibility.Weight = input.Weight
 
-	err = h.Datastore.SaveAccessibilityByCriterionIdAccessibility(criterion.Id, accessibility)
+	err = h.Datastore.SaveCriterionAccessibility(criterionAccessibility)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
@@ -368,7 +368,7 @@ func (h *Handler) deleteCriterionAccessibility(w http.ResponseWriter, r *http.Re
 
 	criterion := r.Context().Value("criterion").(*datastore.Criterion)
 
-	err = h.Datastore.DeleteAccessibilitiesByIds(criterion.Id, idAccessibility)
+	err = h.Datastore.DeleteCriterionAccessibilityByIds(criterion.Id, idAccessibility)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return

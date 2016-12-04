@@ -19,7 +19,7 @@ type Criterion struct {
 
 	// Objects
 	Legislation     *Legislation     `json:"legislation,omitempty"`
-	Accessibilities []*Accessibility `json:"accessibilities,omitempty"`
+	CriterionAccessibility []*CriterionAccessibility `json:"accessibilities,omitempty"`
 
 	meta metadata.Metadata
 }
@@ -44,7 +44,7 @@ func ACriterion(allocateObjects bool) Criterion {
 	criterion := Criterion{}
 	if allocateObjects {
 		criterion.Legislation = NewLegislation(true)
-		criterion.Accessibilities = make([]*Accessibility, 0)
+		criterion.CriterionAccessibility = make([]*CriterionAccessibility, 0)
 	}
 	return criterion
 }
@@ -209,7 +209,7 @@ func (ds *Datastore) GetCriteriaBySubgroupId(idSubgroup int64) ([]*Criterion, er
 			}
 		}
 		criteria = append(criteria, criterion)
-		criterion.Accessibilities, err = ds.GetAccessibilitiesByCriterionId(criterion.Id)
+		criterion.CriterionAccessibility, err = ds.GetCriterionAccessibilitiesByCriterionId(criterion.Id)
 		if err != nil {
 			return nil, err
 		}
