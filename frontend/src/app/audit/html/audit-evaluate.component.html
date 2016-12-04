@@ -6,47 +6,5 @@
 </div>
 <hr>
 <div *ngIf="criteria">
-    <div class="cursor-pointer" *ngFor="let criterion of criteria">
-        <table (click)="auditModal.open()">
-            <tr>
-                {{criterion.name}}
-            </tr>
-        </table>
-		<modal #auditModal>
-			<modal-header>
-				<h3>{{criterion.name}}</h3>
-			</modal-header>
-			<modal-content>
-				Não Aplicavel 
-				<input type="checkbox" [checked]="checkedNoCriterion(criterion)"
-						(change)="uncheckedNoCriterion(criterion)">
-				<br>
-				{{criterion.legislation}}
-				<br>
-				Avaliação: <input type="number">
-				<!-- [(ngModel)]="selectedObject.weight" placeholder="peso" [class.warning]="checkPercentage()"/> -->
-				<h4>Observaçoes</h4>
-				<button *ngIf="!selectedAdd"
-						 class="btn btn-primary round outline"
-						(click)="selectAdd()">
-					Adicionar Observação
-					<i class="glyphicon glyphicon-plus"></i>
-				</button>
-				<div *ngIf="selectedAdd">
-					<remark-add
-							[criterion]="criterion"
-							(add)="onAdd($event)">
-					</remark-add>
-				</div>
-				<div *ngFor="let remark of remarks">
-					{{remark.data}}
-				</div>
-			</modal-content>
-			<modal-footer>
-				<button class="btn btn-primary" (click)="auditModal.close()">
-					close
-				</button>
-			</modal-footer>
-		</modal>
-    </div>
+	<audit-evaluate-criterion [criteria]="criteria"></audit-evaluate-criterion>
 </div>

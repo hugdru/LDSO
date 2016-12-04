@@ -40,6 +40,8 @@ import {ListPropertiesComponent} from "property/list-properties.component";
 import {PropertiesInfoComponent} from "property/property-info.component";
 import {AuditComponent} from "audit/audit.component";
 import {AuditEvaluateComponent} from "audit/audit-evaluate.component";
+import {AuditEvaluateCriterionComponent}
+		from "audit/audit-evaluate-criterion.component";
 import {AuditSelectComponent} from "audit/audit-select.component";
 import {RemarkAddComponent} from "remark/remark-add.component";
 import {ImageSingleUploadComponent} from 'images/image-single-upload.component';
@@ -75,6 +77,7 @@ import {HandlerService} from "handler.service";
         PropertiesInfoComponent,
         AuditComponent,
         AuditEvaluateComponent,
+		AuditEvaluateCriterionComponent,
         AuditSelectComponent,
 		RemarkAddComponent,
 		ImageSingleUploadComponent
