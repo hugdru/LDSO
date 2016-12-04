@@ -50,6 +50,9 @@ gets=(
   ['auditors/1']='auditors1.spec'
   ['criteria/19/accessibilities']='criteriaId19Accessibilities.spec'
   ['criteria/1/accessibilities/1']='criteriaId1Accessibility1.spec'
+  ['audits/1/subgroups']='audits1subgroups.spec'
+  ['audits/1/criteria']='audits1criteria.spec'
+  ['audits/1/criteria/1']='audits1criteria1.spec'
 )
 
 main() {
