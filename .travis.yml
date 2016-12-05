@@ -1,6 +1,6 @@
-language: generic
+dist: trusty
 sudo: required
-install: true
+language: generic
 
 os:
   - linux
@@ -12,6 +12,8 @@ env:
     - PROJECT="$PWD"
     - FRONTEND="$PROJECT/frontend"
     - BACKEND="$PROJECT/backend"
+    - DATABASE="$PROJECT/database"
+    - API_TESTS="$PROJECT/apiTests"
 
 addons:
   hosts:
@@ -29,6 +31,10 @@ addons:
     - api.lp4astaging.tk
     - www.lp4astaging.tk
     - lp4astaging.tk
+  apt:
+    packages:
+      - postgresql-9.6
+      - postgresql-contrib-9.6
 
 before_install:
   - eval "$(gimme)"
@@ -38,14 +44,24 @@ before_install:
 before_script:
   - npm install -g angular-cli
   - go get github.com/constabulary/gb/...
+  - sudo service postgresql stop
 
 script:
+   - postgres_bin="/usr/lib/postgresql/9.6/bin/"
+   - export PATH="$PATH:$postgres_bin"
    - cd "$FRONTEND"
    - npm install
    - node_modules/karma/bin/karma start karma.conf.js --single-run
    - cd "$BACKEND"
    - gb vendor restore
+   - gb build server
    - gb test server
+   - cd "$DATABASE"
+   - ./pgr initddl
+   - cd "$BACKEND"
+   - ./bin/server &
+   - cd "$API_TESTS"
+   - ./apiTests.sh noinit
 
 notifications:
   slack: ldso51:sq2rhGIJnWafmF0MWN2phN3W

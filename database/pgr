@@ -13,7 +13,7 @@ set -e
 
 cd "${0%/*}"
 
-usage="$0 (init|start|stop|restart|ddl|examples|initddl [file])"
+usage="$0 (init|start|stop|restart|ddl|examples [file]|initddlexamples)"
 cluster_dir="./cluster"
 timeout_duration="10"
 db_name="places4all"
