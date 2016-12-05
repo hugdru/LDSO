@@ -13,6 +13,7 @@ import {Criterion} from "../criterion/criterion";
 export class AccessibilityEditComponent implements OnInit {
     backupAccessibility: Accessibility;
 
+    @Input() objType: string;
     @Input() criterion: Criterion;
     @Input() selectedObject: Accessibility;
     @Input() weight: number;

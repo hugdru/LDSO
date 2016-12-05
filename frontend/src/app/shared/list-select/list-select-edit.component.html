@@ -22,6 +22,7 @@
     <accessibility-edit *ngSwitchCase="'Accessibility'"
                         [criterion]="father"
                         [selectedObject]="selectedEditObject"
+                        [objType]="objType"
                         [weight]="weight"
                         (onAction)="onAction()">
     </accessibility-edit>

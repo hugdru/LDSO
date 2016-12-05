@@ -13,6 +13,7 @@ import {Criterion} from "criterion/criterion";
 export class AccessibilityAddComponent implements OnInit {
     selectedObject: Accessibility;
 
+    @Input() objType: string;
     @Input() criterion: Criterion;
     @Input() weight: number;
     @Output() onAdd = new EventEmitter<Accessibility>();
@@ -33,9 +34,8 @@ export class AccessibilityAddComponent implements OnInit {
     }
 
     addAccessibility(): void {
-        this.selectedObject.idCriterion = this.criterion.id;
         this.accessibilityService
-                .setAccessibility(this.selectedObject, this.criterion.id)
+                .setAccessibility(this.selectedObject , this.criterion.id)
                 .subscribe(
                         response => this.selectedObject.id = response.json().id
                 );
