@@ -13,3 +13,8 @@
     padding: 1%;
     display: inline-table;
 }
+.indent{
+    padding-left:1em;
+    padding-right:1em;
+
+}
