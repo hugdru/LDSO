@@ -30,7 +30,9 @@
                     </button>
                 </th>
                 <th>
-                    <button type="button" class="btn btn-delete round outline"
+                    <button *ngIf="objType !='Accessibility'"
+                            type="button"
+                            class="btn btn-delete round outline"
                             (click)="deleteObject(obj)">
                         <span class="glyphicon glyphicon-trash"></span>
                     </button>
