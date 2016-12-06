@@ -124,6 +124,7 @@ func (h *Handler) createCriterion(w http.ResponseWriter, r *http.Request) {
 		Name          string
 		Weight        int
 		Legislation   string
+		//Legislation   *inputLegislation
 	}
 	input.Weight = -1
 
@@ -163,6 +164,17 @@ func (h *Handler) createCriterion(w http.ResponseWriter, r *http.Request) {
 	} else {
 		criterion.IdLegislation = zero.IntFrom(0);
 	}
+
+/*
+	if input.IdLegislation == 0 && input.Legislation != nil {
+		resultIdLegislation, err := insertOrFetchLegislation(h.Datastore, input.Legislation);
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 500)
+			return
+		}
+		criterion.IdLegislation = zero.IntFrom(resultIdLegislation)
+	}
+*/
 
 	err = h.Datastore.SaveCriterion(criterion)
 	if err != nil {
@@ -217,7 +229,7 @@ func (h *Handler) updateCriterion(w http.ResponseWriter, r *http.Request) {
 		Name          string
 		Weight        int
 		Legislation   string
-
+		//Legislation   *inputLegislation
 	}
 	input.Weight = -1
 
@@ -259,6 +271,17 @@ func (h *Handler) updateCriterion(w http.ResponseWriter, r *http.Request) {
 	} else {
 		criterion.IdLegislation = zero.IntFrom(0);
 	}
+
+/*
+	if input.IdLegislation == 0 && input.Legislation != nil {
+		resultIdLegislation, err := insertOrFetchLegislation(h.Datastore, input.Legislation);
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 500)
+			return
+		}
+		criterion.IdLegislation = zero.IntFrom(resultIdLegislation)
+	}
+*/
 
 	err = h.Datastore.SaveCriterion(criterion)
 	if err != nil {
@@ -441,3 +464,25 @@ inputLegislationName string) (int64, error) {
 	}
 	return legislation.Id, nil
 }
+
+/*
+func insertOrFetchLegislation(d *datastore.Datastore, inputLegislation *inputLegislation) (int64, error) {
+	if inputLegislation.Name == "" {
+		return 0, errors.New("At least a name must be specified")
+	}
+	legislation, err := d.GetLegislationByName(inputLegislation.Name)
+	if err == sql.ErrNoRows {
+		legislation = datastore.NewLegislation(true)
+		legislation.Name = inputLegislation.Name
+		legislation.Description = zero.StringFrom(inputLegislation.Description)
+		legislation.Url = zero.StringFrom(inputLegislation.Url)
+		err = d.InsertLegislation(legislation)
+		if err != nil {
+			return 0, err
+		}
+	} else if err != nil {
+		return 0, err
+	}
+	return legislation.Id, nil
+}
+*/

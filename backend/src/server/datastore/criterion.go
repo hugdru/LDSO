@@ -19,6 +19,7 @@ type Criterion struct {
 	Legislation   string    `json:"legislation, omitempty"`
 
 	// Objects
+	// Legislation *Legislation `json:"legislation, omitempty"`
 	CriterionAccessibility []*CriterionAccessibility `json:"accessibilities,omitempty"`
 
 	meta metadata.Metadata
@@ -188,6 +189,15 @@ func (ds *Datastore) GetCriterionById(id int64) (*Criterion, error) {
 		}
 		c.Legislation = legislation.Name
 	}
+	/*
+	if c.IdLegislation.Valid {
+		c.Legislation = NewLegislation(true)
+		c.Legislation, err = ds.GetLegislationById(c.IdLegislation.Int64)
+		if err != nil {
+			return nil, err
+		}
+	}
+	*/
 	return &c, err
 }
 
@@ -215,6 +225,15 @@ func (ds *Datastore) GetCriteriaBySubgroupId(idSubgroup int64) ([]*Criterion, er
 			}
 			criterion.Legislation = legislation.Name
 		}
+/*
+		if criterion.IdLegislation.Valid {
+			criterion.Legislation = NewLegislation(true)
+			criterion.Legislation, err = ds.GetLegislationById(criterion.IdLegislation.Int64)
+			if err != nil {
+				return nil, err
+			}
+		}
+*/
 		criteria = append(criteria, criterion)
 		criterion.CriterionAccessibility, err = ds.GetCriterionAccessibilitiesByCriterionId(criterion.Id)
 		if err != nil {
@@ -256,6 +275,15 @@ func (ds *Datastore) GetCriteria(limit, offset int, filter map[string]string) ([
 			}
 			criterion.Legislation = legislation.Name
 		}
+/*
+		if criterion.IdLegislation.Valid {
+			criterion.Legislation = NewLegislation(true)
+			criterion.Legislation, err = ds.GetLegislationById(criterion.IdLegislation.Int64)
+			if err != nil {
+				return nil, err
+			}
+		}
+*/
 		criteria = append(criteria, criterion)
 	}
 
