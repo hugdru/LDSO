@@ -13,6 +13,8 @@ import {Remark} from "remark/remark";
 export class AuditEvaluateCriterionComponent {
 	@Input() criteria: Criterion[];
 
+	uncheckedCriteria: Criterion[] = [];
+
 	remark: Remark;
 	remarks: Remark[];
 	selectedAdd: boolean = false;
@@ -22,13 +24,18 @@ export class AuditEvaluateCriterionComponent {
     }
 
 	checkedNoCriterion(criterion: Criterion): void {
-
-	}
+		// console.log("hello");
+			// this.uncheckedCriteria.push(criterion);
+		}
 
 	uncheckedNoCriterion(criterion: Criterion): void {
 
 	}
-	
+
+	checkCriterion(criterion: Criterion): boolean {
+		return this.uncheckedCriteria.includes(criterion);
+	}
+
 	selectAdd(): void {
 		this.selectedAdd = true;
 	}

@@ -1,6 +1,6 @@
 <div class="cursor-pointer" *ngFor="let criterion of criteria">
 	<table (click)="auditModal.open()">
-		<tr>
+		<tr [class.disable]="checkCriterion(criterion)">
 			{{criterion.name}}
 		</tr>
 	</table>
