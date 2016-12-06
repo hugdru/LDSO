@@ -26,7 +26,6 @@ export class AuditEvaluateComponent implements OnInit {
 	remarks: Remark[];
 
     constructor(private mainGroupService: MainGroupService,
-			private subGroupService: SubGroupService,
 			private criterionService: CriterionService) {
     }
 
@@ -69,13 +68,17 @@ export class AuditEvaluateComponent implements OnInit {
     }
 
     initCriteria(subGroup: SubGroup): void {
-        this.criterionService.getSomeCriteria("idSubGroup",
+        this.criterionService.getSomeCriteria("idSubgroup",
                 subGroup.id).subscribe(data => this.criteria = data);
     }
 
 	initSubGroups(mainGroup: MainGroup): void {
-        this.subGroupService.getSomeSubGroups("idMainGroup",
-                mainGroup.id).subscribe(data => this.subGroups = data);
+        this.subGroups = [];
+        for(let subGroup of this.selectedSubGroups) {
+            if (subGroup.idMaingroup == mainGroup.id) {
+                this.subGroups.push(subGroup);
+            }
+        }
 	}
 
 	checkedNoCriterion(criterion: Criterion): void {
