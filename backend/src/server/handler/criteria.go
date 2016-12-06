@@ -10,6 +10,8 @@ import (
 	"server/handler/helpers"
 	"strconv"
 	"time"
+	"errors"
+	"database/sql"
 )
 
 func (h *Handler) criteriaRoutes(router chi.Router) {
@@ -102,6 +104,12 @@ func (h *Handler) getCriterion(w http.ResponseWriter, r *http.Request) {
 	w.Write(criterionSlice)
 }
 
+type inputLegislation struct {
+	Name        string
+	Description string
+	Url         string
+}
+
 func (h *Handler) createCriterion(w http.ResponseWriter, r *http.Request) {
 
 	decoder := json.NewDecoder(r.Body)
@@ -115,6 +123,7 @@ func (h *Handler) createCriterion(w http.ResponseWriter, r *http.Request) {
 		IdLegislation int64
 		Name          string
 		Weight        int
+		Legislation   *inputLegislation
 	}
 	input.Weight = -1
 
@@ -143,6 +152,15 @@ func (h *Handler) createCriterion(w http.ResponseWriter, r *http.Request) {
 	criterion.Name = input.Name
 	criterion.Weight = input.Weight
 	criterion.CreatedDate = time.Now().UTC()
+
+	if input.IdLegislation == 0 && input.Legislation != nil {
+		resultIdLegislation, err := insertOrFetchLegislation(h.Datastore, input.Legislation);
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 500)
+			return
+		}
+		criterion.IdLegislation = zero.IntFrom(resultIdLegislation)
+	}
 
 	err = h.Datastore.SaveCriterion(criterion)
 	if err != nil {
@@ -196,6 +214,8 @@ func (h *Handler) updateCriterion(w http.ResponseWriter, r *http.Request) {
 		IdLegislation int64
 		Name          string
 		Weight        int
+		Legislation   *inputLegislation
+
 	}
 	input.Weight = -1
 
@@ -225,6 +245,15 @@ func (h *Handler) updateCriterion(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		criterion.IdLegislation = zero.IntFrom(input.IdLegislation)
+	}
+
+	if input.IdLegislation == 0 && input.Legislation != nil {
+		resultIdLegislation, err := insertOrFetchLegislation(h.Datastore, input.Legislation);
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 500)
+			return
+		}
+		criterion.IdLegislation = zero.IntFrom(resultIdLegislation)
 	}
 
 	err = h.Datastore.SaveCriterion(criterion)
@@ -388,4 +417,24 @@ func (h *Handler) deleteCriterionAccessibility(w http.ResponseWriter, r *http.Re
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
 	}
+}
+
+func insertOrFetchLegislation(d *datastore.Datastore, inputLegislation *inputLegislation) (int64, error) {
+	if inputLegislation.Name == "" {
+		return 0, errors.New("At least a name must be specified")
+	}
+	legislation, err := d.GetLegislationByName(inputLegislation.Name)
+	if err == sql.ErrNoRows {
+		legislation = datastore.NewLegislation(true)
+		legislation.Name = inputLegislation.Name
+		legislation.Description = zero.StringFrom(inputLegislation.Description)
+		legislation.Url = zero.StringFrom(inputLegislation.Url)
+		err = d.InsertLegislation(legislation)
+		if err != nil {
+			return 0, err
+		}
+	} else if err != nil {
+		return 0, err
+	}
+	return legislation.Id, nil
 }

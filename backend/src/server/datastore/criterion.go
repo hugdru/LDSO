@@ -181,6 +181,13 @@ func (ds *Datastore) GetCriterionById(id int64) (*Criterion, error) {
 	if err != nil {
 		return nil, err
 	}
+	if c.IdLegislation.Valid {
+		c.Legislation = NewLegislation(true)
+		c.Legislation, err = ds.GetLegislationById(c.IdLegislation.Int64)
+		if err != nil {
+			return nil, err
+		}
+	}
 
 	return &c, err
 }
@@ -240,6 +247,13 @@ func (ds *Datastore) GetCriteria(limit, offset int, filter map[string]string) ([
 		err := rows.StructScan(criterion)
 		if err != nil {
 			return nil, err
+		}
+		if criterion.IdLegislation.Valid {
+			criterion.Legislation = NewLegislation(true)
+			criterion.Legislation, err = ds.GetLegislationById(criterion.IdLegislation.Int64)
+			if err != nil {
+				return nil, err
+			}
 		}
 		criteria = append(criteria, criterion)
 	}
