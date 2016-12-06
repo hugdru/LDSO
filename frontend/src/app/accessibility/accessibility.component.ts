@@ -20,8 +20,10 @@ export class AccessibilityComponent implements OnInit, OnChanges {
     accessibilities: Accessibility[];
 
     @Input() parentCriterion: Criterion;
+    objType: string;
 
     constructor(private accessibilityService: AccessibilityService) {
+        this.objType = "Accessibility"
     }
 
     ngOnChanges(changes: SimpleChanges): void {

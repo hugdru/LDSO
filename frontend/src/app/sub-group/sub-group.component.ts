@@ -19,10 +19,12 @@ import {MainGroup} from "main-group/main-group";
 export class SubGroupComponent implements OnInit, OnChanges {
     subGroups: SubGroup[];
     parentSubGroup: SubGroup;
+    objType: string;
 
     @Input() parentMainGroup: MainGroup;
 
     constructor(private subGroupService: SubGroupService) {
+        this.objType = "SubGroup"
     }
 
     ngOnChanges(changes: SimpleChanges): void {

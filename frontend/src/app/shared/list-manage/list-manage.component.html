@@ -1,5 +1,6 @@
 <div class="tosub">
-    <button *ngIf="!selectedAddObject" class="btn btn-primary round outline"
+    <button *ngIf="!selectedAddObject && objType !='Accessibility'"
+            class="btn btn-primary round outline"
             (click)="selectAddObject()">
         Adicionar Novo <i class="glyphicon glyphicon-plus"></i>
     </button>
@@ -7,7 +8,7 @@
         <list-select-add
                 [father]="father"
                 [weight]="sumPercentageForAdd()"
-                [objType]="findType()"
+                [objType]="objType"
                 (add)="onAdd($event)">
         </list-select-add>
     </div>
@@ -20,7 +21,7 @@
                 <list-show-value
                         [object]="obj"
                         [weight]="sumPercentageForAdd()"
-                        [objType]="findType()">
+                        [objType]="objType">
                 </list-show-value>
                 <th>
                     <button class="btn btn-neutral round outline"
@@ -43,7 +44,7 @@
                     [father]="father"
                     [selectedEditObject]="selectedEditObject"
                     [weight]="sumPercentage()"
-                    [objType]="findType()"
+                    [objType]="objType"
                     (action)="onAction()">
             </list-select-edit>
         </div>
@@ -51,7 +52,7 @@
             <list-show-value
                     [object]="obj"
                     [weight]="sumPercentageForAdd()"
-                    [objType]="findType()">
+                    [objType]="objType">
             </list-show-value>
         </div>
     </div>

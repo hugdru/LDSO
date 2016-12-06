@@ -14,6 +14,7 @@ export class ListManageComponent {
     selectedEditObject: Identifier;
     selectedAddObject: boolean = false;
 
+    @Input() objType: string;
     @Input() objects: Identifier[];
     @Input() father: Identifier;
     @Output() onShow = new EventEmitter<Object>();
@@ -63,24 +64,6 @@ export class ListManageComponent {
 
     checkPercentage(): boolean {
         return this.sumPercentageForAdd() != 100;
-    }
-
-    findType(): string {
-        if (this.father === undefined) {
-            return "Ctemplate";
-        }
-        else if ((<MainGroup>this.father).idTemplate !== undefined) {
-            return "SubGroup";
-        }
-        else if ((<SubGroup>this.father).idMaingroup !== undefined) {
-            return "Criterion";
-        }
-        else if ((<Criterion>this.father).idSubgroup !== undefined) {
-            return "Accessibility";
-        }
-        else {
-            return "MainGroup";
-        }
     }
 
     onAction(): void {
