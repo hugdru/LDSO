@@ -16,7 +16,8 @@ export class AuditEvaluateCriterionComponent {
 	@Input() criteria: Criterion[];
 	@Input() auditId: number;
 
-	unselectedCriteria: Criterion[] = [];
+	uncheckedCriteria: Criterion[] = [];
+
 	remark: Remark;
 	remarks: Remark[];
 	selectedAdd: boolean = false;
@@ -57,6 +58,10 @@ export class AuditEvaluateCriterionComponent {
 
 	checkUnselected(criterion: Criterion): boolean {
 		return this.unselectedCriteria.includes(criterion);
+	}
+
+	checkCriterion(criterion: Criterion): boolean {
+		return this.uncheckedCriteria.includes(criterion);
 	}
 
 	selectAdd(): void {
