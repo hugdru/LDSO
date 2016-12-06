@@ -149,6 +149,21 @@ func (h *Handler) createCriterion(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
 	}
+
+	accessibilities, err := h.Datastore.GetAccessibilities(100, 0, nil)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 500)
+		return
+	}
+
+	for _, accessibility := range accessibilities {
+		err = h.Datastore.InsertCriterionAccessibilityByIds(criterion.Id, accessibility.Id, 0)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 500)
+			return
+		}
+	}
+
 	criterionSlice, err := json.Marshal(criterion)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
