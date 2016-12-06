@@ -12,6 +12,7 @@ import {Ctemplate} from "ctemplate/ctemplate";
 export class CtemplateEditComponent implements OnInit {
     backupCtemplate: Ctemplate;
 
+    @Input() objType: string;
     @Input() selectedObject: Ctemplate;
     @Output() onAction = new EventEmitter();
 

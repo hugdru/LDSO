@@ -11,6 +11,7 @@ import {Criterion} from "criterion/criterion";
 
 export class CriterionEditComponent implements OnInit {
     backupCriterion: Criterion;
+    goodPractice: Boolean;
 
     @Input() objType: string;
     @Input() selectedObject: Criterion;
@@ -18,13 +19,13 @@ export class CriterionEditComponent implements OnInit {
     @Output() onAction = new EventEmitter();
 
     constructor(private criterionService: CriterionService) {
-
     }
 
     ngOnInit(): void {
         this.backupCriterion = new Criterion();
         this.backupCriterion.name = this.selectedObject.name;
         this.backupCriterion.weight = this.selectedObject.weight;
+        this.goodPractice = this.selectedObject.legislation == '';
     }
 
     pressed(updatedCriterion: Criterion): void {

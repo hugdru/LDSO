@@ -12,7 +12,7 @@ import {SubGroup} from "sub-group/sub-group";
 
 export class CriterionAddComponent implements OnInit {
     selectedObject: Criterion;
-    goodPratice: boolean = false;
+    goodPractice: boolean = false;
 
     @Input() objType: string;
     @Input() subGroup: SubGroup;
