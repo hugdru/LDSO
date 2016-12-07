@@ -59,7 +59,7 @@ services:
     container_name: postgres
     environment:
       - BUILD=stag
-      - POSTGRES_USER=admin
+      - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgrespw
       - POSTGRES_PGDATA=/var/lib/postgresql/data/pgdata
       - POSTGRES_DB=places4all
