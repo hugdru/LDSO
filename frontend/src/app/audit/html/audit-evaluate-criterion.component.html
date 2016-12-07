@@ -15,7 +15,7 @@
 			<br>
 			{{criterion.legislation}}
 			<br>
-			Avaliação: <input type="number">
+			Avaliação: <input type="number" step="1" min="0" max="10">
 			<!-- [(ngModel)]="selectedObject.weight" placeholder="peso" [class.warning]="checkPercentage()"/> -->
 			<h4>Observaçoes</h4>
 			<button *ngIf="!selectedAdd"
