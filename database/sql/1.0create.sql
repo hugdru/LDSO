@@ -172,13 +172,22 @@ CREATE TABLE audit_subgroup (
   PRIMARY KEY(id_audit, id_subgroup)
 );
 
+CREATE TABLE remark (
+  id SERIAL PRIMARY KEY,
+  id_audit_criterion INTEGER NOT NULL REFERENCES audit_criterion(id),
+  observation TEXT,
+  image BYTEA
+);
+
 CREATE TABLE audit_criterion (
+  id SERIAL PRIMARY KEY,
   id_audit INTEGER REFERENCES audit(id),
   id_criterion INTEGER REFERENCES criterion(id),
+  UNIQUE(id_audit, id_criterion),
   value INTEGER,
-  observation TEXT,
-  PRIMARY KEY(id_audit, id_criterion)
+  observation TEXT
 );
+CREATE UNIQUE INDEX audit_criterion_ids ON audit_criterion (id_audit, id_criterion);
 
 GRANT ALL ON DATABASE "places4all" to admin;
 GRANT ALL ON SCHEMA "places4all" TO admin;

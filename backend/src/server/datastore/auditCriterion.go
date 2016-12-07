@@ -8,6 +8,7 @@ import (
 )
 
 type AuditCriterion struct {
+	Id	   int64	`json:"-" db:"id"`
 	IdAudit     int64       `json:"id_audit" db:"id_audit"`
 	IdCriterion int64       `json:"id_criterion" db:"id_criterion"`
 	Value       zero.Int    `json:"value" db:"value"`
@@ -174,7 +175,7 @@ func (ds *Datastore) GetAuditCriterionById(idAudit, idCriterion int64) (*AuditCr
 	var err error
 
 	const sql = `SELECT ` +
-		`id_audit, id_criterion, value, observation ` +
+		`id, id_audit, id_criterion, value, observation ` +
 		`FROM places4all.audit_criterion ` +
 		`WHERE id_audit = $1 AND id_criterion = $2`
 
@@ -193,7 +194,7 @@ func (ds *Datastore) GetAuditCriteria(idAudit int64, filter map[string]string) (
 
 	where, values := generators.GenerateSearchClause(filter)
 
-	sql := `SELECT id_audit, id_criterion, value, observation ` +
+	sql := `SELECT id, id_audit, id_criterion, value, observation ` +
 		`FROM places4all.audit_criterion ` +
 		where
 	sql = ds.postgres.Rebind(sql)
