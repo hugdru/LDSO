@@ -14,7 +14,8 @@ INSERT INTO auditor(id_entity) VALUES
   (3), -- antonioa Coelho
   (4); -- carlos Coelho
 
-INSERT INTO template (name,description,created_date) VALUES ('TEMP001','template teste 1','2016-12-25T14:47:26.680513Z');
+INSERT INTO template (name,description,created_date) VALUES ('Modelo Teste',
+                                                             'template teste 1','2016-12-25T14:47:26.680513Z');
 
 
 INSERT INTO audit(id_property, id_auditor, id_template,rating,observation,created_date ) VALUES
