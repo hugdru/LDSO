@@ -11,8 +11,6 @@ branches:
     - migration
     - imagesGoPostgres 
     - development	
-  except:
-    - master 
 
 env:
   global:
