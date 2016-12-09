@@ -5,17 +5,18 @@
         {{selectedObject.name}}</span>
     <label *ngIf="objType=='Criterion'">
         Boa Pratica <input type="checkbox"
-                           [(ngModel)]="goodPratice"
-                           (change)="!goodPratice
-							 ? selectedObject.legislation='Boa Pratica'
-							 : selectedObject.legislation=''">
+                           [(ngModel)]="goodPractice"
+                           [checked]="goodPractice"
+                           (change)="!goodPractice">
     </label>
     <input *ngIf="objType=='Criterion'"
            [(ngModel)]="selectedObject.legislation"
-           [disabled]="goodPratice"
+           [disabled]="goodPractice"
            placeholder="legislação"/>
     <input *ngIf="objType!='Ctemplate'"
-           type="number" [(ngModel)]="selectedObject.weight"
+           type="number" step="1" min="0" max="100"
+           required
+           [(ngModel)]="selectedObject.weight"
            placeholder="peso" [class.warning]="checkPercentage()"/>
     <button class="btn btn-success round outline"
             (click)="pressed(selectedObject)">

@@ -41,7 +41,7 @@ export class AuditSelectComponent implements OnInit {
     }
 
     initSubGroups(mainGroup: MainGroup): void {
-        this.subGroupService.getSomeSubGroups("idMainGroup",
+        this.subGroupService.getSomeSubGroups("idMaingroup",
                 mainGroup.id).subscribe(data => this.subGroups = data);
     }
 

@@ -170,6 +170,24 @@ func (ds *Datastore) GetLegislationById(id int64) (*Legislation, error) {
 	return &l, err
 }
 
+func (ds *Datastore) GetLegislationByName(name string) (*Legislation, error) {
+
+	const sql = `SELECT ` +
+		`id, name, description, url ` +
+		`FROM places4all.legislation ` +
+		`WHERE name = $1`
+
+	l := ALegislation(true)
+	l.SetExists()
+
+	err := ds.postgres.QueryRow(sql, name).Scan(&l.Id, &l.Name, &l.Description, &l.Url)
+	if err != nil {
+		return nil, err
+	}
+
+	return &l, err
+}
+
 func (ds *Datastore) GetLegislations(limit, offset int, filter map[string]string) ([]*Legislation, error) {
 
 	where, values := generators.GenerateSearchClause(filter)

@@ -3,6 +3,7 @@
     <hr>
     <list-manage [objects]="mainGroups"
                  [father]="parentCtemplate"
+                 [objType]="objType"
                  (onDelete)="onDelete($event)"
                  (onShow)="onShow($event)">
     </list-manage>

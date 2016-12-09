@@ -19,10 +19,12 @@ import {SubGroup} from "sub-group/sub-group";
 export class CriterionComponent implements OnInit, OnChanges {
     criteria: Criterion[];
     parentCriterion: Criterion;
+    objType: string;
 
     @Input() parentSubGroup: SubGroup;
 
     constructor(private criterionService: CriterionService) {
+        this.objType = "Criterion"
     }
 
     ngOnChanges(changes: SimpleChanges): void {

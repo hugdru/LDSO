@@ -12,10 +12,11 @@ import {Ctemplate} from "ctemplate/ctemplate";
 export class CtemplateComponent implements OnInit {
     ctemplates: Ctemplate[];
     parentCtemplate: Ctemplate;
+    objType: string;
     errorMsg: string;
 
     constructor(private ctemplateService: CtemplateService) {
-
+        this.objType = "Ctemplate"
     }
 
     ngOnInit(): void {

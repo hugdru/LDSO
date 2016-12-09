@@ -13,11 +13,13 @@ import {Ctemplate} from "../ctemplate/ctemplate";
 export class MainGroupComponent implements OnInit {
     mainGroups: MainGroup[];
     parentMainGroup: MainGroup;
+    objType: string;
     errorMsg: string;
 
     @Input() parentCtemplate: Ctemplate;
 
     constructor(private mainGroupService: MainGroupService) {
+        this.objType = "MainGroup"
     }
 
     ngOnChanges(changes: SimpleChanges): void {

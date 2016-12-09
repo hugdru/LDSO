@@ -10,6 +10,8 @@ import (
 	"server/handler/helpers"
 	"strconv"
 	"time"
+	"errors"
+	"database/sql"
 )
 
 func (h *Handler) criteriaRoutes(router chi.Router) {
@@ -102,6 +104,12 @@ func (h *Handler) getCriterion(w http.ResponseWriter, r *http.Request) {
 	w.Write(criterionSlice)
 }
 
+type inputLegislation struct {
+	Name        string
+	Description string
+	Url         string
+}
+
 func (h *Handler) createCriterion(w http.ResponseWriter, r *http.Request) {
 
 	decoder := json.NewDecoder(r.Body)
@@ -115,6 +123,8 @@ func (h *Handler) createCriterion(w http.ResponseWriter, r *http.Request) {
 		IdLegislation int64
 		Name          string
 		Weight        int
+		Legislation   string
+		//Legislation   *inputLegislation
 	}
 	input.Weight = -1
 
@@ -144,11 +154,48 @@ func (h *Handler) createCriterion(w http.ResponseWriter, r *http.Request) {
 	criterion.Weight = input.Weight
 	criterion.CreatedDate = time.Now().UTC()
 
+	if input.Legislation != "" {
+		resultIdLegislation, err := insertOrFetchLegislation(h.Datastore, input.Legislation);
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 500)
+			return
+		}
+		criterion.IdLegislation = zero.IntFrom(resultIdLegislation)
+	} else {
+		criterion.IdLegislation = zero.IntFrom(0);
+	}
+
+/*
+	if input.IdLegislation == 0 && input.Legislation != nil {
+		resultIdLegislation, err := insertOrFetchLegislation(h.Datastore, input.Legislation);
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 500)
+			return
+		}
+		criterion.IdLegislation = zero.IntFrom(resultIdLegislation)
+	}
+*/
+
 	err = h.Datastore.SaveCriterion(criterion)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
 	}
+
+	accessibilities, err := h.Datastore.GetAccessibilities(100, 0, nil)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 500)
+		return
+	}
+
+	for _, accessibility := range accessibilities {
+		err = h.Datastore.InsertCriterionAccessibilityByIds(criterion.Id, accessibility.Id, 0)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 500)
+			return
+		}
+	}
+
 	criterionSlice, err := json.Marshal(criterion)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
@@ -181,6 +228,8 @@ func (h *Handler) updateCriterion(w http.ResponseWriter, r *http.Request) {
 		IdLegislation int64
 		Name          string
 		Weight        int
+		Legislation   string
+		//Legislation   *inputLegislation
 	}
 	input.Weight = -1
 
@@ -211,6 +260,28 @@ func (h *Handler) updateCriterion(w http.ResponseWriter, r *http.Request) {
 		}
 		criterion.IdLegislation = zero.IntFrom(input.IdLegislation)
 	}
+
+	if input.Legislation != "" {
+		resultIdLegislation, err := insertOrFetchLegislation(h.Datastore, input.Legislation);
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 500)
+			return
+		}
+		criterion.IdLegislation = zero.IntFrom(resultIdLegislation)
+	} else {
+		criterion.IdLegislation = zero.IntFrom(0);
+	}
+
+/*
+	if input.IdLegislation == 0 && input.Legislation != nil {
+		resultIdLegislation, err := insertOrFetchLegislation(h.Datastore, input.Legislation);
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 500)
+			return
+		}
+		criterion.IdLegislation = zero.IntFrom(resultIdLegislation)
+	}
+*/
 
 	err = h.Datastore.SaveCriterion(criterion)
 	if err != nil {
@@ -374,3 +445,44 @@ func (h *Handler) deleteCriterionAccessibility(w http.ResponseWriter, r *http.Re
 		return
 	}
 }
+
+func insertOrFetchLegislation(d *datastore.Datastore,
+inputLegislationName string) (int64, error) {
+	if inputLegislationName == "" {
+		return 0, errors.New("At least a name must be specified")
+	}
+	legislation, err := d.GetLegislationByName(inputLegislationName)
+	if err == sql.ErrNoRows {
+		legislation = datastore.NewLegislation(true)
+		legislation.Name = inputLegislationName
+		err = d.InsertLegislation(legislation)
+		if err != nil {
+			return 0, err
+		}
+	} else if err != nil {
+		return 0, err
+	}
+	return legislation.Id, nil
+}
+
+/*
+func insertOrFetchLegislation(d *datastore.Datastore, inputLegislation *inputLegislation) (int64, error) {
+	if inputLegislation.Name == "" {
+		return 0, errors.New("At least a name must be specified")
+	}
+	legislation, err := d.GetLegislationByName(inputLegislation.Name)
+	if err == sql.ErrNoRows {
+		legislation = datastore.NewLegislation(true)
+		legislation.Name = inputLegislation.Name
+		legislation.Description = zero.StringFrom(inputLegislation.Description)
+		legislation.Url = zero.StringFrom(inputLegislation.Url)
+		err = d.InsertLegislation(legislation)
+		if err != nil {
+			return 0, err
+		}
+	} else if err != nil {
+		return 0, err
+	}
+	return legislation.Id, nil
+}
+*/
