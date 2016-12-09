@@ -6,7 +6,10 @@
 @import url("css/btn-delete-buttons.css");
 
 /* @import url("css/tooltip-warning-percentage.css"); */
-
+html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
 .btn-circle {
 	width: 30px;
 	height: 30px;
