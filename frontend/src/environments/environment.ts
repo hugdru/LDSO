@@ -5,5 +5,5 @@
 
 export const environment = {
   production: false,
-  api: 'http://api.lp4adev.tk'
+  api: 'http://api.lp4adev.tk:8080'
 };
