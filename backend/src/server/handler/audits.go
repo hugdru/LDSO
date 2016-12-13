@@ -11,10 +11,6 @@ import (
 	"time"
 	"bytes"
 	"fmt"
-	"os"
-	"io"
-	"mime/multipart"
-
 )
 
 func (h *Handler) auditsRoutes(router chi.Router) {
@@ -39,9 +35,9 @@ func (h *Handler) auditsRoutes(router chi.Router) {
 	//GET /audits/:ida/criteria/:idc/remarks/:idr ;
 	//GET   /audits/:ida/criteria/:idc/remarks
 
-	router.Get("/:ida/criteria/:idc/remarks", helpers.RequestJson(helpers.ReplyJson(h.CreateCriteriaRemarks)))
-	router.Get("/:ida/criteria/:idc/remarks/:idr", helpers.RequestJson(helpers.ReplyJson(h.getCriteriaRemark)))
-	router.Get("/:ida/criteria/:idc/remarks/", helpers.RequestJson(helpers.ReplyJson(h.getCriteriaRemarks)))
+	router.Post("/:ida/criteria/:idc/remarks", helpers.RequestMultipart(helpers.ReplyJson(h.createCriterionRemark)))
+	router.Get("/:ida/criteria/:idc/remarks/:idr", helpers.ReplyMultipart(h.getCriterionRemark))
+	router.Get("/:ida/criteria/:idc/remarks", helpers.ReplyJson(h.getCriterionRemarks))
 }
 func (h *Handler) getAudits(w http.ResponseWriter, r *http.Request) {
 
@@ -520,130 +516,45 @@ func (h *Handler) deleteAuditCriterion(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
-func (h *Handler) CreateCriteriaRemarks(w http.ResponseWriter, r *http.Request) {
-
-
-	idAudit := chi.URLParam(r, "ida")
-	idCriterion := chi.URLParam(r, "idc")
-	idaudit, err := strconv.ParseInt(idAudit, 10, 64)
+func (h *Handler) createCriterionRemark(w http.ResponseWriter, r *http.Request) {
+	idAuditStr := chi.URLParam(r, "ida")
+	idCriterionStr := chi.URLParam(r, "idc")
+	_, err := strconv.ParseInt(idAuditStr, 10, 64)
 	if err!=nil{
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
 	}
 
-	idcriterion, err := strconv.ParseInt(idCriterion, 10, 64)
+	_, err = strconv.ParseInt(idCriterionStr, 10, 64)
 	if err!=nil{
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
 	}
-	decoder := json.NewDecoder(r.Body)
 
-	if decoder == nil {
-		http.Error(w, helpers.Error("JSON decoder failed"), 500)
-		return
-	}
-
-	var input struct {
-		Id          	   int64
-		IdAudit		   int64
-		IdCriterion	   int64
-		Observation        zero.String
-		ImageBytes         bytes.Buffer
-		Filename	   string
-		Url		   string
-	}
-
-	err = decoder.Decode(&input)
+	err = r.ParseMultipartForm(24 * 1024)
 	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	remark := datastore.RRemark(false)
-	remark.Id =input.Id
-	remark.IdAudit = idaudit
-	remark.IdCriterion = idcriterion
-	remark.Observation = input.Observation
-//************ https://matt.aimonetti.net/posts/2013/07/01/golang-multipart-file-upload-example/
-//************ http://stackoverflow.com/questions/20205796/golang-post-data-using-the-content-type-multipart-form-data
-
-	wb := multipart.NewWriter(&input.ImageBytes)
-
-	// Add your image file
-	f, err := os.Open(input.Filename)
+	file, handler, err := r.FormFile("image")
 	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	defer f.Close()
-	fw, err := wb.CreateFormFile("image", input.Filename)
+	defer file.Close()
 
+	var imageBytes bytes.Buffer
+	readBytes, err := imageBytes.ReadFrom(file)
 	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	if _, err = io.Copy(fw, f); err != nil {
-		return
-	}
-
-	// Add the other fields
-	if fw, err = wb.CreateFormField("key"); err != nil {
-		return
-	}
-
-	if _, err = fw.Write([]byte("KEY")); err != nil {
-		return
-	}
-	// Don't forget to close the multipart writer.
-	// If you don't close it, your request will be missing the terminating boundary.
-	wb.Close()
-
-	// Now that you have a form, you can submit it to your handler.
-	req, err := http.NewRequest("POST", input.Url, &input.ImageBytes)
-	if err != nil {
-		return
-	}
-	// Don't forget to set the content type, this will contain the boundary.
-	req.Header.Set("Content-Type", wb.FormDataContentType())
-
-	// Submit the request
-	client := &http.Client{}
-	res, err := client.Do(req)
-	if err != nil {
-		return
-	}
-
-	// Check the response
-	if res.StatusCode != http.StatusOK {
-		err = fmt.Errorf("bad status: %s", res.Status)
-	}
-
-//************
-
-	remark.Image, err = json.Marshal(input.ImageBytes)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 500)
-		return
-	}
-	err = h.Datastore.SaveRemark(&remark)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 500)
-		return
-	}
-	remarkSlice, err := json.Marshal(&remark)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 500)
-		return
-	}
-	_,err = w.Write(remarkSlice)
-	if err!= nil{
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
-
-
+	fmt.Fprintf(w, "Readbytes %v, Handler %v", readBytes, handler.Filename)
 }
 
-func (h *Handler) getCriteriaRemark(w http.ResponseWriter, r *http.Request){
+func (h *Handler) getCriterionRemark(w http.ResponseWriter, r *http.Request){
 
 
 	idAudits := chi.URLParam(r, "ida")
@@ -688,7 +599,7 @@ func (h *Handler) getCriteriaRemark(w http.ResponseWriter, r *http.Request){
 
 
 }
-func (h *Handler) getCriteriaRemarks(w http.ResponseWriter, r *http.Request){
+func (h *Handler) getCriterionRemarks(w http.ResponseWriter, r *http.Request){
 
 
 	idAudits := chi.URLParam(r, "ida")
