@@ -1,4 +1,6 @@
+<p class="h1">SubGrupo</p>
 <div class="list" *ngFor='let mainGroup of mainGroups'>
+
     <table class="cursor-pointer" (click)="showChildren(mainGroup)">
         <tr>
             {{mainGroup.name}}
@@ -7,6 +9,7 @@
 </div>
 <hr>
 <div *ngIf='subGroups'>
+    <p class="h2">SubGrupos Criterios</p>
     <div *ngFor='let subGroup of subGroups'>
         <table>
             <tr>
@@ -20,6 +23,7 @@
 <hr>
 <div>
     <div *ngIf='selectedSubGroups'>
+        <p class="h2">Criterios Selecionado</p>
         <span *ngFor='let subGroup of selectedSubGroups'>
             {{subGroup.id}}
         </span>
