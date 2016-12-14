@@ -1,3 +1,4 @@
+<p class="h2">Subgrupo Criterio</p>
 <div class="cursor-pointer" *ngFor="let criterion of criteria">
 	<table (click)="setCheckboxValue(criterion); auditModal.open()">
 		<tr [class.disable]="checkUnselected(criterion)">

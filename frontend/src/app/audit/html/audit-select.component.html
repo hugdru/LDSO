@@ -2,6 +2,7 @@
 <br>
 <p class="h2">Grupos</p>
 <div class="list" *ngFor='let mainGroup of mainGroups'>
+
     <table class="cursor-pointer" (click)="showChildren(mainGroup)">
         <tr>
             {{mainGroup.name}}
