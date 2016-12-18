@@ -6,7 +6,7 @@ export const ctemplatesUrl = serverUrl + '/templates';
 
 export const mainGroupsUrl = serverUrl + '/maingroups';
 
-export const loginUrl = serverUrl + '/subgroups';
+export const subGroupsUrl = serverUrl + '/subgroups';
 
 export const criteriaUrl = serverUrl + '/criteria';
 
@@ -23,3 +23,5 @@ export const auditsSubGroupsUrl = auditsUrl + '/subgroups';
 export const auditsCriterionUrl = auditsUrl + '/criterion';
 
 export const imageUploadUrl = serverUrl + '/audits/#/criteria/!/remarks';
+
+export const loginUrl = serverUrl + '/login';
