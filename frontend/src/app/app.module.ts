@@ -13,6 +13,7 @@ import {HeaderComponent} from "header/header.component";
 import {SidebarComponent} from "sidebar/sidebar.component";
 import {FootbarComponent} from "footbar/footbar.component";
 import {CenterComponent} from "center/center.component";
+import {LoginComponent} from "login/login.component";
 import {CtemplateComponent} from "ctemplate/ctemplate.component";
 import {CtemplateEditComponent} from "ctemplate/ctemplate-edit.component";
 import {CtemplateAddComponent} from "ctemplate/ctemplate-add.component";
@@ -59,6 +60,7 @@ import {HandlerService} from "handler.service";
         SidebarComponent,
         FootbarComponent,
         CenterComponent,
+        LoginComponent,
         CtemplateComponent,
         CtemplateEditComponent,
         CtemplateAddComponent,

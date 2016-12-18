@@ -1,12 +1,12 @@
 import {TestBed, getTestBed, async, inject} from "@angular/core/testing";
 import {
-        BaseRequestOptions,
-        Response,
-        HttpModule,
-        Http,
-        XHRBackend,
-        RequestMethod,
-        ResponseOptions
+    BaseRequestOptions,
+    Response,
+    HttpModule,
+    Http,
+    XHRBackend,
+    RequestMethod,
+    ResponseOptions
 } from "@angular/http";
 import {MockBackend, MockConnection} from "@angular/http/testing";
 import {SubGroupService} from "sub-group/service/sub-group.service";

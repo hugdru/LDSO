@@ -11,7 +11,8 @@ module.exports = function (config) {
             require('karma-remap-istanbul'),
             require('angular-cli/plugins/karma'),
             require('karma-jasmine-html-reporter'),
-            require('karma-story-reporter')
+            require('karma-story-reporter'),
+            require('karma-phantomjs-launcher')
         ],
         files: [
             { pattern: './src/test.ts', watched: false }
@@ -37,7 +38,7 @@ module.exports = function (config) {
         browsers: ['Chrome'],
         singleRun: false
     });
-/*    if (process.env.TRAVIS) {
+    if (process.env.TRAVIS) {
         config.browsers = ['PhantomJS'];
-    }*/
+    }
 };
