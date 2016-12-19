@@ -52,7 +52,7 @@ func setSession(userName string, response http.ResponseWriter) {
 	}*/
 	cookie := &http.Cookie{
 		Name:  "session",
-		Value: value,
+		Value: value["name"],
 		Path:  "/",
 	}
 	http.SetCookie(response, cookie)
@@ -71,7 +71,7 @@ func clearSession(response http.ResponseWriter) {
 
 
 func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
-	clearSession(r)
+	clearSession(w)
 	http.Redirect(w, r, "/", 302)
 }
 
