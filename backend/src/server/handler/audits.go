@@ -11,6 +11,10 @@ import (
 	"time"
 	"fmt"
 	"bytes"
+	"path/filepath"
+	"io"
+	"mime/multipart"
+	"os"
 )
 
 func (h *Handler) auditsRoutes(router chi.Router) {
@@ -606,12 +610,14 @@ func (h *Handler) getCriterionRemark(w http.ResponseWriter, r *http.Request){
 	}
 	auditsCriteriaRemarks, err := h.Datastore.GetRemarkByAuditCriterionIds( idaudit, idcriterion, idremark)
 
-
+//para json
+	/*
 	auditsCriteriaRemarksSlice, err := json.Marshal(auditsCriteriaRemarks)
 	if err!=nil{
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
 	}
+
 	_, err = w.Write(auditsCriteriaRemarksSlice)
 	if err!=nil{
 		http.Error(w, helpers.Error(err.Error()), 400)
@@ -622,6 +628,37 @@ func (h *Handler) getCriterionRemark(w http.ResponseWriter, r *http.Request){
 
 
 	//******
+*/
+	//para multiform data
+	//https://matt.aimonetti.net/posts/2013/07/01/golang-multipart-file-upload-example/
+	//** nao sei se preciso abrir
+	file, err := os.Open("path")
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	part, err := writer.CreateFormFile("name", filepath.Base("path"))
+
+	if err != nil {
+		return nil, err
+	}
+	_, err = io.Copy(part, file)
+
+
+	_ = writer.WriteField("id", auditsCriteriaRemarks.Id)
+	_ = writer.WriteField("idCriterion", auditsCriteriaRemarks.IdCriterion)
+	_ = writer.WriteField("idAudit", auditsCriteriaRemarks.IdAudit)
+	_ = writer.WriteField("image", auditsCriteriaRemarks.Image)
+	_ = writer.WriteField("observation", auditsCriteriaRemarks.Observation)
+	err = writer.Close()
+	if err != nil {
+		return nil, err
+	}
+	r.Header.Set("Content-Type", writer.FormDataContentType())
+
 
 
 }
@@ -661,6 +698,7 @@ func (h *Handler) getCriterionRemarks(w http.ResponseWriter, r *http.Request){
 
 
 	//******
+	
 
 
 }
