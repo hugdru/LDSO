@@ -9,8 +9,8 @@ import (
 	"server/handler/helpers"
 	"strconv"
 	"time"
-	"bytes"
 	"fmt"
+	"bytes"
 )
 
 func (h *Handler) auditsRoutes(router chi.Router) {
@@ -537,7 +537,13 @@ func (h *Handler) createCriterionRemark(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	file, handler, err := r.FormFile("image")
+	imageAdd, err := r.MultipartForm("image")
+	if err!= nil{
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	file, _, err := r.FormFile(imageAdd)
+	fmt.Fprintf(w, "Readbytes %v", file)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -551,7 +557,33 @@ func (h *Handler) createCriterionRemark(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	fmt.Fprintf(w, "Readbytes %v, Handler %v", readBytes, handler.Filename)
+	//fmt.Fprintf(w, "Readbytes %v, Handler %v", readBytes, handler.Filename)
+
+	//criteria
+	idcriteria, handler, err := r.MultipartForm("criteria")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	//audit
+	idaudit, handler, err := r.MultipartForm("auditid")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	//observation
+	observation, handler, err := r.MultipartForm("observation")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	remark := datastore.NewRemark(false)
+	remark.Image = readBytes
+	remark.IdAudit = idaudit
+	remark.IdCriterion = idcriteria
+	remark.Observation = observation
+
+	h.Datastore.InsertRemark(remark)
 }
 
 func (h *Handler) getCriterionRemark(w http.ResponseWriter, r *http.Request){
