@@ -1,4 +1,4 @@
-import {Component} from "@angular/core";
+import {Component, Output, EventEmitter, OnInit} from "@angular/core";
 import {LoginService} from "login/service/login.service";
 import {Login} from "login/login";
 
@@ -10,13 +10,24 @@ import {Login} from "login/login";
 
 })
 
-export class LoginComponent {
+export class LoginComponent implements OnInit {
 
     selectedObject: Login;
+//    @Output() onAdd = new EventEmitter<Login>();
 
     constructor(private loginService: LoginService) {
     }
 
+    ngOnInit(): void {
+        this.selectedObject = new Login();
+    }
+
+    pressed(newLogin: Login): void {
+        if (newLogin) {
+            this.login();
+        }
+//        this.onAdd.emit(newLogin);
+    }
 
     login(): void {
         this.loginService.setLogin(this.selectedObject).subscribe(
