@@ -531,7 +531,7 @@ func (h *Handler) createCriterionRemark(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	imageAdd, err := r.MultipartForm("image")
+	imageAdd := r.FormValue("image")
 	if err!= nil{
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -554,19 +554,19 @@ func (h *Handler) createCriterionRemark(w http.ResponseWriter, r *http.Request) 
 	//fmt.Fprintf(w, "Readbytes %v, Handler %v", readBytes, handler.Filename)
 
 	//criteria
-	idcriteria, handler, err := r.MultipartForm("criteria")
+	idcriteria := r.FormValue("criteria")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	//audit
-	idaudit, handler, err := r.MultipartForm("auditid")
+	idaudit := r.FormValue("auditid")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	//observation
-	observation, handler, err := r.MultipartForm("observation")
+	observation := r.FormValue("observation")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
