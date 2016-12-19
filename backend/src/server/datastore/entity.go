@@ -271,24 +271,22 @@ func (ds *Datastore) GetEntityWithForeign(filter map[string]interface{}) (*Entit
 	return &e, err
 }
 
-func (ds *Datastore) GetEntityByIdWithForeign(id int64) (*Entity, error) {
-	sql := ds.postgres.Rebind(`SELECT ` +
-		`entity.id, entity.id_country, entity.name, entity.email, entity.username, entity.password, entity.image, entity.image_mimetype, entity.banned, entity.banned_date, entity.reason, entity.mobilephone, entity.telephone, entity.created_date ` +
+func (ds *Datastore) GetEntityByUsernamePassword(username string, password string) (*Entity, error) {
+	var err error
+
+	const sql = `SELECT ` +
+		`id, id_country, name, email, username, password, image, banned, banned_date, reason, mobilephone, telephone, created_date ` +
 		`FROM places4all.entity ` +
-		`WHERE id = ?`)
+		`WHERE username = $1 and password = $2`
 
-	e := AEntity(false)
-	e.SetExists()
+	p := AEntity(false)
+	p.SetExists()
 
-	err := ds.postgres.QueryRowx(sql, id).StructScan(&e)
+	err = ds.postgres.QueryRowx(sql, username,password).StructScan(&p)
 	if err != nil {
 		return nil, err
 	}
 
-	e.Country, err = ds.GetCountryById(e.IdCountry)
-	if err != nil {
-		return nil, err
-	}
-
-	return &e, err
+	return &p, err
 }
+
