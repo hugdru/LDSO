@@ -290,3 +290,21 @@ func (ds *Datastore) GetEntityByUsernamePassword(username string, password strin
 	return &p, err
 }
 
+func (ds *Datastore) CheckEntityUsername(username string, email string) (*Entity, error)  {
+	var err error
+
+	const sql = `SELECT ` +
+		`id, id_country, name, email, username, password, image, banned, banned_date, reason, mobilephone, telephone, created_date ` +
+		`FROM places4all.entity ` +
+		`WHERE username = $1 and email=$2`
+
+	p := AEntity(false)
+	p.SetExists()
+
+	err = ds.postgres.QueryRowx(sql, username).StructScan(&p)
+	if err != nil {
+		return nil, err
+	}
+
+	return &p, err
+}
