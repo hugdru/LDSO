@@ -704,7 +704,7 @@ func (h *Handler) getCriterionRemarks(w http.ResponseWriter, r *http.Request){
 
 
 	//******
-	
+
 
 
 }
