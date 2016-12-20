@@ -4,11 +4,16 @@ import (
 	"github.com/pressly/chi"
 	"server/handler/helpers"
 	"net/http"
+	"fmt"
+	"server/datastore"
+
+	"gopkg.in/guregu/null.v3/zero"
 )
 
 func (h *Handler) entiysRoutes(router chi.Router) {
-	router.Get("/:id/login", helpers.ReplyJson(h.Login))
-	router.Get("/:id/logout", helpers.ReplyJson(h.Logout))
+	router.Get("/:id/login", helpers.ReplyJson(h.login))
+	router.Get("/:id/logout", helpers.ReplyJson(h.logout))
+	router.Get("/register", helpers.ReplyJson(h.register))
 
 }
 
@@ -20,7 +25,7 @@ var cookieHandler = securecookie.New(
 	securecookie.GenerateRandomKey(64),
 	securecookie.GenerateRandomKey(32))
 */
-func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 	name := r.FormValue("name")
 	pass := r.FormValue("password")
 	redirectTarget := "/"
@@ -70,8 +75,86 @@ func clearSession(response http.ResponseWriter) {
 }
 
 
-func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) logout(w http.ResponseWriter, r *http.Request) {
 	clearSession(w)
 	http.Redirect(w, r, "/", 302)
 }
+func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
+	/*
+	IdCountry   int64       `json:"idCountry" db:"id_country"`
+	Name        string      `json:"name" db:"name"`
+	Email       string      `json:"email" db:"email"`
+	Username    string      `json:"username" db:"username"`
+	Password    string      `json:"-" db:"password"`
+	Image       []byte      `json:"image" db:"image"`
+	Banned      zero.Bool   `json:"banned" db:"banned"`
+	BannedDate  zero.Time   `json:"bannedDate" db:"banned_date"`
+	Reason      zero.String `json:"reason" db:"reason"`
+	Mobilephone zero.String `json:"mobilephone" db:"mobilephone"`
+	Telephone   zero.String `json:"telephone" db:"telephone"`
+	CreatedDate time.Time   `json:"createdDate" db:"created_date"`
 
+	*/
+
+	name := r.FormValue("name")
+	email := r.FormValue("email")
+	username := r.FormValue("username")
+	//idCountry := r.FormValue("idCountry")
+	//image := r.FormValue("image")
+	mobilephone := r.FormValue("mobilephone")
+	telephone := r.FormValue("telephone")
+	pass := r.FormValue("password")
+	userType := r.FormValue("type")
+	//verificar o user name e email
+	entity,err := h.Datastore.CheckEntityUsername(username,email)
+	if name!="" && nil!=err && pass!="" {
+		http.Error(w, helpers.Error(err.Error()), 500)
+		return
+	}
+	//entity.Country = idCountry
+	entity.Mobilephone = zero.StringFrom(mobilephone)
+	entity.Telephone =  zero.StringFrom(telephone)
+	entity.Password = pass
+
+
+	switch userType {
+	case "auditor":
+		fmt.Println("Create Audior ")
+		auditor := datastore.NewAuditor(false)
+		auditor.IdEntity = entity.Id
+		err = h.Datastore.SaveAuditor(auditor)
+		if nil!=err  {
+			http.Error(w, helpers.Error(err.Error()), 500)
+			return
+		}
+	case "client":
+		fmt.Println("Create Client")
+		client := datastore.NewClient(false)
+		client.IdEntity = entity.Id
+		err = h.Datastore.SaveClient(client)
+		if nil!=err  {
+			http.Error(w, helpers.Error(err.Error()), 500)
+			return
+		}
+	case "localAdmin":
+		fmt.Println("Create localAdmin")
+		localAdmin := datastore.NewLocalAdmin(false)
+		localAdmin.IdEntity = entity.Id
+		err = h.Datastore.SaveLocalAdmin(localAdmin)
+		if nil!=err  {
+			http.Error(w, helpers.Error(err.Error()), 500)
+			return
+		}
+	default:
+		fmt.Printf("That type does not exist")
+		return
+	}
+	err = h.Datastore.SaveEntity(entity)
+	if nil!=err  {
+		http.Error(w, helpers.Error(err.Error()), 500)
+		return
+	}
+
+
+
+}
