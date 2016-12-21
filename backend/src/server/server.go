@@ -22,7 +22,7 @@ func main() {
 	defer dstore.Close()
 	hand := &handler.Handler{Datastore: dstore}
 
-	router.Use(dstore.SessionManager);
+	router.Use(dstore.SessionManager)
 	router.Use(corsm.Handler)
 	hand.Init(router)
 

@@ -1,29 +1,29 @@
 package datastore
 
 import (
+	"database/sql"
 	"errors"
 	"gopkg.in/guregu/null.v3/zero"
+	"server/datastore/generators"
 	"server/datastore/metadata"
 	"time"
-	"server/datastore/generators"
-	"database/sql"
 )
 
 type Entity struct {
-	Id          int64       `json:"id" db:"id"`
-	IdCountry   int64       `json:"idCountry" db:"id_country"`
-	Name        string      `json:"name" db:"name"`
-	Email       string      `json:"email" db:"email"`
-	Username    string      `json:"username" db:"username"`
-	Password    string      `json:"-" db:"password"`
-	Image       []byte      `json:"image" db:"image"`
+	Id            int64       `json:"id" db:"id"`
+	IdCountry     int64       `json:"idCountry" db:"id_country"`
+	Name          string      `json:"name" db:"name"`
+	Email         string      `json:"email" db:"email"`
+	Username      string      `json:"username" db:"username"`
+	Password      string      `json:"-" db:"password"`
+	Image         []byte      `json:"image" db:"image"`
 	ImageMimetype zero.String `json:"-" db:"image_mimetype"`
-	Banned      zero.Bool   `json:"banned" db:"banned"`
-	BannedDate  zero.Time   `json:"bannedDate" db:"banned_date"`
-	Reason      zero.String `json:"reason" db:"reason"`
-	Mobilephone zero.String `json:"mobilephone" db:"mobilephone"`
-	Telephone   zero.String `json:"telephone" db:"telephone"`
-	CreatedDate time.Time   `json:"createdDate" db:"created_date"`
+	Banned        zero.Bool   `json:"banned" db:"banned"`
+	BannedDate    zero.Time   `json:"bannedDate" db:"banned_date"`
+	Reason        zero.String `json:"reason" db:"reason"`
+	Mobilephone   zero.String `json:"mobilephone" db:"mobilephone"`
+	Telephone     zero.String `json:"telephone" db:"telephone"`
+	CreatedDate   time.Time   `json:"createdDate" db:"created_date"`
 
 	// Objects
 	Country *Country `json:"country,omitempty"`
@@ -228,7 +228,7 @@ func (ds *Datastore) GetEntityByUsernamePassword(username string, password strin
 	p := AEntity(false)
 	p.SetExists()
 
-	err = ds.postgres.QueryRowx(sql, username,password).StructScan(&p)
+	err = ds.postgres.QueryRowx(sql, username, password).StructScan(&p)
 	if err != nil {
 		return nil, err
 	}
@@ -236,12 +236,12 @@ func (ds *Datastore) GetEntityByUsernamePassword(username string, password strin
 	return &p, err
 }
 
-func (ds *Datastore) CheckEntityExists(filter map[string]string) (bool, error)  {
+func (ds *Datastore) CheckEntityExists(filter map[string]string) (bool, error) {
 
 	where, values := generators.GenerateOrSearchClause(filter)
 	query := `SELECT id ` +
 		`FROM places4all.entity ` +
-		where;
+		where
 
 	p := AEntity(false)
 	p.SetExists()
@@ -263,7 +263,7 @@ func (ds *Datastore) GetEntity(filter map[string]string) (*Entity, error) {
 		`id, id_country, name, email, username, password, image, image_mimetype, banned, banned_date, reason, mobilephone, telephone, created_date, country.id, country.name, country.iso2` +
 		`JOIN country ON country.id = entity.id_country ` +
 		`FROM places4all.entity ` +
-		where;
+		where
 
 	p := AEntity(false)
 	p.SetExists()
@@ -286,8 +286,8 @@ func (ds *Datastore) GetEntity(filter map[string]string) (*Entity, error) {
 		&p.Country.Id,
 		&p.Country.Name,
 		&p.Country.Iso2,
-	);
-	p.Country.SetExists();
+	)
+	p.Country.SetExists()
 
 	if err != nil {
 		return nil, err
