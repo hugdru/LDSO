@@ -179,7 +179,7 @@ func (ds *Datastore) GetTemplateById(id int64) (*Template, error) {
 
 func (ds *Datastore) GetTemplates(limit, offset int, filter map[string]string) ([]*Template, error) {
 
-	where, values := generators.GenerateSearchClause(filter)
+	where, values := generators.GenerateAndSearchClause(filter)
 
 	sql := `SELECT template.id, template.name, template.description, template.created_date ` +
 		`FROM places4all.template ` +

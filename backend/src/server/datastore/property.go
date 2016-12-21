@@ -193,7 +193,7 @@ func (ds *Datastore) GetPropertyById(id int64) (*Property, error) {
 
 func (ds *Datastore) GetProperties(limit, offset int, filter map[string]string) ([]*Property, error) {
 
-	where, values := generators.GenerateSearchClause(filter)
+	where, values := generators.GenerateAndSearchClause(filter)
 
 	sql := `SELECT p.id, p.id_address, p.name, p.details, p.created_date, ` +
 		`address.id, address.id_country, address.address_line1, address.address_line2, ` +

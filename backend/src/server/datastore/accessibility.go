@@ -153,7 +153,7 @@ func (ds *Datastore) GetAccessibilityById(id int64) (*Accessibility, error) {
 
 func (ds *Datastore) GetAccessibilities(limit, offset int, filter map[string]string) ([]*Accessibility, error) {
 
-	where, values := generators.GenerateSearchClause(filter)
+	where, values := generators.GenerateAndSearchClause(filter)
 
 	sql := `SELECT ` +
 		`id, name ` +

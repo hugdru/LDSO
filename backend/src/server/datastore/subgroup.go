@@ -206,7 +206,7 @@ func (ds *Datastore) GetSubgroupsByMaingroupId(idMaingroup int64) ([]*Subgroup, 
 
 func (ds *Datastore) GetSubgroups(limit, offset int, filter map[string]string) ([]*Subgroup, error) {
 
-	where, values := generators.GenerateSearchClause(filter)
+	where, values := generators.GenerateAndSearchClause(filter)
 
 	sql := `SELECT subgroup.id, subgroup.id_maingroup, subgroup.name, subgroup.weight, subgroup.created_date ` +
 		`FROM places4all.subgroup ` +

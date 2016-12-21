@@ -113,7 +113,7 @@ func (ds *Datastore) GetAuditSubgroupById(idAudit, idSubgroup int64) (*AuditSubg
 
 func (ds *Datastore) GetAuditSubgroupsByIdAudit(idAudit int64, filter map[string]string) ([]int64, error) {
 
-	where, values := generators.GenerateSearchClause(filter)
+	where, values := generators.GenerateAndSearchClause(filter)
 
 	sql := `SELECT ` +
 		`id_subgroup ` +

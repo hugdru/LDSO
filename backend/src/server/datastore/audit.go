@@ -178,7 +178,7 @@ func (ds *Datastore) GetAuditById(id int64) (*Audit, error) {
 }
 func (ds *Datastore) GetAudits(limit, offset int, filter map[string]string) ([]*Audit, error) {
 
-	where, values := generators.GenerateSearchClause(filter)
+	where, values := generators.GenerateAndSearchClause(filter)
 
 	sql := `SELECT ` +
 		`id, id_property, id_auditor, id_template, rating, observation, created_date, finished_date ` +

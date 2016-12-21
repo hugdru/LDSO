@@ -15,6 +15,12 @@
 			"path": "/engine/redisstore"
 		},
 		{
+			"importpath": "github.com/elithrar/simple-scrypt",
+			"repository": "https://github.com/elithrar/simple-scrypt",
+			"revision": "2325946f714c95de4a6088202c402fbdfa64163b",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/garyburd/redigo/internal",
 			"repository": "https://github.com/garyburd/redigo",
 			"revision": "80f7de34463b0ed3d7c61303e5619efe1b227f92",
@@ -57,6 +63,20 @@
 			"repository": "https://github.com/rs/xhandler",
 			"revision": "ed27b6fd65218132ee50cd95f38474a3d8a2cd12",
 			"branch": "master"
+		},
+		{
+			"importpath": "golang.org/x/crypto/pbkdf2",
+			"repository": "https://go.googlesource.com/crypto",
+			"revision": "d8e61c69ab46ca38328da2f4995abaf93b252290",
+			"branch": "master",
+			"path": "/pbkdf2"
+		},
+		{
+			"importpath": "golang.org/x/crypto/scrypt",
+			"repository": "https://go.googlesource.com/crypto",
+			"revision": "d8e61c69ab46ca38328da2f4995abaf93b252290",
+			"branch": "master",
+			"path": "/scrypt"
 		},
 		{
 			"importpath": "golang.org/x/net/context",

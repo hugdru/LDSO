@@ -191,7 +191,7 @@ func (ds *Datastore) GetAuditCriterionById(idAudit, idCriterion int64) (*AuditCr
 
 func (ds *Datastore) GetAuditCriteria(idAudit int64, filter map[string]string) ([]*AuditCriterion, error) {
 
-	where, values := generators.GenerateSearchClause(filter)
+	where, values := generators.GenerateAndSearchClause(filter)
 
 	sql := `SELECT id_audit, id_criterion, value, observation ` +
 		`FROM places4all.audit_criterion ` +

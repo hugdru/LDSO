@@ -81,6 +81,14 @@ func PaginationParse(r *http.Request) (int, int, error) {
 }
 
 func GetQueryArgs(args [][]string, r *http.Request) map[string]string {
+	return getQueryArgs(args, r, false);
+}
+
+func GetQueryArgsStrict(args [][]string, r *http.Request) map[string]string {
+	return getQueryArgs(args, r, true);
+}
+
+func getQueryArgs(args [][]string, r *http.Request, argsMustExist bool) map[string]string {
 	filter := make(map[string]string)
 	for _, names := range args {
 		namesLength := len(names)
@@ -90,6 +98,8 @@ func GetQueryArgs(args [][]string, r *http.Request) map[string]string {
 			value := r.FormValue(inputName)
 			if value != "" {
 				filter[inputName] = value
+			} else if argsMustExist {
+				return nil;
 			}
 		case 2:
 			inputName := names[0]
@@ -97,6 +107,8 @@ func GetQueryArgs(args [][]string, r *http.Request) map[string]string {
 			value := r.FormValue(inputName)
 			if value != "" {
 				filter[dbName] = value
+			} else if argsMustExist {
+				return nil;
 			}
 		default:
 			return nil
