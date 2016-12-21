@@ -2,15 +2,15 @@ package generators
 
 import "bytes"
 
-func GenerateAndSearchClause(filter map[string]interface{}) (string, []interface{}) {
+func GenerateAndSearchClause(filter map[string]string) (string, []interface{}) {
 	return GenerateSearchClause(filter, true)
 }
 
-func GenerateOrSearchClause(filter map[string]interface{}) (string, []interface{}) {
+func GenerateOrSearchClause(filter map[string]string) (string, []interface{}) {
 	return GenerateSearchClause(filter, false)
 }
 
-func GenerateSearchClause(filter map[string]interface{}, withAnd bool) (string, []interface{}) {
+func GenerateSearchClause(filter map[string]string, withAnd bool) (string, []interface{}) {
 	const WHERE = " WHERE "
 	const PREPARE = " = ? "
 	const AND = "AND "

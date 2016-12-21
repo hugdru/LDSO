@@ -6,23 +6,25 @@ import (
 	"server/datastore/generators"
 	"server/datastore/metadata"
 	"time"
+	"server/datastore/generators"
+	"database/sql"
 )
 
 type Entity struct {
-	Id            int64       `json:"id" db:"id"`
-	IdCountry     int64       `json:"idCountry" db:"id_country"`
-	Name          string      `json:"name" db:"name"`
-	Email         string      `json:"email" db:"email"`
-	Username      string      `json:"username" db:"username"`
-	Password      string      `json:"-" db:"password"`
-	Image         []byte      `json:"image" db:"image"`
+	Id          int64       `json:"id" db:"id"`
+	IdCountry   int64       `json:"idCountry" db:"id_country"`
+	Name        string      `json:"name" db:"name"`
+	Email       string      `json:"email" db:"email"`
+	Username    string      `json:"username" db:"username"`
+	Password    string      `json:"-" db:"password"`
+	Image       []byte      `json:"image" db:"image"`
 	ImageMimetype zero.String `json:"-" db:"image_mimetype"`
-	Banned        zero.Bool   `json:"banned" db:"banned"`
-	BannedDate    zero.Time   `json:"bannedDate" db:"banned_date"`
-	Reason        zero.String `json:"reason" db:"reason"`
-	Mobilephone   zero.String `json:"mobilephone" db:"mobilephone"`
-	Telephone     zero.String `json:"telephone" db:"telephone"`
-	CreatedDate   time.Time   `json:"createdDate" db:"created_date"`
+	Banned      zero.Bool   `json:"banned" db:"banned"`
+	BannedDate  zero.Time   `json:"bannedDate" db:"banned_date"`
+	Reason      zero.String `json:"reason" db:"reason"`
+	Mobilephone zero.String `json:"mobilephone" db:"mobilephone"`
+	Telephone   zero.String `json:"telephone" db:"telephone"`
+	CreatedDate time.Time   `json:"createdDate" db:"created_date"`
 
 	// Objects
 	Country *Country `json:"country,omitempty"`
@@ -71,7 +73,7 @@ func (ds *Datastore) InsertEntity(e *Entity) error {
 		`$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13` +
 		`) RETURNING id`
 
-	err := ds.postgres.QueryRow(sql, e.IdCountry, e.Name, e.Email, e.Username, e.Password, e.Image, e.ImageMimetype, e.Banned, e.BannedDate, e.Reason, e.Mobilephone, e.Telephone, e.CreatedDate).Scan(&e.Id)
+	err := ds.postgres.QueryRow(sql, p.IdCountry, p.Name, p.Email, p.Username, p.Password, p.Image, p.ImageMimetype, p.Banned, p.BannedDate, p.Reason, p.Mobilephone, p.Telephone, p.CreatedDate).Scan(&p.Id)
 	if err != nil {
 		return err
 	}
@@ -98,7 +100,7 @@ func (ds *Datastore) UpdateEntity(e *Entity) error {
 		`$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13` +
 		`) WHERE id = $14`
 
-	_, err = ds.postgres.Exec(sql, e.IdCountry, e.Name, e.Email, e.Username, e.Password, e.Image, e.ImageMimetype, e.Banned, e.BannedDate, e.Reason, e.Mobilephone, e.Telephone, e.CreatedDate, e.Id)
+	_, err = ds.postgres.Exec(sql, p.IdCountry, p.Name, p.Email, p.Username, p.Password, p.Image, p.ImageMimetype, p.Banned, p.BannedDate, p.Reason, p.Mobilephone, p.Telephone, p.CreatedDate, p.Id)
 	return err
 }
 
@@ -290,18 +292,59 @@ func (ds *Datastore) GetEntityByUsernamePassword(username string, password strin
 	return &p, err
 }
 
-func (ds *Datastore) CheckEntityUsername(username string, email string) (*Entity, error)  {
-	var err error
+func (ds *Datastore) CheckEntityExists(filter map[string]string) (bool, error)  {
 
-	const sql = `SELECT ` +
-		`id, id_country, name, email, username, password, image, banned, banned_date, reason, mobilephone, telephone, created_date ` +
+	where, values := generators.GenerateOrSearchClause(filter)
+	query := `SELECT id ` +
 		`FROM places4all.entity ` +
-		`WHERE username = $1 and email=$2`
+		where;
 
 	p := AEntity(false)
 	p.SetExists()
 
-	err = ds.postgres.QueryRowx(sql, username).StructScan(&p)
+	var id int64
+	err := ds.postgres.QueryRow(query, values).Scan(&id)
+	if err == nil {
+		return true, nil
+	} else if err == sql.ErrNoRows {
+		return false, nil
+	}
+
+	return true, err
+}
+
+func (ds *Datastore) GetEntity(filter map[string]string) (*Entity, error) {
+	where, values := generators.GenerateAndSearchClause(filter)
+	sql := `SELECT ` +
+		`id, id_country, name, email, username, password, image, image_mimetype, banned, banned_date, reason, mobilephone, telephone, created_date, country.id, country.name, country.iso2` +
+		`JOIN country ON country.id = entity.id_country ` +
+		`FROM places4all.entity ` +
+		where;
+
+	p := AEntity(false)
+	p.SetExists()
+
+	err := ds.postgres.QueryRow(sql, values...).Scan(
+		&p.Id,
+		&p.IdCountry,
+		&p.Name,
+		&p.Email,
+		&p.Username,
+		&p.Password,
+		&p.Image,
+		&p.ImageMimetype,
+		&p.Banned,
+		&p.BannedDate,
+		&p.Reason,
+		&p.Mobilephone,
+		&p.Telephone,
+		&p.CreatedDate,
+		&p.Country.Id,
+		&p.Country.Name,
+		&p.Country.Iso2,
+	);
+	p.Country.SetExists();
+
 	if err != nil {
 		return nil, err
 	}
