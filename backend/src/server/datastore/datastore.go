@@ -1,17 +1,17 @@
 package datastore
 
 import (
-	"github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq"
-	"github.com/garyburd/redigo/redis"
 	"github.com/alexedwards/scs/engine/redisstore"
 	"github.com/alexedwards/scs/session"
+	"github.com/garyburd/redigo/redis"
+	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 	"net/http"
 	"server/handler/helpers"
 )
 
 type Datastore struct {
-	postgres *sqlx.DB
+	postgres       *sqlx.DB
 	SessionManager func(h http.Handler) http.Handler
 }
 
@@ -29,10 +29,10 @@ func Connect() *Datastore {
 	engine := redisstore.New(pool)
 	sessionManager := session.Manage(engine,
 		//session.Domain("example.org"), // Domain is not set by default.
-		session.HttpOnly(true),        	 // HttpOnly attribute is true by default.
-		session.Path("/"),       	 // Path is set to "/" by default.
-		session.Secure(false),           // Secure attribute is false by default.)
-		session.ErrorFunc(ServerError),	 // Custom error handler
+		session.HttpOnly(true),         // HttpOnly attribute is true by default.
+		session.Path("/"),              // Path is set to "/" by default.
+		session.Secure(false),          // Secure attribute is false by default.)
+		session.ErrorFunc(ServerError), // Custom error handler
 	)
 
 	return &Datastore{postgres: postgres, SessionManager: sessionManager}

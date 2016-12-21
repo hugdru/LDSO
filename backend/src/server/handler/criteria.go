@@ -2,7 +2,9 @@ package handler
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"github.com/pressly/chi"
 	"gopkg.in/guregu/null.v3/zero"
 	"net/http"
@@ -10,8 +12,6 @@ import (
 	"server/handler/helpers"
 	"strconv"
 	"time"
-	"errors"
-	"database/sql"
 )
 
 func (h *Handler) criteriaRoutes(router chi.Router) {
@@ -155,26 +155,26 @@ func (h *Handler) createCriterion(w http.ResponseWriter, r *http.Request) {
 	criterion.CreatedDate = time.Now().UTC()
 
 	if input.Legislation != "" {
-		resultIdLegislation, err := insertOrFetchLegislation(h.Datastore, input.Legislation);
+		resultIdLegislation, err := insertOrFetchLegislation(h.Datastore, input.Legislation)
 		if err != nil {
 			http.Error(w, helpers.Error(err.Error()), 500)
 			return
 		}
 		criterion.IdLegislation = zero.IntFrom(resultIdLegislation)
 	} else {
-		criterion.IdLegislation = zero.IntFrom(0);
+		criterion.IdLegislation = zero.IntFrom(0)
 	}
 
-/*
-	if input.IdLegislation == 0 && input.Legislation != nil {
-		resultIdLegislation, err := insertOrFetchLegislation(h.Datastore, input.Legislation);
-		if err != nil {
-			http.Error(w, helpers.Error(err.Error()), 500)
-			return
+	/*
+		if input.IdLegislation == 0 && input.Legislation != nil {
+			resultIdLegislation, err := insertOrFetchLegislation(h.Datastore, input.Legislation);
+			if err != nil {
+				http.Error(w, helpers.Error(err.Error()), 500)
+				return
+			}
+			criterion.IdLegislation = zero.IntFrom(resultIdLegislation)
 		}
-		criterion.IdLegislation = zero.IntFrom(resultIdLegislation)
-	}
-*/
+	*/
 
 	err = h.Datastore.SaveCriterion(criterion)
 	if err != nil {
@@ -262,26 +262,26 @@ func (h *Handler) updateCriterion(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if input.Legislation != "" {
-		resultIdLegislation, err := insertOrFetchLegislation(h.Datastore, input.Legislation);
+		resultIdLegislation, err := insertOrFetchLegislation(h.Datastore, input.Legislation)
 		if err != nil {
 			http.Error(w, helpers.Error(err.Error()), 500)
 			return
 		}
 		criterion.IdLegislation = zero.IntFrom(resultIdLegislation)
 	} else {
-		criterion.IdLegislation = zero.IntFrom(0);
+		criterion.IdLegislation = zero.IntFrom(0)
 	}
 
-/*
-	if input.IdLegislation == 0 && input.Legislation != nil {
-		resultIdLegislation, err := insertOrFetchLegislation(h.Datastore, input.Legislation);
-		if err != nil {
-			http.Error(w, helpers.Error(err.Error()), 500)
-			return
+	/*
+		if input.IdLegislation == 0 && input.Legislation != nil {
+			resultIdLegislation, err := insertOrFetchLegislation(h.Datastore, input.Legislation);
+			if err != nil {
+				http.Error(w, helpers.Error(err.Error()), 500)
+				return
+			}
+			criterion.IdLegislation = zero.IntFrom(resultIdLegislation)
 		}
-		criterion.IdLegislation = zero.IntFrom(resultIdLegislation)
-	}
-*/
+	*/
 
 	err = h.Datastore.SaveCriterion(criterion)
 	if err != nil {
@@ -447,7 +447,7 @@ func (h *Handler) deleteCriterionAccessibility(w http.ResponseWriter, r *http.Re
 }
 
 func insertOrFetchLegislation(d *datastore.Datastore,
-inputLegislationName string) (int64, error) {
+	inputLegislationName string) (int64, error) {
 	if inputLegislationName == "" {
 		return 0, errors.New("At least a name must be specified")
 	}
