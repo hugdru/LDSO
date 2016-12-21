@@ -190,7 +190,7 @@ func (ds *Datastore) GetLegislationByName(name string) (*Legislation, error) {
 
 func (ds *Datastore) GetLegislations(limit, offset int, filter map[string]string) ([]*Legislation, error) {
 
-	where, values := generators.GenerateSearchClause(filter)
+	where, values := generators.GenerateAndSearchClause(filter)
 
 	sql := `SELECT ` +
 		`id, name, description, url ` +

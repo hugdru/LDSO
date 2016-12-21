@@ -1,26 +1,50 @@
 package generators
 
-func GenerateSearchClause(filter map[string]string) (string, []interface{}) {
+import "bytes"
+
+func GenerateAndSearchClause(filter map[string]string) (string, []interface{}) {
+	return GenerateSearchClause(filter, true)
+}
+
+func GenerateOrSearchClause(filter map[string]string) (string, []interface{}) {
+	return GenerateSearchClause(filter, false)
+}
+
+func GenerateSearchClause(filter map[string]string, withAnd bool) (string, []interface{}) {
+	const WHERE = " WHERE "
+	const PREPARE = " = ? "
+	const AND = "AND "
+	const OR = "OR "
+
 	if filter == nil {
 		return "", nil
 	}
+
 	filterLength := len(filter)
 	if filterLength == 0 {
 		return "", nil
 	}
-	var where string
-	values := make([]interface{}, filterLength)
-	offset := filterLength - 1
-	for name, value := range filter {
-		values[offset] = value
-		where = name + " = ? " + where
-		if offset == 0 {
-			where = "WHERE " + where
-		} else {
-			where = " AND " + where
-		}
-		offset--
+	lastIndex := filterLength - 1
+
+	separator := AND
+	if !withAnd {
+		separator = OR
 	}
 
-	return where, values
+	var whereBuffer bytes.Buffer
+	whereBuffer.WriteString(WHERE)
+
+	values := make([]interface{}, filterLength)
+	index := 0
+	for name, value := range filter {
+		values[index] = value
+		whereBuffer.WriteString(name)
+		whereBuffer.WriteString(PREPARE)
+		if index != lastIndex {
+			whereBuffer.WriteString(separator)
+		}
+		index++
+	}
+
+	return whereBuffer.String(), values
 }

@@ -246,7 +246,7 @@ func (ds *Datastore) GetCriteriaBySubgroupId(idSubgroup int64) ([]*Criterion, er
 
 func (ds *Datastore) GetCriteria(limit, offset int, filter map[string]string) ([]*Criterion, error) {
 
-	where, values := generators.GenerateSearchClause(filter)
+	where, values := generators.GenerateAndSearchClause(filter)
 
 	sql := `SELECT criterion.id, criterion.id_subgroup, criterion.id_legislation, criterion.name, criterion.weight,criterion.created_date ` +
 		`FROM places4all.criterion ` +
