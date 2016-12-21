@@ -34,11 +34,12 @@ CREATE TABLE entity (
   name VARCHAR(100) NOT NULL,
   email VARCHAR(254) UNIQUE NOT NULL
     CHECK (email ~* '^[^\s@]+@[^\s@]+\.[^\s@.]+$'),
-  username VARCHAR UNIQUE NOT NULL
+  username VARCHAR(30) UNIQUE NOT NULL
     CHECK (username ~* '^[A-Za-z][A-Za-z0-9\.\-_]{2,15}$'),
-  password VARCHAR NOT NULL
+  password VARCHAR(60) NOT NULL
     CHECK (LENGTH(password) >= 6),
   image BYTEA,
+  image_mimetype VARCHAR(100),
   banned BOOLEAN,
   banned_date TIMESTAMP,
   reason TEXT,

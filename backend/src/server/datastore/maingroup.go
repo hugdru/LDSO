@@ -206,7 +206,7 @@ func (ds *Datastore) GetMaingroupsByTemplateId(idTemplate int64) ([]*Maingroup, 
 
 func (ds *Datastore) GetMaingroups(limit, offset int, filter map[string]string) ([]*Maingroup, error) {
 
-	where, values := generators.GenerateSearchClause(filter)
+	where, values := generators.GenerateAndSearchClause(filter)
 
 	sql := `SELECT maingroup.id, maingroup.id_template, maingroup.name, maingroup.weight, maingroup.created_date ` +
 		`FROM places4all.maingroup ` +

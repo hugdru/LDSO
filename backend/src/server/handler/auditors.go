@@ -20,7 +20,6 @@ func (h *Handler) auditorsRoutes(router chi.Router) {
 	router.Delete("/:id", helpers.ReplyJson(h.deleteAuditor))
 }
 
-///******begin getAuditors************/////
 func (h *Handler) getAuditors(w http.ResponseWriter, r *http.Request) {
 	var limit, offset int = 10, 0
 	var err error
@@ -62,9 +61,6 @@ func (h *Handler) getAuditors(w http.ResponseWriter, r *http.Request) {
 	w.Write(auditorsSlice)
 }
 
-///******end getAuditors************/////
-
-///******begin createAuditor************/////
 func (h *Handler) createAuditor(w http.ResponseWriter, r *http.Request) {
 
 	decoder := json.NewDecoder(r.Body)
@@ -119,7 +115,7 @@ func (h *Handler) createAuditor(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
 	}
-	//grava o entity
+
 	entitySlice, err := json.Marshal(entity)
 
 	err = h.Datastore.SaveAuditor(auditor)
@@ -128,19 +124,14 @@ func (h *Handler) createAuditor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write(entitySlice)
-	//grava auditor
+
 	auditorSlice, err := json.Marshal(auditor)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
 	}
 	w.Write(auditorSlice)
-
 }
-
-///******end createAuditor************/////
-
-///******begin getAuditor************/////
 
 func (h *Handler) getAuditor(w http.ResponseWriter, r *http.Request) {
 	idAuditor := chi.URLParam(r, "id")
@@ -161,10 +152,6 @@ func (h *Handler) getAuditor(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Write(auditorSlice)
 }
-
-///******end getAuditor************/////
-
-///******begin updateAuditor************/////
 
 func (h *Handler) updateAuditor(w http.ResponseWriter, r *http.Request) {
 	/*idAuditor := chi.URLParam(r, "id")
@@ -221,9 +208,6 @@ func (h *Handler) updateAuditor(w http.ResponseWriter, r *http.Request) {
 	*/
 }
 
-///******end updateAuditor************/////
-
-///******begin deleteAuditor************/////
 func (h *Handler) deleteAuditor(w http.ResponseWriter, r *http.Request) {
 	idAuditor := chi.URLParam(r, "id")
 	id, err := strconv.ParseInt(idAuditor, 10, 64)
@@ -245,7 +229,3 @@ func (h *Handler) deleteAuditor(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
-
-///******end deleteAuditor************/////
-
-///******end Page************/////

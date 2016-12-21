@@ -5,6 +5,8 @@ import (
 	"gopkg.in/guregu/null.v3/zero"
 	"server/datastore/metadata"
 	"time"
+	"server/datastore/generators"
+	"database/sql"
 )
 
 type Entity struct {
@@ -15,6 +17,7 @@ type Entity struct {
 	Username    string      `json:"username" db:"username"`
 	Password    string      `json:"-" db:"password"`
 	Image       []byte      `json:"image" db:"image"`
+	ImageMimetype zero.String `json:"-" db:"image_mimetype"`
 	Banned      zero.Bool   `json:"banned" db:"banned"`
 	BannedDate  zero.Time   `json:"bannedDate" db:"banned_date"`
 	Reason      zero.String `json:"reason" db:"reason"`
@@ -64,12 +67,12 @@ func (ds *Datastore) InsertEntity(p *Entity) error {
 	}
 
 	const sql = `INSERT INTO places4all.entity (` +
-		`id_country, name, email, username, password, image, banned, banned_date, reason, mobilephone, telephone, created_date` +
+		`id_country, name, email, username, password, image, image_mimetype, banned, banned_date, reason, mobilephone, telephone, created_date` +
 		`) VALUES (` +
-		`$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12` +
+		`$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13` +
 		`) RETURNING id`
 
-	err := ds.postgres.QueryRow(sql, p.IdCountry, p.Name, p.Email, p.Username, p.Password, p.Image, p.Banned, p.BannedDate, p.Reason, p.Mobilephone, p.Telephone, p.CreatedDate).Scan(&p.Id)
+	err := ds.postgres.QueryRow(sql, p.IdCountry, p.Name, p.Email, p.Username, p.Password, p.Image, p.ImageMimetype, p.Banned, p.BannedDate, p.Reason, p.Mobilephone, p.Telephone, p.CreatedDate).Scan(&p.Id)
 	if err != nil {
 		return err
 	}
@@ -91,12 +94,12 @@ func (ds *Datastore) UpdateEntity(p *Entity) error {
 	}
 
 	const sql = `UPDATE places4all.entity SET (` +
-		`id_country, name, email, username, password, image, banned, banned_date, reason, mobilephone, telephone, created_date` +
+		`id_country, name, email, username, password, image, image_mimetype, banned, banned_date, reason, mobilephone, telephone, created_date` +
 		`) = ( ` +
-		`$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12` +
-		`) WHERE id = $13`
+		`$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13` +
+		`) WHERE id = $14`
 
-	_, err = ds.postgres.Exec(sql, p.IdCountry, p.Name, p.Email, p.Username, p.Password, p.Image, p.Banned, p.BannedDate, p.Reason, p.Mobilephone, p.Telephone, p.CreatedDate, p.Id)
+	_, err = ds.postgres.Exec(sql, p.IdCountry, p.Name, p.Email, p.Username, p.Password, p.Image, p.ImageMimetype, p.Banned, p.BannedDate, p.Reason, p.Mobilephone, p.Telephone, p.CreatedDate, p.Id)
 	return err
 }
 
@@ -115,16 +118,16 @@ func (ds *Datastore) UpsertEntity(p *Entity) error {
 	}
 
 	const sql = `INSERT INTO places4all.entity (` +
-		`id, id_country, name, email, username, password, image, banned, banned_date, reason, mobilephone, telephone, created_date` +
+		`id, id_country, name, email, username, password, image, image_mimetype, banned, banned_date, reason, mobilephone, telephone, created_date` +
 		`) VALUES (` +
-		`$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13` +
+		`$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14` +
 		`) ON CONFLICT (id) DO UPDATE SET (` +
-		`id, id_country, name, email, username, password, image, banned, banned_date, reason, mobilephone, telephone, created_date` +
+		`id, id_country, name, email, username, password, image, image_mimetype, banned, banned_date, reason, mobilephone, telephone, created_date` +
 		`) = (` +
-		`EXCLUDED.id, EXCLUDED.id_country, EXCLUDED.name, EXCLUDED.email, EXCLUDED.username, EXCLUDED.password, EXCLUDED.image, EXCLUDED.banned, EXCLUDED.banned_date, EXCLUDED.reason, EXCLUDED.mobilephone, EXCLUDED.telephone, EXCLUDED.created_date` +
+		`EXCLUDED.id, EXCLUDED.id_country, EXCLUDED.name, EXCLUDED.email, EXCLUDED.username, EXCLUDED.password, EXCLUDED.image, EXCLUDED.image_mimetype, EXCLUDED.banned, EXCLUDED.banned_date, EXCLUDED.reason, EXCLUDED.mobilephone, EXCLUDED.telephone, EXCLUDED.created_date` +
 		`)`
 
-	_, err := ds.postgres.Exec(sql, p.Id, p.IdCountry, p.Name, p.Email, p.Username, p.Password, p.Image, p.Banned, p.BannedDate, p.Reason, p.Mobilephone, p.Telephone, p.CreatedDate)
+	_, err := ds.postgres.Exec(sql, p.Id, p.IdCountry, p.Name, p.Email, p.Username, p.Password, p.Image, p.ImageMimetype, p.Banned, p.BannedDate, p.Reason, p.Mobilephone, p.Telephone, p.CreatedDate)
 	if err != nil {
 		return err
 	}
@@ -233,18 +236,59 @@ func (ds *Datastore) GetEntityByUsernamePassword(username string, password strin
 	return &p, err
 }
 
-func (ds *Datastore) CheckEntityUsername(username string, email string) (*Entity, error)  {
-	var err error
+func (ds *Datastore) CheckEntityExists(filter map[string]string) (bool, error)  {
 
-	const sql = `SELECT ` +
-		`id, id_country, name, email, username, password, image, banned, banned_date, reason, mobilephone, telephone, created_date ` +
+	where, values := generators.GenerateOrSearchClause(filter)
+	query := `SELECT id ` +
 		`FROM places4all.entity ` +
-		`WHERE username = $1 and email=$2`
+		where;
 
 	p := AEntity(false)
 	p.SetExists()
 
-	err = ds.postgres.QueryRowx(sql, username).StructScan(&p)
+	var id int64
+	err := ds.postgres.QueryRow(query, values).Scan(&id)
+	if err == nil {
+		return true, nil
+	} else if err == sql.ErrNoRows {
+		return false, nil
+	}
+
+	return true, err
+}
+
+func (ds *Datastore) GetEntity(filter map[string]string) (*Entity, error) {
+	where, values := generators.GenerateAndSearchClause(filter)
+	sql := `SELECT ` +
+		`id, id_country, name, email, username, password, image, image_mimetype, banned, banned_date, reason, mobilephone, telephone, created_date, country.id, country.name, country.iso2` +
+		`JOIN country ON country.id = entity.id_country ` +
+		`FROM places4all.entity ` +
+		where;
+
+	p := AEntity(false)
+	p.SetExists()
+
+	err := ds.postgres.QueryRow(sql, values...).Scan(
+		&p.Id,
+		&p.IdCountry,
+		&p.Name,
+		&p.Email,
+		&p.Username,
+		&p.Password,
+		&p.Image,
+		&p.ImageMimetype,
+		&p.Banned,
+		&p.BannedDate,
+		&p.Reason,
+		&p.Mobilephone,
+		&p.Telephone,
+		&p.CreatedDate,
+		&p.Country.Id,
+		&p.Country.Name,
+		&p.Country.Iso2,
+	);
+	p.Country.SetExists();
+
 	if err != nil {
 		return nil, err
 	}
