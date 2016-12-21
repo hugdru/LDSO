@@ -1,17 +1,17 @@
 package handler
 
 import (
+	"encoding/gob"
+	"encoding/json"
+	"github.com/alexedwards/scs/session"
+	"github.com/elithrar/simple-scrypt"
 	"github.com/pressly/chi"
-	"server/handler/helpers"
+	"gopkg.in/guregu/null.v3/zero"
+	"io/ioutil"
 	"net/http"
 	"server/datastore"
-	"gopkg.in/guregu/null.v3/zero"
-	"encoding/json"
-	"github.com/elithrar/simple-scrypt"
-	"encoding/gob"
-	"github.com/alexedwards/scs/session"
+	"server/handler/helpers"
 	"strconv"
-	"io/ioutil"
 	"time"
 )
 
@@ -19,16 +19,16 @@ const maxMultipartSize = 32 << 20
 const maxImageFileSize = 16 << 20
 
 type CookieData struct {
-	id  int64
+	id       int64
 	username string
-	email string
-	name string
-	country string
+	email    string
+	name     string
+	country  string
 }
 
-var acceptedImageTypes = map[string] bool {
-	"image/gif": true,
-	"image/png": true,
+var acceptedImageTypes = map[string]bool{
+	"image/gif":  true,
+	"image/png":  true,
 	"image/jpeg": true,
 }
 
@@ -45,11 +45,11 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 
 	var input struct {
 		Username string `json:"username"`
-		Email  string `json:"email"`
+		Email    string `json:"email"`
 		Password string `json:"password"`
 	}
 
-	switch(r.Header.Get("Content-type")) {
+	switch r.Header.Get("Content-type") {
 	case "application/json":
 		decoder := json.NewDecoder(r.Body)
 		if decoder == nil {
@@ -62,9 +62,9 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	case "multipart/form-data":
-		input.Username = r.FormValue("username");
-		input.Email = r.FormValue("email");
-		input.Password = r.FormValue("password");
+		input.Username = r.FormValue("username")
+		input.Email = r.FormValue("email")
+		input.Password = r.FormValue("password")
 	default:
 		http.Error(w, helpers.Error("JSON decoder failed"), 415)
 		return
@@ -77,11 +77,11 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 
 	filter := make(map[string]string)
 	if input.Username != "" {
-		filter["username"] = input.Username;
+		filter["username"] = input.Username
 	}
 
 	if input.Email != "" {
-		filter["email"] = input.Email;
+		filter["email"] = input.Email
 	}
 
 	if input.Password != "" {
@@ -99,7 +99,7 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !setSession(entity, w, r) {
-		return;
+		return
 	}
 }
 
@@ -108,26 +108,26 @@ func setSession(entity *datastore.Entity, w http.ResponseWriter, r *http.Request
 	err := session.RegenerateToken(r)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
-		return false;
+		return false
 	}
 
 	cookieData := &CookieData{
-		id: entity.Id,
+		id:       entity.Id,
 		username: entity.Username,
-		email: entity.Email,
-		name: entity.Username,
-		country: entity.Country.Name}
+		email:    entity.Email,
+		name:     entity.Username,
+		country:  entity.Country.Name}
 
-	err = session.PutObject(r, EntityKey, cookieData);
+	err = session.PutObject(r, EntityKey, cookieData)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
-		return false;
+		return false
 	}
-	return true;
+	return true
 }
 
 func (h *Handler) logout(w http.ResponseWriter, r *http.Request) {
-	session.Destroy(w, r);
+	session.Destroy(w, r)
 }
 func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 	contentLengthStr := r.Header.Get("Content-Length")
@@ -143,18 +143,18 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var input struct {
-		IdCountry int64 `json:"idCountry"`
-		Name string `json:"name"`
-		Email string `json:"email"`
-		Username string `json:"username"`
-		Password string `json:"password"`
+		IdCountry   int64  `json:"idCountry"`
+		Name        string `json:"name"`
+		Email       string `json:"email"`
+		Username    string `json:"username"`
+		Password    string `json:"password"`
 		Mobilephone string `json:"mobilephone"`
 		Telephone   string `json:"telephone"`
-		imageBytes []byte
-		imageMime string
+		imageBytes  []byte
+		imageMime   string
 	}
 
-	switch(r.Header.Get("Content-type")) {
+	switch r.Header.Get("Content-type") {
 	case "multipart/form-data":
 		postIdCountry, err := strconv.ParseInt(r.PostFormValue("idCountry"), 10, 64)
 		if err != nil {
@@ -182,11 +182,11 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, helpers.Error(err.Error()), 500)
 				return
 			}
-			if (imageContentType != http.DetectContentType(mimetypeBuffer)) {
+			if imageContentType != http.DetectContentType(mimetypeBuffer) {
 				http.Error(w, helpers.Error("Gif, jpeg or png image"), 400)
 				return
 			}
-			input.imageMime = imageContentType;
+			input.imageMime = imageContentType
 			imageContentLengthStr := mFileHeader.Header.Get("Content-Length")
 			imageContentLength, err := strconv.ParseInt(imageContentLengthStr, 10, 64)
 			if err != nil {
@@ -194,7 +194,7 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			if imageContentLength > maxImageFileSize {
-				http.Error(w, helpers.Error("image is too big, max: " + strconv.FormatInt(maxImageFileSize, 10)) + " bytes", 400)
+				http.Error(w, helpers.Error("image is too big, max: "+strconv.FormatInt(maxImageFileSize, 10))+" bytes", 400)
 				return
 			}
 
@@ -219,11 +219,11 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 
 	filter := make(map[string]string)
 	if input.Username != "" {
-		filter["username"] = input.Username;
+		filter["username"] = input.Username
 	}
 
 	if input.Email != "" {
-		filter["email"] = input.Email;
+		filter["email"] = input.Email
 	}
 
 	exists, err := h.Datastore.CheckEntityExists(filter)
@@ -236,7 +236,7 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	entity := datastore.NewEntity(false);
+	entity := datastore.NewEntity(false)
 	entity.IdCountry = input.IdCountry
 	entity.Name = input.Name
 	entity.Email = input.Email

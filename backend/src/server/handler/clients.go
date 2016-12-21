@@ -1,11 +1,11 @@
 package handler
 
 import (
-	"github.com/pressly/chi"
-	"server/handler/helpers"
-	"net/http"
-	"strconv"
 	"encoding/json"
+	"github.com/pressly/chi"
+	"net/http"
+	"server/handler/helpers"
+	"strconv"
 )
 
 func (h *Handler) clientsRoutes(router chi.Router) {
