@@ -3,6 +3,7 @@ package handler
 import (
 	"github.com/pressly/chi"
 	"server/datastore"
+	"server/handler/sessionData"
 )
 
 type Handler struct {
@@ -10,6 +11,7 @@ type Handler struct {
 }
 
 func (h *Handler) Init(mux *chi.Mux) {
+	sessionData.Init()
 	mux.Route("/countries", h.countriesRoutes)
 	mux.Route("/properties", h.propertiesRoutes)
 	mux.Route("/addresses", h.addressesRoutes)
