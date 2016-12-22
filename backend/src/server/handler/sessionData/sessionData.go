@@ -1,10 +1,10 @@
 package sessionData
 
 import (
-	"server/datastore"
-	"net/http"
-	"github.com/alexedwards/scs/session"
 	"encoding/gob"
+	"github.com/alexedwards/scs/session"
+	"net/http"
+	"server/datastore"
 )
 
 const EntityKey = "entity"
