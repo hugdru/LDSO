@@ -9,9 +9,9 @@ import (
 	"net/http"
 	"server/datastore"
 	"server/handler/helpers"
+	"server/handler/sessionData"
 	"strconv"
 	"time"
-	"server/handler/sessionData"
 )
 
 const maxMultipartSize = 32 << 20
