@@ -184,7 +184,7 @@ CREATE TABLE remark (
   id_audit INTEGER NOT NULL REFERENCES audit(id),
   id_criterion INTEGER NOT NULL REFERENCES criterion(id),
   observation TEXT,
-  image BYTEA
+  image_mine_type VARCHAR(100)
 );
 
 
