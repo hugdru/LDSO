@@ -36,8 +36,7 @@ CREATE TABLE entity (
     CHECK (email ~* '^[^\s@]+@[^\s@]+\.[^\s@.]+$'),
   username VARCHAR(30) UNIQUE NOT NULL
     CHECK (username ~* '^[A-Za-z][A-Za-z0-9\.\-_]{2,15}$'),
-  password VARCHAR(60) NOT NULL
-    CHECK (LENGTH(password) >= 6),
+  password VARCHAR(200) NOT NULL,
   image BYTEA,
   image_mimetype VARCHAR(100),
   banned BOOLEAN,

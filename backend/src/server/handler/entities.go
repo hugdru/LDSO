@@ -13,17 +13,18 @@ import (
 	"server/handler/helpers"
 	"strconv"
 	"time"
+	"strings"
 )
 
 const maxMultipartSize = 32 << 20
 const maxImageFileSize = 16 << 20
 
-type CookieData struct {
-	id       int64
-	username string
-	email    string
-	name     string
-	country  string
+type SessionData struct {
+	Id       int64
+	Username string
+	Email    string
+	Name     string
+	Country  string
 }
 
 var acceptedImageTypes = map[string]bool{
@@ -35,10 +36,10 @@ var acceptedImageTypes = map[string]bool{
 const EntityKey = "entity"
 
 func (h *Handler) entitiesRoutes(router chi.Router) {
-	gob.Register(CookieData{})
-	router.Get("/login", helpers.ReplyJson(h.login))
+	gob.Register(SessionData{})
+	router.Post("/login", helpers.ReplyJson(h.login))
 	router.Get("/logout", helpers.ReplyJson(h.logout))
-	router.Get("/register", helpers.ReplyJson(h.register))
+	router.Post("/register", helpers.ReplyJson(h.register))
 }
 
 func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
@@ -49,7 +50,8 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 		Password string `json:"password"`
 	}
 
-	switch r.Header.Get("Content-type") {
+	contentType := strings.Split(r.Header.Get("Content-type"), ";")[0]
+	switch contentType {
 	case "application/json":
 		decoder := json.NewDecoder(r.Body)
 		if decoder == nil {
@@ -98,32 +100,40 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !setSession(entity, w, r) {
+	sessionData := setSession(entity, w, r)
+	if sessionData == nil {
 		return
 	}
+
+	sessionDataSlice, err := json.Marshal(sessionData)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 500)
+		return
+	}
+	w.Write(sessionDataSlice)
 }
 
-func setSession(entity *datastore.Entity, w http.ResponseWriter, r *http.Request) bool {
+func setSession(entity *datastore.Entity, w http.ResponseWriter, r *http.Request) *SessionData {
 	// Preventing session fixation
 	err := session.RegenerateToken(r)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
-		return false
+		return nil
 	}
 
-	cookieData := &CookieData{
-		id:       entity.Id,
-		username: entity.Username,
-		email:    entity.Email,
-		name:     entity.Username,
-		country:  entity.Country.Name}
+	sessionData := &SessionData{
+		Id:       entity.Id,
+		Username: entity.Username,
+		Email:    entity.Email,
+		Name:     entity.Username,
+		Country:  entity.Country.Name}
 
-	err = session.PutObject(r, EntityKey, cookieData)
+	err = session.PutObject(r, EntityKey, sessionData)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
-		return false
+		return nil
 	}
-	return true
+	return sessionData
 }
 
 func (h *Handler) logout(w http.ResponseWriter, r *http.Request) {
@@ -154,7 +164,8 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 		imageMime   string
 	}
 
-	switch r.Header.Get("Content-type") {
+	contentType := strings.Split(r.Header.Get("Content-type"), ";")[0]
+	switch contentType {
 	case "multipart/form-data":
 		postIdCountry, err := strconv.ParseInt(r.PostFormValue("idCountry"), 10, 64)
 		if err != nil {
@@ -172,7 +183,7 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 		if err == nil {
 			defer mFile.Close()
 
-			imageContentType := mFileHeader.Header.Get("Content-type")
+			imageContentType := strings.Split(mFileHeader.Header.Get("Content-type"), ";")[0]
 			if !acceptedImageTypes[imageContentType] {
 				http.Error(w, helpers.Error("Gif, jpeg or png image"), 400)
 				return
@@ -187,22 +198,19 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			input.imageMime = imageContentType
-			imageContentLengthStr := mFileHeader.Header.Get("Content-Length")
-			imageContentLength, err := strconv.ParseInt(imageContentLengthStr, 10, 64)
-			if err != nil {
-				http.Error(w, helpers.Error(err.Error()), 400)
-				return
-			}
-			if imageContentLength > maxImageFileSize {
-				http.Error(w, helpers.Error("image is too big, max: "+strconv.FormatInt(maxImageFileSize, 10))+" bytes", 400)
-				return
-			}
+
 
 			input.imageBytes, err = ioutil.ReadAll(mFile)
 			if err != nil {
 				http.Error(w, helpers.Error(err.Error()), 400)
 				return
 			}
+
+			if len(input.imageBytes) > maxImageFileSize {
+				http.Error(w, helpers.Error("image is too big, max: "+strconv.FormatInt(maxImageFileSize, 10))+" bytes", 400)
+				return
+			}
+
 		} else if err != http.ErrMissingFile {
 			http.Error(w, helpers.Error(err.Error()), 500)
 			return
@@ -258,4 +266,7 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
 	}
+
+	response := []byte(`{"id":"` + strconv.FormatInt(entity.Id, 10) + "}")
+	w.Write(response)
 }

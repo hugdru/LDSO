@@ -242,12 +242,13 @@ func (ds *Datastore) CheckEntityExists(filter map[string]string) (bool, error) {
 	query := `SELECT id ` +
 		`FROM places4all.entity ` +
 		where
+	query = ds.postgres.Rebind(query)
 
 	p := AEntity(false)
 	p.SetExists()
 
 	var id int64
-	err := ds.postgres.QueryRow(query, values).Scan(&id)
+	err := ds.postgres.QueryRow(query, values...).Scan(&id)
 	if err == nil {
 		return true, nil
 	} else if err == sql.ErrNoRows {
@@ -260,12 +261,14 @@ func (ds *Datastore) CheckEntityExists(filter map[string]string) (bool, error) {
 func (ds *Datastore) GetEntity(filter map[string]string) (*Entity, error) {
 	where, values := generators.GenerateAndSearchClause(filter)
 	sql := `SELECT ` +
-		`id, id_country, name, email, username, password, image, image_mimetype, banned, banned_date, reason, mobilephone, telephone, created_date, country.id, country.name, country.iso2` +
-		`JOIN country ON country.id = entity.id_country ` +
+		`entity.id, entity.id_country, entity.name, entity.email, entity.username, entity.password, entity.image, entity.image_mimetype, entity.banned, entity.banned_date, entity.reason, entity.mobilephone, entity.telephone, entity.created_date, country.id, country.name, country.iso2 ` +
 		`FROM places4all.entity ` +
+		`JOIN places4all.country ON country.id = entity.id_country ` +
 		where
+	sql = ds.postgres.Rebind(sql)
 
-	p := AEntity(false)
+	p := AEntity(true)
+	p.Country.SetExists()
 	p.SetExists()
 
 	err := ds.postgres.QueryRow(sql, values...).Scan(
