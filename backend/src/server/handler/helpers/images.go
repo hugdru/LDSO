@@ -1,16 +1,15 @@
 package helpers
 
 import (
-	"net/http"
-	"io/ioutil"
 	"errors"
+	"io/ioutil"
+	"net/http"
 	"strconv"
 )
 
 const MaxImageFileSize = 16 << 20
 
-
-var acceptedImageTypes = map[string]bool {
+var acceptedImageTypes = map[string]bool{
 	"image/gif":  true,
 	"image/png":  true,
 	"image/jpeg": true,
@@ -42,9 +41,8 @@ func ReadImage(r *http.Request, imageName string, maxImageSize int) ([]byte, str
 	}
 
 	if len(imageBytes) > maxImageSize {
-		return nil, "", errors.New("image is too big, max: "+strconv.Itoa(maxImageSize)+" bytes")
+		return nil, "", errors.New("image is too big, max: " + strconv.Itoa(maxImageSize) + " bytes")
 	}
 
 	return imageBytes, imageMime, nil
 }
-
