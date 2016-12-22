@@ -11,7 +11,7 @@ type Handler struct {
 }
 
 func (h *Handler) Init(mux *chi.Mux) {
-	sessionData.GobRegister()
+	sessionData.Init()
 	mux.Route("/countries", h.countriesRoutes)
 	mux.Route("/properties", h.propertiesRoutes)
 	mux.Route("/addresses", h.addressesRoutes)

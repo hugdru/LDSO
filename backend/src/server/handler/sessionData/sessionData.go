@@ -1,30 +1,27 @@
 package sessionData
 
 import (
-	"encoding/gob"
-	"github.com/alexedwards/scs/session"
-	"net/http"
 	"server/datastore"
+	"net/http"
+	"github.com/alexedwards/scs/session"
+	"encoding/gob"
 )
 
 const EntityKey = "entity"
 
-func GobRegister() {
-	gob.Register(EntitySessionData{})
+func Init() {
+	gob.Register(SessionData{})
 }
 
-type EntitySessionData struct {
+type SessionData struct {
 	Id       int64
 	Username string
 	Email    string
 	Name     string
-	IdCountry int64
 	Country  string
-	Role string
 }
 
-func SetSessionData(entity *datastore.Entity, roleInterface interface{},
-	w http.ResponseWriter, r *http.Request) *EntitySessionData {
+func SetSessionData(entity *datastore.Entity, w http.ResponseWriter, r *http.Request) *SessionData {
 	// Preventing session fixation
 	err := session.RegenerateToken(r)
 	if err != nil {
@@ -32,29 +29,12 @@ func SetSessionData(entity *datastore.Entity, roleInterface interface{},
 		return nil
 	}
 
-	sessionData := &EntitySessionData{
+	sessionData := &SessionData{
 		Id:       entity.Id,
 		Username: entity.Username,
 		Email:    entity.Email,
 		Name:     entity.Username,
-		IdCountry: entity.IdCountry,
-		Country:  entity.Country.Name,
-		Role: "",
-	}
-
-	//switch userRole := userRoleInterface.(type) {
-	switch roleInterface.(type) {
-	case *datastore.Superadmin:
-		sessionData.Role = "superadmin"
-	case *datastore.Localadmin:
-		sessionData.Role = "localadmin"
-	case *datastore.Auditor:
-		sessionData.Role = "auditor"
-	case *datastore.Client:
-		sessionData.Role = "client"
-	default:
-		return nil
-	}
+		Country:  entity.Country.Name}
 
 	err = session.PutObject(r, EntityKey, sessionData)
 	if err != nil {
