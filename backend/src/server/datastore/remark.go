@@ -13,6 +13,7 @@ type Remark struct {
 	IdCriterion        int64       `json:"idCriterion" db:"id_criterion"`
 	Observation        zero.String `json:"observation" db:"observation"`
 	Image              []byte      `json:"image" db:"image"`
+	ImageMineType     string      `json:"imageMineType" db:"image_mine_type"`
 
 	meta metadata.Metadata
 }
@@ -106,7 +107,7 @@ func (ds *Datastore) GetRemarkByAuditCriterionIds(idAudit int64, idCriterion int
 	r := RRemark(true)
 	r.SetExists()
 
-	err = ds.postgres.QueryRow(sql, idAudit, idCriterion, idRemark).Scan(
+	err = ds.postgres.QueryRow(sql, idRemark,idAudit,idCriterion).Scan(
 		&r.Id, &r.IdAudit, &r.IdCriterion, &r.Observation, &r.Image,
 	)
 
