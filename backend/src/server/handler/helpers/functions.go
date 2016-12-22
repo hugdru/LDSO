@@ -116,3 +116,29 @@ func getQueryArgs(args [][]string, r *http.Request, argsMustExist bool) map[stri
 	}
 	return filter
 }
+
+func GetContentType(rawContentType string) string {
+	if rawContentType == "" {
+		return rawContentType
+	}
+	return strings.Split(rawContentType, ";")[0]
+}
+
+func GetContentLength(rawContentLength string) int64 {
+	if rawContentLength == "" {
+		return -1
+	}
+	contentLength, err := strconv.ParseInt(rawContentLength, 10, 64)
+	if err != nil {
+		return -1
+	}
+	return contentLength
+}
+
+func ParseInt64(value string) (int64, error) {
+	return strconv.ParseInt(value, 10, 64)
+}
+
+func Int64ToString(n int64) string {
+	return strconv.FormatInt(n, 10)
+}

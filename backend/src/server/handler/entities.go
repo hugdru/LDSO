@@ -1,42 +1,23 @@
 package handler
 
 import (
-	"encoding/gob"
 	"encoding/json"
 	"github.com/alexedwards/scs/session"
 	"github.com/elithrar/simple-scrypt"
 	"github.com/pressly/chi"
 	"gopkg.in/guregu/null.v3/zero"
-	"io/ioutil"
 	"net/http"
 	"server/datastore"
 	"server/handler/helpers"
 	"strconv"
 	"time"
-	"strings"
+	"server/handler/sessionData"
 )
 
 const maxMultipartSize = 32 << 20
 const maxImageFileSize = 16 << 20
 
-type SessionData struct {
-	Id       int64
-	Username string
-	Email    string
-	Name     string
-	Country  string
-}
-
-var acceptedImageTypes = map[string]bool{
-	"image/gif":  true,
-	"image/png":  true,
-	"image/jpeg": true,
-}
-
-const EntityKey = "entity"
-
 func (h *Handler) entitiesRoutes(router chi.Router) {
-	gob.Register(SessionData{})
 	router.Post("/login", helpers.ReplyJson(h.login))
 	router.Get("/logout", helpers.ReplyJson(h.logout))
 	router.Post("/register", helpers.ReplyJson(h.register))
@@ -50,7 +31,7 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 		Password string `json:"password"`
 	}
 
-	contentType := strings.Split(r.Header.Get("Content-type"), ";")[0]
+	contentType := helpers.GetContentType(r.Header.Get("Content-type"))
 	switch contentType {
 	case "application/json":
 		decoder := json.NewDecoder(r.Body)
@@ -100,7 +81,7 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sessionData := setSession(entity, w, r)
+	sessionData := sessionData.SetSessionData(entity, w, r)
 	if sessionData == nil {
 		return
 	}
@@ -113,42 +94,18 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 	w.Write(sessionDataSlice)
 }
 
-func setSession(entity *datastore.Entity, w http.ResponseWriter, r *http.Request) *SessionData {
-	// Preventing session fixation
-	err := session.RegenerateToken(r)
-	if err != nil {
-		http.Error(w, err.Error(), 500)
-		return nil
-	}
-
-	sessionData := &SessionData{
-		Id:       entity.Id,
-		Username: entity.Username,
-		Email:    entity.Email,
-		Name:     entity.Username,
-		Country:  entity.Country.Name}
-
-	err = session.PutObject(r, EntityKey, sessionData)
-	if err != nil {
-		http.Error(w, err.Error(), 500)
-		return nil
-	}
-	return sessionData
-}
-
 func (h *Handler) logout(w http.ResponseWriter, r *http.Request) {
 	session.Destroy(w, r)
 }
 func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
-	contentLengthStr := r.Header.Get("Content-Length")
-	contentLength, err := strconv.ParseInt(contentLengthStr, 10, 64)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
+	contentLength := helpers.GetContentLength(r.Header.Get("Content-Length"))
+	if contentLength == -1 {
+		http.Error(w, helpers.Error("Invalid Content-Length header value"), http.StatusBadRequest)
 		return
 	}
 
 	if contentLength > maxMultipartSize {
-		http.Error(w, helpers.Error("data too big"), 400)
+		http.Error(w, helpers.Error("Data too big"), http.StatusBadRequest)
 		return
 	}
 
@@ -164,10 +121,10 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 		imageMime   string
 	}
 
-	contentType := strings.Split(r.Header.Get("Content-type"), ";")[0]
+	contentType := helpers.GetContentType(r.Header.Get("Content-type"))
 	switch contentType {
 	case "multipart/form-data":
-		postIdCountry, err := strconv.ParseInt(r.PostFormValue("idCountry"), 10, 64)
+		postIdCountry, err := helpers.ParseInt64(r.PostFormValue("idCountry"))
 		if err != nil {
 			http.Error(w, helpers.Error(err.Error()), 400)
 			return
@@ -179,39 +136,9 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 		input.Password = r.PostFormValue("password")
 		input.Mobilephone = r.PostFormValue("mobilephone")
 		input.Telephone = r.PostFormValue("telephone")
-		mFile, mFileHeader, err := r.FormFile("image")
-		if err == nil {
-			defer mFile.Close()
 
-			imageContentType := strings.Split(mFileHeader.Header.Get("Content-type"), ";")[0]
-			if !acceptedImageTypes[imageContentType] {
-				http.Error(w, helpers.Error("Gif, jpeg or png image"), 400)
-				return
-			}
-			mimetypeBuffer := make([]byte, 512)
-			if _, err = mFile.Read(mimetypeBuffer); err != nil {
-				http.Error(w, helpers.Error(err.Error()), 500)
-				return
-			}
-			if imageContentType != http.DetectContentType(mimetypeBuffer) {
-				http.Error(w, helpers.Error("Gif, jpeg or png image"), 400)
-				return
-			}
-			input.imageMime = imageContentType
-
-
-			input.imageBytes, err = ioutil.ReadAll(mFile)
-			if err != nil {
-				http.Error(w, helpers.Error(err.Error()), 400)
-				return
-			}
-
-			if len(input.imageBytes) > maxImageFileSize {
-				http.Error(w, helpers.Error("image is too big, max: "+strconv.FormatInt(maxImageFileSize, 10))+" bytes", 400)
-				return
-			}
-
-		} else if err != http.ErrMissingFile {
+		input.imageBytes, input.imageMime, err = helpers.ReadImage(r, "image", maxImageFileSize)
+		if err != nil && err != http.ErrMissingFile {
 			http.Error(w, helpers.Error(err.Error()), 500)
 			return
 		}
