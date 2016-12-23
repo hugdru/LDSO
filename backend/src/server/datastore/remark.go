@@ -13,7 +13,7 @@ type Remark struct {
 	IdCriterion        int64       `json:"idCriterion" db:"id_criterion"`
 	Observation        zero.String `json:"observation" db:"observation"`
 	Image              []byte      `json:"image" db:"image"`
-	ImageMineType     string      `json:"imageMineType" db:"image_mine_type"`
+	ImageMineType      zero.String      `json:"imageMineType" db:"image_mine_type"`
 
 	meta metadata.Metadata
 }
@@ -52,12 +52,12 @@ func (ds *Datastore) InsertRemark(r *Remark) error {
 	}
 
 	const sql = `INSERT INTO places4all.remark (` +
-		`id_audit, id_criterion, observation, image` +
+		`id_audit, id_criterion, observation, image, image_mine_type ` +
 		`) VALUES (` +
-		`$1, $2, $3 , $4 ` +
+		`$1, $2, $3, $4, $5 ` +
 		`)`
 
-	_, err := ds.postgres.Exec(sql, r.IdAudit, r.IdCriterion, r.Observation, r.Image)
+	_, err := ds.postgres.Exec(sql, r.IdAudit, r.IdCriterion, r.Observation, r.Image,r.ImageMineType)
 	if err != nil {
 		return err
 	}
@@ -78,12 +78,12 @@ func (ds *Datastore) UpdateRemark(r *Remark) error {
 	}
 
 	const sql = `UPDATE places4all.remark SET (` +
-		`observation, image` +
+		`observation, image, image_mine_type` +
 		`) = (` +
-		`$1, $2` +
-		`) WHERE id = $3`
+		`$1, $2, $3` +
+		`) WHERE id = $4 `
 
-	_, err := ds.postgres.Exec(sql, r.Observation, r.Image, r.Id)
+	_, err := ds.postgres.Exec(sql, r.Observation, r.Image,r.ImageMineType, r.Id)
 	return err
 }
 
@@ -101,14 +101,14 @@ func (ds *Datastore) GetRemarkByAuditCriterionIds(idAudit int64, idCriterion int
 	var err error
 
 	const sql = `SELECT
-		remark.id, remark.id_audit, remark.id_criterion, remark.observation, remark.image
+		remark.id, remark.id_audit, remark.id_criterion, remark.observation, remark.image, remark.image_mine_type FROM places4all.remark
 		WHERE remark.id = $1 and remark.id_audit=$2 and  remark.id_criterion=$3 `
 
 	r := RRemark(true)
 	r.SetExists()
 
 	err = ds.postgres.QueryRow(sql, idRemark,idAudit,idCriterion).Scan(
-		&r.Id, &r.IdAudit, &r.IdCriterion, &r.Observation, &r.Image,
+		&r.Id, &r.IdAudit, &r.IdCriterion, &r.Observation, &r.Image, &r.ImageMineType,
 	)
 
 	if err != nil {
@@ -123,8 +123,8 @@ func (ds *Datastore) GetRemarksByAuditCriterionIds(idAudit int64, idCriterion in
 	var err error
 
 	const sql = `SELECT
-		remark.id, remark.id_audit, remark.id_criterion, remark.observation, remark.image
-		WHERE remark.id_audit=$2 and  remark.id_criterion=$3 `
+		remark.id, remark.id_audit, remark.id_criterion, remark.observation, remark.image, remark.image_mine_type FROM places4all.remark
+		WHERE remark.id_audit=$1 and  remark.id_criterion=$2 `
 
 
 	rows, err := ds.postgres.Queryx(sql, idAudit, idCriterion)

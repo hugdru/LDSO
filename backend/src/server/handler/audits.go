@@ -10,11 +10,8 @@ import (
 	"strconv"
 	"time"
 	"fmt"
-	"os"
-	"io"
-	"mime/multipart"
-	"path/filepath"
 	"io/ioutil"
+	"strings"
 )
 
 func (h *Handler) auditsRoutes(router chi.Router) {
@@ -40,9 +37,9 @@ func (h *Handler) auditsRoutes(router chi.Router) {
 	//GET   /audits/:ida/criteria/:idc/remarks
 
 	router.Post("/:id/criteria/:idc/remarks", h.createCriterionRemark)
-	router.Get("/:ida/criteria/:idc/remarks/:idr/image", h.getCriterionRemark)
-	router.Get("/:ida/criteria/:idc/remarks/:idr", h.getCriterionRemark)
-	router.Get("/:ida/criteria/:idc/remarks", h.getCriterionRemarks)
+	router.Get("/:id/criteria/:idc/remarks/:idr/image", h.getCriterionRemark)
+	router.Get("/:id/criteria/:idc/remarks/:idr", h.getCriterionRemark)
+	router.Get("/:id/criteria/:idc/remarks", h.getCriterionRemarks)
 }
 func (h *Handler) getAudits(w http.ResponseWriter, r *http.Request) {
 
@@ -524,26 +521,28 @@ func (h *Handler) createCriterionRemark(w http.ResponseWriter, r *http.Request) 
 
 	idAudit, err := strconv.ParseInt(idAuditStr, 10, 64)
 	if err != nil{
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	idCriterion, err := strconv.ParseInt(idCriterionStr, 10, 64)
 	if err != nil{
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	//http://stackoverflow.com/questions/28940005/golang-get-multipart-form-data
 	//http://stackoverflow.com/questions/25225723/passing-a-image-from-a-html-form-to-go
 	err = r.ParseMultipartForm(24 * 1024)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	mFile, header, err := r.FormFile("file")
+
 	if err!= nil{
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
 	var buf []byte
 	buf, err = ioutil.ReadAll(mFile)
 	if err!= nil{
@@ -554,11 +553,9 @@ func (h *Handler) createCriterionRemark(w http.ResponseWriter, r *http.Request) 
 	fmt.Printf("ficheiro %v \n",mFile)
 	fmt.Printf("ficheiro %v \n",buf)
 	fmt.Printf("nome ficheiro %v \n",header.Filename)
+	ftype := strings.Split(header.Filename, ".")
+	fmt.Printf("nome ficheiro %v \n",ftype[1])
 	fmt.Printf("convert a imagem para bytes \n")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
 	//fmt.Fprintf(w, "Readbytes %v, Handler %v", buf, header.Filename)
 	//fmt.Printf("inicio do remarks \n")
 	//observation
@@ -571,7 +568,7 @@ func (h *Handler) createCriterionRemark(w http.ResponseWriter, r *http.Request) 
 	remark.IdCriterion = idCriterion
 	fmt.Printf("%v \n",idCriterion )
 	remark.Observation = zero.StringFrom(observation)
-	remark.ImageMineType ="jpg"
+	remark.ImageMineType =zero.StringFrom(ftype[1])
 
 	err =h.Datastore.InsertRemark(remark)
 	fmt.Printf("A gravar  \n")
@@ -581,14 +578,14 @@ func (h *Handler) createCriterionRemark(w http.ResponseWriter, r *http.Request) 
 	}
 	fmt.Printf("gravado \n")
 	//devolver o novo id do remarks
-	fmt.Fprintf(w, "Readbytes %v, Handler %v",remark.Id)
+	fmt.Fprintf(w, "Remark ID %v, ",remark.Id)
 }
 
 func (h *Handler) getCriterionRemark(w http.ResponseWriter, r *http.Request){
-//router.Get("/:ida/criteria/:idc/remarks/:idr/image", h.getCriterionRemark)
-//	router.Get("/:ida/criteria/:idc/remarks/:idr", h.getCriterionRemark)
+//router.Get("/:id/criteria/:idc/remarks/:idr/image", h.getCriterionRemark)
+//	router.Get("/:id/criteria/:idc/remarks/:idr", h.getCriterionRemark)
 
-	idAuditStr:= chi.URLParam(r, "ida")
+	idAuditStr:= chi.URLParam(r, "id")
 	idCriteriaStr := chi.URLParam(r, "idc")
 	idRemarkStr := chi.URLParam(r, "idr")
 
@@ -613,7 +610,15 @@ func (h *Handler) getCriterionRemark(w http.ResponseWriter, r *http.Request){
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
 	}
+	fmt.Println("passou1")
 	auditsCriteriaRemarks, err := h.Datastore.GetRemarkByAuditCriterionIds( idAudit, idCriterion, idRemark)
+	fmt.Println("passou2")
+	if err!=nil{
+		http.Error(w, helpers.Error(err.Error()),http.StatusBadRequest)
+		return
+	}
+	fmt.Println("passou3")
+	fmt.Fprintf(w, "%v,%v,%v",auditsCriteriaRemarks.Image,auditsCriteriaRemarks.ImageMineType,auditsCriteriaRemarks.Observation)
 //convert para json
 /*	auditsCriteriaRemarksSlice, err := json.Marshal(auditsCriteriaRemarks)
 	if err!=nil{
@@ -634,25 +639,24 @@ func (h *Handler) getCriterionRemark(w http.ResponseWriter, r *http.Request){
 
 	//para multiform data
 	//https://matt.aimonetti.net/posts/2013/07/01/golang-multipart-file-upload-example/
-	out, err := os.OpenFile("tempFile", os.O_RDWR | os.O_EXCL , 0644)
+/*	out, err := os.OpenFile("tempFile."+auditsCriteriaRemarks.ImageMineType, os.O_RDWR | os.O_EXCL , 0644)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	defer out.Close()
-
-	fmt.Fprintf(w, "Readbytes %v", out)
 	//http://stackoverflow.com/questions/22945486/golang-converting-image-image-to-byte
 	//leitura do ficheiro
 	_,err = out.Write(auditsCriteriaRemarks.Image)
-	writerMultiPart := multipart.NewWriter(w)
-	part, err := writerMultiPart.CreateFormFile("MultiFormFile", filepath.Base("/tempFiles"))
+*/
+/*	writerMultiPart := multipart.NewWriter(w)
+	part, err := writerMultiPart.CreateFormFile("tempFile."+auditsCriteriaRemarks.ImageMineType, "")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	_, err = io.Copy(part, out)
+//	_, err = io.Copy(part, out)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -677,46 +681,48 @@ func (h *Handler) getCriterionRemark(w http.ResponseWriter, r *http.Request){
 	if err!=nil{
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
-	}
+	}*/
 	//send a imagem com jpg/png/ e em binario
 
 }
 func (h *Handler) getCriterionRemarks(w http.ResponseWriter, r *http.Request){
+//router.Get("/:id/criteria/:idc/remarks", h.getCriterionRemarks)
 
+	idAuditsStr := chi.URLParam(r, "id")
+	idCriteriaStr := chi.URLParam(r, "idc")
+	fmt.Printf("%v \n",idAuditsStr)
+	fmt.Printf("%v \n",idCriteriaStr)
 
-	idAudits := chi.URLParam(r, "ida")
-	idCriteria := chi.URLParam(r, "idc")
-
-	idaudit, err := strconv.ParseInt(idAudits, 10, 64)
+	idAudit, err := strconv.ParseInt(idAuditsStr, 10, 64)
 	if err!=nil{
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
 	}
 
-	idcriterion, err := strconv.ParseInt(idCriteria, 10, 64)
+	idCriterion, err := strconv.ParseInt(idCriteriaStr, 10, 64)
 	if err!=nil{
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
 	}
-
-	auditsCriteriaRemarks, err := h.Datastore.GetRemarksByAuditCriterionIds(idaudit, idcriterion)
-
-
+	fmt.Printf("passo1 \n")
+	auditsCriteriaRemarks, err := h.Datastore.GetRemarksByAuditCriterionIds(idAudit, idCriterion)
+	if err!=nil{
+		http.Error(w, helpers.Error(err.Error()), 400)
+		return
+	}
+	fmt.Printf("passo2 \n")
 	auditsCriteriaRemarksSlice, err := json.Marshal(auditsCriteriaRemarks)
 	if err!=nil{
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
 	}
+	fmt.Printf("passo3 \n")
 	_, err = w.Write(auditsCriteriaRemarksSlice)
 	if err!=nil{
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
 	}
-	//****** https://github.com/gebi/go-fileupload-example/blob/master/main.go
-	//****** http://stackoverflow.com/questions/22945486/golang-converting-image-image-to-byte
-
-
-	//******
+	fmt.Printf("passo4 \n")
 
 
 
