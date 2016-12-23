@@ -12,6 +12,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"strings"
+	"os"
+	"io"
+	"mime/multipart"
+
+
 )
 
 func (h *Handler) auditsRoutes(router chi.Router) {
@@ -577,7 +582,7 @@ func (h *Handler) createCriterionRemark(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	fmt.Printf("gravado \n")
-	//devolver o novo id do remarks
+	//devolver o novo id do remarks est a mal
 	fmt.Fprintf(w, "Remark ID %v, ",remark.Id)
 }
 
@@ -618,7 +623,7 @@ func (h *Handler) getCriterionRemark(w http.ResponseWriter, r *http.Request){
 		return
 	}
 	fmt.Println("passou3")
-	fmt.Fprintf(w, "%v,%v,%v",auditsCriteriaRemarks.Image,auditsCriteriaRemarks.ImageMineType,auditsCriteriaRemarks.Observation)
+	//fmt.Fprintf(w, "%v,%v,%v",auditsCriteriaRemarks.Image,auditsCriteriaRemarks.ImageMineType,auditsCriteriaRemarks.Observation)
 //convert para json
 /*	auditsCriteriaRemarksSlice, err := json.Marshal(auditsCriteriaRemarks)
 	if err!=nil{
@@ -639,7 +644,7 @@ func (h *Handler) getCriterionRemark(w http.ResponseWriter, r *http.Request){
 
 	//para multiform data
 	//https://matt.aimonetti.net/posts/2013/07/01/golang-multipart-file-upload-example/
-/*	out, err := os.OpenFile("tempFile."+auditsCriteriaRemarks.ImageMineType, os.O_RDWR | os.O_EXCL , 0644)
+	out, err := os.OpenFile("tempFile."+ auditsCriteriaRemarks.ImageMineType.String, os.O_RDWR | os.O_EXCL , 0644)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -649,14 +654,14 @@ func (h *Handler) getCriterionRemark(w http.ResponseWriter, r *http.Request){
 	//http://stackoverflow.com/questions/22945486/golang-converting-image-image-to-byte
 	//leitura do ficheiro
 	_,err = out.Write(auditsCriteriaRemarks.Image)
-*/
-/*	writerMultiPart := multipart.NewWriter(w)
-	part, err := writerMultiPart.CreateFormFile("tempFile."+auditsCriteriaRemarks.ImageMineType, "")
+
+	writerMultiPart := multipart.NewWriter(w)
+	part, err := writerMultiPart.CreateFormFile("tempFile."+auditsCriteriaRemarks.ImageMineType.String, "")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-//	_, err = io.Copy(part, out)
+	_, err = io.Copy(part, out)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -681,8 +686,8 @@ func (h *Handler) getCriterionRemark(w http.ResponseWriter, r *http.Request){
 	if err!=nil{
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
-	}*/
-	//send a imagem com jpg/png/ e em binario
+	}
+	//dizer onde a imagem esta,
 
 }
 func (h *Handler) getCriterionRemarks(w http.ResponseWriter, r *http.Request){
