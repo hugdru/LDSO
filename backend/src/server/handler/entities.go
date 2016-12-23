@@ -97,6 +97,7 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) logout(w http.ResponseWriter, r *http.Request) {
 	session.Destroy(w, r)
 }
+
 func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 	contentLength := helpers.GetContentLength(r.Header.Get("Content-Length"))
 	if contentLength == -1 {
@@ -117,6 +118,7 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 		Password    string `json:"password"`
 		Mobilephone string `json:"mobilephone"`
 		Telephone   string `json:"telephone"`
+		Type 	    string `json:"type"`
 		imageBytes  []byte
 		imageMime   string
 	}
@@ -136,6 +138,7 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 		input.Password = r.PostFormValue("password")
 		input.Mobilephone = r.PostFormValue("mobilephone")
 		input.Telephone = r.PostFormValue("telephone")
+		input.Type = r.PostFormValue("type")
 
 		input.imageBytes, input.imageMime, err = helpers.ReadImage(r, "image", maxImageFileSize)
 		if err != nil && err != http.ErrMissingFile {
@@ -147,7 +150,7 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if input.IdCountry == 0 || input.Name == "" || input.Email == "" || input.Username == "" || input.Password == "" {
+	if input.IdCountry == 0 || input.Name == "" || input.Email == "" || input.Username == "" || input.Password == "" || input.Type == "" {
 		http.Error(w, helpers.Error("country, name, email, username, password are required"), 400)
 		return
 	}
@@ -190,6 +193,36 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 
 	err = h.Datastore.SaveEntity(entity)
 	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 500)
+		return
+	}
+
+	switch input.Type {
+	case "auditor":
+		auditor := datastore.NewAuditor(false)
+		auditor.IdEntity = entity.Id
+		err = h.Datastore.SaveAuditor(auditor)
+		if err != nil  {
+			http.Error(w, helpers.Error(err.Error()), 500)
+			return
+		}
+	case "client":
+		client := datastore.NewClient(false)
+		client.IdEntity = entity.Id
+		err = h.Datastore.SaveClient(client)
+		if err != nil  {
+			http.Error(w, helpers.Error(err.Error()), 500)
+			return
+		}
+	case "localAdmin":
+		localAdmin := datastore.NewLocalAdmin(false)
+		localAdmin.IdEntity = entity.Id
+		err = h.Datastore.SaveLocalAdmin(localAdmin)
+		if err != nil  {
+			http.Error(w, helpers.Error(err.Error()), 500)
+			return
+		}
+	default:
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
 	}
