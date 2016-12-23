@@ -9,7 +9,7 @@ import (
 
 const EntityKey = "entity"
 
-func Init() {
+func GobRegister() {
 	gob.Register(SessionData{})
 }
 
@@ -18,6 +18,7 @@ type SessionData struct {
 	Username string
 	Email    string
 	Name     string
+	IdCountry int64
 	Country  string
 }
 
@@ -34,6 +35,7 @@ func SetSessionData(entity *datastore.Entity, w http.ResponseWriter, r *http.Req
 		Username: entity.Username,
 		Email:    entity.Email,
 		Name:     entity.Username,
+		IdCountry: entity.IdCountry,
 		Country:  entity.Country.Name}
 
 	err = session.PutObject(r, EntityKey, sessionData)
