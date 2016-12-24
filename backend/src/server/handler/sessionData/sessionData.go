@@ -10,19 +10,21 @@ import (
 const EntityKey = "entity"
 
 func GobRegister() {
-	gob.Register(SessionData{})
+	gob.Register(EntitySessionData{})
 }
 
-type SessionData struct {
+type EntitySessionData struct {
 	Id       int64
 	Username string
 	Email    string
 	Name     string
 	IdCountry int64
 	Country  string
+	Role string
 }
 
-func SetSessionData(entity *datastore.Entity, w http.ResponseWriter, r *http.Request) *SessionData {
+func SetSessionData(entity *datastore.Entity, roleInterface interface{},
+	w http.ResponseWriter, r *http.Request) *EntitySessionData {
 	// Preventing session fixation
 	err := session.RegenerateToken(r)
 	if err != nil {
@@ -30,13 +32,29 @@ func SetSessionData(entity *datastore.Entity, w http.ResponseWriter, r *http.Req
 		return nil
 	}
 
-	sessionData := &SessionData{
+	sessionData := &EntitySessionData{
 		Id:       entity.Id,
 		Username: entity.Username,
 		Email:    entity.Email,
 		Name:     entity.Username,
 		IdCountry: entity.IdCountry,
-		Country:  entity.Country.Name}
+		Country:  entity.Country.Name,
+		Role: "",
+	}
+
+	//switch userRole := userRoleInterface.(type) {
+	switch roleInterface.(type) {
+	case *datastore.Superadmin:
+		sessionData.Role = "superadmin"
+	case *datastore.Localadmin:
+		sessionData.Role = "localadmin"
+	case *datastore.Auditor:
+		sessionData.Role = "auditor"
+	case *datastore.Client:
+		sessionData.Role = "client"
+	default:
+		return nil
+	}
 
 	err = session.PutObject(r, EntityKey, sessionData)
 	if err != nil {

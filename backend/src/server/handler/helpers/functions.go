@@ -80,16 +80,16 @@ func PaginationParse(r *http.Request) (int, int, error) {
 	return limit, offset, nil
 }
 
-func GetQueryArgs(args [][]string, r *http.Request) map[string]string {
+func GetQueryArgs(args [][]string, r *http.Request) map[string]interface{} {
 	return getQueryArgs(args, r, false)
 }
 
-func GetQueryArgsStrict(args [][]string, r *http.Request) map[string]string {
+func GetQueryArgsStrict(args [][]string, r *http.Request) map[string]interface{} {
 	return getQueryArgs(args, r, true)
 }
 
-func getQueryArgs(args [][]string, r *http.Request, argsMustExist bool) map[string]string {
-	filter := make(map[string]string)
+func getQueryArgs(args [][]string, r *http.Request, argsMustExist bool) map[string]interface{} {
+	filter := make(map[string]interface{})
 	for _, names := range args {
 		namesLength := len(names)
 		switch namesLength {
