@@ -153,32 +153,25 @@ func (ds *Datastore) DeleteProperty(p *Property) error {
 }
 
 func (ds *Datastore) GetPropertyAddress(p *Property) (*Address, error) {
-	return ds.GetAddressById(p.IdAddress)
+	return ds.GetAddressByIdWithForeign(p.IdAddress)
 }
 
 func (ds *Datastore) GetPropertyById(id int64) (*Property, error) {
 
 	p := NewProperty(false)
-	p.Address = NewAddress(true)
-	err := ds.postgres.QueryRow(`SELECT `+
-		`p.id, p.id_address, p.name, p.details, p.created_date, address.id, address.id_country, `+
-		`address.address_line1, address.address_line2, address.address_line3, `+
-		`address.town_city, address.county, address.postcode, `+
-		`address.latitude, address.longitude, country.id, `+
-		`country.name, country.iso2 `+
-		`FROM places4all.property AS p `+
-		`JOIN places4all.address ON address.id = p.id_address `+
-		`JOIN places4all.country ON country.id = address.id_country `+
-		`WHERE p.id = $1; `,
-		id).Scan(&p.Id, &p.IdAddress, &p.Name, &p.Details, &p.CreatedDate, &p.Address.Id, &p.Address.IdCountry,
-		&p.Address.AddressLine1, &p.Address.AddressLine2, &p.Address.AddressLine3,
-		&p.Address.TownCity, &p.Address.County, &p.Address.Postcode,
-		&p.Address.Latitude, &p.Address.Longitude, &p.Address.Country.Id,
-		&p.Address.Country.Name, &p.Address.Country.Iso2)
+	err := ds.postgres.QueryRowx(`SELECT `+
+		`p.id, p.id_address, p.name, p.details, p.created_date ` +
+		`FROM places4all.property as p `+
+		`WHERE p.id = $1`,
+		id).StructScan(p)
 	if err != nil {
 		return nil, err
 	}
 
+	p.Address, err = ds.GetAddressByIdWithForeign(p.IdAddress)
+	if err != nil {
+		return nil, err
+	}
 	p.Tags, err = ds.GetPropertyTagByIdProperty(p.Id)
 	if err != nil {
 		return nil, err
@@ -191,7 +184,7 @@ func (ds *Datastore) GetPropertyById(id int64) (*Property, error) {
 	return p, err
 }
 
-func (ds *Datastore) GetProperties(limit, offset int, filter map[string]string) ([]*Property, error) {
+func (ds *Datastore) GetProperties(limit, offset int, filter map[string]interface{}) ([]*Property, error) {
 
 	where, values := generators.GenerateAndSearchClause(filter)
 

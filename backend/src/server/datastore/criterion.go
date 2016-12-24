@@ -204,7 +204,7 @@ func (ds *Datastore) GetCriterionById(id int64) (*Criterion, error) {
 func (ds *Datastore) GetCriteriaBySubgroupId(idSubgroup int64) ([]*Criterion, error) {
 	criteria := make([]*Criterion, 0)
 	rows, err := ds.postgres.Queryx(
-		`SELECT criterion.id, criterion.id_subgroup, criterion.id_legislation, criterion.name, criterion.weight,criterion.created_date `+
+		`SELECT criterion.id, criterion.id_subgroup, criterion.id_legislation, criterion.name, criterion.weight, criterion.created_date `+
 			`FROM places4all.criterion `+
 			`WHERE criterion.id_subgroup = $1`, idSubgroup)
 	if err != nil {
@@ -244,7 +244,7 @@ func (ds *Datastore) GetCriteriaBySubgroupId(idSubgroup int64) ([]*Criterion, er
 	return criteria, err
 }
 
-func (ds *Datastore) GetCriteria(limit, offset int, filter map[string]string) ([]*Criterion, error) {
+func (ds *Datastore) GetCriteria(limit, offset int, filter map[string]interface{}) ([]*Criterion, error) {
 
 	where, values := generators.GenerateAndSearchClause(filter)
 

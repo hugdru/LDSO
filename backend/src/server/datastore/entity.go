@@ -1,7 +1,6 @@
 package datastore
 
 import (
-	"database/sql"
 	"errors"
 	"gopkg.in/guregu/null.v3/zero"
 	"server/datastore/generators"
@@ -60,9 +59,9 @@ func (p *Entity) Deleted() bool {
 	return p.meta.Deleted
 }
 
-func (ds *Datastore) InsertEntity(p *Entity) error {
+func (ds *Datastore) InsertEntity(e *Entity) error {
 
-	if p.Exists() {
+	if e.Exists() {
 		return errors.New("insert failed: already exists")
 	}
 
@@ -72,24 +71,24 @@ func (ds *Datastore) InsertEntity(p *Entity) error {
 		`$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13` +
 		`) RETURNING id`
 
-	err := ds.postgres.QueryRow(sql, p.IdCountry, p.Name, p.Email, p.Username, p.Password, p.Image, p.ImageMimetype, p.Banned, p.BannedDate, p.Reason, p.Mobilephone, p.Telephone, p.CreatedDate).Scan(&p.Id)
+	err := ds.postgres.QueryRow(sql, e.IdCountry, e.Name, e.Email, e.Username, e.Password, e.Image, e.ImageMimetype, e.Banned, e.BannedDate, e.Reason, e.Mobilephone, e.Telephone, e.CreatedDate).Scan(&e.Id)
 	if err != nil {
 		return err
 	}
 
-	p.SetExists()
+	e.SetExists()
 
 	return err
 }
 
-func (ds *Datastore) UpdateEntity(p *Entity) error {
+func (ds *Datastore) UpdateEntity(e *Entity) error {
 	var err error
 
-	if !p.Exists() {
+	if !e.Exists() {
 		return errors.New("update failed: does not exist")
 	}
 
-	if p.Deleted() {
+	if e.Deleted() {
 		return errors.New("update failed: marked for deletion")
 	}
 
@@ -99,16 +98,16 @@ func (ds *Datastore) UpdateEntity(p *Entity) error {
 		`$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13` +
 		`) WHERE id = $14`
 
-	_, err = ds.postgres.Exec(sql, p.IdCountry, p.Name, p.Email, p.Username, p.Password, p.Image, p.ImageMimetype, p.Banned, p.BannedDate, p.Reason, p.Mobilephone, p.Telephone, p.CreatedDate, p.Id)
+	_, err = ds.postgres.Exec(sql, e.IdCountry, e.Name, e.Email, e.Username, e.Password, e.Image, e.ImageMimetype, e.Banned, e.BannedDate, e.Reason, e.Mobilephone, e.Telephone, e.CreatedDate, e.Id)
 	return err
 }
 
-func (ds *Datastore) SaveEntity(p *Entity) error {
-	if p.Exists() {
-		return ds.UpdateEntity(p)
+func (ds *Datastore) SaveEntity(e *Entity) error {
+	if e.Exists() {
+		return ds.UpdateEntity(e)
 	}
 
-	return ds.InsertEntity(p)
+	return ds.InsertEntity(e)
 }
 
 func (ds *Datastore) UpsertEntity(p *Entity) error {
@@ -137,30 +136,30 @@ func (ds *Datastore) UpsertEntity(p *Entity) error {
 	return err
 }
 
-func (ds *Datastore) DeleteEntity(p *Entity) error {
+func (ds *Datastore) DeleteEntity(e *Entity) error {
 
-	if !p.Exists() {
+	if !e.Exists() {
 		return nil
 	}
 
-	if p.Deleted() {
+	if e.Deleted() {
 		return nil
 	}
 
 	const sql = `DELETE FROM places4all.entity WHERE id = $1`
 
-	_, err := ds.postgres.Exec(sql, p.Id)
+	_, err := ds.postgres.Exec(sql, e.Id)
 	if err != nil {
 		return err
 	}
 
-	p.SetDeleted()
+	e.SetDeleted()
 
 	return err
 }
 
-func (ds *Datastore) GetEntityCountry(p *Entity) (*Country, error) {
-	return ds.GetCountryById(p.IdCountry)
+func (ds *Datastore) GetEntityCountry(e *Entity) (*Country, error) {
+	return ds.GetCountryById(e.IdCountry)
 }
 
 func (ds *Datastore) GetEntityByEmail(email string) (*Entity, error) {
@@ -170,15 +169,15 @@ func (ds *Datastore) GetEntityByEmail(email string) (*Entity, error) {
 		`FROM places4all.entity ` +
 		`WHERE email = $1`
 
-	p := AEntity(false)
-	p.SetExists()
+	e := AEntity(false)
+	e.SetExists()
 
-	err := ds.postgres.QueryRowx(sql, email).StructScan(&p)
+	err := ds.postgres.QueryRowx(sql, email).StructScan(&e)
 	if err != nil {
 		return nil, err
 	}
 
-	return &p, err
+	return &e, err
 }
 
 func (ds *Datastore) GetEntityById(id int64) (*Entity, error) {
@@ -188,15 +187,15 @@ func (ds *Datastore) GetEntityById(id int64) (*Entity, error) {
 		`FROM places4all.entity ` +
 		`WHERE id = $1`
 
-	p := AEntity(false)
-	p.SetExists()
+	e := AEntity(false)
+	e.SetExists()
 
-	err := ds.postgres.QueryRowx(sql, id).Scan(&p)
+	err := ds.postgres.QueryRowx(sql, id).StructScan(&e)
 	if err != nil {
 		return nil, err
 	}
 
-	return &p, err
+	return &e, err
 }
 
 func (ds *Datastore) GetEntityByUsername(username string) (*Entity, error) {
@@ -207,15 +206,15 @@ func (ds *Datastore) GetEntityByUsername(username string) (*Entity, error) {
 		`FROM places4all.entity ` +
 		`WHERE username = $1`
 
-	p := AEntity(false)
-	p.SetExists()
+	e := AEntity(false)
+	e.SetExists()
 
-	err = ds.postgres.QueryRowx(sql, username).StructScan(&p)
+	err = ds.postgres.QueryRowx(sql, username).StructScan(&e)
 	if err != nil {
 		return nil, err
 	}
 
-	return &p, err
+	return &e, err
 }
 func (ds *Datastore) GetEntityByUsernamePassword(username string, password string) (*Entity, error) {
 	var err error
@@ -225,76 +224,71 @@ func (ds *Datastore) GetEntityByUsernamePassword(username string, password strin
 		`FROM places4all.entity ` +
 		`WHERE username = $1 and password = $2`
 
-	p := AEntity(false)
-	p.SetExists()
+	e := AEntity(false)
+	e.SetExists()
 
-	err = ds.postgres.QueryRowx(sql, username, password).StructScan(&p)
+	err = ds.postgres.QueryRowx(sql, username, password).StructScan(&e)
 	if err != nil {
 		return nil, err
 	}
 
-	return &p, err
+	return &e, err
 }
 
-func (ds *Datastore) CheckEntityExists(filter map[string]string) (bool, error) {
+func (ds *Datastore) CheckEntityExists(filter map[string]interface{}) error {
 
 	where, values := generators.GenerateOrSearchClause(filter)
-	query := `SELECT id ` +
+	query := ds.postgres.Rebind(`SELECT id ` +
 		`FROM places4all.entity ` +
-		where
-	query = ds.postgres.Rebind(query)
+		where)
 
-	p := AEntity(false)
-	p.SetExists()
+	e := AEntity(false)
+	e.SetExists()
 
 	var id int64
-	err := ds.postgres.QueryRow(query, values...).Scan(&id)
-	if err == nil {
-		return true, nil
-	} else if err == sql.ErrNoRows {
-		return false, nil
-	}
-
-	return true, err
+	return ds.postgres.QueryRow(query, values...).Scan(&id)
 }
 
-func (ds *Datastore) GetEntity(filter map[string]string) (*Entity, error) {
+func (ds *Datastore) GetEntityWithForeign(filter map[string]interface{}) (*Entity, error) {
 	where, values := generators.GenerateAndSearchClause(filter)
-	sql := `SELECT ` +
-		`entity.id, entity.id_country, entity.name, entity.email, entity.username, entity.password, entity.image, entity.image_mimetype, entity.banned, entity.banned_date, entity.reason, entity.mobilephone, entity.telephone, entity.created_date, country.id, country.name, country.iso2 ` +
+	sql := ds.postgres.Rebind(`SELECT ` +
+		`entity.id, entity.id_country, entity.name, entity.email, entity.username, entity.password, entity.image, entity.image_mimetype, entity.banned, entity.banned_date, entity.reason, entity.mobilephone, entity.telephone, entity.created_date ` +
 		`FROM places4all.entity ` +
-		`JOIN places4all.country ON country.id = entity.id_country ` +
-		where
-	sql = ds.postgres.Rebind(sql)
+		where)
 
-	p := AEntity(true)
-	p.Country.SetExists()
-	p.SetExists()
+	e := AEntity(false)
 
-	err := ds.postgres.QueryRow(sql, values...).Scan(
-		&p.Id,
-		&p.IdCountry,
-		&p.Name,
-		&p.Email,
-		&p.Username,
-		&p.Password,
-		&p.Image,
-		&p.ImageMimetype,
-		&p.Banned,
-		&p.BannedDate,
-		&p.Reason,
-		&p.Mobilephone,
-		&p.Telephone,
-		&p.CreatedDate,
-		&p.Country.Id,
-		&p.Country.Name,
-		&p.Country.Iso2,
-	)
-	p.Country.SetExists()
-
+	err := ds.postgres.QueryRowx(sql, values...).StructScan(&e)
 	if err != nil {
 		return nil, err
 	}
 
-	return &p, err
+	e.Country, err = ds.GetCountryById(e.IdCountry)
+	if err != nil {
+		return nil, err
+	}
+
+	return &e, err
+}
+
+func (ds *Datastore) GetEntityByIdWithForeign(id int64) (*Entity, error) {
+	sql := ds.postgres.Rebind(`SELECT ` +
+		`entity.id, entity.id_country, entity.name, entity.email, entity.username, entity.password, entity.image, entity.image_mimetype, entity.banned, entity.banned_date, entity.reason, entity.mobilephone, entity.telephone, entity.created_date ` +
+		`FROM places4all.entity ` +
+		`WHERE id = ?`)
+
+	e := AEntity(false)
+	e.SetExists()
+
+	err := ds.postgres.QueryRowx(sql, id).StructScan(&e)
+	if err != nil {
+		return nil, err
+	}
+
+	e.Country, err = ds.GetCountryById(e.IdCountry)
+	if err != nil {
+		return nil, err
+	}
+
+	return &e, err
 }

@@ -92,6 +92,29 @@ func (ds *Datastore) SaveAuditCriterion(ac *AuditCriterion) error {
 
 	return ds.InsertAuditCriterion(ac)
 }
+
+func (ds *Datastore) DeleteAuditCriterion(ac *AuditCriterion) error {
+
+	if !ac.Exists() {
+		return nil
+	}
+
+	if ac.Deleted() {
+		return nil
+	}
+
+	sql := ds.postgres.Rebind(`DELETE FROM places4all.audit_criterion WHERE id_audit = ? AND id_criterion = ?`)
+
+	_, err := ds.postgres.Exec(sql, ac.IdAudit, ac.IdCriterion)
+	if err != nil {
+		return err
+	}
+
+	ac.SetDeleted()
+
+	return err
+}
+
 func (ds *Datastore) UpsertAuditCriterion(ac *AuditCriterion) error {
 
 	if ac.Exists() {
@@ -118,29 +141,7 @@ func (ds *Datastore) UpsertAuditCriterion(ac *AuditCriterion) error {
 	return err
 }
 
-func (ds *Datastore) DeleteAuditCriterion(ac *AuditCriterion) error {
-
-	if !ac.Exists() {
-		return nil
-	}
-
-	if ac.Deleted() {
-		return nil
-	}
-
-	const sql = `DELETE FROM places4all.audit_criterion WHERE id_audit = $1 AND id_criterion = $2`
-
-	_, err := ds.postgres.Exec(sql, ac.IdAudit, ac.IdCriterion)
-	if err != nil {
-		return err
-	}
-
-	ac.SetDeleted()
-
-	return err
-}
-
-func (ds *Datastore) DeleteAuditCriterionById(idAudit, idCriterion int64) error {
+func (ds *Datastore) DeleteAuditCriterionByIds(idAudit, idCriterion int64) error {
 	const sql = `DELETE FROM places4all.audit_criterion WHERE id_audit = $1 AND id_criterion = $2`
 
 	_, err := ds.postgres.Exec(sql, idAudit, idCriterion)
@@ -170,8 +171,7 @@ func (ds *Datastore) GetAuditCriterionCriterion(ac *AuditCriterion) (*Criterion,
 	return ds.GetCriterionById(ac.IdCriterion)
 }
 
-func (ds *Datastore) GetAuditCriterionById(idAudit, idCriterion int64) (*AuditCriterion, error) {
-	var err error
+func (ds *Datastore) GetAuditCriterionByIds(idAudit, idCriterion int64) (*AuditCriterion, error) {
 
 	const sql = `SELECT ` +
 		`id_audit, id_criterion, value, observation ` +
@@ -181,7 +181,7 @@ func (ds *Datastore) GetAuditCriterionById(idAudit, idCriterion int64) (*AuditCr
 	ac := AAuditCriterion(true)
 	ac.SetExists()
 
-	err = ds.postgres.QueryRowx(sql, idAudit, idCriterion).StructScan(&ac)
+	err := ds.postgres.QueryRowx(sql, idAudit, idCriterion).StructScan(&ac)
 	if err != nil {
 		return nil, err
 	}
@@ -189,14 +189,13 @@ func (ds *Datastore) GetAuditCriterionById(idAudit, idCriterion int64) (*AuditCr
 	return &ac, err
 }
 
-func (ds *Datastore) GetAuditCriteria(idAudit int64, filter map[string]string) ([]*AuditCriterion, error) {
+func (ds *Datastore) GetAuditCriteria(filter map[string]interface{}) ([]*AuditCriterion, error) {
 
 	where, values := generators.GenerateAndSearchClause(filter)
 
-	sql := `SELECT id_audit, id_criterion, value, observation ` +
+	sql := ds.postgres.Rebind(`SELECT id_audit, id_criterion, value, observation ` +
 		`FROM places4all.audit_criterion ` +
-		where
-	sql = ds.postgres.Rebind(sql)
+		where)
 
 	rows, err := ds.postgres.Queryx(sql, values...)
 	if err != nil {
@@ -205,12 +204,13 @@ func (ds *Datastore) GetAuditCriteria(idAudit int64, filter map[string]string) (
 
 	auditCriteria := make([]*AuditCriterion, 0)
 	for rows.Next() {
-		AuditCriterion := NewAuditCriterion(false)
-		err := rows.StructScan(AuditCriterion)
+		auditCriterion := NewAuditCriterion(false)
+		auditCriterion.SetExists()
+		err := rows.StructScan(auditCriterion)
 		if err != nil {
 			return nil, err
 		}
-		auditCriteria = append(auditCriteria, AuditCriterion)
+		auditCriteria = append(auditCriteria, auditCriterion)
 		if err != nil {
 			return nil, err
 		}

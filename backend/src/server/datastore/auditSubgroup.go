@@ -7,8 +7,8 @@ import (
 )
 
 type AuditSubgroup struct {
-	IdAudit    int64 `json:"id_audit" db:"id_audit"`
-	IdSubgroup int64 `json:"id_subgroup" db:"id_subgroup"`
+	IdAudit    int64 `json:"idAudit" db:"id_audit"`
+	IdSubgroup int64 `json:"idSubgroup" db:"id_subgroup"`
 
 	meta metadata.Metadata
 }
@@ -111,19 +111,17 @@ func (ds *Datastore) GetAuditSubgroupById(idAudit, idSubgroup int64) (*AuditSubg
 	return &ac, err
 }
 
-func (ds *Datastore) GetAuditSubgroupsByIdAudit(idAudit int64, filter map[string]string) ([]int64, error) {
+func (ds *Datastore) GetAuditSubgroupsByIdAudit(idAudit int64, filter map[string]interface{}) ([]int64, error) {
 
 	where, values := generators.GenerateAndSearchClause(filter)
 
-	sql := `SELECT ` +
+	sql := ds.postgres.Rebind(`SELECT ` +
 		`id_subgroup ` +
 		`FROM places4all.audit_subgroup ` +
 		where +
-		`WHERE id_audit = $1`
-	sql = ds.postgres.Rebind(sql)
-	values = append(values, idAudit)
+		`WHERE id_audit = $1`)
 
-	rows, err := ds.postgres.Queryx(sql, values...)
+	rows, err := ds.postgres.Queryx(sql, append(values, idAudit)...)
 	if err != nil {
 		return nil, err
 	}

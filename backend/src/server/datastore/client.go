@@ -6,7 +6,6 @@ import (
 )
 
 type Client struct {
-	Id       int64 `json:"id" db:"id"`
 	IdEntity int64 `json:"IdEntity" db:"id_entity"`
 
 	// Objects
@@ -54,9 +53,9 @@ func (ds *Datastore) InsertClient(c *Client) error {
 		`id_entity` +
 		`) VALUES (` +
 		`$1` +
-		`) RETURNING id`
+		`)`
 
-	err := ds.postgres.QueryRow(sql, c.IdEntity).Scan(&c.Id)
+	_, err := ds.postgres.Exec(sql, c.IdEntity)
 	if err != nil {
 		return err
 	}
@@ -68,22 +67,23 @@ func (ds *Datastore) InsertClient(c *Client) error {
 
 func (ds *Datastore) UpdateClient(c *Client) error {
 
-	if !c.Exists() {
-		return errors.New("update failed: does not exist")
-	}
-
-	if c.Deleted() {
-		return errors.New("update failed: marked for deletion")
-	}
-
-	const sql = `UPDATE places4all.client SET (` +
-		`id_entity` +
-		`) = ( ` +
-		`$1` +
-		`) WHERE id = $2`
-
-	_, err := ds.postgres.Exec(sql, c.IdEntity, c.Id)
-	return err
+	//if !c.Exists() {
+	//	return errors.New("update failed: does not exist")
+	//}
+	//
+	//if c.Deleted() {
+	//	return errors.New("update failed: marked for deletion")
+	//}
+	//
+	//const sql = `UPDATE places4all.client SET (` +
+	//	`id_entity` +
+	//	`) = ( ` +
+	//	`$1` +
+	//	`) WHERE id = $2`
+	//
+	//_, err := ds.postgres.Exec(sql, c.IdEntity, c.Id)
+	//return err
+	return errors.New("NOT IMPLEMENTED");
 }
 
 func (ds *Datastore) SaveClient(c *Client) error {
@@ -93,30 +93,32 @@ func (ds *Datastore) SaveClient(c *Client) error {
 
 	return ds.InsertClient(c)
 }
+
 func (ds *Datastore) UpsertClient(c *Client) error {
 
-	if c.Exists() {
-		return errors.New("insert failed: already exists")
-	}
-
-	const sql = `INSERT INTO places4all.client (` +
-		`id, id_entity` +
-		`) VALUES (` +
-		`$1, $2` +
-		`) ON CONFLICT (id) DO UPDATE SET (` +
-		`id, id_entity` +
-		`) = (` +
-		`EXCLUDED.id, EXCLUDED.id_entity` +
-		`)`
-
-	_, err := ds.postgres.Exec(sql, c.Id, c.IdEntity)
-	if err != nil {
-		return err
-	}
-
-	c.SetExists()
-
-	return err
+	//if c.Exists() {
+	//	return errors.New("insert failed: already exists")
+	//}
+	//
+	//const sql = `INSERT INTO places4all.client (` +
+	//	`id_entity` +
+	//	`) VALUES (` +
+	//	`$1` +
+	//	`) ON CONFLICT (id_entity) DO UPDATE SET (` +
+	//	`id_entity` +
+	//	`) = (` +
+	//	`EXCLUDED.id_entity` +
+	//	`)`
+	//
+	//_, err := ds.postgres.Exec(sql, c.IdEntity)
+	//if err != nil {
+	//	return err
+	//}
+	//
+	//c.SetExists()
+	//
+	//return err
+	return errors.New("NOT IMPLEMENTED");
 }
 
 func (ds *Datastore) DeleteClient(c *Client) error {
@@ -129,9 +131,9 @@ func (ds *Datastore) DeleteClient(c *Client) error {
 		return nil
 	}
 
-	const sql = `DELETE FROM places4all.client WHERE id = $1`
+	const sql = `DELETE FROM places4all.client WHERE id_entity = $1`
 
-	_, err := ds.postgres.Exec(sql, c.Id)
+	_, err := ds.postgres.Exec(sql, c.IdEntity)
 	if err != nil {
 		return err
 	}
@@ -145,31 +147,34 @@ func (ds *Datastore) GetClientEntity(c *Client) (*Entity, error) {
 	return ds.GetEntityById(c.IdEntity)
 }
 
-func (ds *Datastore) GetClientById(id int64) (*Client, error) {
+func (ds *Datastore) GetClientByIdWithForeign(idEntity int64) (*Client, error) {
+	return ds.getClientById(idEntity, true)
+}
+
+func (ds *Datastore) GetClientById(idEntity int64) (*Client, error) {
+	return ds.getClientById(idEntity, false)
+}
+
+func (ds *Datastore) getClientById(idEntity int64, withForeign bool) (*Client, error) {
 
 	const sql = `SELECT ` +
-		`client.id, client.id_entity, ` +
-		`entity.id, entity.id_country, entity.name, entity.email, ` +
-		`entity.username, entity.password, entity.image, entity.banned, entity.banned_date, ` +
-		`entity.reason, entity.mobilephone, entity.telephone, entity.created_date, ` +
-		`country.id, country.name, country.iso2 ` +
+		`client.id_entity ` +
 		`FROM places4all.client ` +
-		`JOIN places4all.entity ON entity.id = client.id_entity ` +
-		`JOIN places4all.country ON country.id = entity.id_country ` +
-		`WHERE client.id = $1`
+		`WHERE client.id_entity = $1`
 
-	c := NewClient(true)
+	c := NewClient(false)
 	c.SetExists()
 
-	err := ds.postgres.QueryRow(sql, id).Scan(
-		&c.Id, &c.IdEntity,
-		&c.Entity.Id, &c.Entity.IdCountry, &c.Entity.Name, &c.Entity.Email,
-		&c.Entity.Username, &c.Entity.Password, &c.Entity.Image, &c.Entity.Banned, &c.Entity.BannedDate,
-		&c.Entity.Reason, &c.Entity.Mobilephone, &c.Entity.Telephone, &c.Entity.CreatedDate,
-		&c.Entity.Country.Id, &c.Entity.Country.Name, &c.Entity.Country.Iso2,
-	)
+	err := ds.postgres.QueryRowx(sql, idEntity).StructScan(c)
 	if err != nil {
 		return nil, err
+	}
+
+	if withForeign {
+		c.Entity, err = ds.GetEntityByIdWithForeign(c.IdEntity)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return c, err

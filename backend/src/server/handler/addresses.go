@@ -19,7 +19,7 @@ func (h *Handler) getAddress(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
 	}
-	address, err := h.Datastore.GetAddressById(id)
+	address, err := h.Datastore.GetAddressByIdWithForeign(id)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return

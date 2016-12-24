@@ -19,7 +19,7 @@ func (h *Handler) getClient(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
 	}
-	client, err := h.Datastore.GetClientById(id)
+	client, err := h.Datastore.GetClientByIdWithForeign(id)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return

@@ -178,7 +178,7 @@ func (ds *Datastore) GetMaingroupById(id int64) (*Maingroup, error) {
 	return &m, err
 }
 
-func (ds *Datastore) GetMaingroupsByTemplateId(idTemplate int64) ([]*Maingroup, error) {
+func (ds *Datastore) GetMaingroupsByTemplateIdWithSubgroups(idTemplate int64) ([]*Maingroup, error) {
 	maingroups := make([]*Maingroup, 0)
 	rows, err := ds.postgres.Queryx(
 		`SELECT maingroup.id, maingroup.id_template, maingroup.name, maingroup.weight, maingroup.created_date `+
@@ -204,7 +204,7 @@ func (ds *Datastore) GetMaingroupsByTemplateId(idTemplate int64) ([]*Maingroup, 
 	return maingroups, err
 }
 
-func (ds *Datastore) GetMaingroups(limit, offset int, filter map[string]string) ([]*Maingroup, error) {
+func (ds *Datastore) GetMaingroups(limit, offset int, filter map[string]interface{}) ([]*Maingroup, error) {
 
 	where, values := generators.GenerateAndSearchClause(filter)
 

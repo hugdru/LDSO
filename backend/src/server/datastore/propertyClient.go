@@ -136,7 +136,7 @@ func (ds *Datastore) DeletePropertyClient(pc *PropertyClient) error {
 }
 
 func (ds *Datastore) GetPropertyClientClient(pc *PropertyClient) (*Client, error) {
-	return ds.GetClientById(pc.IdClient)
+	return ds.GetClientByIdWithForeign(pc.IdClient)
 }
 
 func (ds *Datastore) GetPropertyClientProperty(pc *PropertyClient) (*Property, error) {
@@ -163,10 +163,10 @@ func (ds *Datastore) GetPropertyClientByIds(idProperty, idClient int64) (*Proper
 
 func (ds *Datastore) GetPropertyClientsByIdProperty(idProperty int64) ([]*Client, error) {
 
-	const sql = `SELECT client.id, client.id_entity, entity.id, entity.name, entity.username, entity.image ` +
+	const sql = `SELECT client.id_entity, entity.id, entity.name, entity.username, entity.image ` +
 		`FROM places4all.entity ` +
 		`JOIN places4all.client ON client.id_entity = entity.id ` +
-		`JOIN places4all.property_client ON property_client.id_client = client.id ` +
+		`JOIN places4all.property_client ON property_client.id_client = client.id_entity ` +
 		`WHERE property_client.id_property = $1`
 
 	rows, err := ds.postgres.Queryx(sql, idProperty)
@@ -179,7 +179,7 @@ func (ds *Datastore) GetPropertyClientsByIdProperty(idProperty int64) ([]*Client
 		client := NewClient(false)
 		client.Entity = NewEntity(false)
 		client.SetExists()
-		err := rows.Scan(&client.Id, &client.IdEntity, &client.Entity.Id, &client.Entity.Name, &client.Entity.Username, &client.Entity.Image)
+		err := rows.Scan(&client.IdEntity, &client.Entity.Id, &client.Entity.Name, &client.Entity.Username, &client.Entity.Image)
 		if err != nil {
 			return nil, err
 		}

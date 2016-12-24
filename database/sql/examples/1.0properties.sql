@@ -20,7 +20,7 @@ INSERT INTO entity(id_country, name, email, username, password, image, banned_da
   ((SELECT id FROM country where name='Portugal'), 'FC Porto', 'fcporto@fcporto.pt', 'fcporto', 'fcporto', NULL, NULL, NULL, NULL, NULL, '22 557 0400', '2016-11-25T14:46:26.680513Z'); -- 1
 
 INSERT INTO client(id_entity) VALUES
-  (1); -- 1
+  (1);
 
 INSERT INTO property_client(id_property, id_client) VALUES
   (1, 1);

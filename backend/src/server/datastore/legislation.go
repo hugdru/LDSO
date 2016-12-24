@@ -188,7 +188,7 @@ func (ds *Datastore) GetLegislationByName(name string) (*Legislation, error) {
 	return &l, err
 }
 
-func (ds *Datastore) GetLegislations(limit, offset int, filter map[string]string) ([]*Legislation, error) {
+func (ds *Datastore) GetLegislations(limit, offset int, filter map[string]interface{}) ([]*Legislation, error) {
 
 	where, values := generators.GenerateAndSearchClause(filter)
 
