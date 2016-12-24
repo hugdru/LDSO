@@ -7,7 +7,6 @@ import (
 )
 
 type Auditor struct {
-	Id       int64 `json:"id" db:"id"`
 	IdEntity int64 `json:"IdEntity" db:"id_entity"`
 
 	// Objects
@@ -54,9 +53,9 @@ func (ds *Datastore) InsertAuditor(a *Auditor) error {
 		`id_entity` +
 		`) VALUES (` +
 		`$1` +
-		`) RETURNING id`
+		`)`
 
-	err := ds.postgres.QueryRow(sql, a.IdEntity).Scan(&a.Id)
+	_, err := ds.postgres.Exec(sql, a.IdEntity)
 	if err != nil {
 		return err
 	}
@@ -68,22 +67,23 @@ func (ds *Datastore) InsertAuditor(a *Auditor) error {
 
 func (ds *Datastore) UpdateAuditor(a *Auditor) error {
 
-	if !a.Exists() {
-		return errors.New("update failed: does not exist")
-	}
-
-	if a.Deleted() {
-		return errors.New("update failed: marked for deletion")
-	}
-
-	const sql = `UPDATE places4all.auditor SET (` +
-		`id_entity` +
-		`) = ( ` +
-		`$1` +
-		`) WHERE id = $2`
-
-	_, err := ds.postgres.Exec(sql, a.IdEntity, a.Id)
-	return err
+	//if !a.Exists() {
+	//	return errors.New("update failed: does not exist")
+	//}
+	//
+	//if a.Deleted() {
+	//	return errors.New("update failed: marked for deletion")
+	//}
+	//
+	//const sql = `UPDATE places4all.auditor SET (` +
+	//	`` +
+	//	`) = ( ` +
+	//	`$1` +
+	//	`) WHERE id_entity = $2`
+	//
+	//_, err := ds.postgres.Exec(sql, a.IdEntity)
+	//return err
+	return errors.New("NOT IMPLEMENTED");
 }
 
 func (ds *Datastore) SaveAuditor(a *Auditor) error {
@@ -96,28 +96,29 @@ func (ds *Datastore) SaveAuditor(a *Auditor) error {
 
 func (ds *Datastore) UpsertAuditor(a *Auditor) error {
 
-	if a.Exists() {
-		return errors.New("insert failed: already exists")
-	}
-
-	const sql = `INSERT INTO places4all.auditor (` +
-		`id, id_entity` +
-		`) VALUES (` +
-		`$1, $2` +
-		`) ON CONFLICT (id) DO UPDATE SET (` +
-		`id, id_entity` +
-		`) = (` +
-		`EXCLUDED.id, EXCLUDED.id_entity` +
-		`)`
-
-	_, err := ds.postgres.Exec(sql, a.Id, a.IdEntity)
-	if err != nil {
-		return err
-	}
-
-	a.SetExists()
-
-	return err
+	//if a.Exists() {
+	//	return errors.New("insert failed: already exists")
+	//}
+	//
+	//const sql = `INSERT INTO places4all.auditor (` +
+	//	`id_entity` +
+	//	`) VALUES (` +
+	//	`$1` +
+	//	`) ON CONFLICT (id_entity) DO UPDATE SET (` +
+	//	`id_entity` +
+	//	`) = (` +
+	//	`EXCLUDED.id_entity` +
+	//	`)`
+	//
+	//_, err := ds.postgres.Exec(sql, a.IdEntity)
+	//if err != nil {
+	//	return err
+	//}
+	//
+	//a.SetExists()
+	//
+	//return err
+	return errors.New("NOT IMPLEMENTED");
 }
 
 func (ds *Datastore) DeleteAuditor(a *Auditor) error {
@@ -130,9 +131,9 @@ func (ds *Datastore) DeleteAuditor(a *Auditor) error {
 		return nil
 	}
 
-	const sql = `DELETE FROM places4all.auditor WHERE id = $1`
+	const sql = `DELETE FROM places4all.auditor WHERE id_entity = $1`
 
-	_, err := ds.postgres.Exec(sql, a.Id)
+	_, err := ds.postgres.Exec(sql, a.IdEntity)
 	if err != nil {
 		return err
 	}
@@ -146,46 +147,13 @@ func (ds *Datastore) GetAuditorEntity(a *Auditor) (*Entity, error) {
 	return ds.GetEntityById(a.IdEntity)
 }
 
-func (ds *Datastore) GetAuditorById(id int64) (*Auditor, error) {
-	var err error
-
-	const sql = `SELECT
-		auditor.id, auditor.id_entity,
-		entity.id, entity.id_country, entity.name, entity.email,
-		entity.username, entity.password, entity.image, entity.banned, entity.banned_date,
-		entity.reason, entity.mobilephone, entity.telephone, entity.created_date,
-		country.id, country.name, country.iso2
-		FROM places4all.auditor
-		JOIN places4all.entity  on entity.id   = auditor.id_entity
-		JOIN places4all.country on country.id =  entity.id_country
-		WHERE auditor.id = $1 `
-
-	a := AAuditor(true)
-	a.SetExists()
-
-	err = ds.postgres.QueryRow(sql, id).Scan(
-		&a.Id, &a.IdEntity,
-		&a.Entity.Id, &a.Entity.IdCountry, &a.Entity.Name, &a.Entity.Email,
-		&a.Entity.Username, &a.Entity.Password, &a.Entity.Image, &a.Entity.Banned, &a.Entity.BannedDate,
-		&a.Entity.Reason, &a.Entity.Mobilephone, &a.Entity.Telephone, &a.Entity.CreatedDate,
-		&a.Entity.Country.Id, &a.Entity.Country.Name, &a.Entity.Country.Iso2,
-	)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &a, err
-}
 func (ds *Datastore) GetAuditors(limit, offset int) ([]*Auditor, error) {
-	//nao retor a info da entity
-	rows, err := ds.postgres.Queryx(`SELECT ` +
-		`auditor.id, auditor.id_entity ` + //, entity.email, entity.username, entity.password, entity.created_date ` +
+
+	rows, err := ds.postgres.Queryx(ds.postgres.Rebind(`SELECT ` +
+		`auditor.id_entity ` +
 		`FROM places4all.auditor ` +
-		`JOIN places4all.entity on entity.id = auditor.id_entity ` +
-		//		`JOIN places4all.country on country.id = entity.id_country `+
-		`ORDER BY auditor.id DESC LIMIT ` + strconv.Itoa(limit) +
-		`OFFSET ` + strconv.Itoa(offset))
+		`ORDER BY auditor.id_entity DESC LIMIT ` + strconv.Itoa(limit) +
+		`OFFSET ` + strconv.Itoa(offset)))
 
 	if err != nil {
 		return nil, err
@@ -203,4 +171,37 @@ func (ds *Datastore) GetAuditors(limit, offset int) ([]*Auditor, error) {
 	}
 
 	return auditor, err
+}
+
+func (ds *Datastore) GetAuditorByIdWithForeign(idEntity int64) (*Auditor, error) {
+	return ds.getAuditorById(idEntity, true)
+}
+
+func (ds *Datastore) GetAuditorById(idEntity int64) (*Auditor, error) {
+	return ds.getAuditorById(idEntity, false)
+}
+
+func (ds *Datastore) getAuditorById(idEntity int64, withForeign bool) (*Auditor, error) {
+
+	sql := ds.postgres.Rebind(`SELECT ` +
+		`auditor.id_entity ` +
+		`FROM places4all.auditor ` +
+		`WHERE auditor.id_entity = $1`)
+
+	a := AAuditor(false)
+	a.SetExists()
+
+	err := ds.postgres.QueryRow(sql, idEntity).Scan(&a.IdEntity)
+	if err != nil {
+		return nil, err
+	}
+
+	if withForeign {
+		a.Entity, err = ds.GetEntityByIdWithForeign(idEntity)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &a, err
 }

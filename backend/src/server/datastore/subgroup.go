@@ -204,7 +204,7 @@ func (ds *Datastore) GetSubgroupsByMaingroupId(idMaingroup int64) ([]*Subgroup, 
 	return subgroups, err
 }
 
-func (ds *Datastore) GetSubgroups(limit, offset int, filter map[string]string) ([]*Subgroup, error) {
+func (ds *Datastore) GetSubgroups(limit, offset int, filter map[string]interface{}) ([]*Subgroup, error) {
 
 	where, values := generators.GenerateAndSearchClause(filter)
 

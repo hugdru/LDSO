@@ -177,7 +177,7 @@ func (ds *Datastore) GetTemplateById(id int64) (*Template, error) {
 	return &t, err
 }
 
-func (ds *Datastore) GetTemplates(limit, offset int, filter map[string]string) ([]*Template, error) {
+func (ds *Datastore) GetTemplates(limit, offset int, filter map[string]interface{}) ([]*Template, error) {
 
 	where, values := generators.GenerateAndSearchClause(filter)
 
@@ -201,7 +201,7 @@ func (ds *Datastore) GetTemplates(limit, offset int, filter map[string]string) (
 			return nil, err
 		}
 		templates = append(templates, template)
-		template.Maingroups, err = ds.GetMaingroupsByTemplateId(template.Id)
+		template.Maingroups, err = ds.GetMaingroupsByTemplateIdWithSubgroups(template.Id)
 		if err != nil {
 			return nil, err
 		}
@@ -221,7 +221,7 @@ func (ds *Datastore) GetTemplate(id int64) (*Template, error) {
 	if err != nil {
 		return nil, err
 	}
-	template.Maingroups, err = ds.GetMaingroupsByTemplateId(template.Id)
+	template.Maingroups, err = ds.GetMaingroupsByTemplateIdWithSubgroups(template.Id)
 	if err != nil {
 		return nil, err
 	}

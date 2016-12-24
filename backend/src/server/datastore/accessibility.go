@@ -89,7 +89,7 @@ func (ds *Datastore) UpsertAccessibility(a *Accessibility) error {
 
 	const sql = `INSERT INTO places4all.accessibility (id, name) ` +
 		`VALUES ($1, $2) ON CONFLICT (id) DO UPDATE SET ` +
-		`(id, name, description, image_url) = ` +
+		`(id, name) = ` +
 		`(EXCLUDED.id, EXCLUDED.name)`
 
 	_, err := ds.postgres.Exec(sql, a.Id, a.Name)
@@ -151,15 +151,14 @@ func (ds *Datastore) GetAccessibilityById(id int64) (*Accessibility, error) {
 	return &a, err
 }
 
-func (ds *Datastore) GetAccessibilities(limit, offset int, filter map[string]string) ([]*Accessibility, error) {
+func (ds *Datastore) GetAccessibilities(limit, offset int, filter map[string]interface{}) ([]*Accessibility, error) {
 
 	where, values := generators.GenerateAndSearchClause(filter)
 
-	sql := `SELECT ` +
+	sql := ds.postgres.Rebind(`SELECT ` +
 		`id, name ` +
 		`FROM places4all.accessibility ` +
-		where
-	sql = ds.postgres.Rebind(sql)
+		where)
 
 	rows, err := ds.postgres.Queryx(sql, values...)
 	if err != nil {
