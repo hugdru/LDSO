@@ -154,27 +154,22 @@ func (ds *Datastore) GetAddressCountry(a *Address) (*Country, error) {
 	return ds.GetCountryById(a.IdCountry)
 }
 
-func (ds *Datastore) GetAddressById(id int64) (*Address, error) {
+func (ds *Datastore) GetAddressByIdWithForeign(id int64) (*Address, error) {
 
-	const sql = `SELECT
-		address.id, address.id_country,
-		address.address_line1, address.address_line2, address.address_line3,
-		address.town_city, address.county, address.postcode,
-		address.latitude, address.longitude,
-		country.id, country.name, country.iso2
-		FROM places4all.address
-		JOIN places4all.country ON country.id = address.id_country
-		WHERE address.id = $1`
+	sql := ds.postgres.Rebind(`SELECT ` +
+		`id, id_country, address_line1, address_line2, address_line3, town_city, county, postcode, latitude, longitude ` +
+		`FROM places4all.address ` +
+		`WHERE address.id = ?`)
 
-	a := NewAddress(true)
+	a := NewAddress(false)
 	a.SetExists()
 
-	err := ds.postgres.QueryRow(sql, id).Scan(
-		&a.Id, &a.IdCountry,
-		&a.AddressLine1, &a.AddressLine2, &a.AddressLine3,
-		&a.TownCity, &a.County, &a.Postcode,
-		&a.Latitude, &a.Longitude,
-		&a.Country.Id, &a.Country.Name, &a.Country.Iso2)
+	err := ds.postgres.QueryRowx(sql, id).StructScan(a)
+	if err != nil {
+		return nil, err
+	}
+
+	a.Country, err = ds.GetCountryById(a.IdCountry)
 	if err != nil {
 		return nil, err
 	}

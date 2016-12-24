@@ -48,23 +48,23 @@ CREATE TABLE entity (
 );
 
 CREATE TABLE superadmin (
-  id SERIAL PRIMARY KEY,
-  id_entity INTEGER NOT NULL REFERENCES entity(id)
+  id_entity INTEGER REFERENCES entity(id),
+  PRIMARY KEY(id_entity)
 );
 
 CREATE TABLE localadmin (
-  id SERIAL PRIMARY KEY,
-  id_entity INTEGER NOT NULL REFERENCES entity(id)
+  id_entity INTEGER REFERENCES entity(id),
+  PRIMARY KEY(id_entity)
 );
 
 CREATE TABLE auditor (
-  id SERIAL PRIMARY KEY,
-  id_entity INTEGER NOT NULL REFERENCES entity(id)
+  id_entity INTEGER REFERENCES entity(id),
+  PRIMARY KEY(id_entity)
 );
 
 CREATE TABLE client (
-  id SERIAL PRIMARY KEY,
-  id_entity INTEGER NOT NULL REFERENCES entity(id)
+  id_entity INTEGER REFERENCES entity(id),
+  PRIMARY KEY(id_entity)
 );
 
 CREATE TABLE property (
@@ -100,7 +100,7 @@ CREATE TABLE property_tag (
 
 CREATE TABLE property_client (
   id_property INTEGER REFERENCES property(id),
-  id_client INTEGER REFERENCES client(id),
+  id_client INTEGER REFERENCES client(id_entity),
   PRIMARY KEY(id_property, id_client)
 );
 
@@ -158,7 +158,7 @@ CREATE TABLE criterion_accessibility (
 CREATE TABLE audit (
   id SERIAL PRIMARY KEY,
   id_property INTEGER NOT NULL REFERENCES property(id),
-  id_auditor INTEGER NOT NULL REFERENCES auditor(id),
+  id_auditor INTEGER NOT NULL REFERENCES auditor(id_entity),
   id_template INTEGER NOT NULL REFERENCES template(id),
   rating INTEGER,
   observation TEXT,

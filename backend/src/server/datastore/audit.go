@@ -55,11 +55,11 @@ func (ds *Datastore) InsertAudit(a *Audit) error {
 		return errors.New("insert failed: already exists")
 	}
 
-	const sql = `INSERT INTO places4all.audit (` +
+	sql := ds.postgres.Rebind(`INSERT INTO places4all.audit (` +
 		`id_property, id_auditor, id_template, rating, observation, created_date, finished_date` +
 		`) VALUES (` +
 		`$1, $2, $3, $4, $5, $6, $7` +
-		`) RETURNING id`
+		`) RETURNING id`)
 
 	err := ds.postgres.QueryRow(sql, a.IdProperty, a.IdAuditor, a.IdTemplate, a.Rating, a.Observation, a.CreatedDate, a.FinishedDate).Scan(&a.Id)
 	if err != nil {
@@ -148,7 +148,7 @@ func (ds *Datastore) DeleteAudit(a *Audit) error {
 }
 
 func (ds *Datastore) GetAuditAuditor(a *Audit) (*Auditor, error) {
-	return ds.GetAuditorById(a.IdAuditor)
+	return ds.GetAuditorByIdWithForeign(a.IdAuditor)
 }
 
 func (ds *Datastore) GetAuditProperty(a *Audit) (*Property, error) {
@@ -176,16 +176,16 @@ func (ds *Datastore) GetAuditById(id int64) (*Audit, error) {
 
 	return &a, err
 }
-func (ds *Datastore) GetAudits(limit, offset int, filter map[string]string) ([]*Audit, error) {
+func (ds *Datastore) GetAudits(limit, offset int, filter map[string]interface{}) ([]*Audit, error) {
 
 	where, values := generators.GenerateAndSearchClause(filter)
 
-	sql := `SELECT ` +
+	sql := ds.postgres.Rebind(`SELECT ` +
 		`id, id_property, id_auditor, id_template, rating, observation, created_date, finished_date ` +
 		`FROM places4all.audit ` +
 		where +
 		`ORDER BY audit.id DESC LIMIT ` + strconv.Itoa(limit) +
-		` OFFSET ` + strconv.Itoa(offset)
+		` OFFSET ` + strconv.Itoa(offset))
 
 	rows, err := ds.postgres.Queryx(sql, values...)
 	if err != nil {

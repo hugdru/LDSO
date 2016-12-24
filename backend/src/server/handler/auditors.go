@@ -140,7 +140,7 @@ func (h *Handler) getAuditor(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
 	}
-	auditor, err := h.Datastore.GetAuditorById(id)
+	auditor, err := h.Datastore.GetAuditorByIdWithForeign(id)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
@@ -215,7 +215,7 @@ func (h *Handler) deleteAuditor(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
 	}
-	auditor, err := h.Datastore.GetAuditorById(id)
+	auditor, err := h.Datastore.GetAuditorByIdWithForeign(id)
 
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)

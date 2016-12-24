@@ -12,6 +12,7 @@ import (
 	"server/handler/sessionData"
 	"strconv"
 	"time"
+	"database/sql"
 )
 
 const maxMultipartSize = 32 << 20
@@ -58,7 +59,7 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	filter := make(map[string]string)
+	filter := make(map[string]interface{})
 	if input.Username != "" {
 		filter["username"] = input.Username
 	}
@@ -70,7 +71,7 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 	if input.Password != "" {
 	}
 
-	entity, err := h.Datastore.GetEntity(filter)
+	entity, err := h.Datastore.GetEntityWithForeign(filter)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
@@ -81,8 +82,46 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sessionData := sessionData.SetSessionData(entity, w, r)
+	var role interface{}
+
+	superadmin, err := h.Datastore.GetSuperadminById(entity.Id)
+	if err == nil {
+		role = superadmin
+	} else if err != sql.ErrNoRows {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	} else {
+		localadmin, err := h.Datastore.GetLocaladminById(entity.Id)
+		if err == nil {
+			role = localadmin
+		} else if err != sql.ErrNoRows {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		} else {
+			auditor, err := h.Datastore.GetAuditorById(entity.Id)
+			if err == nil {
+				role = auditor
+			} else if err != sql.ErrNoRows {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			} else {
+				client, err := h.Datastore.GetClientById(entity.Id)
+				if err == nil {
+					role = client
+				} else if err != sql.ErrNoRows {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+					return
+				} else {
+					http.Error(w, helpers.Error("This user has no role"), http.StatusInternalServerError)
+					return
+				}
+			}
+		}
+	}
+
+	sessionData := sessionData.SetSessionData(entity, role, w, r)
 	if sessionData == nil {
+		http.Error(w, helpers.Error("Failed setting session"), 500)
 		return
 	}
 
@@ -118,7 +157,7 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 		Password    string `json:"password"`
 		Mobilephone string `json:"mobilephone"`
 		Telephone   string `json:"telephone"`
-		Type 	    string `json:"type"`
+		Role 	    string `json:"role"`
 		imageBytes  []byte
 		imageMime   string
 	}
@@ -138,7 +177,7 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 		input.Password = r.PostFormValue("password")
 		input.Mobilephone = r.PostFormValue("mobilephone")
 		input.Telephone = r.PostFormValue("telephone")
-		input.Type = r.PostFormValue("type")
+		input.Role = r.PostFormValue("role")
 
 		input.imageBytes, input.imageMime, err = helpers.ReadImage(r, "image", maxImageFileSize)
 		if err != nil && err != http.ErrMissingFile {
@@ -150,12 +189,12 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if input.IdCountry == 0 || input.Name == "" || input.Email == "" || input.Username == "" || input.Password == "" || input.Type == "" {
-		http.Error(w, helpers.Error("country, name, email, username, password are required"), 400)
+	if input.IdCountry == 0 || input.Name == "" || input.Email == "" || input.Username == "" || input.Password == "" || input.Role == "" {
+		http.Error(w, helpers.Error("country, name, email, username, password, role are required"), 400)
 		return
 	}
 
-	filter := make(map[string]string)
+	filter := make(map[string]interface{})
 	if input.Username != "" {
 		filter["username"] = input.Username
 	}
@@ -164,13 +203,12 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 		filter["email"] = input.Email
 	}
 
-	exists, err := h.Datastore.CheckEntityExists(filter)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
+	err := h.Datastore.CheckEntityExists(filter)
+	if err == nil {
+		http.Error(w, helpers.Error("already Exists"), 400)
 		return
-	}
-	if exists {
-		http.Error(w, helpers.Error("Already exists"), 400)
+	} else if err != sql.ErrNoRows {
+		http.Error(w, helpers.Error(err.Error()), 400)
 		return
 	}
 
@@ -197,7 +235,7 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	switch input.Type {
+	switch input.Role {
 	case "auditor":
 		auditor := datastore.NewAuditor(false)
 		auditor.IdEntity = entity.Id
@@ -214,10 +252,10 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, helpers.Error(err.Error()), 500)
 			return
 		}
-	case "localAdmin":
-		localAdmin := datastore.NewLocalAdmin(false)
+	case "localadmin":
+		localAdmin := datastore.NewLocaladmin(false)
 		localAdmin.IdEntity = entity.Id
-		err = h.Datastore.SaveLocalAdmin(localAdmin)
+		err = h.Datastore.SaveLocaladmin(localAdmin)
 		if err != nil  {
 			http.Error(w, helpers.Error(err.Error()), 500)
 			return

@@ -94,7 +94,7 @@ func (h *Handler) createAudit(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), 400)
 		return
 	}
-	_, err = h.Datastore.GetAuditorById(input.IdAuditor)
+	_, err = h.Datastore.GetAuditorByIdWithForeign(input.IdAuditor)
 	if err != nil {
 		http.Error(w, err.Error(), 400)
 		return
@@ -310,16 +310,10 @@ func (h *Handler) getAuditCriteria(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	filter := helpers.GetQueryArgs([][]string{
-		[]string{"idAudit", "id_audit"},
-		[]string{"idCriterion", "id_criterion"},
-	}, r)
-	if filter == nil {
-		http.Error(w, helpers.Error("Failed to create filter"), 500)
-		return
-	}
+	filter := make(map[string]interface{})
+	filter["id_audit"] = idAudit
 
-	auditCriteria, err := h.Datastore.GetAuditCriteria(idAudit, filter)
+	auditCriteria, err := h.Datastore.GetAuditCriteria(filter)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
@@ -347,7 +341,7 @@ func (h *Handler) getAuditCriterion(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	auditCriterion, err := h.Datastore.GetAuditCriterionById(idAudit, idCriterion)
+	auditCriterion, err := h.Datastore.GetAuditCriterionByIds(idAudit, idCriterion)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
@@ -427,7 +421,7 @@ func (h *Handler) updateAuditCriterion(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	auditCriterion, err := h.Datastore.GetAuditCriterionById(idAudit, idCriterion)
+	auditCriterion, err := h.Datastore.GetAuditCriterionByIds(idAudit, idCriterion)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
@@ -506,7 +500,7 @@ func (h *Handler) deleteAuditCriterion(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.Datastore.DeleteAuditCriterionById(idAudit, idCriterion)
+	err = h.Datastore.DeleteAuditCriterionByIds(idAudit, idCriterion)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
