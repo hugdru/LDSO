@@ -1,1 +1,1 @@
-{"id_audit":1,"id_criterion":1,"value":10,"observation":"criterio 1"}
+{"idAudit":1,"idCriterion":1,"value":10}
