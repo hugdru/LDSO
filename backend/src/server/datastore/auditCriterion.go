@@ -8,9 +8,9 @@ import (
 )
 
 type AuditCriterion struct {
-	IdAudit     int64       `json:"idAudit" db:"id_audit"`
-	IdCriterion int64       `json:"idCriterion" db:"id_criterion"`
-	Value       zero.Int    `json:"value" db:"value"`
+	IdAudit     int64    `json:"idAudit" db:"id_audit"`
+	IdCriterion int64    `json:"idCriterion" db:"id_criterion"`
+	Value       zero.Int `json:"value" db:"value"`
 
 	meta metadata.Metadata
 }

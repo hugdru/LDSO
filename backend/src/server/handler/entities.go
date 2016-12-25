@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"database/sql"
 	"encoding/json"
 	"github.com/alexedwards/scs/session"
 	"github.com/elithrar/simple-scrypt"
@@ -12,7 +13,6 @@ import (
 	"server/handler/sessionData"
 	"strconv"
 	"time"
-	"database/sql"
 )
 
 func (h *Handler) entitiesRoutes(router chi.Router) {
@@ -237,7 +237,7 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 		auditor := datastore.NewAuditor(false)
 		auditor.IdEntity = entity.Id
 		err = h.Datastore.SaveAuditor(auditor)
-		if err != nil  {
+		if err != nil {
 			http.Error(w, helpers.Error(err.Error()), 500)
 			return
 		}
@@ -245,7 +245,7 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 		client := datastore.NewClient(false)
 		client.IdEntity = entity.Id
 		err = h.Datastore.SaveClient(client)
-		if err != nil  {
+		if err != nil {
 			http.Error(w, helpers.Error(err.Error()), 500)
 			return
 		}
@@ -253,7 +253,7 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 		localAdmin := datastore.NewLocaladmin(false)
 		localAdmin.IdEntity = entity.Id
 		err = h.Datastore.SaveLocaladmin(localAdmin)
-		if err != nil  {
+		if err != nil {
 			http.Error(w, helpers.Error(err.Error()), 500)
 			return
 		}

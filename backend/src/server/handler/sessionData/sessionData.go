@@ -14,13 +14,13 @@ func GobRegister() {
 }
 
 type EntitySessionData struct {
-	Id       int64
-	Username string
-	Email    string
-	Name     string
+	Id        int64
+	Username  string
+	Email     string
+	Name      string
 	IdCountry int64
-	Country  string
-	Role string
+	Country   string
+	Role      string
 }
 
 func SetSessionData(entity *datastore.Entity, roleInterface interface{},
@@ -33,13 +33,13 @@ func SetSessionData(entity *datastore.Entity, roleInterface interface{},
 	}
 
 	sessionData := &EntitySessionData{
-		Id:       entity.Id,
-		Username: entity.Username,
-		Email:    entity.Email,
-		Name:     entity.Username,
+		Id:        entity.Id,
+		Username:  entity.Username,
+		Email:     entity.Email,
+		Name:      entity.Username,
 		IdCountry: entity.IdCountry,
-		Country:  entity.Country.Name,
-		Role: "",
+		Country:   entity.Country.Name,
+		Role:      "",
 	}
 
 	//switch userRole := userRoleInterface.(type) {
