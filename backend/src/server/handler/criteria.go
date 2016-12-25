@@ -17,9 +17,9 @@ import (
 func (h *Handler) criteriaRoutes(router chi.Router) {
 	router.Get("/", helpers.ReplyJson(h.getCriteria))
 	router.Post("/", helpers.RequestJson(helpers.ReplyJson(h.createCriterion)))
-	router.Get("/:id", helpers.ReplyJson(h.getCriterion))
-	router.Put("/:id", helpers.RequestJson(helpers.ReplyJson(h.updateCriterion)))
-	router.Delete("/:id", helpers.ReplyJson(h.deleteCriterion))
+	router.Get("/:idc", helpers.ReplyJson(h.getCriterion))
+	router.Put("/:idc", helpers.RequestJson(helpers.ReplyJson(h.updateCriterion)))
+	router.Delete("/:idc", helpers.ReplyJson(h.deleteCriterion))
 
 	router.Route("/:id/accessibilities", h.criteriaAccessibilitiesSubroutes)
 }
@@ -36,7 +36,7 @@ func (h *Handler) criteriaAccessibilitiesSubroutes(router chi.Router) {
 
 func (h *Handler) criteriaAccessibilitiesContext(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		idCriterionStr := chi.URLParam(r, "id")
+		idCriterionStr := chi.URLParam(r, "idc")
 		idCriterion, err := strconv.ParseInt(idCriterionStr, 10, 64)
 		if err != nil {
 			http.Error(w, helpers.Error(err.Error()), 400)
@@ -85,7 +85,7 @@ func (h *Handler) getCriteria(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) getCriterion(w http.ResponseWriter, r *http.Request) {
-	idCriterion := chi.URLParam(r, "id")
+	idCriterion := chi.URLParam(r, "idc")
 	id, err := strconv.ParseInt(idCriterion, 10, 64)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
@@ -205,7 +205,7 @@ func (h *Handler) createCriterion(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) updateCriterion(w http.ResponseWriter, r *http.Request) {
-	idCriterion := chi.URLParam(r, "id")
+	idCriterion := chi.URLParam(r, "idc")
 	id, err := strconv.ParseInt(idCriterion, 10, 64)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
@@ -291,7 +291,7 @@ func (h *Handler) updateCriterion(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) deleteCriterion(w http.ResponseWriter, r *http.Request) {
-	idCriterion := chi.URLParam(r, "id")
+	idCriterion := chi.URLParam(r, "idc")
 	id, err := strconv.ParseInt(idCriterion, 10, 64)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)

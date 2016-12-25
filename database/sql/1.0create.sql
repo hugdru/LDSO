@@ -185,10 +185,8 @@ CREATE TABLE remark (
   id_criterion INTEGER NOT NULL REFERENCES criterion(id),
   observation TEXT,
   image BYTEA,
-  image_mine_type VARCHAR(100)
+  image_mimetype VARCHAR(100)
 );
-
-
 
 GRANT ALL ON DATABASE "places4all" to admin;
 GRANT ALL ON SCHEMA "places4all" TO admin;

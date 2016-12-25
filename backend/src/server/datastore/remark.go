@@ -8,14 +8,14 @@ import (
 )
 
 type Remark struct {
-	Id          	   int64       `json:"id" db:"id"`
-	IdAudit            int64       `json:"idAudit" db:"id_audit"`
-	IdCriterion        int64       `json:"idCriterion" db:"id_criterion"`
-	Observation        zero.String `json:"observation" db:"observation"`
-	Image              []byte      `json:"image" db:"image"`
-	ImageMineType      zero.String      `json:"imageMineType" db:"image_mine_type"`
+	Id            int64       `json:"id" db:"id"`
+	IdAudit       int64       `json:"idAudit" db:"id_audit"`
+	IdCriterion   int64       `json:"idCriterion" db:"id_criterion"`
+	Observation   zero.String `json:"observation" db:"observation"`
+	Image         []byte      `json:"-" db:"image"`
+	ImageMimeType zero.String `json:"imageMimeType" db:"image_mimetype"`
 
-	meta metadata.Metadata
+	meta          metadata.Metadata
 }
 
 func (r *Remark) SetExists() {
@@ -34,14 +34,14 @@ func (r *Remark) Deleted() bool {
 	return r.meta.Deleted
 }
 
-func RRemark(allocateObjects bool) Remark {
+func ARemark(allocateObjects bool) Remark {
 	remark := Remark{}
 	//if allocateObjects {
 	//}
 	return remark
 }
 func NewRemark(allocateObjects bool) *Remark {
-	remark := RRemark(allocateObjects)
+	remark := ARemark(allocateObjects)
 	return &remark
 }
 
@@ -52,12 +52,12 @@ func (ds *Datastore) InsertRemark(r *Remark) error {
 	}
 
 	const sql = `INSERT INTO places4all.remark (` +
-		`id_audit, id_criterion, observation, image, image_mine_type ` +
+		`id_audit, id_criterion, observation, image, image_mimetype ` +
 		`) VALUES (` +
 		`$1, $2, $3, $4, $5 ` +
-		`)`
+		`) RETURNING id`
 
-	_, err := ds.postgres.Exec(sql, r.IdAudit, r.IdCriterion, r.Observation, r.Image,r.ImageMineType)
+	err := ds.postgres.QueryRow(sql, r.IdAudit, r.IdCriterion, r.Observation, r.Image, r.ImageMimeType).Scan(&r.Id)
 	if err != nil {
 		return err
 	}
@@ -78,12 +78,12 @@ func (ds *Datastore) UpdateRemark(r *Remark) error {
 	}
 
 	const sql = `UPDATE places4all.remark SET (` +
-		`observation, image, image_mine_type` +
+		`observation, image, image_mimetype` +
 		`) = (` +
 		`$1, $2, $3` +
 		`) WHERE id = $4 `
 
-	_, err := ds.postgres.Exec(sql, r.Observation, r.Image,r.ImageMineType, r.Id)
+	_, err := ds.postgres.Exec(sql, r.Observation, r.Image,r.ImageMimeType, r.Id)
 	return err
 }
 
@@ -96,19 +96,19 @@ func (ds *Datastore) SaveRemark(r *Remark) error {
 }
 
 
-func (ds *Datastore) GetRemarkByAuditCriterionIds(idAudit int64, idCriterion int64, idRemark int64) (*Remark, error) {
+func (ds *Datastore) GetRemarkByIdsAuditCriterionRemark(idAudit, idCriterion, idRemark int64) (*Remark, error) {
 
 	var err error
 
-	const sql = `SELECT
-		remark.id, remark.id_audit, remark.id_criterion, remark.observation, remark.image, remark.image_mine_type FROM places4all.remark
-		WHERE remark.id = $1 and remark.id_audit=$2 and  remark.id_criterion=$3 `
+	const sql = `SELECT ` +
+		`remark.id, remark.id_audit, remark.id_criterion, remark.observation, remark.image, remark.image_mimetype FROM places4all.remark ` +
+		`WHERE remark.id_audit = $1 AND remark.id_criterion = $2 AND remark.id = $3`
 
-	r := RRemark(true)
+	r := ARemark(true)
 	r.SetExists()
 
-	err = ds.postgres.QueryRow(sql, idRemark,idAudit,idCriterion).Scan(
-		&r.Id, &r.IdAudit, &r.IdCriterion, &r.Observation, &r.Image, &r.ImageMineType,
+	err = ds.postgres.QueryRow(sql, idRemark).Scan(
+		&r.Id, &r.IdAudit, &r.IdCriterion, &r.Observation, &r.Image, &r.ImageMimeType,
 	)
 
 	if err != nil {
@@ -122,13 +122,11 @@ func (ds *Datastore) GetRemarksByAuditCriterionIds(idAudit int64, idCriterion in
 
 	var err error
 
-	const sql = `SELECT
-		remark.id, remark.id_audit, remark.id_criterion, remark.observation, remark.image, remark.image_mine_type FROM places4all.remark
-		WHERE remark.id_audit=$1 and  remark.id_criterion=$2 `
-
+	const sql = `SELECT ` +
+		`remark.id, remark.id_audit, remark.id_criterion, remark.observation, remark.image, remark.image_mimetype FROM places4all.remark ` +
+		`WHERE remark.id_audit = $1 AND remark.id_criterion = $2`
 
 	rows, err := ds.postgres.Queryx(sql, idAudit, idCriterion)
-
 
 	if err != nil {
 		return nil, err
