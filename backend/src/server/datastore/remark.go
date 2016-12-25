@@ -1,10 +1,9 @@
 package datastore
 
 import (
+	"errors"
 	"gopkg.in/guregu/null.v3/zero"
 	"server/datastore/metadata"
-	"errors"
-
 )
 
 type Remark struct {
@@ -15,7 +14,7 @@ type Remark struct {
 	Image         []byte      `json:"-" db:"image"`
 	ImageMimeType zero.String `json:"imageMimeType" db:"image_mimetype"`
 
-	meta          metadata.Metadata
+	meta metadata.Metadata
 }
 
 func (r *Remark) SetExists() {
@@ -83,7 +82,7 @@ func (ds *Datastore) UpdateRemark(r *Remark) error {
 		`$1, $2, $3` +
 		`) WHERE id = $4 `
 
-	_, err := ds.postgres.Exec(sql, r.Observation, r.Image,r.ImageMimeType, r.Id)
+	_, err := ds.postgres.Exec(sql, r.Observation, r.Image, r.ImageMimeType, r.Id)
 	return err
 }
 
@@ -94,7 +93,6 @@ func (ds *Datastore) SaveRemark(r *Remark) error {
 
 	return ds.InsertRemark(r)
 }
-
 
 func (ds *Datastore) GetRemarkByIdsAuditCriterionRemark(idAudit, idCriterion, idRemark int64) (*Remark, error) {
 

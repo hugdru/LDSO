@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/pressly/chi"
 	"gopkg.in/guregu/null.v3/zero"
@@ -9,7 +10,6 @@ import (
 	"server/handler/helpers"
 	"strconv"
 	"time"
-	"context"
 )
 
 func (h *Handler) auditsRoutes(router chi.Router) {
@@ -395,7 +395,7 @@ func (h *Handler) createAuditCriterion(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var input struct {
-		Value       int64
+		Value int64
 	}
 
 	err = decoder.Decode(&input)
@@ -446,8 +446,7 @@ func (h *Handler) updateAuditCriterion(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var input struct {
-		Value       int64
-
+		Value int64
 	}
 	input.Value = -1
 
@@ -531,9 +530,9 @@ func (h *Handler) createCriterionRemark(w http.ResponseWriter, r *http.Request) 
 	}
 
 	var input struct {
-		Observation string
+		Observation   string
 		imageMimetype string
-		imageBytes  []byte
+		imageBytes    []byte
 	}
 
 	contentType := helpers.GetContentType(r.Header.Get("Content-type"))
@@ -560,7 +559,7 @@ func (h *Handler) createCriterionRemark(w http.ResponseWriter, r *http.Request) 
 	remark.IdCriterion = idCriterion
 	remark.Observation = zero.StringFrom(input.Observation)
 	remark.Image = input.imageBytes
-	remark.ImageMimeType =zero.StringFrom(input.imageMimetype)
+	remark.ImageMimeType = zero.StringFrom(input.imageMimetype)
 
 	err = h.Datastore.InsertRemark(remark)
 	if err != nil {
@@ -570,7 +569,7 @@ func (h *Handler) createCriterionRemark(w http.ResponseWriter, r *http.Request) 
 	w.Write([]byte(`{"id":"` + helpers.Int64ToString(remark.Id) + "}"))
 }
 
-func (h *Handler) getCriterionRemark(w http.ResponseWriter, r *http.Request){
+func (h *Handler) getCriterionRemark(w http.ResponseWriter, r *http.Request) {
 	audit := r.Context().Value("audit").(*datastore.Audit)
 
 	idCriteriaStr := chi.URLParam(r, "idc")
@@ -589,7 +588,7 @@ func (h *Handler) getCriterionRemark(w http.ResponseWriter, r *http.Request){
 
 	auditCriterionRemark, err := h.Datastore.GetRemarkByIdsAuditCriterionRemark(audit.Id, idCriterion, idRemark)
 	if err != nil {
-		http.Error(w, helpers.Error(err.Error()),http.StatusBadRequest)
+		http.Error(w, helpers.Error(err.Error()), http.StatusBadRequest)
 		return
 	}
 

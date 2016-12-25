@@ -160,7 +160,7 @@ func (ds *Datastore) GetPropertyById(id int64) (*Property, error) {
 
 	p := NewProperty(false)
 	err := ds.postgres.QueryRowx(`SELECT `+
-		`p.id, p.id_address, p.name, p.details, p.created_date ` +
+		`p.id, p.id_address, p.name, p.details, p.created_date `+
 		`FROM places4all.property as p `+
 		`WHERE p.id = $1`,
 		id).StructScan(p)

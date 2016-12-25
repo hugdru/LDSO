@@ -83,7 +83,7 @@ func (ds *Datastore) UpdateAuditor(a *Auditor) error {
 	//
 	//_, err := ds.postgres.Exec(sql, a.IdEntity)
 	//return err
-	return errors.New("NOT IMPLEMENTED");
+	return errors.New("NOT IMPLEMENTED")
 }
 
 func (ds *Datastore) SaveAuditor(a *Auditor) error {
@@ -118,7 +118,7 @@ func (ds *Datastore) UpsertAuditor(a *Auditor) error {
 	//a.SetExists()
 	//
 	//return err
-	return errors.New("NOT IMPLEMENTED");
+	return errors.New("NOT IMPLEMENTED")
 }
 
 func (ds *Datastore) DeleteAuditor(a *Auditor) error {

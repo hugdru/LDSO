@@ -83,7 +83,7 @@ func (ds *Datastore) UpdateSuperadmin(s *Superadmin) error {
 	//
 	//_, err := ds.postgres.Exec(sql, s.IdEntity, s.Id)
 	//return err
-	return errors.New("NOT IMPLEMENTED");
+	return errors.New("NOT IMPLEMENTED")
 }
 
 func (ds *Datastore) SaveSuperadmin(s *Superadmin) error {

@@ -82,7 +82,7 @@ func (ds *Datastore) UpdateLocaladmin(l *Localadmin) error {
 	//
 	//_, err := ds.postgres.Exec(sql, l.IdEntity, l.Id)
 	//return err
-	return errors.New("NOT IMPLEMENTED");
+	return errors.New("NOT IMPLEMENTED")
 }
 
 func (ds *Datastore) SaveLocaladmin(l *Localadmin) error {
