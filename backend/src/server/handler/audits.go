@@ -45,6 +45,9 @@ func (h *Handler) auditsCriteriaRemarksSubroutes(router chi.Router) {
 	router.Get("/:idr/image", h.getCriterionRemarkImage)
 	router.Get("/:idr", h.getCriterionRemark)
 	router.Get("/", h.getCriterionRemarks)
+	router.Put("/:idr", h.updateCriterionRemark)
+	router.Delete("/:idr", h.deleteCriterionRemark)
+	router.Delete("/", h.deleteCriterionRemarks)
 }
 
 func (h *Handler) auditsCriteriaContext(next http.Handler) http.Handler {
@@ -647,7 +650,7 @@ func (h *Handler) getCriterionRemarks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	auditsCriteriaRemarks, err := h.Datastore.GetRemarksByAuditCriterionIds(audit.Id, idCriterion)
+	auditsCriteriaRemarks, err := h.Datastore.GetRemarksByIdsAuditCriterion(audit.Id, idCriterion)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
@@ -660,4 +663,108 @@ func (h *Handler) getCriterionRemarks(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write(auditsCriteriaRemarksSlice)
+}
+
+func (h *Handler) updateCriterionRemark(w http.ResponseWriter, r *http.Request) {
+	audit := r.Context().Value("audit").(*datastore.Audit)
+
+	idCriteriaStr := chi.URLParam(r, "idc")
+	idCriterion, err := strconv.ParseInt(idCriteriaStr, 10, 64)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 400)
+		return
+	}
+
+	idRemarkStr := chi.URLParam(r, "idr")
+	idRemark, err := strconv.ParseInt(idRemarkStr, 10, 64)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 400)
+		return
+	}
+
+	var input struct {
+		Observation   string
+		imageMimetype string
+		imageBytes    []byte
+	}
+
+	contentType := helpers.GetContentType(r.Header.Get("Content-type"))
+	switch contentType {
+	case "multipart/form-data":
+		input.Observation = r.PostFormValue("Observation")
+		input.imageBytes, input.imageMimetype, err = helpers.ReadImage(r, "image", helpers.MaxImageFileSize)
+		if err != nil && err != http.ErrMissingFile {
+			http.Error(w, helpers.Error(err.Error()), 500)
+			return
+		}
+	default:
+		http.Error(w, helpers.Error("Content-type not supported"), 415)
+		return
+	}
+
+	if input.Observation == "" && input.imageBytes == nil {
+		http.Error(w, helpers.Error("observation or imageBytes"), 400)
+		return
+	}
+
+	remark, err := h.Datastore.GetRemarkByIdsAuditCriterionRemark(audit.Id, idCriterion, idRemark)
+	if remark != nil {
+		http.Error(w, helpers.Error(err.Error()), 500)
+		return
+	}
+
+	if input.Observation != "" {
+		remark.Observation = zero.StringFrom(input.Observation)
+	}
+
+	if input.imageBytes != nil {
+		remark.Image = input.imageBytes
+	}
+
+	err = h.Datastore.UpdateRemark(remark)
+	if remark != nil {
+		http.Error(w, helpers.Error(err.Error()), 500)
+		return
+	}
+}
+
+func (h *Handler) deleteCriterionRemark(w http.ResponseWriter, r *http.Request) {
+	audit := r.Context().Value("audit").(*datastore.Audit)
+
+	idCriteriaStr := chi.URLParam(r, "idc")
+	idCriterion, err := strconv.ParseInt(idCriteriaStr, 10, 64)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 400)
+		return
+	}
+
+	idRemarkStr := chi.URLParam(r, "idr")
+	idRemark, err := strconv.ParseInt(idRemarkStr, 10, 64)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 400)
+		return
+	}
+
+	err = h.Datastore.DeleteRemarkByIdsAuditCriterionRemark(audit.Id, idCriterion, idRemark)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 400)
+		return
+	}
+}
+
+func (h *Handler) deleteCriterionRemarks(w http.ResponseWriter, r *http.Request) {
+	audit := r.Context().Value("audit").(*datastore.Audit)
+
+	idCriteriaStr := chi.URLParam(r, "idc")
+	idCriterion, err := strconv.ParseInt(idCriteriaStr, 10, 64)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 400)
+		return
+	}
+
+	err = h.Datastore.DeleteRemarkByIdsAuditCriterion(audit.Id, idCriterion)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 400)
+		return
+	}
 }
