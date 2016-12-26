@@ -49,6 +49,7 @@ import {AuditSelectComponent} from "audit/audit-select.component";
 import {RemarkAddComponent} from "remark/remark-add.component";
 import {ImageSingleUploadComponent} from 'images/image-single-upload.component';
 import {HandlerService} from "handler.service";
+import { MainPageComponent } from './main-page/main-page.component';
 
 @NgModule({
     declarations: [
@@ -86,7 +87,8 @@ import {HandlerService} from "handler.service";
 		AuditEvaluateCriterionComponent,
         AuditSelectComponent,
 		RemarkAddComponent,
-		ImageSingleUploadComponent
+		ImageSingleUploadComponent,
+		MainPageComponent
     ],
     imports: [
         AppRoutingModule,
