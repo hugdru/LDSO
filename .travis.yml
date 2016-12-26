@@ -5,6 +5,13 @@ language: generic
 os:
   - linux
 
+branches:
+  only:
+    - migrationCSS
+    - migration
+    - imagesGoPostgres 
+    - development	
+
 env:
   global:
     - GIMME_OS=linux GIMME_ARCH=amd64 GIMME_GO_VERSION=1.7.3
