@@ -37,10 +37,14 @@ func (h *Handler) auditsCriteriaSubroutes(router chi.Router) {
 	router.Put("/:idc", helpers.RequestJson(helpers.ReplyJson(h.updateAuditCriterion)))
 	router.Delete("/:idc", helpers.ReplyJson(h.deleteAuditCriterion))
 
-	router.Post("/:idc/remarks", h.createCriterionRemark)
-	router.Get("/:idc/remarks/:idr/image", h.getCriterionRemarkImage)
-	router.Get("/:idc/remarks/:idr", h.getCriterionRemark)
-	router.Get("/:idc/remarks", h.getCriterionRemarks)
+	router.Route("/:idc/remarks", h.auditsCriteriaRemarksSubroutes)
+}
+
+func (h *Handler) auditsCriteriaRemarksSubroutes(router chi.Router) {
+	router.Post("/", h.createCriterionRemark)
+	router.Get("/:idr/image", h.getCriterionRemarkImage)
+	router.Get("/:idr", h.getCriterionRemark)
+	router.Get("/", h.getCriterionRemarks)
 }
 
 func (h *Handler) auditsCriteriaContext(next http.Handler) http.Handler {
