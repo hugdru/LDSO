@@ -20,4 +20,8 @@ export const auditsFindUrl = auditsUrl + '/find';
 
 export const imageUploadUrl = serverUrl + '/image';
 
-export const loginUrl = serverUrl + '/login';
+export const loginUrl = serverUrl + '/entities/login';
+
+export const logoutUrl = serverUrl + '/entities/logout';
+
+export const registerUrl = serverUrl + '/entities/register';

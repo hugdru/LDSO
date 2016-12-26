@@ -17,7 +17,7 @@ INSERT INTO property_tag(id_property, id_tag) VALUES
   (1, 3);
 
 INSERT INTO entity(id_country, name, email, username, password, image, banned_date, banned, reason, mobilephone, telephone, created_date) VALUES
-  ((SELECT id FROM country where name='Portugal'), 'FC Porto', 'fcporto@fcporto.pt', 'fcporto', 'fcporto', NULL, NULL, NULL, NULL, NULL, '22 557 0400', '2016-11-25T14:46:26.680513Z'); -- 1
+  ((SELECT id FROM country where name='Portugal'), 'FC Porto', 'fcporto@fcporto.pt', 'fcporto', '16384$8$1$4cddfcdf22ffed7b834ffa53bb1fe257$c6d9547d6d7737845a31dfdc01488ba945d5086ba54ce0aa360e025b3d0423c9', NULL, NULL, NULL, NULL, NULL, '22 557 0400', '2016-11-25T14:46:26.680513Z'); -- 1
 
 INSERT INTO client(id_entity) VALUES
   (1);
