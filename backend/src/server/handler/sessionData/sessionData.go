@@ -22,6 +22,7 @@ type EntitySessionData struct {
 	Country   string
 	Role      string
 }
+
 func GetSessionData(r *http.Request) (*EntitySessionData, error) {
 	entitySessionData := &EntitySessionData{}
 	err := session.GetObject(r, EntityKey, entitySessionData)
