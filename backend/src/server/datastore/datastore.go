@@ -7,7 +7,6 @@ import (
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"net/http"
-	"server/handler/helpers"
 )
 
 type Datastore struct {
@@ -47,5 +46,5 @@ func (datastore *Datastore) Close() {
 }
 
 func ServerError(w http.ResponseWriter, r *http.Request, err error) {
-	http.Error(w, helpers.Error("Sorry, the application encountered an error"), 500)
+	http.Error(w, "Failed to connect to redis", 500)
 }
