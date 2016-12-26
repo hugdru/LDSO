@@ -96,8 +96,6 @@ func (ds *Datastore) SaveRemark(r *Remark) error {
 
 func (ds *Datastore) GetRemarkByIdsAuditCriterionRemark(idAudit, idCriterion, idRemark int64) (*Remark, error) {
 
-	var err error
-
 	const sql = `SELECT ` +
 		`remark.id, remark.id_audit, remark.id_criterion, remark.observation, remark.image, remark.image_mimetype FROM places4all.remark ` +
 		`WHERE remark.id_audit = $1 AND remark.id_criterion = $2 AND remark.id = $3`
@@ -105,7 +103,7 @@ func (ds *Datastore) GetRemarkByIdsAuditCriterionRemark(idAudit, idCriterion, id
 	r := ARemark(true)
 	r.SetExists()
 
-	err = ds.postgres.QueryRow(sql, idRemark).Scan(
+	err := ds.postgres.QueryRow(sql, idRemark).Scan(
 		&r.Id, &r.IdAudit, &r.IdCriterion, &r.Observation, &r.Image, &r.ImageMimeType,
 	)
 
@@ -116,9 +114,8 @@ func (ds *Datastore) GetRemarkByIdsAuditCriterionRemark(idAudit, idCriterion, id
 	return &r, err
 
 }
-func (ds *Datastore) GetRemarksByAuditCriterionIds(idAudit int64, idCriterion int64) ([]*Remark, error) {
 
-	var err error
+func (ds *Datastore) GetRemarksByIdsAuditCriterion(idAudit int64, idCriterion int64) ([]*Remark, error) {
 
 	const sql = `SELECT ` +
 		`remark.id, remark.id_audit, remark.id_criterion, remark.observation, remark.image, remark.image_mimetype FROM places4all.remark ` +
@@ -142,5 +139,32 @@ func (ds *Datastore) GetRemarksByAuditCriterionIds(idAudit int64, idCriterion in
 	}
 
 	return remarks, err
+}
 
+func (ds *Datastore) DeleteRemarkByIdsAuditCriterionRemark(idAudit, idCriterion, idRemark int64) error {
+
+	const sql = `DELETE FROM places4all.remark ` +
+		`WHERE remark.id_audit = $1 AND remark.id_criterion = $2 AND remark.id = $3`
+
+	_, err := ds.postgres.Exec(sql, idAudit, idCriterion, idRemark)
+
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
+func (ds *Datastore) DeleteRemarkByIdsAuditCriterion(idAudit, idCriterion int64) error {
+
+	const sql = `DELETE FROM places4all.remark ` +
+		`WHERE remark.id_audit = $1 AND remark.id_criterion = $2`
+
+	_, err := ds.postgres.Exec(sql, idAudit, idCriterion)
+
+	if err != nil {
+		return err
+	}
+
+	return err
 }
