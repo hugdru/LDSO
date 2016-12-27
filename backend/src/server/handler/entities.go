@@ -10,9 +10,9 @@ import (
 	"net/http"
 	"server/datastore"
 	"server/handler/helpers"
+	"server/handler/helpers/decorators"
 	"server/handler/sessionData"
 	"strconv"
-	"server/handler/helpers/decorators"
 )
 
 func (h *Handler) entitiesRoutes(router chi.Router) {

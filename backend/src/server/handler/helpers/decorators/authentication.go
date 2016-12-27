@@ -2,8 +2,8 @@ package decorators
 
 import (
 	"net/http"
-	"server/handler/sessionData"
 	"server/handler/helpers"
+	"server/handler/sessionData"
 )
 
 func OnlySuperadmins(f http.HandlerFunc) http.HandlerFunc {

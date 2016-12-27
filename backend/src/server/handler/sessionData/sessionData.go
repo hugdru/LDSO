@@ -12,8 +12,8 @@ const EntityKey = "entity"
 const (
 	Superadmin = "superadmin"
 	Localadmin = "localadmin"
-	Auditor = "auditor"
-	Client = "client"
+	Auditor    = "auditor"
+	Client     = "client"
 )
 
 func GobRegister() {

@@ -10,8 +10,8 @@ import (
 	"net/http"
 	"server/datastore"
 	"server/handler/helpers"
-	"strconv"
 	"server/handler/helpers/decorators"
+	"strconv"
 )
 
 func (h *Handler) criteriaRoutes(router chi.Router) {
