@@ -1,6 +1,7 @@
 package datastore
 
 import (
+	"database/sql"
 	"errors"
 	"server/datastore/generators"
 	"server/datastore/metadata"
@@ -39,6 +40,28 @@ func (p *Property) Deleted() bool {
 	return p.meta.Deleted
 }
 
+func (p *Property) AllSetIfNotEmptyOrNil(name, details string) error {
+	if name != "" {
+		p.Name = name
+	}
+	if details != "" {
+		p.Details = details
+	}
+
+	return nil
+}
+
+func (p *Property) MustSet(name, details string) error {
+	if name != "" {
+		p.Name = name
+	}
+	if details != "" {
+		p.Details = details
+	}
+
+	return nil
+}
+
 func AProperty(allocateObjects bool) Property {
 	property := Property{}
 	if allocateObjects {
@@ -54,7 +77,11 @@ func NewProperty(allocateObjects bool) *Property {
 	return &property
 }
 
-func (ds *Datastore) InsertProperty(p *Property) error {
+func (ds *Datastore) InsertPropertyTx(tx *sql.Tx, p *Property) error {
+
+	if p == nil {
+		return errors.New("property should not be nil")
+	}
 
 	if p.Exists() {
 		return errors.New("insert failed: already exists")
@@ -66,7 +93,13 @@ func (ds *Datastore) InsertProperty(p *Property) error {
 		`$1, $2, $3, $4` +
 		`) RETURNING id`
 
-	err := ds.postgres.QueryRow(sql, p.IdAddress, p.Name, p.Details, p.CreatedDate).Scan(&p.Id)
+	var err error
+	if tx != nil {
+		err = tx.QueryRow(sql, p.IdAddress, p.Name, p.Details, p.CreatedDate).Scan(&p.Id)
+	} else {
+		err = ds.postgres.QueryRow(sql, p.IdAddress, p.Name, p.Details, p.CreatedDate).Scan(&p.Id)
+	}
+
 	if err != nil {
 		return err
 	}
@@ -76,7 +109,19 @@ func (ds *Datastore) InsertProperty(p *Property) error {
 	return err
 }
 
+func (ds *Datastore) InsertProperty(p *Property) error {
+	return ds.InsertPropertyTx(nil, p)
+}
+
 func (ds *Datastore) UpdateProperty(p *Property) error {
+	return ds.UpdatePropertyTx(nil, p)
+}
+
+func (ds *Datastore) UpdatePropertyTx(tx *sql.Tx, p *Property) error {
+
+	if p == nil {
+		return errors.New("property should not be nil")
+	}
 
 	if !p.Exists() {
 		return errors.New("update failed: does not exist")
@@ -92,7 +137,13 @@ func (ds *Datastore) UpdateProperty(p *Property) error {
 		`$1, $2, $3, $4` +
 		`) WHERE id = $5`
 
-	_, err := ds.postgres.Exec(sql, p.IdAddress, p.Name, p.Details, p.CreatedDate, p.Id)
+	var err error
+	if tx != nil {
+		_, err = tx.Exec(sql, p.IdAddress, p.Name, p.Details, p.CreatedDate, p.Id)
+
+	} else {
+		_, err = ds.postgres.Exec(sql, p.IdAddress, p.Name, p.Details, p.CreatedDate, p.Id)
+	}
 	return err
 }
 
@@ -104,7 +155,79 @@ func (ds *Datastore) SaveProperty(p *Property) error {
 	return ds.InsertProperty(p)
 }
 
+func (ds *Datastore) SavePropertyWithForeign(p *Property) error {
+	if p.Exists() {
+		return ds.UpdatePropertyWithForeign(p)
+	}
+
+	return ds.InsertPropertyWithForeign(p)
+}
+
+func (ds *Datastore) UpdatePropertyWithForeign(p *Property) error {
+
+	if p == nil {
+		return errors.New("property should not be nil")
+	}
+
+	tx, err := ds.postgres.Begin()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+			return
+		}
+		err = tx.Commit()
+	}()
+
+	err = ds.UpdatePropertyTx(tx, p)
+	if err != nil {
+		return err
+	}
+	err = ds.UpdateAddressTx(tx, p.Address)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
+func (ds *Datastore) InsertPropertyWithForeign(p *Property) error {
+
+	if p == nil {
+		return errors.New("property should not be nil")
+	}
+
+	tx, err := ds.postgres.Begin()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+			return
+		}
+		err = tx.Commit()
+	}()
+
+	err = ds.InsertPropertyTx(tx, p)
+	if err != nil {
+		return err
+	}
+	err = ds.InsertAddressTx(tx, p.Address)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
 func (ds *Datastore) UpsertProperty(p *Property) error {
+
+	if p == nil {
+		return errors.New("property should not be nil")
+	}
 
 	if p.Exists() {
 		return errors.New("insert failed: already exists")
@@ -130,7 +253,11 @@ func (ds *Datastore) UpsertProperty(p *Property) error {
 	return err
 }
 
-func (ds *Datastore) DeleteProperty(p *Property) error {
+func (ds *Datastore) DeletePropertyTx(tx *sql.Tx, p *Property) error {
+
+	if p == nil {
+		return errors.New("property should not be nil")
+	}
 
 	if !p.Exists() {
 		return nil
@@ -142,12 +269,52 @@ func (ds *Datastore) DeleteProperty(p *Property) error {
 
 	const sql = `DELETE FROM places4all.property WHERE id = $1`
 
-	_, err := ds.postgres.Exec(sql, p.Id)
+	var err error
+	if tx != nil {
+		_, err = tx.Exec(sql, p.Id)
+
+	} else {
+		_, err = ds.postgres.Exec(sql, p.Id)
+
+	}
 	if err != nil {
 		return err
 	}
 
 	p.SetDeleted()
+
+	return err
+}
+
+func (ds *Datastore) DeleteProperty(p *Property) error {
+	return ds.DeletePropertyTx(nil, p)
+}
+
+func (ds *Datastore) DeletePropertyWithForeign(p *Property) error {
+	if p == nil {
+		return errors.New("property should not be nil")
+	}
+
+	tx, err := ds.postgres.Begin()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+			return
+		}
+		err = tx.Commit()
+	}()
+
+	err = ds.DeletePropertyTx(tx, p)
+	if err != nil {
+		return err
+	}
+	err = ds.DeleteAddressTx(tx, p.Address)
+	if err != nil {
+		return err
+	}
 
 	return err
 }
@@ -184,7 +351,7 @@ func (ds *Datastore) GetPropertyByIdWithForeign(id int64) (*Property, error) {
 	return p, err
 }
 
-func (ds *Datastore) GetProperties(limit, offset int, filter map[string]interface{}) ([]*Property, error) {
+func (ds *Datastore) GetPropertiesWithForeign(limit, offset int, filter map[string]interface{}) ([]*Property, error) {
 
 	where, values := generators.GenerateAndSearchClause(filter)
 

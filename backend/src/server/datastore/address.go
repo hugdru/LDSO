@@ -1,6 +1,7 @@
 package datastore
 
 import (
+	"database/sql"
 	"errors"
 	"gopkg.in/guregu/null.v3/zero"
 	"server/datastore/metadata"
@@ -40,6 +41,72 @@ func (a *Address) Deleted() bool {
 	return a.meta.Deleted
 }
 
+func (a *Address) MustSet(idCountry int64, addressLine1 string) error {
+
+	if idCountry != 0 {
+		a.IdCountry = idCountry
+	} else {
+		return errors.New("idCountry must be set")
+	}
+	if addressLine1 != "" {
+		a.AddressLine1 = addressLine1
+	} else {
+		return errors.New("addressLine1 must be set")
+	}
+
+	return nil
+}
+
+func (a *Address) AllSetIfNotEmptyOrNil(IdCountry int64, AddressLine1 string,
+	AddressLine2 string, AddressLine3 string, TownCity string,
+	County string, Postcode string, Latitude string, Longitude string) error {
+	if IdCountry != 0 {
+		a.IdCountry = IdCountry
+	}
+
+	if AddressLine1 != "" {
+		a.AddressLine1 = AddressLine1
+	}
+
+	return a.OptionalSetIfNotEmptyOrNil(AddressLine2, AddressLine3, TownCity,
+		County, Postcode, Latitude, Longitude)
+}
+
+func (a *Address) OptionalSetIfNotEmptyOrNil(
+	AddressLine2 string, AddressLine3 string, TownCity string,
+	County string, Postcode string, Latitude string, Longitude string) error {
+
+	if AddressLine2 != "" {
+		a.AddressLine2 = zero.StringFrom(AddressLine2)
+	}
+
+	if AddressLine3 != "" {
+		a.AddressLine3 = zero.StringFrom(AddressLine3)
+	}
+
+	if TownCity != "" {
+		a.TownCity = zero.StringFrom(TownCity)
+	}
+
+	if County != "" {
+		a.County = zero.StringFrom(County)
+	}
+
+	if Postcode != "" {
+		a.Postcode = zero.StringFrom(Postcode)
+	}
+
+	if Latitude != "" {
+		a.Latitude = zero.StringFrom(Latitude)
+	}
+
+	if Longitude != "" {
+		a.Longitude = zero.StringFrom(Longitude)
+	}
+
+	return nil
+}
+
 func AAddress(allocateObjects bool) Address {
 	address := Address{}
 	if allocateObjects {
@@ -52,7 +119,11 @@ func NewAddress(allocateObjects bool) *Address {
 	return &address
 }
 
-func (ds *Datastore) InsertAddress(a *Address) error {
+func (ds *Datastore) InsertAddressTx(tx *sql.Tx, a *Address) error {
+
+	if a == nil {
+		return errors.New("address should not be nil")
+	}
 
 	if a.Exists() {
 		return errors.New("insert failed: already exists")
@@ -64,7 +135,12 @@ func (ds *Datastore) InsertAddress(a *Address) error {
 		`$1, $2, $3, $4, $5, $6, $7, $8, $9` +
 		`) RETURNING id`
 
-	err := ds.postgres.QueryRow(sql, a.IdCountry, a.AddressLine1, a.AddressLine2, a.AddressLine3, a.TownCity, a.County, a.Postcode, a.Latitude, a.Longitude).Scan(&a.Id)
+	var err error
+	if tx != nil {
+		err = tx.QueryRow(sql, a.IdCountry, a.AddressLine1, a.AddressLine2, a.AddressLine3, a.TownCity, a.County, a.Postcode, a.Latitude, a.Longitude).Scan(&a.Id)
+	} else {
+		err = ds.postgres.QueryRow(sql, a.IdCountry, a.AddressLine1, a.AddressLine2, a.AddressLine3, a.TownCity, a.County, a.Postcode, a.Latitude, a.Longitude).Scan(&a.Id)
+	}
 	if err != nil {
 		return err
 	}
@@ -74,7 +150,18 @@ func (ds *Datastore) InsertAddress(a *Address) error {
 	return err
 }
 
+func (ds *Datastore) InsertAddress(a *Address) error {
+	return ds.InsertAddressTx(nil, a)
+}
+
 func (ds *Datastore) UpdateAddress(a *Address) error {
+	return ds.UpdateAddressTx(nil, a)
+}
+
+func (ds *Datastore) UpdateAddressTx(tx *sql.Tx, a *Address) error {
+	if a == nil {
+		return errors.New("address should not be nil")
+	}
 
 	if !a.Exists() {
 		return errors.New("update failed: does not exist")
@@ -90,7 +177,13 @@ func (ds *Datastore) UpdateAddress(a *Address) error {
 		`$1, $2, $3, $4, $5, $6, $7, $8, $9` +
 		`) WHERE id = $10`
 
-	_, err := ds.postgres.Exec(sql, a.IdCountry, a.AddressLine1, a.AddressLine2, a.AddressLine3, a.TownCity, a.County, a.Postcode, a.Latitude, a.Longitude, a.Id)
+	var err error
+	if tx != nil {
+		_, err = tx.Exec(sql, a.IdCountry, a.AddressLine1, a.AddressLine2, a.AddressLine3, a.TownCity, a.County, a.Postcode, a.Latitude, a.Longitude, a.Id)
+
+	} else {
+		_, err = ds.postgres.Exec(sql, a.IdCountry, a.AddressLine1, a.AddressLine2, a.AddressLine3, a.TownCity, a.County, a.Postcode, a.Latitude, a.Longitude, a.Id)
+	}
 	return err
 }
 
@@ -103,6 +196,10 @@ func (ds *Datastore) SaveAddress(a *Address) error {
 }
 
 func (ds *Datastore) UpsertAddress(a *Address) error {
+
+	if a == nil {
+		return errors.New("address should not be nil")
+	}
 
 	if a.Exists() {
 		return errors.New("insert failed: already exists")
@@ -128,7 +225,11 @@ func (ds *Datastore) UpsertAddress(a *Address) error {
 	return err
 }
 
-func (ds *Datastore) DeleteAddress(a *Address) error {
+func (ds *Datastore) DeleteAddressTx(tx *sql.Tx, a *Address) error {
+
+	if a == nil {
+		return errors.New("address should not be nil")
+	}
 
 	if !a.Exists() {
 		return nil
@@ -140,7 +241,14 @@ func (ds *Datastore) DeleteAddress(a *Address) error {
 
 	const sql = `DELETE FROM places4all.address WHERE id = $1`
 
-	_, err := ds.postgres.Exec(sql, a.Id)
+	var err error
+	if tx != nil {
+		_, err = tx.Exec(sql, a.Id)
+
+	} else {
+		_, err = ds.postgres.Exec(sql, a.Id)
+
+	}
 	if err != nil {
 		return err
 	}
@@ -148,6 +256,10 @@ func (ds *Datastore) DeleteAddress(a *Address) error {
 	a.SetDeleted()
 
 	return err
+}
+
+func (ds *Datastore) DeleteAddress(a *Address) error {
+	return ds.DeleteAddressTx(nil, a)
 }
 
 func (ds *Datastore) GetAddressCountry(a *Address) (*Country, error) {

@@ -21,13 +21,13 @@ func GobRegister() {
 }
 
 type EntitySessionData struct {
-	Id        int64
-	Username  string
-	Email     string
-	Name      string
-	IdCountry int64
-	Country   string
-	Role      string
+	Id        int64  `json:"id"`
+	Username  string `json:"username"`
+	Email     string `json:"email"`
+	Name      string `json:"name"`
+	IdCountry int64  `json:"idCountry"`
+	Country   string `json:"country"`
+	Role      string `json:"role"`
 }
 
 func GetSessionData(r *http.Request) (*EntitySessionData, error) {
