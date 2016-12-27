@@ -44,6 +44,10 @@ func NewLocaladmin(allocateObjects bool) *Localadmin {
 
 func (ds *Datastore) InsertLocaladmin(l *Localadmin) error {
 
+	if l == nil {
+		return errors.New("localadmin should not be nil")
+	}
+
 	if l.Exists() {
 		return errors.New("insert failed: already exists")
 	}
@@ -65,6 +69,10 @@ func (ds *Datastore) InsertLocaladmin(l *Localadmin) error {
 }
 
 func (ds *Datastore) UpdateLocaladmin(l *Localadmin) error {
+
+	//if l == nil {
+	//	return errors.New("localadmin should not be nil")
+	//}
 
 	//if !l.Exists() {
 	//	return errors.New("update failed: does not exist")
@@ -95,6 +103,10 @@ func (ds *Datastore) SaveLocaladmin(l *Localadmin) error {
 
 func (ds *Datastore) UpsertLocalAdmin(l *Localadmin) error {
 
+	if l == nil {
+		return errors.New("localadmin should not be nil")
+	}
+
 	if l.Exists() {
 		return errors.New("insert failed: already exists")
 	}
@@ -120,6 +132,10 @@ func (ds *Datastore) UpsertLocalAdmin(l *Localadmin) error {
 }
 
 func (ds *Datastore) DeleteLocaladmin(l *Localadmin) error {
+
+	if l == nil {
+		return errors.New("localadmin should not be nil")
+	}
 
 	if !l.Exists() {
 		return nil

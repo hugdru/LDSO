@@ -54,9 +54,13 @@ func (p *Property) AllSetIfNotEmptyOrNil(name, details string) error {
 func (p *Property) MustSet(name, details string) error {
 	if name != "" {
 		p.Name = name
+	} else {
+		return errors.New("name must be set")
 	}
 	if details != "" {
 		p.Details = details
+	} else {
+		return errors.New("details must be set")
 	}
 
 	return nil

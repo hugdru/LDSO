@@ -45,6 +45,10 @@ func NewClient(allocateObjects bool) *Client {
 
 func (ds *Datastore) InsertClient(c *Client) error {
 
+	if c == nil {
+		return errors.New("client should not be nil")
+	}
+
 	if c.Exists() {
 		return errors.New("insert failed: already exists")
 	}
@@ -67,6 +71,10 @@ func (ds *Datastore) InsertClient(c *Client) error {
 
 func (ds *Datastore) UpdateClient(c *Client) error {
 
+	//if c == nil {
+	//	return errors.New("client should not be nil")
+	//}
+	//
 	//if !c.Exists() {
 	//	return errors.New("update failed: does not exist")
 	//}
@@ -96,6 +104,10 @@ func (ds *Datastore) SaveClient(c *Client) error {
 
 func (ds *Datastore) UpsertClient(c *Client) error {
 
+	//if c == nil {
+	//	return errors.New("client should not be nil")
+	//}
+	//
 	//if c.Exists() {
 	//	return errors.New("insert failed: already exists")
 	//}
@@ -122,6 +134,10 @@ func (ds *Datastore) UpsertClient(c *Client) error {
 }
 
 func (ds *Datastore) DeleteClient(c *Client) error {
+
+	if c == nil {
+		return errors.New("client should not be nil")
+	}
 
 	if !c.Exists() {
 		return nil

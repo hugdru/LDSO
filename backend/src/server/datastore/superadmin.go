@@ -45,6 +45,10 @@ func NewSuperadmin(allocateObjects bool) *Superadmin {
 
 func (ds *Datastore) InsertSuperadmin(s *Superadmin) error {
 
+	if s == nil {
+		return errors.New("superadmin should not be nil")
+	}
+
 	if s.Exists() {
 		return errors.New("insert failed: already exists")
 	}
@@ -66,7 +70,10 @@ func (ds *Datastore) InsertSuperadmin(s *Superadmin) error {
 }
 
 func (ds *Datastore) UpdateSuperadmin(s *Superadmin) error {
-
+	//if s == nil {
+	//	return errors.New("superadmin should not be nil")
+	//}
+	//
 	//if !s.Exists() {
 	//	return errors.New("update failed: does not exist")
 	//}
@@ -96,6 +103,10 @@ func (ds *Datastore) SaveSuperadmin(s *Superadmin) error {
 
 func (ds *Datastore) UpsertSuperadmin(s *Superadmin) error {
 
+	if s == nil {
+		return errors.New("superadmin should not be nil")
+	}
+
 	if s.Exists() {
 		return errors.New("insert failed: already exists")
 	}
@@ -121,6 +132,10 @@ func (ds *Datastore) UpsertSuperadmin(s *Superadmin) error {
 }
 
 func (ds *Datastore) DeleteSuperadmin(s *Superadmin) error {
+
+	if s == nil {
+		return errors.New("superadmin should not be nil")
+	}
 
 	if !s.Exists() {
 		return nil

@@ -52,6 +52,10 @@ func NewSubgroup(allocateObjects bool) *Subgroup {
 
 func (ds *Datastore) InsertSubgroup(s *Subgroup) error {
 
+	if s == nil {
+		return errors.New("subgroup should not be nil")
+	}
+
 	if s.Exists() {
 		return errors.New("insert failed: already exists")
 	}
@@ -73,6 +77,10 @@ func (ds *Datastore) InsertSubgroup(s *Subgroup) error {
 }
 
 func (ds *Datastore) UpdateSubgroup(s *Subgroup) error {
+
+	if s == nil {
+		return errors.New("subgroup should not be nil")
+	}
 
 	if !s.Exists() {
 		return errors.New("update failed: does not exist")
@@ -102,6 +110,10 @@ func (ds *Datastore) SaveSubgroup(s *Subgroup) error {
 
 func (ds *Datastore) UpsertSubgroup(s *Subgroup) error {
 
+	if s == nil {
+		return errors.New("subgroup should not be nil")
+	}
+
 	if s.Exists() {
 		return errors.New("insert failed: already exists")
 	}
@@ -127,6 +139,10 @@ func (ds *Datastore) UpsertSubgroup(s *Subgroup) error {
 }
 
 func (ds *Datastore) DeleteSubgroup(s *Subgroup) error {
+
+	if s == nil {
+		return errors.New("subgroup should not be nil")
+	}
 
 	if !s.Exists() {
 		return nil

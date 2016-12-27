@@ -56,6 +56,10 @@ func NewCriterion(allocateObjects bool) *Criterion {
 
 func (ds *Datastore) InsertCriterion(c *Criterion) error {
 
+	if c == nil {
+		return errors.New("criterion should not be nil")
+	}
+
 	if c.Exists() {
 		return errors.New("insert failed: already exists")
 	}
@@ -76,6 +80,10 @@ func (ds *Datastore) InsertCriterion(c *Criterion) error {
 }
 
 func (ds *Datastore) UpdateCriterion(c *Criterion) error {
+
+	if c == nil {
+		return errors.New("criterion should not be nil")
+	}
 
 	if !c.Exists() {
 		return errors.New("update failed: does not exist")
@@ -105,6 +113,10 @@ func (ds *Datastore) SaveCriterion(c *Criterion) error {
 
 func (ds *Datastore) UpsertCriterion(c *Criterion) error {
 
+	if c == nil {
+		return errors.New("criterion should not be nil")
+	}
+
 	if c.Exists() {
 		return errors.New("insert failed: already exists")
 	}
@@ -130,6 +142,10 @@ func (ds *Datastore) UpsertCriterion(c *Criterion) error {
 }
 
 func (ds *Datastore) DeleteCriterion(c *Criterion) error {
+
+	if c == nil {
+		return errors.New("criterion should not be nil")
+	}
 
 	if !c.Exists() {
 		return nil

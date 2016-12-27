@@ -47,6 +47,10 @@ func NewGallery(allocateObjects bool) *Gallery {
 
 func (ds *Datastore) InsertGallery(g *Gallery) error {
 
+	if g == nil {
+		return errors.New("gallery should not be nil")
+	}
+
 	if g.Exists() {
 		return errors.New("insert failed: already exists")
 	}
@@ -68,6 +72,10 @@ func (ds *Datastore) InsertGallery(g *Gallery) error {
 }
 
 func (ds *Datastore) UpdateGallery(g *Gallery) error {
+
+	if g == nil {
+		return errors.New("gallery should not be nil")
+	}
 
 	if !g.Exists() {
 		return errors.New("update failed: does not exist")
@@ -97,6 +105,10 @@ func (ds *Datastore) SaveGallery(g *Gallery) error {
 
 func (ds *Datastore) UpsertGallery(g *Gallery) error {
 
+	if g == nil {
+		return errors.New("gallery should not be nil")
+	}
+
 	if g.Exists() {
 		return errors.New("insert failed: already exists")
 	}
@@ -122,6 +134,10 @@ func (ds *Datastore) UpsertGallery(g *Gallery) error {
 }
 
 func (ds *Datastore) DeleteGallery(g *Gallery) error {
+
+	if g == nil {
+		return errors.New("gallery should not be nil")
+	}
 
 	if !g.Exists() {
 		return nil

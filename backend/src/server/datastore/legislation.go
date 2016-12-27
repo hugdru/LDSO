@@ -44,6 +44,10 @@ func NewLegislation(allocateObjects bool) *Legislation {
 
 func (ds *Datastore) InsertLegislation(l *Legislation) error {
 
+	if l == nil {
+		return errors.New("legislation should not be nil")
+	}
+
 	if l.Exists() {
 		return errors.New("insert failed: already exists")
 	}
@@ -65,6 +69,10 @@ func (ds *Datastore) InsertLegislation(l *Legislation) error {
 }
 
 func (ds *Datastore) UpdateLegislation(l *Legislation) error {
+
+	if l == nil {
+		return errors.New("legislation should not be nil")
+	}
 
 	if !l.Exists() {
 		return errors.New("update failed: does not exist")
@@ -94,6 +102,10 @@ func (ds *Datastore) SaveLegislation(l *Legislation) error {
 
 func (ds *Datastore) UpsertLegislation(l *Legislation) error {
 
+	if l == nil {
+		return errors.New("legislation should not be nil")
+	}
+
 	if l.Exists() {
 		return errors.New("insert failed: already exists")
 	}
@@ -119,6 +131,10 @@ func (ds *Datastore) UpsertLegislation(l *Legislation) error {
 }
 
 func (ds *Datastore) DeleteLegislation(l *Legislation) error {
+
+	if l == nil {
+		return errors.New("legislation should not be nil")
+	}
 
 	if !l.Exists() {
 		return nil
