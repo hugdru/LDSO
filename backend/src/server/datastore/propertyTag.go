@@ -139,7 +139,7 @@ func (ds *Datastore) DeletePropertyTag(pt *PropertyTag) error {
 }
 
 func (ds *Datastore) GetPropertyTagProperty(pt *PropertyTag) (*Property, error) {
-	return ds.GetPropertyById(pt.IdProperty)
+	return ds.GetPropertyByIdWithForeign(pt.IdProperty)
 }
 
 func (ds *Datastore) GetPropertyTagTag(pt *PropertyTag) (*Tag, error) {

@@ -7,15 +7,16 @@ import (
 	"net/http"
 	"server/datastore"
 	"server/handler/helpers"
+	"server/handler/helpers/decorators"
 	"strconv"
 )
 
 func (h *Handler) legislationsRoutes(router chi.Router) {
-	router.Get("/", helpers.ReplyJson(h.getLegislations))
-	router.Post("/", helpers.RequestJson(helpers.ReplyJson(h.createLegislation)))
-	router.Get("/:id", helpers.ReplyJson(h.getLegislation))
-	router.Put("/:id", helpers.RequestJson(helpers.ReplyJson(h.updateLegislation)))
-	router.Delete("/:id", helpers.ReplyJson(h.deleteLegislation))
+	router.Get("/", decorators.ReplyJson(h.getLegislations))
+	router.Post("/", decorators.RequestJson(decorators.ReplyJson(h.createLegislation)))
+	router.Get("/:id", decorators.ReplyJson(h.getLegislation))
+	router.Put("/:id", decorators.RequestJson(decorators.ReplyJson(h.updateLegislation)))
+	router.Delete("/:id", decorators.ReplyJson(h.deleteLegislation))
 }
 
 func (h *Handler) getLegislations(w http.ResponseWriter, r *http.Request) {

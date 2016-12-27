@@ -152,7 +152,7 @@ func (ds *Datastore) GetAuditAuditor(a *Audit) (*Auditor, error) {
 }
 
 func (ds *Datastore) GetAuditProperty(a *Audit) (*Property, error) {
-	return ds.GetPropertyById(a.IdProperty)
+	return ds.GetPropertyByIdWithForeign(a.IdProperty)
 }
 
 func (ds *Datastore) GetAuditTemplate(a *Audit) (*Template, error) {

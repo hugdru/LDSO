@@ -6,16 +6,16 @@ import (
 	"net/http"
 	"server/datastore"
 	"server/handler/helpers"
+	"server/handler/helpers/decorators"
 	"strconv"
-	"time"
 )
 
 func (h *Handler) maingroupsRoutes(router chi.Router) {
-	router.Get("/", helpers.ReplyJson(h.getMaingroups))
-	router.Post("/", helpers.RequestJson(helpers.ReplyJson(h.createMaingroup)))
-	router.Get("/:id", helpers.ReplyJson(h.getMaingroup))
-	router.Put("/:id", helpers.RequestJson(helpers.ReplyJson(h.updateMaingroup)))
-	router.Delete("/:id", helpers.ReplyJson(h.deleteMaingroup))
+	router.Get("/", decorators.ReplyJson(h.getMaingroups))
+	router.Post("/", decorators.RequestJson(decorators.ReplyJson(h.createMaingroup)))
+	router.Get("/:id", decorators.ReplyJson(h.getMaingroup))
+	router.Put("/:id", decorators.RequestJson(decorators.ReplyJson(h.updateMaingroup)))
+	router.Delete("/:id", decorators.ReplyJson(h.deleteMaingroup))
 }
 
 func (h *Handler) getMaingroups(w http.ResponseWriter, r *http.Request) {
@@ -105,7 +105,7 @@ func (h *Handler) createMaingroup(w http.ResponseWriter, r *http.Request) {
 	maingroup.IdTemplate = input.IdTemplate
 	maingroup.Name = input.Name
 	maingroup.Weight = input.Weight
-	maingroup.CreatedDate = time.Now().UTC()
+	maingroup.CreatedDate = helpers.TheTime()
 
 	err = h.Datastore.SaveMaingroup(maingroup)
 	if err != nil {

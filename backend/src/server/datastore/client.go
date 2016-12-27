@@ -83,7 +83,7 @@ func (ds *Datastore) UpdateClient(c *Client) error {
 	//
 	//_, err := ds.postgres.Exec(sql, c.IdEntity, c.Id)
 	//return err
-	return errors.New("NOT IMPLEMENTED");
+	return errors.New("NOT IMPLEMENTED")
 }
 
 func (ds *Datastore) SaveClient(c *Client) error {
@@ -118,7 +118,7 @@ func (ds *Datastore) UpsertClient(c *Client) error {
 	//c.SetExists()
 	//
 	//return err
-	return errors.New("NOT IMPLEMENTED");
+	return errors.New("NOT IMPLEMENTED")
 }
 
 func (ds *Datastore) DeleteClient(c *Client) error {

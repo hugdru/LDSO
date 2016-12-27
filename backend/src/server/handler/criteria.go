@@ -10,33 +10,33 @@ import (
 	"net/http"
 	"server/datastore"
 	"server/handler/helpers"
+	"server/handler/helpers/decorators"
 	"strconv"
-	"time"
 )
 
 func (h *Handler) criteriaRoutes(router chi.Router) {
-	router.Get("/", helpers.ReplyJson(h.getCriteria))
-	router.Post("/", helpers.RequestJson(helpers.ReplyJson(h.createCriterion)))
-	router.Get("/:id", helpers.ReplyJson(h.getCriterion))
-	router.Put("/:id", helpers.RequestJson(helpers.ReplyJson(h.updateCriterion)))
-	router.Delete("/:id", helpers.ReplyJson(h.deleteCriterion))
+	router.Get("/", decorators.ReplyJson(h.getCriteria))
+	router.Post("/", decorators.RequestJson(decorators.ReplyJson(h.createCriterion)))
+	router.Get("/:idc", decorators.ReplyJson(h.getCriterion))
+	router.Put("/:idc", decorators.RequestJson(decorators.ReplyJson(h.updateCriterion)))
+	router.Delete("/:idc", decorators.ReplyJson(h.deleteCriterion))
 
 	router.Route("/:id/accessibilities", h.criteriaAccessibilitiesSubroutes)
 }
 
 func (h *Handler) criteriaAccessibilitiesSubroutes(router chi.Router) {
 	router.Use(h.criteriaAccessibilitiesContext)
-	router.Get("/", helpers.ReplyJson(h.getCriterionAccessibilities))
-	router.Post("/", helpers.RequestJson(helpers.ReplyJson(h.createCriterionAccessibility)))
-	router.Delete("/", helpers.ReplyJson(h.deleteCriterionAccessibilities))
-	router.Get("/:ida", helpers.ReplyJson(h.getCriterionAccessibility))
-	router.Put("/:ida", helpers.RequestJson(helpers.ReplyJson(h.updateCriterionAccessibility)))
-	router.Delete("/:ida", helpers.ReplyJson(h.deleteCriterionAccessibility))
+	router.Get("/", decorators.ReplyJson(h.getCriterionAccessibilities))
+	router.Post("/", decorators.RequestJson(decorators.ReplyJson(h.createCriterionAccessibility)))
+	router.Delete("/", decorators.ReplyJson(h.deleteCriterionAccessibilities))
+	router.Get("/:ida", decorators.ReplyJson(h.getCriterionAccessibility))
+	router.Put("/:ida", decorators.RequestJson(decorators.ReplyJson(h.updateCriterionAccessibility)))
+	router.Delete("/:ida", decorators.ReplyJson(h.deleteCriterionAccessibility))
 }
 
 func (h *Handler) criteriaAccessibilitiesContext(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		idCriterionStr := chi.URLParam(r, "id")
+		idCriterionStr := chi.URLParam(r, "idc")
 		idCriterion, err := strconv.ParseInt(idCriterionStr, 10, 64)
 		if err != nil {
 			http.Error(w, helpers.Error(err.Error()), 400)
@@ -85,7 +85,7 @@ func (h *Handler) getCriteria(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) getCriterion(w http.ResponseWriter, r *http.Request) {
-	idCriterion := chi.URLParam(r, "id")
+	idCriterion := chi.URLParam(r, "idc")
 	id, err := strconv.ParseInt(idCriterion, 10, 64)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
@@ -152,7 +152,7 @@ func (h *Handler) createCriterion(w http.ResponseWriter, r *http.Request) {
 	criterion.IdLegislation = zero.IntFrom(input.IdLegislation)
 	criterion.Name = input.Name
 	criterion.Weight = input.Weight
-	criterion.CreatedDate = time.Now().UTC()
+	criterion.CreatedDate = helpers.TheTime()
 
 	if input.Legislation != "" {
 		resultIdLegislation, err := insertOrFetchLegislation(h.Datastore, input.Legislation)
@@ -205,7 +205,7 @@ func (h *Handler) createCriterion(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) updateCriterion(w http.ResponseWriter, r *http.Request) {
-	idCriterion := chi.URLParam(r, "id")
+	idCriterion := chi.URLParam(r, "idc")
 	id, err := strconv.ParseInt(idCriterion, 10, 64)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
@@ -291,7 +291,7 @@ func (h *Handler) updateCriterion(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) deleteCriterion(w http.ResponseWriter, r *http.Request) {
-	idCriterion := chi.URLParam(r, "id")
+	idCriterion := chi.URLParam(r, "idc")
 	id, err := strconv.ParseInt(idCriterion, 10, 64)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)

@@ -176,8 +176,16 @@ CREATE TABLE audit_criterion (
   id_audit INTEGER REFERENCES audit(id),
   id_criterion INTEGER REFERENCES criterion(id),
   value INTEGER,
-  observation TEXT,
   PRIMARY KEY(id_audit, id_criterion)
+);
+
+CREATE TABLE remark (
+  id SERIAL PRIMARY KEY,
+  id_audit INTEGER NOT NULL REFERENCES audit(id),
+  id_criterion INTEGER NOT NULL REFERENCES criterion(id),
+  observation TEXT,
+  image BYTEA,
+  image_mimetype VARCHAR(100)
 );
 
 GRANT ALL ON DATABASE "places4all" to admin;

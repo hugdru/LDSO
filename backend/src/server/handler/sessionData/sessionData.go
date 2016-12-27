@@ -9,18 +9,34 @@ import (
 
 const EntityKey = "entity"
 
+const (
+	Superadmin = "superadmin"
+	Localadmin = "localadmin"
+	Auditor    = "auditor"
+	Client     = "client"
+)
+
 func GobRegister() {
 	gob.Register(EntitySessionData{})
 }
 
 type EntitySessionData struct {
-	Id       int64
-	Username string
-	Email    string
-	Name     string
+	Id        int64
+	Username  string
+	Email     string
+	Name      string
 	IdCountry int64
-	Country  string
-	Role string
+	Country   string
+	Role      string
+}
+
+func GetSessionData(r *http.Request) (*EntitySessionData, error) {
+	entitySessionData := &EntitySessionData{}
+	err := session.GetObject(r, EntityKey, entitySessionData)
+	if err != nil {
+		return nil, err
+	}
+	return entitySessionData, err
 }
 
 func SetSessionData(entity *datastore.Entity, roleInterface interface{},
@@ -33,25 +49,25 @@ func SetSessionData(entity *datastore.Entity, roleInterface interface{},
 	}
 
 	sessionData := &EntitySessionData{
-		Id:       entity.Id,
-		Username: entity.Username,
-		Email:    entity.Email,
-		Name:     entity.Username,
+		Id:        entity.Id,
+		Username:  entity.Username,
+		Email:     entity.Email,
+		Name:      entity.Username,
 		IdCountry: entity.IdCountry,
-		Country:  entity.Country.Name,
-		Role: "",
+		Country:   entity.Country.Name,
+		Role:      "",
 	}
 
 	//switch userRole := userRoleInterface.(type) {
 	switch roleInterface.(type) {
 	case *datastore.Superadmin:
-		sessionData.Role = "superadmin"
+		sessionData.Role = Superadmin
 	case *datastore.Localadmin:
-		sessionData.Role = "localadmin"
+		sessionData.Role = Localadmin
 	case *datastore.Auditor:
-		sessionData.Role = "auditor"
+		sessionData.Role = Auditor
 	case *datastore.Client:
-		sessionData.Role = "client"
+		sessionData.Role = Client
 	default:
 		return nil
 	}

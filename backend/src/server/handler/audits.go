@@ -1,33 +1,71 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/pressly/chi"
 	"gopkg.in/guregu/null.v3/zero"
 	"net/http"
 	"server/datastore"
 	"server/handler/helpers"
+	"server/handler/helpers/decorators"
 	"strconv"
-	"time"
 )
 
 func (h *Handler) auditsRoutes(router chi.Router) {
-	router.Get("/", helpers.ReplyJson(h.getAudits))
-	router.Post("/", helpers.RequestJson(helpers.ReplyJson(h.createAudit)))
-	router.Get("/:id", helpers.ReplyJson(h.getAudit))
-	router.Put("/:id", helpers.RequestJson(helpers.ReplyJson(h.updateAudit)))
-	router.Delete("/:id", helpers.ReplyJson(h.deleteAudit))
+	router.Get("/", decorators.ReplyJson(h.getAudits))
+	router.Post("/", decorators.RequestJson(decorators.ReplyJson(h.createAudit)))
 
-	router.Get("/:id/subgroups", helpers.ReplyJson(h.getAuditSubgroups))
-	router.Post("/:id/subgroups", helpers.RequestJson(helpers.ReplyJson(h.createAuditSubgroups)))
-	router.Delete("/:id/subgroups", helpers.ReplyJson(h.deleteAuditSubgroups))
+	router.Get("/:ida", decorators.ReplyJson(h.getAudit))
+	router.Put("/:ida", decorators.RequestJson(decorators.ReplyJson(h.updateAudit)))
+	router.Delete("/:ida", decorators.ReplyJson(h.deleteAudit))
 
-	router.Get("/:id/criteria", helpers.ReplyJson(h.getAuditCriteria))
-	router.Get("/:id/criteria/:idc", helpers.ReplyJson(h.getAuditCriterion))
-	router.Post("/:id/criteria/:idc", helpers.RequestJson(helpers.ReplyJson(h.createAuditCriterion)))
-	router.Put("/:id/criteria/:idc", helpers.RequestJson(helpers.ReplyJson(h.updateAuditCriterion)))
-	router.Delete("/:id/criteria", helpers.ReplyJson(h.deleteAuditCriteria))
-	router.Delete("/:id/criteria/:idc", helpers.ReplyJson(h.deleteAuditCriterion))
+	router.Get("/:ida/subgroups", decorators.ReplyJson(h.getAuditSubgroups))
+	router.Post("/:ida/subgroups", decorators.RequestJson(decorators.ReplyJson(h.createAuditSubgroups)))
+	router.Delete("/:ida/subgroups", decorators.ReplyJson(h.deleteAuditSubgroups))
+
+	router.Route("/:ida/criteria", h.auditsCriteriaSubroutes)
+}
+
+func (h *Handler) auditsCriteriaSubroutes(router chi.Router) {
+	router.Use(h.auditsCriteriaContext)
+
+	router.Get("/", decorators.ReplyJson(h.getAuditCriteria))
+	router.Delete("/", decorators.ReplyJson(h.deleteAuditCriteria))
+	router.Get("/:idc", decorators.ReplyJson(h.getAuditCriterion))
+	router.Post("/:idc", decorators.RequestJson(decorators.ReplyJson(h.createAuditCriterion)))
+	router.Put("/:idc", decorators.RequestJson(decorators.ReplyJson(h.updateAuditCriterion)))
+	router.Delete("/:idc", decorators.ReplyJson(h.deleteAuditCriterion))
+
+	router.Route("/:idc/remarks", h.auditsCriteriaRemarksSubroutes)
+}
+
+func (h *Handler) auditsCriteriaRemarksSubroutes(router chi.Router) {
+	router.Post("/", h.createCriterionRemark)
+	router.Get("/:idr/image", h.getCriterionRemarkImage)
+	router.Get("/:idr", h.getCriterionRemark)
+	router.Get("/", h.getCriterionRemarks)
+	router.Put("/:idr", h.updateCriterionRemark)
+	router.Delete("/:idr", h.deleteCriterionRemark)
+	router.Delete("/", h.deleteCriterionRemarks)
+}
+
+func (h *Handler) auditsCriteriaContext(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		idAuditStr := chi.URLParam(r, "ida")
+		idAudit, err := strconv.ParseInt(idAuditStr, 10, 64)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+		audit, err := h.Datastore.GetAuditById(idAudit)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+		ctx := context.WithValue(r.Context(), "audit", audit)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }
 
 func (h *Handler) getAudits(w http.ResponseWriter, r *http.Request) {
@@ -89,7 +127,7 @@ func (h *Handler) createAudit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = h.Datastore.GetPropertyById(input.IdProperty)
+	_, err = h.Datastore.GetPropertyByIdWithForeign(input.IdProperty)
 	if err != nil {
 		http.Error(w, err.Error(), 400)
 		return
@@ -109,7 +147,7 @@ func (h *Handler) createAudit(w http.ResponseWriter, r *http.Request) {
 	audit.IdProperty = input.IdProperty
 	audit.IdAuditor = input.IdAuditor
 	audit.IdTemplate = input.IdTemplate
-	audit.CreatedDate = time.Now().UTC()
+	audit.CreatedDate = helpers.TheTime()
 
 	err = h.Datastore.SaveAudit(audit)
 	if err != nil {
@@ -125,13 +163,13 @@ func (h *Handler) createAudit(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) getAudit(w http.ResponseWriter, r *http.Request) {
-	idAudit := chi.URLParam(r, "id")
-	id, err := strconv.ParseInt(idAudit, 10, 64)
+	idAuditStr := chi.URLParam(r, "ida")
+	idAudit, err := strconv.ParseInt(idAuditStr, 10, 64)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
 	}
-	audit, err := h.Datastore.GetAuditById(id)
+	audit, err := h.Datastore.GetAuditById(idAudit)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
@@ -144,14 +182,14 @@ func (h *Handler) getAudit(w http.ResponseWriter, r *http.Request) {
 	w.Write(auditSlice)
 }
 func (h *Handler) updateAudit(w http.ResponseWriter, r *http.Request) {
-	idAudit := chi.URLParam(r, "id")
-	id, err := strconv.ParseInt(idAudit, 10, 64)
+	idAuditStr := chi.URLParam(r, "ida")
+	idAudit, err := strconv.ParseInt(idAuditStr, 10, 64)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
 	}
 
-	audit, err := h.Datastore.GetAuditById(id)
+	audit, err := h.Datastore.GetAuditById(idAudit)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
@@ -201,14 +239,14 @@ func (h *Handler) updateAudit(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) deleteAudit(w http.ResponseWriter, r *http.Request) {
-	idAudit := chi.URLParam(r, "id")
-	id, err := strconv.ParseInt(idAudit, 10, 64)
+	idAuditStr := chi.URLParam(r, "ida")
+	idAudit, err := strconv.ParseInt(idAuditStr, 10, 64)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
 	}
 
-	err = h.Datastore.DeleteAuditById(id)
+	err = h.Datastore.DeleteAuditById(idAudit)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
@@ -216,7 +254,7 @@ func (h *Handler) deleteAudit(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) getAuditSubgroups(w http.ResponseWriter, r *http.Request) {
-	idAuditStr := chi.URLParam(r, "id")
+	idAuditStr := chi.URLParam(r, "ida")
 	idAudit, err := strconv.ParseInt(idAuditStr, 10, 64)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
@@ -246,7 +284,7 @@ func (h *Handler) getAuditSubgroups(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) createAuditSubgroups(w http.ResponseWriter, r *http.Request) {
-	idAuditStr := chi.URLParam(r, "id")
+	idAuditStr := chi.URLParam(r, "ida")
 	idAudit, err := strconv.ParseInt(idAuditStr, 10, 64)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
@@ -288,14 +326,14 @@ func (h *Handler) createAuditSubgroups(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) deleteAuditSubgroups(w http.ResponseWriter, r *http.Request) {
-	idAudit := chi.URLParam(r, "id")
-	id, err := strconv.ParseInt(idAudit, 10, 64)
+	idAuditStr := chi.URLParam(r, "ida")
+	idAudit, err := strconv.ParseInt(idAuditStr, 10, 64)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
 	}
 
-	err = h.Datastore.DeleteAuditSubgroupsByIdAudit(id)
+	err = h.Datastore.DeleteAuditSubgroupsByIdAudit(idAudit)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
@@ -303,15 +341,10 @@ func (h *Handler) deleteAuditSubgroups(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) getAuditCriteria(w http.ResponseWriter, r *http.Request) {
-	idAuditStr := chi.URLParam(r, "id")
-	idAudit, err := strconv.ParseInt(idAuditStr, 10, 64)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
+	audit := r.Context().Value("audit").(*datastore.Audit)
 
 	filter := make(map[string]interface{})
-	filter["id_audit"] = idAudit
+	filter["id_audit"] = audit.Id
 
 	auditCriteria, err := h.Datastore.GetAuditCriteria(filter)
 	if err != nil {
@@ -327,12 +360,8 @@ func (h *Handler) getAuditCriteria(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) getAuditCriterion(w http.ResponseWriter, r *http.Request) {
-	idAuditStr := chi.URLParam(r, "id")
-	idAudit, err := strconv.ParseInt(idAuditStr, 10, 64)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
+
+	audit := r.Context().Value("audit").(*datastore.Audit)
 
 	idCriterionStr := chi.URLParam(r, "idc")
 	idCriterion, err := strconv.ParseInt(idCriterionStr, 10, 64)
@@ -341,7 +370,7 @@ func (h *Handler) getAuditCriterion(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	auditCriterion, err := h.Datastore.GetAuditCriterionByIds(idAudit, idCriterion)
+	auditCriterion, err := h.Datastore.GetAuditCriterionByIds(audit.Id, idCriterion)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
@@ -355,12 +384,8 @@ func (h *Handler) getAuditCriterion(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) createAuditCriterion(w http.ResponseWriter, r *http.Request) {
-	idAuditStr := chi.URLParam(r, "id")
-	idAudit, err := strconv.ParseInt(idAuditStr, 10, 64)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
+
+	audit := r.Context().Value("audit").(*datastore.Audit)
 
 	idCriterionStr := chi.URLParam(r, "idc")
 	idCriterion, err := strconv.ParseInt(idCriterionStr, 10, 64)
@@ -377,8 +402,7 @@ func (h *Handler) createAuditCriterion(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var input struct {
-		Value       int64
-		Observation string
+		Value int64
 	}
 
 	err = decoder.Decode(&input)
@@ -388,10 +412,9 @@ func (h *Handler) createAuditCriterion(w http.ResponseWriter, r *http.Request) {
 	}
 
 	auditCriterion := datastore.NewAuditCriterion(false)
-	auditCriterion.IdAudit = idAudit
+	auditCriterion.IdAudit = audit.Id
 	auditCriterion.IdCriterion = idCriterion
 	auditCriterion.Value = zero.IntFrom(input.Value)
-	auditCriterion.Observation = zero.StringFrom(input.Observation)
 
 	err = h.Datastore.SaveAuditCriterion(auditCriterion)
 	if err != nil {
@@ -407,12 +430,8 @@ func (h *Handler) createAuditCriterion(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) updateAuditCriterion(w http.ResponseWriter, r *http.Request) {
-	idAuditStr := chi.URLParam(r, "id")
-	idAudit, err := strconv.ParseInt(idAuditStr, 10, 64)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
+
+	audit := r.Context().Value("audit").(*datastore.Audit)
 
 	idCriterionStr := chi.URLParam(r, "idc")
 	idCriterion, err := strconv.ParseInt(idCriterionStr, 10, 64)
@@ -421,7 +440,7 @@ func (h *Handler) updateAuditCriterion(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	auditCriterion, err := h.Datastore.GetAuditCriterionByIds(idAudit, idCriterion)
+	auditCriterion, err := h.Datastore.GetAuditCriterionByIds(audit.Id, idCriterion)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
@@ -434,8 +453,7 @@ func (h *Handler) updateAuditCriterion(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var input struct {
-		Value       int64
-		Observation string
+		Value int64
 	}
 	input.Value = -1
 
@@ -445,16 +463,13 @@ func (h *Handler) updateAuditCriterion(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if input.Value == -1 && input.Observation == "" {
+	if input.Value == -1 {
 		http.Error(w, helpers.Error("At least one of value, observation"), 400)
 		return
 	}
 
 	if input.Value != -1 {
 		auditCriterion.Value = zero.IntFrom(input.Value)
-	}
-	if input.Observation != "" {
-		auditCriterion.Observation = zero.StringFrom(input.Observation)
 	}
 
 	err = h.Datastore.SaveAuditCriterion(auditCriterion)
@@ -471,14 +486,10 @@ func (h *Handler) updateAuditCriterion(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) deleteAuditCriteria(w http.ResponseWriter, r *http.Request) {
-	idAuditStr := chi.URLParam(r, "id")
-	idAudit, err := strconv.ParseInt(idAuditStr, 10, 64)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
 
-	err = h.Datastore.DeleteAuditCriterionByIdAudit(idAudit)
+	audit := r.Context().Value("audit").(*datastore.Audit)
+
+	err := h.Datastore.DeleteAuditCriterionByIdAudit(audit.Id)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
@@ -486,12 +497,8 @@ func (h *Handler) deleteAuditCriteria(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) deleteAuditCriterion(w http.ResponseWriter, r *http.Request) {
-	idAuditStr := chi.URLParam(r, "id")
-	idAudit, err := strconv.ParseInt(idAuditStr, 10, 64)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
+
+	audit := r.Context().Value("audit").(*datastore.Audit)
 
 	idCriterionStr := chi.URLParam(r, "idc")
 	idCriterion, err := strconv.ParseInt(idCriterionStr, 10, 64)
@@ -500,7 +507,262 @@ func (h *Handler) deleteAuditCriterion(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.Datastore.DeleteAuditCriterionByIds(idAudit, idCriterion)
+	err = h.Datastore.DeleteAuditCriterionByIds(audit.Id, idCriterion)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 400)
+		return
+	}
+}
+
+func (h *Handler) createCriterionRemark(w http.ResponseWriter, r *http.Request) {
+
+	contentLength := helpers.GetContentLength(r.Header.Get("Content-Length"))
+	if contentLength == -1 {
+		http.Error(w, helpers.Error("Invalid Content-Length header value"), http.StatusBadRequest)
+		return
+	}
+
+	if contentLength > helpers.MaxMultipartSize {
+		http.Error(w, helpers.Error("Data too big"), http.StatusBadRequest)
+		return
+	}
+
+	audit := r.Context().Value("audit").(*datastore.Audit)
+
+	idCriterionStr := chi.URLParam(r, "idc")
+	idCriterion, err := strconv.ParseInt(idCriterionStr, 10, 64)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	var input struct {
+		Observation   string
+		imageMimetype string
+		imageBytes    []byte
+	}
+
+	contentType := helpers.GetContentType(r.Header.Get("Content-type"))
+	switch contentType {
+	case "multipart/form-data":
+		input.Observation = r.PostFormValue("Observation")
+		input.imageBytes, input.imageMimetype, err = helpers.ReadImage(r, "image", helpers.MaxImageFileSize)
+		if err != nil && err != http.ErrMissingFile {
+			http.Error(w, helpers.Error(err.Error()), 500)
+			return
+		}
+	default:
+		http.Error(w, helpers.Error("Content-type not supported"), 415)
+		return
+	}
+
+	if input.Observation == "" && input.imageBytes == nil {
+		http.Error(w, helpers.Error("observation or imageBytes"), 400)
+		return
+	}
+
+	remark := datastore.NewRemark(false)
+	remark.IdAudit = audit.Id
+	remark.IdCriterion = idCriterion
+	remark.Observation = zero.StringFrom(input.Observation)
+	remark.Image = input.imageBytes
+	remark.ImageMimeType = zero.StringFrom(input.imageMimetype)
+
+	err = h.Datastore.InsertRemark(remark)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Write([]byte(`{"id":"` + helpers.Int64ToString(remark.Id) + "}"))
+}
+
+func (h *Handler) getCriterionRemark(w http.ResponseWriter, r *http.Request) {
+	audit := r.Context().Value("audit").(*datastore.Audit)
+
+	idCriteriaStr := chi.URLParam(r, "idc")
+	idCriterion, err := strconv.ParseInt(idCriteriaStr, 10, 64)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 400)
+		return
+	}
+
+	idRemarkStr := chi.URLParam(r, "idr")
+	idRemark, err := strconv.ParseInt(idRemarkStr, 10, 64)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 400)
+		return
+	}
+
+	auditCriterionRemark, err := h.Datastore.GetRemarkByIdsAuditCriterionRemark(audit.Id, idCriterion, idRemark)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), http.StatusBadRequest)
+		return
+	}
+
+	auditCriterionRemarkSlice, err := json.Marshal(auditCriterionRemark)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 500)
+		return
+	}
+	w.Write(auditCriterionRemarkSlice)
+}
+
+func (h *Handler) getCriterionRemarkImage(w http.ResponseWriter, r *http.Request) {
+	audit := r.Context().Value("audit").(*datastore.Audit)
+
+	idCriteriaStr := chi.URLParam(r, "idc")
+	idCriterion, err := strconv.ParseInt(idCriteriaStr, 10, 64)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 400)
+		return
+	}
+
+	idRemarkStr := chi.URLParam(r, "idr")
+	idRemark, err := strconv.ParseInt(idRemarkStr, 10, 64)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 400)
+		return
+	}
+
+	auditCriterionRemark, err := h.Datastore.GetRemarkByIdsAuditCriterionRemark(audit.Id, idCriterion, idRemark)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), http.StatusBadRequest)
+		return
+	}
+
+	if auditCriterionRemark.ImageMimeType.Valid && auditCriterionRemark.Image != nil {
+		w.Header().Set("Content-type", auditCriterionRemark.ImageMimeType.String)
+		w.Header().Set("Content-Length", strconv.Itoa(len(auditCriterionRemark.Image)))
+		w.Write(auditCriterionRemark.Image)
+	} else {
+		http.Error(w, helpers.Error("no image"), http.StatusBadRequest)
+		return
+	}
+}
+
+func (h *Handler) getCriterionRemarks(w http.ResponseWriter, r *http.Request) {
+	audit := r.Context().Value("audit").(*datastore.Audit)
+
+	idCriteriaStr := chi.URLParam(r, "idc")
+	idCriterion, err := strconv.ParseInt(idCriteriaStr, 10, 64)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 400)
+		return
+	}
+
+	auditsCriteriaRemarks, err := h.Datastore.GetRemarksByIdsAuditCriterion(audit.Id, idCriterion)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 400)
+		return
+	}
+
+	auditsCriteriaRemarksSlice, err := json.Marshal(auditsCriteriaRemarks)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 400)
+		return
+	}
+
+	w.Write(auditsCriteriaRemarksSlice)
+}
+
+func (h *Handler) updateCriterionRemark(w http.ResponseWriter, r *http.Request) {
+	audit := r.Context().Value("audit").(*datastore.Audit)
+
+	idCriteriaStr := chi.URLParam(r, "idc")
+	idCriterion, err := strconv.ParseInt(idCriteriaStr, 10, 64)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 400)
+		return
+	}
+
+	idRemarkStr := chi.URLParam(r, "idr")
+	idRemark, err := strconv.ParseInt(idRemarkStr, 10, 64)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 400)
+		return
+	}
+
+	var input struct {
+		Observation   string
+		imageMimetype string
+		imageBytes    []byte
+	}
+
+	contentType := helpers.GetContentType(r.Header.Get("Content-type"))
+	switch contentType {
+	case "multipart/form-data":
+		input.Observation = r.PostFormValue("Observation")
+		input.imageBytes, input.imageMimetype, err = helpers.ReadImage(r, "image", helpers.MaxImageFileSize)
+		if err != nil && err != http.ErrMissingFile {
+			http.Error(w, helpers.Error(err.Error()), 500)
+			return
+		}
+	default:
+		http.Error(w, helpers.Error("Content-type not supported"), 415)
+		return
+	}
+
+	if input.Observation == "" && input.imageBytes == nil {
+		http.Error(w, helpers.Error("observation or imageBytes"), 400)
+		return
+	}
+
+	remark, err := h.Datastore.GetRemarkByIdsAuditCriterionRemark(audit.Id, idCriterion, idRemark)
+	if remark != nil {
+		http.Error(w, helpers.Error(err.Error()), 500)
+		return
+	}
+
+	if input.Observation != "" {
+		remark.Observation = zero.StringFrom(input.Observation)
+	}
+
+	if input.imageBytes != nil {
+		remark.Image = input.imageBytes
+	}
+
+	err = h.Datastore.UpdateRemark(remark)
+	if remark != nil {
+		http.Error(w, helpers.Error(err.Error()), 500)
+		return
+	}
+}
+
+func (h *Handler) deleteCriterionRemark(w http.ResponseWriter, r *http.Request) {
+	audit := r.Context().Value("audit").(*datastore.Audit)
+
+	idCriteriaStr := chi.URLParam(r, "idc")
+	idCriterion, err := strconv.ParseInt(idCriteriaStr, 10, 64)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 400)
+		return
+	}
+
+	idRemarkStr := chi.URLParam(r, "idr")
+	idRemark, err := strconv.ParseInt(idRemarkStr, 10, 64)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 400)
+		return
+	}
+
+	err = h.Datastore.DeleteRemarkByIdsAuditCriterionRemark(audit.Id, idCriterion, idRemark)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 400)
+		return
+	}
+}
+
+func (h *Handler) deleteCriterionRemarks(w http.ResponseWriter, r *http.Request) {
+	audit := r.Context().Value("audit").(*datastore.Audit)
+
+	idCriteriaStr := chi.URLParam(r, "idc")
+	idCriterion, err := strconv.ParseInt(idCriteriaStr, 10, 64)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 400)
+		return
+	}
+
+	err = h.Datastore.DeleteRemarkByIdsAuditCriterion(audit.Id, idCriterion)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return

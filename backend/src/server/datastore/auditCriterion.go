@@ -8,10 +8,9 @@ import (
 )
 
 type AuditCriterion struct {
-	IdAudit     int64       `json:"id_audit" db:"id_audit"`
-	IdCriterion int64       `json:"id_criterion" db:"id_criterion"`
-	Value       zero.Int    `json:"value" db:"value"`
-	Observation zero.String `json:"observation" db:"observation"`
+	IdAudit     int64    `json:"idAudit" db:"id_audit"`
+	IdCriterion int64    `json:"idCriterion" db:"id_criterion"`
+	Value       zero.Int `json:"value" db:"value"`
 
 	meta metadata.Metadata
 }
@@ -50,12 +49,12 @@ func (ds *Datastore) InsertAuditCriterion(ac *AuditCriterion) error {
 	}
 
 	const sql = `INSERT INTO places4all.audit_criterion (` +
-		`id_audit, id_criterion, value, observation` +
+		`id_audit, id_criterion, value` +
 		`) VALUES (` +
-		`$1, $2, $3, $4` +
+		`$1, $2, $3 ` +
 		`)`
 
-	_, err := ds.postgres.Exec(sql, ac.IdAudit, ac.IdCriterion, ac.Value, ac.Observation)
+	_, err := ds.postgres.Exec(sql, ac.IdAudit, ac.IdCriterion, ac.Value)
 	if err != nil {
 		return err
 	}
@@ -76,12 +75,12 @@ func (ds *Datastore) UpdateAuditCriterion(ac *AuditCriterion) error {
 	}
 
 	const sql = `UPDATE places4all.audit_criterion SET (` +
-		`value, observation` +
+		`value` +
 		`) = (` +
-		`$1, $2` +
-		`) WHERE id_audit = $3 AND id_criterion = $4`
+		`$1` +
+		`) WHERE id_audit = $2 AND id_criterion = $3`
 
-	_, err := ds.postgres.Exec(sql, ac.Value, ac.Observation, ac.IdAudit, ac.IdCriterion)
+	_, err := ds.postgres.Exec(sql, ac.Value, ac.IdAudit, ac.IdCriterion)
 	return err
 }
 
@@ -122,16 +121,16 @@ func (ds *Datastore) UpsertAuditCriterion(ac *AuditCriterion) error {
 	}
 
 	const sql = `INSERT INTO places4all.audit_criterion (` +
-		`id_audit, id_criterion, value, observation` +
+		`id_audit, id_criterion, value` +
 		`) VALUES (` +
-		`$1, $2, $3, $4` +
+		`$1, $2, $3` +
 		`) ON CONFLICT (id_audit, id_criterion) DO UPDATE SET (` +
-		`id_audit, id_criterion, value, observation` +
+		`id_audit, id_criterion, value` +
 		`) = (` +
-		`EXCLUDED.id_audit, EXCLUDED.id_criterion, EXCLUDED.value, EXCLUDED.observation` +
+		`EXCLUDED.id_audit, EXCLUDED.id_criterion, EXCLUDED.value` +
 		`)`
 
-	_, err := ds.postgres.Exec(sql, ac.IdAudit, ac.IdCriterion, ac.Value, ac.Observation)
+	_, err := ds.postgres.Exec(sql, ac.IdAudit, ac.IdCriterion, ac.Value)
 	if err != nil {
 		return err
 	}
@@ -174,7 +173,7 @@ func (ds *Datastore) GetAuditCriterionCriterion(ac *AuditCriterion) (*Criterion,
 func (ds *Datastore) GetAuditCriterionByIds(idAudit, idCriterion int64) (*AuditCriterion, error) {
 
 	const sql = `SELECT ` +
-		`id_audit, id_criterion, value, observation ` +
+		`id_audit, id_criterion, value ` +
 		`FROM places4all.audit_criterion ` +
 		`WHERE id_audit = $1 AND id_criterion = $2`
 
@@ -193,7 +192,7 @@ func (ds *Datastore) GetAuditCriteria(filter map[string]interface{}) ([]*AuditCr
 
 	where, values := generators.GenerateAndSearchClause(filter)
 
-	sql := ds.postgres.Rebind(`SELECT id_audit, id_criterion, value, observation ` +
+	sql := ds.postgres.Rebind(`SELECT  id_audit, id_criterion, value ` +
 		`FROM places4all.audit_criterion ` +
 		where)
 
