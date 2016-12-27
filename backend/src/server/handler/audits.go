@@ -9,7 +9,6 @@ import (
 	"server/datastore"
 	"server/handler/helpers"
 	"strconv"
-	"time"
 	"server/handler/helpers/decorators"
 )
 
@@ -148,7 +147,7 @@ func (h *Handler) createAudit(w http.ResponseWriter, r *http.Request) {
 	audit.IdProperty = input.IdProperty
 	audit.IdAuditor = input.IdAuditor
 	audit.IdTemplate = input.IdTemplate
-	audit.CreatedDate = time.Now().UTC()
+	audit.CreatedDate = helpers.TheTime()
 
 	err = h.Datastore.SaveAudit(audit)
 	if err != nil {

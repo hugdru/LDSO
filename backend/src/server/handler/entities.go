@@ -12,7 +12,6 @@ import (
 	"server/handler/helpers"
 	"server/handler/sessionData"
 	"strconv"
-	"time"
 	"server/handler/helpers/decorators"
 )
 
@@ -225,7 +224,7 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 	entity.Telephone = zero.StringFrom(input.Telephone)
 	entity.ImageMimetype = zero.StringFrom(input.imageMimetype)
 	entity.Image = input.imageBytes
-	entity.CreatedDate = time.Now().UTC()
+	entity.CreatedDate = helpers.TheTime()
 
 	err = h.Datastore.SaveEntity(entity)
 	if err != nil {

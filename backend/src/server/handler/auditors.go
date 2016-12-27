@@ -7,9 +7,6 @@ import (
 	"server/datastore"
 	"server/handler/helpers"
 	"strconv"
-
-	"fmt"
-	"time"
 	"server/handler/helpers/decorators"
 )
 
@@ -49,7 +46,6 @@ func (h *Handler) getAuditors(w http.ResponseWriter, r *http.Request) {
 	}
 
 	auditors, err := h.Datastore.GetAuditors(limit, offset)
-	fmt.Println(auditors)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
@@ -107,7 +103,7 @@ func (h *Handler) createAuditor(w http.ResponseWriter, r *http.Request) {
 	entity.Email = input.Email
 	entity.Username = input.Username
 	entity.Password = input.Password
-	entity.CreatedDate = time.Now().UTC()
+	entity.CreatedDate = helpers.TheTime()
 	auditor := datastore.NewAuditor(false)
 	auditor.IdEntity = entity.Id
 	err = h.Datastore.SaveEntity(entity)

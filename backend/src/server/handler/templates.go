@@ -8,7 +8,6 @@ import (
 	"server/datastore"
 	"server/handler/helpers"
 	"strconv"
-	"time"
 	"server/handler/helpers/decorators"
 )
 
@@ -97,7 +96,7 @@ func (h *Handler) createTemplate(w http.ResponseWriter, r *http.Request) {
 	template := datastore.NewTemplate(false)
 	template.Name = input.Name
 	template.Description = zero.StringFrom(input.Description)
-	template.CreatedDate = time.Now().UTC()
+	template.CreatedDate = helpers.TheTime()
 
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
