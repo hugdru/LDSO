@@ -1,17 +1,20 @@
 import {Component, Input, Output, EventEmitter, OnInit} from "@angular/core";
 import {AccessibilityService} from "accessibility/service/accessibility.service";
 import {Accessibility} from "accessibility/accessibility";
+import {Criterion} from "../criterion/criterion";
 
 @Component({
     selector: 'accessibility-edit',
-    templateUrl: '../main-group/html/main-group-edit.component.html',
-    styleUrls: ['../main-group/main-group-edit.component.css'],
+    templateUrl: '../ctemplate/html/ctemplate-edit.component.html',
+    styleUrls: ['../ctemplate/ctemplate-edit.component.css'],
     providers: [AccessibilityService]
 })
 
 export class AccessibilityEditComponent implements OnInit {
     backupAccessibility: Accessibility;
 
+    @Input() objType: string;
+    @Input() criterion: Criterion;
     @Input() selectedObject: Accessibility;
     @Input() weight: number;
     @Output() onAction = new EventEmitter();
@@ -37,12 +40,13 @@ export class AccessibilityEditComponent implements OnInit {
     }
 
     updateAccessibility(): void {
-        this.accessibilityService.updateAccessibility(this.selectedObject)
+        this.accessibilityService
+                .updateAccessibility(this.selectedObject, this.criterion.id)
                 .subscribe();
     }
 
     checkPercentage(): boolean {
-        return this.selectedObject.weight + this.weight > 100;
+        return this.selectedObject.weight + this.weight != 100;
     }
 
 }

@@ -4,8 +4,8 @@ import {MainGroup} from "main-group/main-group";
 
 @Component({
     selector: 'main-group-edit',
-    templateUrl: 'html/main-group-edit.component.html',
-    styleUrls: ['main-group-edit.component.css'],
+    templateUrl: '../ctemplate/html/ctemplate-edit.component.html',
+    styleUrls: ['../ctemplate/ctemplate-edit.component.css'],
     providers: [MainGroupService]
 })
 
@@ -42,7 +42,7 @@ export class MainGroupEditComponent implements OnInit {
     }
 
     checkPercentage(): boolean {
-        return this.selectedObject.weight + this.weight > 100;
+        return this.selectedObject.weight + this.weight != 100;
     }
 
 }

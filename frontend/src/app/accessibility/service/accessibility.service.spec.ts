@@ -1,22 +1,24 @@
 import {TestBed, getTestBed, async, inject} from "@angular/core/testing";
 import {
-        BaseRequestOptions,
-        Response,
-        HttpModule,
-        Http,
-        XHRBackend,
-        RequestMethod,
-        ResponseOptions
+    BaseRequestOptions,
+    Response,
+    HttpModule,
+    Http,
+    XHRBackend,
+    RequestMethod,
+    ResponseOptions
 } from "@angular/http";
 import {MockBackend, MockConnection} from "@angular/http/testing";
 import {AccessibilityService} from "accessibility/service/accessibility.service";
 import {HandlerService} from "handler.service";
 
 const mockArray = [
-    {_id: 5, name: "carlos", weight: 25, criterion: 25},
-    {_id: 2, name: "pedro", weight: 30, criterion: 25}
+    {id: 5, name: "carlos", weight: 25},
+    {id: 2, name: "pedro", weight: 30}
 ];
-const mock = {_id: 5, name: "carlos", weight: 25, criterion: 25};
+const mock = {id: 5, name: "carlos", weight: 25};
+
+const mock_criterion_id = 4;
 
 describe('Accessibility Service w/ Mock Server', () => {
     let mockBackend: MockBackend;
@@ -68,7 +70,7 @@ describe('Accessibility Service w/ Mock Server', () => {
             })));
         });
 
-        accessibilityService.getSomeAccessibilities("criterion", "int", 12)
+        accessibilityService.getSomeAccessibilities(12)
                 .subscribe((data) => {
                     expect(data).toBe(mockArray);
                 });
@@ -84,7 +86,7 @@ describe('Accessibility Service w/ Mock Server', () => {
             })));
         });
 
-        accessibilityService.getAccessibility("name", "string", "clarlos")
+        accessibilityService.getAccessibility(5)
                 .subscribe((data) => {
                     expect(data).toBe(mock);
                 });
@@ -102,10 +104,11 @@ describe('Accessibility Service w/ Mock Server', () => {
             })));
         });
 
-        accessibilityService.updateAccessibility(mock).subscribe((result => {
-            expect(result).toBeDefined();
-            expect(result.status).toBe(200);
-        }));
+        accessibilityService.updateAccessibility(mock, mock_criterion_id)
+                .subscribe((result => {
+                    expect(result).toBeDefined();
+                    expect(result.status).toBe(200);
+                }));
     }));
 
     it('Add a new accessibiliy',
@@ -115,10 +118,11 @@ describe('Accessibility Service w/ Mock Server', () => {
                     connection.mockRespond(new Response(
                             new ResponseOptions({status: 201})));
                 });
-                accessibilityService.setAccessibility(mock).subscribe((result => {
-                    expect(result).toBeDefined();
-                    expect(result.status).toBe(201);
-                }));
+                accessibilityService.setAccessibility(mock, mock_criterion_id)
+                        .subscribe((result => {
+                            expect(result).toBeDefined();
+                            expect(result.status).toBe(201);
+                        }));
             })));
 
     it('Delete an accessibility',
@@ -130,9 +134,10 @@ describe('Accessibility Service w/ Mock Server', () => {
                                     new ResponseOptions({status: 204})));
                         });
 
-                accessibilityService.removeAccessibility(20).subscribe((result => {
-                    expect(result).toBeDefined();
-                    expect(result.status).toBe(204);
+                accessibilityService.removeAccessibility(20, 1)
+                        .subscribe((result => {
+                            expect(result).toBeDefined();
+                            expect(result.status).toBe(204);
                 }));
             })));
 });

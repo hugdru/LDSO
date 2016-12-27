@@ -1,5 +1,6 @@
-<div>
-    <button *ngIf="!selectedAddObject" class="btn btn-primary round outline"
+<div class="tosub">
+    <button *ngIf="!selectedAddObject && objType !='Accessibility'"
+            class="btn btn-primary round outline"
             (click)="selectAddObject()">
         Adicionar Novo <i class="glyphicon glyphicon-plus"></i>
     </button>
@@ -7,7 +8,7 @@
         <list-select-add
                 [father]="father"
                 [weight]="sumPercentageForAdd()"
-                [objType]="findType()"
+                [objType]="objType"
                 (add)="onAdd($event)">
         </list-select-add>
     </div>
@@ -20,7 +21,7 @@
                 <list-show-value
                         [object]="obj"
                         [weight]="sumPercentageForAdd()"
-                        [objType]="findType()">
+                        [objType]="objType">
                 </list-show-value>
                 <th>
                     <button class="btn btn-neutral round outline"
@@ -29,7 +30,9 @@
                     </button>
                 </th>
                 <th>
-                    <button type="button" class="btn btn-delete round outline"
+                    <button *ngIf="objType !='Accessibility'"
+                            type="button"
+                            class="btn btn-delete round outline"
                             (click)="deleteObject(obj)">
                         <span class="glyphicon glyphicon-trash"></span>
                     </button>
@@ -40,9 +43,10 @@
     <div *ngIf="selectedEditObject">
         <div *ngIf="selectedEditObject.name == obj.name">
             <list-select-edit
+                    [father]="father"
                     [selectedEditObject]="selectedEditObject"
                     [weight]="sumPercentage()"
-                    [objType]="findType()"
+                    [objType]="objType"
                     (action)="onAction()">
             </list-select-edit>
         </div>
@@ -50,7 +54,7 @@
             <list-show-value
                     [object]="obj"
                     [weight]="sumPercentageForAdd()"
-                    [objType]="findType()">
+                    [objType]="objType">
             </list-show-value>
         </div>
     </div>

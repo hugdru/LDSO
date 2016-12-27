@@ -1,0 +1,29 @@
+<div>
+    <input *ngIf="objType!='Accessibility'" [(ngModel)]="selectedObject.name"
+           placeholder="name"/>
+    <span *ngIf="objType=='Accessibility'" class={{selectedObject.name}}>
+        {{selectedObject.name}}</span>
+    <label *ngIf="objType=='Criterion'">
+        Boa Pratica <input type="checkbox"
+                           [(ngModel)]="goodPractice"
+                           [checked]="goodPractice"
+                           (change)="!goodPractice">
+    </label>
+    <input *ngIf="objType=='Criterion'"
+           [(ngModel)]="selectedObject.legislation"
+           [disabled]="goodPractice"
+           placeholder="legislação"/>
+    <input *ngIf="objType!='Ctemplate'"
+           type="number" step="1" min="0" max="100"
+           required
+           [(ngModel)]="selectedObject.weight"
+           placeholder="peso" [class.warning]="checkPercentage()"/>
+    <button class="btn btn-success round outline"
+            (click)="pressed(selectedObject)">
+        <i class="glyphicon glyphicon-ok"></i>
+    </button>
+    <button class="btn btn-neutral round outline"
+            (click)="pressed(null)">
+        <i class="glyphicon glyphicon-remove"></i>
+    </button>
+</div>

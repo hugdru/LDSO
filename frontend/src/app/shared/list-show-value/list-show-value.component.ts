@@ -13,7 +13,7 @@ export class ListShowValueComponent {
     @Input() objType: string;
 
     checkPercentage(): boolean {
-        return this.weight > 100;
+        return this.weight != 100;
     }
 }
 

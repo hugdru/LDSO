@@ -7,13 +7,14 @@ import {Identifier} from "identifier.interface";
 @Component({
     selector: 'list-manage',
     templateUrl: './list-manage.component.html',
-    styleUrls: ['../../main-group/main-group.component.css'],
+    styleUrls: ['../../ctemplate/ctemplate.component.css'],
 })
 
 export class ListManageComponent {
     selectedEditObject: Identifier;
     selectedAddObject: boolean = false;
 
+    @Input() objType: string;
     @Input() objects: Identifier[];
     @Input() father: Identifier;
     @Output() onShow = new EventEmitter<Object>();
@@ -27,7 +28,7 @@ export class ListManageComponent {
         this.onDelete.emit(obj);
         let position: number;
         for (let i in this.objects) {
-            if (this.objects[i]._id == obj._id) {
+            if (this.objects[i].id == obj.id) {
                 position = Number(i);
                 break;
             }
@@ -54,7 +55,7 @@ export class ListManageComponent {
     sumPercentage(): number {
         let result: number = 0;
         for (let obj of this.objects) {
-            if (obj._id != this.selectedEditObject._id) {
+            if (obj.id != this.selectedEditObject.id) {
                 result += obj.weight;
             }
         }
@@ -62,22 +63,7 @@ export class ListManageComponent {
     }
 
     checkPercentage(): boolean {
-        return this.sumPercentageForAdd() > 100;
-    }
-
-    findType(): string {
-        if (this.father === undefined) {
-            return "MainGroup";
-        }
-        else if ((<SubGroup>this.father).main_group !== undefined) {
-            return "Criterion";
-        }
-        else if ((<Criterion>this.father).sub_group !== undefined) {
-            return "Accessibility";
-        }
-        else {
-            return "SubGroup";
-        }
+        return this.sumPercentageForAdd() != 100;
     }
 
     onAction(): void {

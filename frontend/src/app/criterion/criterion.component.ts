@@ -19,32 +19,35 @@ import {SubGroup} from "sub-group/sub-group";
 export class CriterionComponent implements OnInit, OnChanges {
     criteria: Criterion[];
     parentCriterion: Criterion;
+    objType: string;
 
     @Input() parentSubGroup: SubGroup;
 
     constructor(private criterionService: CriterionService) {
+        this.objType = "Criterion"
     }
 
     ngOnChanges(changes: SimpleChanges): void {
         for (let i in changes) {
-            this.initCriteria(changes[i].currentValue._id);
+            this.initCriteria(changes[i].currentValue.id);
             this.parentCriterion = undefined;
         }
     }
 
     ngOnInit() {
-        this.initCriteria(this.parentSubGroup._id);
+        this.initCriteria(this.parentSubGroup.id);
     }
 
     initCriteria(subGroupId: number): void {
         this.criterionService
-                .getSomeCriteria("sub_group", "int", subGroupId)
+                .getSomeCriteria("idSubgroup", subGroupId)
                 .subscribe(data => this.criteria = data);
 
     }
 
     onDelete(criterion: Criterion): void {
-        this.criterionService.removeCriterion(criterion._id).subscribe();
+        this.criterionService.removeCriterion(criterion.id).subscribe();
+        this.parentCriterion = undefined;
     }
 
     onShow(criterion: Criterion): void {

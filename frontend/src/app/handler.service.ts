@@ -1,11 +1,14 @@
 import {Injectable} from "@angular/core";
-import {Http, Response} from "@angular/http";
+import {Http, Response, Headers, RequestOptions} from "@angular/http";
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/operator/map";
 import "rxjs/add/operator/catch";
 
 @Injectable()
 export class HandlerService {
+
+    headers = new Headers({ 'Content-Type': 'application/json' });
+    options = new RequestOptions({ headers: this.headers });
 
     constructor(private http: Http) {
     }
@@ -25,9 +28,13 @@ export class HandlerService {
         return Observable.throw(errMsg);
     }
 
-    get<T>(url: string, tag: string, type: string, value: any): Observable<T> {
-        let formated = url + "?tag=" + tag + "&type=" + type
-                + "&value=" + value;
+    get<T>(url: string, id: number): Observable<T> {
+        let formated = url + "/" + id;
+        return this.getAll<T>(formated);
+    }
+
+    getSome<T>(url: string, tag: string, value: any): Observable<T> {
+        let formated = url + "?" + tag + "=" + value;
         return this.getAll<T>(formated);
     }
 
@@ -44,17 +51,17 @@ export class HandlerService {
     }
 
     update<T>(url: string, object: T, id: number): Observable<Response> {
-        return this.http.put(url + "?_id=" + id, JSON.stringify(object))
+        return this.http.put(url + "/" + id, JSON.stringify(object), this.options)
                 .map((result: Response) => result);
     }
 
     delete(url: string, id: number): Observable<Response> {
-        let formated = url + "?_id=" + id;
+        let formated = url + "/" + id;
         return this.http.delete(formated).map((result: Response) => result);
     }
 
     set<T>(url: string, object: T): Observable<Response> {
-        return this.http.post(url, JSON.stringify(object))
+        return this.http.post(url, JSON.stringify(object), this.options)
                 .map((response: Response) => response);
     }
 

@@ -1,6 +1,7 @@
-import {Component, OnInit} from "@angular/core";
+import {Component, OnInit, Input, SimpleChanges} from "@angular/core";
 import {MainGroupService} from "main-group/service/main-group.service";
 import {MainGroup} from "main-group/main-group";
+import {Ctemplate} from "../ctemplate/ctemplate";
 
 @Component({
     selector: 'main-group',
@@ -12,25 +13,36 @@ import {MainGroup} from "main-group/main-group";
 export class MainGroupComponent implements OnInit {
     mainGroups: MainGroup[];
     parentMainGroup: MainGroup;
+    objType: string;
     errorMsg: string;
 
-    constructor(private mainGroupService: MainGroupService) {
+    @Input() parentCtemplate: Ctemplate;
 
+    constructor(private mainGroupService: MainGroupService) {
+        this.objType = "MainGroup"
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        for (let i in changes) {
+            this.initMainGroups(changes[i].currentValue.id);
+            this.parentMainGroup = undefined;
+        }
     }
 
     ngOnInit(): void {
-        this.initMainGroups();
+        this.initMainGroups(this.parentCtemplate.id);
     }
 
-    initMainGroups(): void {
-        this.mainGroupService.getMainGroups().subscribe(
-                data => this.mainGroups = data,
+    initMainGroups(ctemplateId: number): void {
+        this.mainGroupService.getSomeMainGroups("idTemplate", ctemplateId)
+                .subscribe(data => this.mainGroups = data,
                 error => this.errorMsg = <any>error
         );
     }
 
     onDelete(mainGroup: MainGroup): void {
-        this.mainGroupService.removeMainGroup(mainGroup._id).subscribe();
+        this.mainGroupService.removeMainGroup(mainGroup.id).subscribe();
+        this.parentMainGroup = undefined;
     }
 
     onShow(mainGroup: MainGroup): void {

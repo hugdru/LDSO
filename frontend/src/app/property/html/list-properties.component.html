@@ -1,4 +1,5 @@
+<p class="h1">Grupo</p>
 <div *ngFor="let property of properties"
-     [routerLink]="['/audit', property._id]">
+     [routerLink]="['/audit', property.id]">
     {{property.name}}
 </div>

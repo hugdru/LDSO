@@ -13,10 +13,10 @@ import {SubGroupService} from "sub-group/service/sub-group.service";
 import {HandlerService} from "handler.service";
 
 const mockArray = [
-    {_id: 5, name: "carlos", weight: 25, main_group: 25},
-    {_id: 2, name: "pedro", weight: 30, main_group: 14}
+    {id: 5, name: "carlos", weight: 25, idMaingroup: 25},
+    {id: 2, name: "pedro", weight: 30, idMaingroup: 14}
 ];
-const mock = {_id: 5, name: "carlos", weight: 25, main_group: 25};
+const mock = {id: 5, name: "carlos", weight: 25, idMaingroup: 25};
 
 describe('SubGroup Service w/ Mock Service', () => {
     let mockBackend: MockBackend;
@@ -66,7 +66,7 @@ describe('SubGroup Service w/ Mock Service', () => {
             })));
         });
 
-        subGroupService.getSomeSubGroups("main_group", "int", 5)
+        subGroupService.getSomeSubGroups("idMaingroup", 5)
                 .subscribe((data) => {
                     expect(data).toBe(mockArray);
                 });
@@ -81,7 +81,7 @@ describe('SubGroup Service w/ Mock Service', () => {
             })));
         });
 
-        subGroupService.getSubGroup("name", "string", "clarlos")
+        subGroupService.getSubGroup(5)
                 .subscribe((data) => {
                     expect(data).toBe(mock);
                 });

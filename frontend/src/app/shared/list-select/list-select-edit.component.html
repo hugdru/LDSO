@@ -1,4 +1,9 @@
 <div [ngSwitch]="objType">
+    <ctemplate-edit *ngSwitchCase="'Ctemplate'"
+                    [selectedObject]="selectedEditObject"
+                    [objType]="objType"
+                    (onAction)="onAction()">
+    </ctemplate-edit>
     <main-group-edit *ngSwitchCase="'MainGroup'"
                      [selectedObject]="selectedEditObject"
                      [weight]="weight"
@@ -16,7 +21,9 @@
                     (onAction)="onAction()">
     </criterion-edit>
     <accessibility-edit *ngSwitchCase="'Accessibility'"
+                        [criterion]="father"
                         [selectedObject]="selectedEditObject"
+                        [objType]="objType"
                         [weight]="weight"
                         (onAction)="onAction()">
     </accessibility-edit>

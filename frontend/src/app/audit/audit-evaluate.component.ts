@@ -23,7 +23,6 @@ export class AuditEvaluateComponent implements OnInit {
     criteria: Criterion[];
 
     constructor(private mainGroupService: MainGroupService,
-			private subGroupService: SubGroupService,
 			private criterionService: CriterionService) {
     }
 
@@ -34,21 +33,21 @@ export class AuditEvaluateComponent implements OnInit {
 
     getMainGroups(): void {
         for (let mainGroupId of this.mainGroupsId) {
-            this.mainGroupService.getMainGroup("_id", "int", mainGroupId)
+            this.mainGroupService.getMainGroup(mainGroupId)
                     .subscribe(data => this.mainGroups.push(data));
         }
     }
 
     findMainGroups(): void {
         for (let subGroup of this.selectedSubGroups) {
-            if (!this.mainGroupsId.includes(subGroup.main_group)) {
-                this.mainGroupsId.push(subGroup.main_group);
+            if (!this.mainGroupsId.includes(subGroup.idMaingroup)) {
+                this.mainGroupsId.push(subGroup.idMaingroup);
             }
         }
     }
 
     selected(object: Object): void {
-        if ((<SubGroup>object).main_group !== undefined) {
+        if ((<SubGroup>object).idMaingroup !== undefined) {
 			this.showCriteria(<SubGroup>object);
         }
         else {
@@ -62,13 +61,17 @@ export class AuditEvaluateComponent implements OnInit {
     }
 
     initCriteria(subGroup: SubGroup): void {
-        this.criterionService.getSomeCriteria("sub_group", "int",
-                subGroup._id).subscribe(data => this.criteria = data);
+        this.criterionService.getSomeCriteria("idSubgroup",
+                subGroup.id).subscribe(data => this.criteria = data);
     }
 
 	initSubGroups(mainGroup: MainGroup): void {
-        this.subGroupService.getSomeSubGroups("main_group", "int",
-                mainGroup._id).subscribe(data => this.subGroups = data);
+        this.subGroups = [];
+        for(let subGroup of this.selectedSubGroups) {
+            if (subGroup.idMaingroup == mainGroup.id) {
+                this.subGroups.push(subGroup);
+            }
+        }
 	}
 
 }

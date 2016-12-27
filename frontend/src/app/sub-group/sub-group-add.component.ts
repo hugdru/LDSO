@@ -5,8 +5,8 @@ import {MainGroup} from "main-group/main-group";
 
 @Component({
     selector: 'sub-group-add',
-    templateUrl: '../main-group/html/main-group-edit.component.html',
-    styleUrls: ['../main-group/main-group-edit.component.css'],
+    templateUrl: '../ctemplate/html/ctemplate-edit.component.html',
+    styleUrls: ['../ctemplate/ctemplate-edit.component.css'],
     providers: [SubGroupService]
 })
 
@@ -33,13 +33,13 @@ export class SubGroupAddComponent implements OnInit {
     }
 
     addSubGroup(): void {
-        this.selectedObject.main_group = this.mainGroup._id;
+        this.selectedObject.idMaingroup = this.mainGroup.id;
         this.subGroupService.setSubGroup(this.selectedObject).subscribe(
-                response => this.selectedObject._id = response.json()
+                response => this.selectedObject.id = response.json().id
         );
     }
 
     checkPercentage(): boolean {
-        return this.selectedObject.weight + this.weight > 100;
+        return this.selectedObject.weight + this.weight != 100;
     }
 }

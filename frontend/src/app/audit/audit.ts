@@ -4,7 +4,7 @@ export class AuditCriterion {
 }
 
 export class Audit {
-    _id: number;
+    id: number;
     property: number;
     rating: number;
     criteria: AuditCriterion[];

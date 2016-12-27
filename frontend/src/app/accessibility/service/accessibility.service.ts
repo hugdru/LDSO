@@ -1,7 +1,7 @@
 import {Response} from "@angular/http";
 import {Injectable} from "@angular/core";
 import {Observable} from "rxjs/Observable";
-import {accessibilitiesUrl, accessibilitiesFindUrl} from "shared/shared-data";
+import {accessibilitiesUrl} from "shared/shared-data";
 import {HandlerService} from "handler.service";
 import {Accessibility} from "accessibility/accessibility";
 
@@ -15,28 +15,32 @@ export class AccessibilityService {
         return this.handler.getAll<Accessibility[]>(accessibilitiesUrl);
     }
 
-    getSomeAccessibilities(tag: string, type: string, value: any): Observable<Accessibility[]> {
-        return this.handler.get<Accessibility[]>(accessibilitiesUrl,
-                tag, type, value);
+    getSomeAccessibilities(criterionId: number): Observable<Accessibility[]> {
+        return this.handler.getAll<Accessibility[]>(
+                accessibilitiesUrl.replace(/#/g, criterionId.toString()));
     }
 
-    getAccessibility(tag: string, type: string, value: any): Observable<Accessibility> {
-        return this.handler.get<Accessibility>(accessibilitiesFindUrl, tag, type,
-                value);
+    getAccessibility(id: number): Observable<Accessibility> {
+        return this.handler.get<Accessibility>(accessibilitiesUrl, id);
     }
 
-    updateAccessibility(accessibility: Accessibility): Observable<Response> {
-        return this.handler.update<Accessibility>(accessibilitiesUrl,
-                accessibility, accessibility._id);
+    updateAccessibility(accessibility: Accessibility,
+                        criterionId: number): Observable<Response> {
+        return this.handler.update<Accessibility>(
+                accessibilitiesUrl.replace(/#/g, criterionId.toString()),
+                accessibility, accessibility.id);
     }
 
-    setAccessibility(accessibility: Accessibility): Observable<Response> {
-        return this.handler.set<Accessibility>(accessibilitiesUrl,
+    setAccessibility(accessibility: Accessibility,
+                     criterionId: number): Observable<Response> {
+        return this.handler.set<Accessibility>(
+                accessibilitiesUrl.replace(/#/g, criterionId.toString()),
                 accessibility);
     }
 
-    removeAccessibility(id: number): Observable<Response> {
-        return this.handler.delete(accessibilitiesUrl, id);
+    removeAccessibility(id: number, criterionId: number): Observable<Response> {
+        return this.handler.delete(
+                accessibilitiesUrl.replace(/#/g, criterionId.toString()), id);
     }
 
 }

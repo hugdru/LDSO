@@ -1,7 +1,7 @@
 import {Response} from "@angular/http";
 import {Injectable} from "@angular/core";
 import {Observable} from "rxjs/Observable";
-import {criteriaUrl, criteriaFindUrl} from "shared/shared-data";
+import {criteriaUrl} from "shared/shared-data";
 import {HandlerService} from "handler.service";
 import {Criterion} from "criterion/criterion";
 
@@ -14,19 +14,17 @@ export class CriterionService {
         return this.handler.getAll<Criterion[]>(criteriaUrl);
     }
 
-    getSomeCriteria(tag: string, type: string, value: any): Observable<Criterion[]> {
-        return this.handler.get<Criterion[]>(criteriaUrl, tag, type,
-                value);
+    getSomeCriteria(tag: string, value: any): Observable<Criterion[]> {
+        return this.handler.getSome<Criterion[]>(criteriaUrl, tag, value);
     }
 
-    getCriterion(tag: string, type: string, value: any): Observable<Criterion> {
-        return this.handler.get<Criterion>(criteriaFindUrl, tag, type,
-                value);
+    getCriterion(id: number): Observable<Criterion> {
+        return this.handler.get<Criterion>(criteriaUrl, id);
     }
 
     updateCriterion(criterion: Criterion): Observable<Response> {
         return this.handler.update<Criterion>(criteriaUrl, criterion,
-                criterion._id);
+                criterion.id);
     }
 
     setCriterion(criterion: Criterion): Observable<Response> {

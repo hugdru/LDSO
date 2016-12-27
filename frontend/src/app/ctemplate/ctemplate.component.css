@@ -1,0 +1,15 @@
+.col-form-label {
+    /* min-width: 20; */
+    padding-left: 1%;
+    text-align: right;
+}
+
+.col {
+    padding-left: 10%;
+    text-align: right;
+}
+
+.list {
+    padding: 1%;
+    display: inline-table;
+}

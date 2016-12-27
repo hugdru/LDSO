@@ -5,8 +5,8 @@ import {Criterion} from "criterion/criterion";
 
 @Component({
     selector: 'accessibility-add',
-    templateUrl: '../main-group/html/main-group-edit.component.html',
-    styleUrls: ['../main-group/main-group-edit.component.css'],
+    templateUrl: '../ctemplate/html/ctemplate-edit.component.html',
+    styleUrls: ['../ctemplate/ctemplate-edit.component.css'],
     providers: [AccessibilityService]
 })
 
@@ -33,14 +33,14 @@ export class AccessibilityAddComponent implements OnInit {
     }
 
     addAccessibility(): void {
-        this.selectedObject.criterion = this.criterion._id;
-        this.accessibilityService.setAccessibility(this.selectedObject)
+        this.accessibilityService
+                .setAccessibility(this.selectedObject, this.criterion.id)
                 .subscribe(
-                        response => this.selectedObject._id = response.json()
+                        response => this.selectedObject.id = response.json().id
                 );
     }
 
     checkPercentage(): boolean {
-        return this.selectedObject.weight + this.weight > 100;
+        return this.selectedObject.weight + this.weight != 100;
     }
 }

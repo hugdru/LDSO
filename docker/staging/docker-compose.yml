@@ -6,7 +6,7 @@ networks:
 
 services:
   nginx:
-    image: prod/nginx
+    image: stag/nginx
     container_name: nginx
     environment:
       - BUILD=stag
@@ -33,46 +33,44 @@ services:
       - app-network
     restart: always
   go1:
-    image: prod/golang
+    image: stag/golang
     container_name: go1
+    environment:
+      - BUILD=stag
     depends_on:
-      - mongodb
+      - postgres
       - redis
     networks:
       - app-network
     restart: always
   gon:
-    image: prod/golang
+    image: stag/golang
     container_name: gon
+    environment:
+      - BUILD=stag
     depends_on:
-      - mongodb
+      - postgres
       - redis
     networks:
       - app-network
     restart: always
-  mongodb:
-    image: mongo:latest
-    container_name: mongodb
+  postgres:
+    image: stag/postgres
+    container_name: postgres
+    environment:
+      - BUILD=stag
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgrespw
+      - POSTGRES_PGDATA=/var/lib/postgresql/data/pgdata
+      - POSTGRES_DB=places4all
     networks:
       - app-network
     restart: always
   redis:
     image: redis:latest
     container_name: redis
+    environment:
+      - BUILD=stag
     networks:
       - app-network
     restart: always
-  # mongodb:
-  #   image: prod/mongodb
-  #   container_name: mongodb
-  #   ports:
-  #     - "27017"
-  #   networks:
-  #     - app-network
-  # redis:
-  #   image: prod/redis
-  #   container_name: redis
-  #   ports:
-  #     - "6379"
-  #   networks:
-  #     - app-network

@@ -41,15 +41,15 @@ export class AuditSelectComponent implements OnInit {
     }
 
     initSubGroups(mainGroup: MainGroup): void {
-        this.subGroupService.getSomeSubGroups("main_group", "int",
-                mainGroup._id).subscribe(data => this.subGroups = data);
+        this.subGroupService.getSomeSubGroups("idMaingroup",
+                mainGroup.id).subscribe(data => this.subGroups = data);
     }
 
     toggleSubGroup(subGroup: SubGroup): void {
         var index = this.selectedSubGroups.map(
                 function (x) {
-                    return x._id;
-                }).indexOf(subGroup._id);
+                    return x.id;
+                }).indexOf(subGroup.id);
         if (index > -1) {
             this.selectedSubGroups.splice(index, 1);
         }
@@ -61,8 +61,8 @@ export class AuditSelectComponent implements OnInit {
     checkedSubGroup(subGroup: SubGroup): boolean {
         var index = this.selectedSubGroups.map(
                 function (x) {
-                    return x._id;
-                }).indexOf(subGroup._id);
+                    return x.id;
+                }).indexOf(subGroup.id);
         return index > -1;
     }
 

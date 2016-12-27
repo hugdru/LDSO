@@ -5,14 +5,14 @@ import {SubGroup} from "sub-group/sub-group";
 
 @Component({
     selector: 'criterion-add',
-    templateUrl: '../main-group/html/main-group-edit.component.html',
-    styleUrls: ['../main-group/main-group-edit.component.css'],
+    templateUrl: '../ctemplate/html/ctemplate-edit.component.html',
+    styleUrls: ['../ctemplate/ctemplate-edit.component.css'],
     providers: [CriterionService]
 })
 
 export class CriterionAddComponent implements OnInit {
     selectedObject: Criterion;
-    goodPratice: boolean = false;
+    goodPractice: boolean = false;
 
     @Input() objType: string;
     @Input() subGroup: SubGroup;
@@ -35,13 +35,13 @@ export class CriterionAddComponent implements OnInit {
     }
 
     addCriterion(): void {
-        this.selectedObject.sub_group = this.subGroup._id;
+        this.selectedObject.idSubgroup = this.subGroup.id;
         this.criterionService.setCriterion(this.selectedObject).subscribe(
-                response => this.selectedObject._id = response.json()
+                response => this.selectedObject.id = response.json().id
         );
     }
 
     checkPercentage(): boolean {
-        return this.selectedObject.weight + this.weight > 100;
+        return this.selectedObject.weight + this.weight != 100;
     }
 }

@@ -13,10 +13,10 @@ import {PropertyService} from "property/service/property.service";
 import {HandlerService} from "handler.service";
 
 const mockArray = [
-    {_id: 26, name: "ana", image_path: "bla"},
-    {_id: 14, name: "joao", image_path: "ble"}
+    {id: 26, name: "ana", image_path: "bla"},
+    {id: 14, name: "joao", image_path: "ble"}
 ];
-const mock = {_id: 26, name: "ana", image_path: "bla"};
+const mock = {id: 26, name: "ana", image_path: "bla"};
 
 describe('Property Service w/ Mock Service', () => {
     let mockBackend: MockBackend;
@@ -66,7 +66,7 @@ describe('Property Service w/ Mock Service', () => {
             })));
         });
 
-        propertyService.getSomeProperties("weight", "string", "ana").subscribe((data) => {
+        propertyService.getSomeProperties("name", "ana").subscribe((data) => {
             expect(data).toBe(mockArray);
         });
     }));
@@ -80,7 +80,7 @@ describe('Property Service w/ Mock Service', () => {
             })));
         });
 
-        propertyService.getProperty("weight", "int", 1).subscribe((data) => {
+        propertyService.getProperty(26).subscribe((data) => {
             expect(data).toBe(mock);
         });
     }));

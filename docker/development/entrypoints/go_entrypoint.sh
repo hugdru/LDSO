@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-dockerize -wait tcp://mongodb:27017 -wait tcp://redis:6379 -timeout 30s
+dockerize -wait tcp://postgres:5432 -wait tcp://redis:6379 -timeout 30s
 
 cd "$BACKEND_DIR"
 

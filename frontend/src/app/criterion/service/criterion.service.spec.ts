@@ -13,11 +13,11 @@ import {CriterionService} from "criterion/service/criterion.service";
 import {HandlerService} from "handler.service";
 
 const mockArray = [
-    {_id: 5, name: "carlos", weight: 25, legislation: "aaa", sub_group: 25},
-    {_id: 2, name: "pedro", weight: 30, legislation: "abba", sub_group: 33}
+    {id: 5, name: "carlos", weight: 25, legislation: "aaa", idSubgroup: 25},
+    {id: 2, name: "pedro", weight: 30, legislation: "abba", idSubgroup: 33}
 ];
 
-const mock = {_id: 5, name: "ana", weight: 25, legislation: "a", sub_group: 25};
+const mock = {id: 5, name: "ana", weight: 25, legislation: "a", idSubgroup: 25};
 
 describe('Criterion Service w/ Mock Server', () => {
     let mockBackend: MockBackend;
@@ -69,7 +69,7 @@ describe('Criterion Service w/ Mock Server', () => {
             })));
         });
 
-        criterionService.getSomeCriteria("sub_group", "int", 4)
+        criterionService.getSomeCriteria("idSubgroup", 4)
                 .subscribe((data) => {
                     expect(data).toBe(mockArray);
                 });
@@ -85,7 +85,7 @@ describe('Criterion Service w/ Mock Server', () => {
             })));
         });
 
-        criterionService.getCriterion("name", "string", "clarlos")
+        criterionService.getCriterion(5)
                 .subscribe((data) => {
                     expect(data).toBe(mock);
                 });

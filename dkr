@@ -27,10 +27,13 @@ typeset -A images
 images=(
   ["prod/nginx"]="./docker/production/nginx.dockerfile"
   ["prod/golang"]="./docker/production/go.dockerfile"
+  ["prod/postgres"]="./docker/common/postgres.dockerfile"
   ["dev/nginx"]="./docker/development/nginx.dockerfile"
   ["dev/golang"]="./docker/development/go.dockerfile"
+  ["dev/postgres"]="./docker/common/postgres.dockerfile"
   ["stag/nginx"]="./docker/production/nginx.dockerfile"
   ["stag/golang"]="./docker/production/go.dockerfile"
+  ["stag/postgres"]="./docker/common/postgres.dockerfile"
 )
 
 typeset -A builds_args
@@ -40,12 +43,12 @@ builds_args=(
 
 typeset -A args
 args=(
-  ["build"]="build (prod|dev|stag)"
-  ["push"]="push (images|compose) (prod|stag)"
-  ["clean"]="clean (prod|dev|stag)"
+  ["build"]="build [tech,...] (prod|dev|stag)"
+  ["push"]="push (images [tech,...]|compose) (prod|stag)"
+  ["clean"]="clean [tech,...] (prod|dev|stag)"
   ["install_compose"]="install_compose (prod|stag)"
   ["compose"]="compose [command] (prod|dev|stag)"
-  ["redo"]="redo (prod|dev|stag)"
+  ["redo"]="redo [tech,...] (prod|dev|stag)"
 )
 ###################### END OF GLOBAL VARS ######################
 
@@ -58,36 +61,65 @@ main() {
 }
 
 build() {
-  if [[ $# -ne 1 || "$1" != prod && "$1" != dev && "$1" != stag ]]; then
+  if [[ $# -lt 1 ]]; then
     1>&2 echo "${args[$FUNCNAME]}"
     exit 1
   fi
 
-  for image in "${!images[@]}"; do
-    IFS='/' read -ra image_fields <<< "$image"
-    if [[ "${image_fields[0]}" != "$1" ]]; then continue; fi
-    tar -cf - --exclude-ignore-recursive="$exclude_context_file" . | docker build -t "$image" -f "${images["$image"]}" ${builds_args["$image"]} -
-  done
+  local machine="${@: -1}"
+
+  if [[ $# -gt 1 ]]; then
+    for tech in "${@:1:$(($#-1))}"; do
+      local image="$machine/$tech"
+      if [[ -z "${images["$image"]}" ]]; then
+        1>&2 echo "${args[$FUNCNAME]}"
+        1>&2 echo "Image, $image, does not exist"
+        exit 1
+      fi
+    find . ! -path . -type f | grep -v -f "$exclude_context_file" | tar -cf - -T - | docker build -t "$image" -f "${images["$image"]}" ${builds_args["$image"]} -
+    done
+  else
+    for image in "${!images[@]}"; do
+      IFS='/' read -ra image_fields <<< "$image"
+      if [[ "${image_fields[0]}" != "$machine" ]]; then continue; fi
+      find . ! -path . -type f | grep -v -f "$exclude_context_file" | tar -cf - -T - | docker build -t "$image" -f "${images["$image"]}" ${builds_args["$image"]} -
+    done
+  fi
+
 }
 
 push() {
-  if [[ $# -ne 2 || $2 != prod && $2 != stag ]]; then
+  if [[ $# -lt 2 ]]; then
     1>&2 echo "${args[$FUNCNAME]}"
     exit 1
   fi
 
-  local droplet="${droplets[$2]}"
-  local compose="${composes[$2]}"
+  local machine="${@: -1}"
+  local droplet="${droplets[$machine]}"
 
   case "$1" in
     images)
-      for image in "${!images[@]}"; do
-        IFS='/' read -ra image_fields <<< "$image"
-        if [[ "${image_fields[0]}" != "$2" ]]; then continue; fi
-        docker save "$image" | xz -9 | pv | ssh "$droplet" 'unxz | docker load'
-      done
+      if [[ $# -eq 2 ]]; then
+        for image in "${!images[@]}"; do
+          IFS='/' read -ra image_fields <<< "$image"
+          if [[ "${image_fields[0]}" != "$machine" ]]; then continue; fi
+          docker save "$image" | xz | pv | ssh "$droplet" 'unxz | docker load'
+        done
+      else
+        for tech in "${@:2:$((${#@}-2))}"; do
+          local image="$machine/$tech"
+          if [[ -z "${images["$image"]}" ]]; then
+            1>&2 echo "${args[$FUNCNAME]}"
+            1>&2 echo "Image, $image, does not exist"
+            exit 1
+          fi
+          docker save "$image" | xz | pv | ssh "$droplet" 'unxz | docker load'
+        done
+      fi
       ;;
     compose)
+      [[ $# -ne 2 ]] && 1>&2 echo "${args[$FUNCNAME]}" && exit 1
+      local compose="${composes[$2]}"
       scp "$compose" "$droplet":~/"${compose##*/}"
       ;;
     *)
@@ -96,33 +128,46 @@ push() {
 }
 
 clean() {
+  if [[ $# -lt 1 ]]; then
+    1>&2 echo "${args[$FUNCNAME]}"
+    exit 1
+  fi
+
+  machine="${@: -1}"
+  local cleanCommand='docker rm -f $(docker ps -q -a); docker rmi $(docker images -q)'
+
+  case "$machine" in
+    dev)
+      eval "$cleanCommand" || true
+      ;;
+    *)
+      if [[ $# -eq 1 ]]; then
+        ssh "${droplets[$machine]}" "$cleanCommand" || true
+      else
+        for tech in "${@:1:$((${#@}-1))}"; do
+          local image="$machine/$tech"
+          local cleanCommand='docker rm -f $(docker ps -a -q --filter=ancestor="'$image'"); docker rmi "'$image'"'
+          ssh "${droplets[$machine]}" "$cleanCommand" || true
+        done
+      fi
+  esac
+}
+
+install_compose() {
   if [[ $# -ne 1 ]]; then
     1>&2 echo "${args[$FUNCNAME]}"
     exit 1
   fi
 
-  local clean_command='docker rm -f $(docker ps -q -a); docker rmi $(docker images -q)'
-
-  case "$1" in
-    prod|stag)
-      ssh "${droplets[$1]}" "$clean_command" || true
-      ;;
-    dev)
-      eval "$clean_command" || true
-      ;;
-    *)
-      1>&2 echo "${args[$FUNCNAME]}"
-      exit 1
-  esac
-
-}
-
-install_compose() {
-  if [[ $# -ne 1 || $1 != prod && $1 != stag ]]; then
+  machine="$1"
+  droplet="${droplets[$machine]}"
+  if [[ -z "$droplet" ]]; then
     1>&2 echo "${args[$FUNCNAME]}"
+    1>&2 echo "no droplet for $machine"
     exit 1
   fi
-  ssh "${droplets[$1]}" 'mkdir -p ~/bin && curl -L "https://github.com/docker/compose/releases/download/'"$compose_version"'/docker-compose-$(uname -s)-$(uname -m)" > $HOME/bin/docker-compose && chmod +x "$HOME/bin/docker-compose"'
+
+  ssh "$droplet" 'mkdir -p ~/bin && curl -L "https://github.com/docker/compose/releases/download/'"$compose_version"'/docker-compose-$(uname -s)-$(uname -m)" > $HOME/bin/docker-compose && chmod +x "$HOME/bin/docker-compose"'
 }
 
 compose() {
@@ -136,41 +181,52 @@ compose() {
   local compose_args=("${@:1:$(($#-1))}")
 
   case "$last_argument" in
-    prod|stag)
-      for index in "${!compose_args[@]}"; do
-        compose_args[$index]="\"${compose_args[$index]}\""
-      done
-      ssh "${droplets[$last_argument]}" "./bin/docker-compose -f ${compose##*/} ${compose_args[@]}"
-      ;;
     dev)
       docker-compose -f "$compose" "${compose_args[@]}"
       ;;
     *)
-      1>&2 echo "${args[$FUNCNAME]}"
+      for index in "${!compose_args[@]}"; do
+        compose_args[$index]="\"${compose_args[$index]}\""
+      done
+      ssh "${droplets[$last_argument]}" "./bin/docker-compose -f ${compose##*/} ${compose_args[@]}"
   esac
 }
 
 redo() {
-  if [[ $# -ne 1 ]]; then
+  if [[ $# -lt 1 ]]; then
     1>&2 echo "${args[$FUNCNAME]}"
     exit 1
   fi
 
-  case "$1" in
-    prod|stag)
-      build "$1"
-      clean "$1"
-      push images "$1"
-      push compose "$1"
-      compose up "$1"
-      ;;
+  local machine="${@: -1}"
+  if [[ $# -eq 2 ]]; then
+    local tech="$1"
+  fi
+
+  case "$machine" in
     dev)
-      clean "$1"
-      build "$1"
-      compose up "$1"
+      compose down "$machine"
+      clean "$tech" "$machine"
+      build "$tech" "$machine"
+      compose up "$machine"
       ;;
     *)
-    1>&2 echo "${args[$FUNCNAME]}"
+      compose down "$machine"
+      if [[ $# -eq 1 ]]; then
+        build "$machine"
+        clean "$machine"
+        push images "$machine"
+        push compose "$machine"
+      else
+        for tech in "${@:1:$((${#@}-1))}"; do
+          build "$tech" "$machine"
+          clean "$tech" "$machine"
+          push images "$tech" "$machine"
+        done
+      fi
+      push compose "$machine"
+      compose up "$machine"
+      ;;
   esac
 }
 

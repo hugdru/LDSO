@@ -1,8 +1,12 @@
 <div>
-	<list-manage [objects]="mainGroups"
-			(onDelete)="onDelete($event)"
-			(onShow)="onShow($event)">
-	</list-manage>
+    <h2>{{parentCtemplate.name}}</h2>
+    <hr>
+    <list-manage [objects]="mainGroups"
+                 [father]="parentCtemplate"
+                 [objType]="objType"
+                 (onDelete)="onDelete($event)"
+                 (onShow)="onShow($event)">
+    </list-manage>
 </div>
 <div *ngIf="parentMainGroup">
     <sub-group [parentMainGroup]="parentMainGroup"></sub-group>

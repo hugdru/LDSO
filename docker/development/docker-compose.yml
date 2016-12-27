@@ -40,8 +40,10 @@ services:
   go1:
     image: dev/golang
     container_name: go1
+    environment:
+      - BUILD=dev
     depends_on:
-      - mongodb
+      - postgres
       - redis
     volumes:
       - ../../backend:/server/backend
@@ -53,8 +55,10 @@ services:
   gon:
     image: dev/golang
     container_name: gon
+    environment:
+      - BUILD=dev
     depends_on:
-      - mongodb
+      - postgres
       - redis
     volumes:
       - ../../backend:/server/backend
@@ -63,33 +67,27 @@ services:
     networks:
       - app-network
     restart: always
-  mongodb:
-    image: mongo:latest
-    container_name: mongodb
+  postgres:
+    image: dev/postgres
+    container_name: postgres
+    environment:
+      - BUILD=dev
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgrespw
+      - POSTGRES_PGDATA=/var/lib/postgresql/data/pgdata
+      - POSTGRES_DB=places4all
     ports:
-      - "27017:27017"
+      - "5432:5432"
     networks:
       - app-network
     restart: always
   redis:
     image: redis:latest
     container_name: redis
+    environment:
+      - BUILD=dev
     ports:
       - "6379:6379"
     networks:
       - app-network
     restart: always
-  # mongodb:
-  #   image: dev/mongodb
-  #   container_name: mongodb
-  #   ports:
-  #     - "27017"
-  #   networks:
-  #     - app-network
-  # redis:
-  #   image: dev/redis
-  #   container_name: redis
-  #   ports:
-  #     - "6379"
-  #   networks:
-  #     - app-network

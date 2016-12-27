@@ -4,13 +4,14 @@ import {Criterion} from "criterion/criterion";
 
 @Component({
     selector: 'criterion-edit',
-    templateUrl: '../main-group/html/main-group-edit.component.html',
-    styleUrls: ['../main-group/main-group-edit.component.css'],
+    templateUrl: '../ctemplate/html/ctemplate-edit.component.html',
+    styleUrls: ['../ctemplate/ctemplate-edit.component.css'],
     providers: [CriterionService]
 })
 
 export class CriterionEditComponent implements OnInit {
     backupCriterion: Criterion;
+    goodPractice: Boolean;
 
     @Input() objType: string;
     @Input() selectedObject: Criterion;
@@ -18,13 +19,13 @@ export class CriterionEditComponent implements OnInit {
     @Output() onAction = new EventEmitter();
 
     constructor(private criterionService: CriterionService) {
-
     }
 
     ngOnInit(): void {
         this.backupCriterion = new Criterion();
         this.backupCriterion.name = this.selectedObject.name;
         this.backupCriterion.weight = this.selectedObject.weight;
+        this.goodPractice = this.selectedObject.legislation == '';
     }
 
     pressed(updatedCriterion: Criterion): void {
@@ -43,7 +44,7 @@ export class CriterionEditComponent implements OnInit {
     }
 
     checkPercentage(): boolean {
-        return this.selectedObject.weight + this.weight > 100;
+        return this.selectedObject.weight + this.weight != 100;
     }
 
 }

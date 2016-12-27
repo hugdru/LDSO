@@ -20,29 +20,32 @@ export class AccessibilityComponent implements OnInit, OnChanges {
     accessibilities: Accessibility[];
 
     @Input() parentCriterion: Criterion;
+    objType: string;
 
     constructor(private accessibilityService: AccessibilityService) {
+        this.objType = "Accessibility"
     }
 
     ngOnChanges(changes: SimpleChanges): void {
         for (let i in changes) {
-            this.initAccessibilities(changes[i].currentValue._id);
+            this.initAccessibilities(changes[i].currentValue.id);
         }
     }
 
     ngOnInit() {
-        this.initAccessibilities(this.parentCriterion._id);
+        this.initAccessibilities(this.parentCriterion.id);
     }
 
     initAccessibilities(criterionId: number): void {
         this.accessibilityService
-                .getSomeAccessibilities("criterion", "int", criterionId)
+                .getSomeAccessibilities(criterionId)
                 .subscribe(data => this.accessibilities = data);
 
     }
 
     onDelete(accessibility: Accessibility): void {
-        this.accessibilityService.removeAccessibility(accessibility._id)
+        this.accessibilityService
+                .removeAccessibility(accessibility.id, this.parentCriterion.id)
                 .subscribe();
     }
 
