@@ -10,14 +10,15 @@ import (
 
 	"fmt"
 	"time"
+	"server/handler/helpers/decorators"
 )
 
 func (h *Handler) auditorsRoutes(router chi.Router) {
-	router.Get("/", helpers.ReplyJson(h.getAuditors))
-	router.Post("/", helpers.RequestJson(helpers.ReplyJson(h.createAuditor)))
-	router.Get("/:id", helpers.ReplyJson(h.getAuditor))
-	router.Put("/:id", helpers.RequestJson(helpers.ReplyJson(h.updateAuditor)))
-	router.Delete("/:id", helpers.ReplyJson(h.deleteAuditor))
+	router.Get("/", decorators.ReplyJson(h.getAuditors))
+	router.Post("/", decorators.RequestJson(decorators.ReplyJson(h.createAuditor)))
+	router.Get("/:id", decorators.ReplyJson(h.getAuditor))
+	router.Put("/:id", decorators.RequestJson(decorators.ReplyJson(h.updateAuditor)))
+	router.Delete("/:id", decorators.ReplyJson(h.deleteAuditor))
 }
 
 func (h *Handler) getAuditors(w http.ResponseWriter, r *http.Request) {

@@ -9,14 +9,15 @@ import (
 	"server/handler/helpers"
 	"strconv"
 	"time"
+	"server/handler/helpers/decorators"
 )
 
 func (h *Handler) templatesRoutes(router chi.Router) {
-	router.Get("/", helpers.ReplyJson(h.getTemplates))
-	router.Post("/", helpers.RequestJson(helpers.ReplyJson(h.createTemplate)))
-	router.Get("/:id", helpers.ReplyJson(h.getTemplate))
-	router.Put("/:id", helpers.RequestJson(helpers.ReplyJson(h.updateTemplate)))
-	router.Delete("/:id", helpers.ReplyJson(h.deleteTemplate))
+	router.Get("/", decorators.ReplyJson(h.getTemplates))
+	router.Post("/", decorators.RequestJson(decorators.ReplyJson(h.createTemplate)))
+	router.Get("/:id", decorators.ReplyJson(h.getTemplate))
+	router.Put("/:id", decorators.RequestJson(decorators.ReplyJson(h.updateTemplate)))
+	router.Delete("/:id", decorators.ReplyJson(h.deleteTemplate))
 }
 
 func (h *Handler) getTemplates(w http.ResponseWriter, r *http.Request) {

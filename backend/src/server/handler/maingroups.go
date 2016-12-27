@@ -8,14 +8,15 @@ import (
 	"server/handler/helpers"
 	"strconv"
 	"time"
+	"server/handler/helpers/decorators"
 )
 
 func (h *Handler) maingroupsRoutes(router chi.Router) {
-	router.Get("/", helpers.ReplyJson(h.getMaingroups))
-	router.Post("/", helpers.RequestJson(helpers.ReplyJson(h.createMaingroup)))
-	router.Get("/:id", helpers.ReplyJson(h.getMaingroup))
-	router.Put("/:id", helpers.RequestJson(helpers.ReplyJson(h.updateMaingroup)))
-	router.Delete("/:id", helpers.ReplyJson(h.deleteMaingroup))
+	router.Get("/", decorators.ReplyJson(h.getMaingroups))
+	router.Post("/", decorators.RequestJson(decorators.ReplyJson(h.createMaingroup)))
+	router.Get("/:id", decorators.ReplyJson(h.getMaingroup))
+	router.Put("/:id", decorators.RequestJson(decorators.ReplyJson(h.updateMaingroup)))
+	router.Delete("/:id", decorators.ReplyJson(h.deleteMaingroup))
 }
 
 func (h *Handler) getMaingroups(w http.ResponseWriter, r *http.Request) {

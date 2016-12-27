@@ -9,6 +9,13 @@ import (
 
 const EntityKey = "entity"
 
+const (
+	Superadmin = "superadmin"
+	Localadmin = "localadmin"
+	Auditor = "auditor"
+	Client = "client"
+)
+
 func GobRegister() {
 	gob.Register(EntitySessionData{})
 }
@@ -54,13 +61,13 @@ func SetSessionData(entity *datastore.Entity, roleInterface interface{},
 	//switch userRole := userRoleInterface.(type) {
 	switch roleInterface.(type) {
 	case *datastore.Superadmin:
-		sessionData.Role = "superadmin"
+		sessionData.Role = Superadmin
 	case *datastore.Localadmin:
-		sessionData.Role = "localadmin"
+		sessionData.Role = Localadmin
 	case *datastore.Auditor:
-		sessionData.Role = "auditor"
+		sessionData.Role = Auditor
 	case *datastore.Client:
-		sessionData.Role = "client"
+		sessionData.Role = Client
 	default:
 		return nil
 	}

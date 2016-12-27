@@ -156,13 +156,13 @@ func (ds *Datastore) GetPropertyAddress(p *Property) (*Address, error) {
 	return ds.GetAddressByIdWithForeign(p.IdAddress)
 }
 
-func (ds *Datastore) GetPropertyById(id int64) (*Property, error) {
+func (ds *Datastore) GetPropertyByIdWithForeign(id int64) (*Property, error) {
 
 	p := NewProperty(false)
 	err := ds.postgres.QueryRowx(`SELECT `+
-		`p.id, p.id_address, p.name, p.details, p.created_date `+
-		`FROM places4all.property as p `+
-		`WHERE p.id = $1`,
+		`id, id_address, name, details, created_date `+
+		`FROM places4all.property `+
+		`WHERE id = $1`,
 		id).StructScan(p)
 	if err != nil {
 		return nil, err
@@ -188,17 +188,10 @@ func (ds *Datastore) GetProperties(limit, offset int, filter map[string]interfac
 
 	where, values := generators.GenerateAndSearchClause(filter)
 
-	sql := `SELECT p.id, p.id_address, p.name, p.details, p.created_date, ` +
-		`address.id, address.id_country, address.address_line1, address.address_line2, ` +
-		`address.address_line3, address.town_city, address.county, ` +
-		`address.postcode, address.latitude, address.longitude, ` +
-		`country.id, country.name, country.iso2 ` +
-		`FROM places4all.property AS p ` +
-		`JOIN places4all.address ON address.id = p.id_address ` +
-		`JOIN places4all.country ON country.id = address.id_country ` +
-		where + `ORDER BY p.id DESC LIMIT ` + strconv.Itoa(limit) +
-		` OFFSET ` + strconv.Itoa(offset)
-	sql = ds.postgres.Rebind(sql)
+	sql := ds.postgres.Rebind(`SELECT id, id_address, name, details, created_date ` +
+		`FROM places4all.property ` +
+		where + `ORDER BY property.id DESC LIMIT ` + strconv.Itoa(limit) +
+		` OFFSET ` + strconv.Itoa(offset))
 
 	rows, err := ds.postgres.Queryx(sql, values...)
 	if err != nil {
@@ -209,13 +202,11 @@ func (ds *Datastore) GetProperties(limit, offset int, filter map[string]interfac
 	for rows.Next() {
 		p := NewProperty(false)
 		p.SetExists()
-		p.Address = NewAddress(true)
-		p.Address.SetExists()
-		err := rows.Scan(&p.Id, &p.IdAddress, &p.Name, &p.Details, &p.CreatedDate, &p.Address.Id,
-			&p.Address.IdCountry, &p.Address.AddressLine1, &p.Address.AddressLine2, &p.Address.AddressLine3,
-			&p.Address.TownCity, &p.Address.County, &p.Address.Postcode,
-			&p.Address.Latitude, &p.Address.Longitude, &p.Address.Country.Id,
-			&p.Address.Country.Name, &p.Address.Country.Iso2)
+		err := rows.StructScan(p)
+		if err != nil {
+			return nil, err
+		}
+		p.Address, err = ds.GetAddressByIdWithForeign(p.IdAddress)
 		if err != nil {
 			return nil, err
 		}

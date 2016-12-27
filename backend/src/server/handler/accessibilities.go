@@ -7,14 +7,15 @@ import (
 	"server/datastore"
 	"server/handler/helpers"
 	"strconv"
+	"server/handler/helpers/decorators"
 )
 
 func (h *Handler) accessibilitiesRoutes(router chi.Router) {
-	router.Get("/", helpers.ReplyJson(h.getAccessibilities))
-	router.Post("/", helpers.RequestJson(helpers.ReplyJson(h.createAccessibility)))
-	router.Get("/:id", helpers.ReplyJson(h.getAccessibility))
-	router.Put("/:id", helpers.RequestJson(helpers.ReplyJson(h.updateAccessibility)))
-	router.Delete("/:id", helpers.ReplyJson(h.deleteAccessibility))
+	router.Get("/", decorators.ReplyJson(h.getAccessibilities))
+	router.Get("/:id", decorators.ReplyJson(h.getAccessibility))
+	router.Post("/", decorators.OnlySuperadmins(decorators.RequestJson(decorators.ReplyJson(h.createAccessibility))))
+	router.Put("/:id", decorators.OnlySuperadmins(decorators.RequestJson(decorators.ReplyJson(h.updateAccessibility))))
+	router.Delete("/:id", decorators.OnlySuperadmins(decorators.ReplyJson(h.deleteAccessibility)))
 }
 
 func (h *Handler) getAccessibilities(w http.ResponseWriter, r *http.Request) {
