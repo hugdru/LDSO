@@ -43,6 +43,10 @@ func NewAccessibility(allocateObjects bool) *Accessibility {
 
 func (ds *Datastore) InsertAccessibility(a *Accessibility) error {
 
+	if a == nil {
+		return errors.New("accessibility should not be nil")
+	}
+
 	if a.Exists() {
 		return errors.New("insert failed: already exists")
 	}
@@ -59,6 +63,10 @@ func (ds *Datastore) InsertAccessibility(a *Accessibility) error {
 }
 
 func (ds *Datastore) UpdateAccessibility(a *Accessibility) error {
+
+	if a == nil {
+		return errors.New("accessibility should not be nil")
+	}
 
 	if !a.Exists() {
 		return errors.New("update failed: does not exist")
@@ -83,6 +91,10 @@ func (ds *Datastore) SaveAccessibility(a *Accessibility) error {
 
 func (ds *Datastore) UpsertAccessibility(a *Accessibility) error {
 
+	if a == nil {
+		return errors.New("accessibility should not be nil")
+	}
+
 	if a.Exists() {
 		return errors.New("insert failed: already exists")
 	}
@@ -103,6 +115,10 @@ func (ds *Datastore) UpsertAccessibility(a *Accessibility) error {
 }
 
 func (ds *Datastore) DeleteAccessibility(a *Accessibility) error {
+
+	if a == nil {
+		return errors.New("accessibility should not be nil")
+	}
 
 	if !a.Exists() {
 		return nil
