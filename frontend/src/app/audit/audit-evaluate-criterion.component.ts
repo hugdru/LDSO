@@ -1,4 +1,5 @@
 import {Component, OnInit, Input} from "@angular/core";
+import {MdCheckbox} from '@angular/material';
 
 import {Criterion} from "criterion/criterion";
 import {Remark} from "remark/remark";
@@ -6,7 +7,7 @@ import {Remark} from "remark/remark";
 @Component({
     selector: 'audit-evaluate-criterion',
     templateUrl: 'html/audit-evaluate-criterion.component.html',
-    styleUrls: ['../main-group/main-group.component.css'],
+    styleUrls: ['../main-group/main-group.component.css']
     // providers: [MainGroupService, SubGroupService, CriterionService]
 })
 
@@ -18,18 +19,19 @@ export class AuditEvaluateCriterionComponent {
 	remark: Remark;
 	remarks: Remark[];
 	selectedAdd: boolean = false;
+	a: boolean = false;
 
     ngOnInit(): void {
 		this.remarks = [];
     }
 
 	checkedNoCriterion(criterion: Criterion): void {
-		// console.log("hello");
-			// this.uncheckedCriteria.push(criterion);
-		}
+		console.log("hello");
+		// this.uncheckedCriteria.push(criterion);
+	}
 
-	uncheckedNoCriterion(criterion: Criterion): void {
-
+	uncheckedNoCriterion(criterion: Criterion, change: boolean): void {
+		console.log("hello " + criterion.name + "  " + change + " " + this.a);
 	}
 
 	checkCriterion(criterion: Criterion): boolean {

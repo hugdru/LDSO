@@ -4,8 +4,10 @@ import {HttpModule} from "@angular/http";
 import {FormsModule} from "@angular/forms";
 import {NgbModule} from "@ng-bootstrap/ng-bootstrap";
 import {ModalModule} from "ng2-modal";
+import {MaterialModule} from '@angular/material';
 import {FileSelectDirective, FileDropDirective}
 		from 'ng2-file-upload/ng2-file-upload';
+import 'hammerjs';
 
 import {AppRoutingModule} from "app-routing.module";
 import {AppComponent} from "app.component";
@@ -94,7 +96,8 @@ import {HandlerService} from "handler.service";
         HttpModule,
         FormsModule,
         NgbModule.forRoot(),
-        ModalModule
+        ModalModule,
+		MaterialModule.forRoot()
     ],
     providers: [HandlerService],
     bootstrap: [AppComponent]

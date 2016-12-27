@@ -11,9 +11,10 @@
             <h3>{{criterion.name}}</h3>
 		</modal-header>
 		<modal-content>
+			<md-checkbox [checked]="false" color="primary"
+					(change)="uncheckedNoCriterion(criterion, $event)">
 			Não Aplicavel
-			<input type="checkbox" [checked]="checkedNoCriterion(criterion)"
-					(change)="uncheckedNoCriterion(criterion)">
+			</md-checkbox>
 			<br>
 			{{criterion.legislation}}
 			<br>
