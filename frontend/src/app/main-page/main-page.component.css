@@ -1,174 +1,60 @@
-/*
- * Start Bootstrap - One Page Wonder (http://startbootstrap.com/)
- * Copyright 2013-2016 Start Bootstrap
- * Licensed under MIT (https://github.com/BlackrockDigital/startbootstrap/blob/gh-pages/LICENSE)
- */
-
-body {
-    margin-top: 50px; /* Required padding for .navbar-fixed-top. Remove if using .navbar-static-top. Change if height of navigation changes. */
+.title-home{
+    font-size: larger;
 }
 
-.header-image {
-    display: block;
-    width: 100%;
-    text-align: center;
-    background: url('http://placehold.it/1900x500') no-repeat center center scroll;
-    -webkit-background-size: cover;
-    -moz-background-size: cover;
-    background-size: cover;
-    -o-background-size: cover;
+.metodologia {
+    text-align:left;
 }
 
-.headline {
-    padding: 120px 0;
+.metodologia-img-div {
+    padding-top:10px;
+    padding-bottom:10px;
+    margin-left:0;
+    margin-right:0;
+    text-align:center;
 }
 
-.headline h1 {
-    font-size: 130px;
-    background: #fff;
-    background: rgba(255,255,255,0.9);
+.metodologia-img-png {
+    width:auto;
+    max-width:100%;
 }
 
-.headline h2 {
-    font-size: 77px;
-    background: #fff;
-    background: rgba(255,255,255,0.9);
-}
 
-.featurette-divider {
-    margin: 80px 0;
-}
-
-.featurette {
+.div-divider {
+    height: 20px;
     overflow: hidden;
+    width: 100%;
 }
 
-.featurette-image.pull-left {
-    margin-right: 40px;
+.styled-hr {
+    width:100%;
 }
 
-.featurette-image.pull-right {
-    margin-left: 40px;
+.distico {
+    text-align:left;
 }
 
-.featurette-heading {
-    font-size: 50px;
+.img_col {
+    width:50%;
+    padding:0 15px;
 }
 
-@media(max-width:1200px) {
-    .headline h1 {
-        font-size: 70px;
-    }
-
-    .headline h2 {
-        font-size: 31px;
-    }
-
-    .featurette-divider {
-        margin: 50px 0;
-    }
-
-    .featurette-image.pull-left {
-        margin-right: 20px;
-    }
-
-    .featurette-image.pull-right {
-        margin-left: 20px;
-    }
-
-    .featurette-heading {
-        font-size: 35px;
-    }
+.img_1{
+    width:314px;
+    max-width:100%;
+}
+.img_2{
+    width:318px;
+    max-width:100%;
 }
 
-@media(max-width:991px) {
-    .headline h1 {
-        font-size: 52px;
-    }
-
-    .headline h2 {
-        font-size: 25px;
-    }
-
-    .featurette-divider {
-        margin: 40px 0;
-    }
-
-    .featurette-image {
-        max-width: 50%;
-    }
-
-    .featurette-image.pull-left {
-        margin-right: 10px;
-    }
-
-    .featurette-image.pull-right {
-        margin-left: 10px;
-    }
-
-    .featurette-heading {
-        font-size: 30px;
-    }
+.paragraph{
+    text-align:left;
+    font-weight: normal;
 }
 
-@media(max-width:768px) {
-    .container {
-        margin: 0 15px;
-    }
-
-    .featurette-divider {
-        margin: 40px 0;
-    }
-
-    .featurette-heading {
-        font-size: 25px;
-    }
+.btn-center-div{
+    text-align:center;
+    paddin-left: 15%;
 }
 
-@media(max-width:668px) {
-    .headline h1 {
-        font-size: 35px;
-    }
-
-    .headline h2 {
-        font-size: 16px;
-    }
-
-    .featurette-divider {
-        margin: 30px 0;
-    }
-}
-
-@media(max-width:640px) {
-    .headline {
-        padding: 75px 0 25px 0;
-    }
-
-    .headline h1 {
-        font-size: 30px;
-    }
-
-    .headline h2 {
-        font-size: 15px;
-    }
-}
-
-@media(max-width:375px) {
-    .featurette-divider {
-        margin: 10px 0;
-    }
-
-    .featurette-image {
-        max-width: 100%;
-    }
-
-    .featurette-image.pull-left {
-        margin-right: 0;
-        margin-bottom: 10px;
-    }
-
-    .featurette-image.pull-right {
-        margin-bottom: 10px;
-        margin-left: 0;
-    }
-}
