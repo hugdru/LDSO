@@ -1,15 +1,15 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/pressly/chi"
+	"gopkg.in/guregu/null.v3/zero"
 	"net/http"
+	"server/datastore"
 	"server/handler/helpers"
 	"server/handler/helpers/decorators"
-	"context"
-	"gopkg.in/guregu/null.v3/zero"
 	"server/handler/sessionData"
-	"server/datastore"
 )
 
 func (h *Handler) propertiesRoutes(router chi.Router) {

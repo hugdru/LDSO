@@ -5,8 +5,8 @@ import (
 	"github.com/pressly/chi"
 	"net/http"
 	"server/handler/helpers"
-	"strconv"
 	"server/handler/helpers/decorators"
+	"strconv"
 )
 
 func (h *Handler) clientsRoutes(router chi.Router) {

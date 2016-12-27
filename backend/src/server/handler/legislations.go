@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"server/datastore"
 	"server/handler/helpers"
-	"strconv"
 	"server/handler/helpers/decorators"
+	"strconv"
 )
 
 func (h *Handler) legislationsRoutes(router chi.Router) {
