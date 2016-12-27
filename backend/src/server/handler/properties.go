@@ -117,13 +117,13 @@ func (h *Handler) getProperty(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) updateProperty(w http.ResponseWriter, r *http.Request) {
 
-	property := r.Context().Value("property").(*datastore.Property)
+	//property := r.Context().Value("property").(*datastore.Property)
 
 }
 
 func (h *Handler) deleteProperty(w http.ResponseWriter, r *http.Request) {
 
-	property := r.Context().Value("property").(*datastore.Property)
+	//property := r.Context().Value("property").(*datastore.Property)
 }
 
 func (h *Handler) getAddress(w http.ResponseWriter, r *http.Request) {
