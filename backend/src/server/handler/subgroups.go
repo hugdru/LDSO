@@ -6,16 +6,16 @@ import (
 	"net/http"
 	"server/datastore"
 	"server/handler/helpers"
+	"server/handler/helpers/decorators"
 	"strconv"
-	"time"
 )
 
 func (h *Handler) subgroupsRoutes(router chi.Router) {
-	router.Get("/", helpers.ReplyJson(h.getSubgroups))
-	router.Post("/", helpers.RequestJson(helpers.ReplyJson(h.createSubgroup)))
-	router.Get("/:id", helpers.ReplyJson(h.getSubgroup))
-	router.Put("/:id", helpers.RequestJson(helpers.ReplyJson(h.updateSubgroup)))
-	router.Delete("/:id", helpers.ReplyJson(h.deleteSubgroup))
+	router.Get("/", decorators.ReplyJson(h.getSubgroups))
+	router.Post("/", decorators.RequestJson(decorators.ReplyJson(h.createSubgroup)))
+	router.Get("/:id", decorators.ReplyJson(h.getSubgroup))
+	router.Put("/:id", decorators.RequestJson(decorators.ReplyJson(h.updateSubgroup)))
+	router.Delete("/:id", decorators.ReplyJson(h.deleteSubgroup))
 }
 
 func (h *Handler) getSubgroups(w http.ResponseWriter, r *http.Request) {
@@ -105,7 +105,7 @@ func (h *Handler) createSubgroup(w http.ResponseWriter, r *http.Request) {
 	subgroup.IdMaingroup = input.IdMaingroup
 	subgroup.Name = input.Name
 	subgroup.Weight = input.Weight
-	subgroup.CreatedDate = time.Now().UTC()
+	subgroup.CreatedDate = helpers.TheTime()
 
 	err = h.Datastore.SaveSubgroup(subgroup)
 	if err != nil {

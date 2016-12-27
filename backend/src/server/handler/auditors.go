@@ -6,18 +6,16 @@ import (
 	"net/http"
 	"server/datastore"
 	"server/handler/helpers"
+	"server/handler/helpers/decorators"
 	"strconv"
-
-	"fmt"
-	"time"
 )
 
 func (h *Handler) auditorsRoutes(router chi.Router) {
-	router.Get("/", helpers.ReplyJson(h.getAuditors))
-	router.Post("/", helpers.RequestJson(helpers.ReplyJson(h.createAuditor)))
-	router.Get("/:id", helpers.ReplyJson(h.getAuditor))
-	router.Put("/:id", helpers.RequestJson(helpers.ReplyJson(h.updateAuditor)))
-	router.Delete("/:id", helpers.ReplyJson(h.deleteAuditor))
+	router.Get("/", decorators.ReplyJson(h.getAuditors))
+	router.Post("/", decorators.RequestJson(decorators.ReplyJson(h.createAuditor)))
+	router.Get("/:id", decorators.ReplyJson(h.getAuditor))
+	router.Put("/:id", decorators.RequestJson(decorators.ReplyJson(h.updateAuditor)))
+	router.Delete("/:id", decorators.ReplyJson(h.deleteAuditor))
 }
 
 func (h *Handler) getAuditors(w http.ResponseWriter, r *http.Request) {
@@ -48,7 +46,6 @@ func (h *Handler) getAuditors(w http.ResponseWriter, r *http.Request) {
 	}
 
 	auditors, err := h.Datastore.GetAuditors(limit, offset)
-	fmt.Println(auditors)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
@@ -106,7 +103,7 @@ func (h *Handler) createAuditor(w http.ResponseWriter, r *http.Request) {
 	entity.Email = input.Email
 	entity.Username = input.Username
 	entity.Password = input.Password
-	entity.CreatedDate = time.Now().UTC()
+	entity.CreatedDate = helpers.TheTime()
 	auditor := datastore.NewAuditor(false)
 	auditor.IdEntity = entity.Id
 	err = h.Datastore.SaveEntity(entity)

@@ -1,1 +1,1 @@
-[{"id_audit":1,"id_criterion":1,"value":10,"observation":"criterio 1"},{"id_audit":1,"id_criterion":2,"value":30,"observation":"criterio 2"},{"id_audit":1,"id_criterion":3,"value":20,"observation":"criterio 3"}]
+[{"idAudit":1,"idCriterion":1,"value":10},{"idAudit":1,"idCriterion":2,"value":30},{"idAudit":1,"idCriterion":3,"value":20}]

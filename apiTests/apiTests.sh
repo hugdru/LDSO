@@ -21,7 +21,7 @@ gets=(
   ['countries/1']='country1.spec'
   ['properties/1']='property1.spec'
   ['properties']='properties.spec'
-  ['addresses/1']='address1.spec'
+  ['properties/1/address']='property1address.spec'
   ['clients/1']='client1.spec'
   ['templates']='templates.spec'
   ['templates?id=2']='templatesId2.spec'

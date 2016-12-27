@@ -7,16 +7,16 @@ import (
 	"net/http"
 	"server/datastore"
 	"server/handler/helpers"
+	"server/handler/helpers/decorators"
 	"strconv"
-	"time"
 )
 
 func (h *Handler) templatesRoutes(router chi.Router) {
-	router.Get("/", helpers.ReplyJson(h.getTemplates))
-	router.Post("/", helpers.RequestJson(helpers.ReplyJson(h.createTemplate)))
-	router.Get("/:id", helpers.ReplyJson(h.getTemplate))
-	router.Put("/:id", helpers.RequestJson(helpers.ReplyJson(h.updateTemplate)))
-	router.Delete("/:id", helpers.ReplyJson(h.deleteTemplate))
+	router.Get("/", decorators.ReplyJson(h.getTemplates))
+	router.Post("/", decorators.RequestJson(decorators.ReplyJson(h.createTemplate)))
+	router.Get("/:id", decorators.ReplyJson(h.getTemplate))
+	router.Put("/:id", decorators.RequestJson(decorators.ReplyJson(h.updateTemplate)))
+	router.Delete("/:id", decorators.ReplyJson(h.deleteTemplate))
 }
 
 func (h *Handler) getTemplates(w http.ResponseWriter, r *http.Request) {
@@ -96,7 +96,7 @@ func (h *Handler) createTemplate(w http.ResponseWriter, r *http.Request) {
 	template := datastore.NewTemplate(false)
 	template.Name = input.Name
 	template.Description = zero.StringFrom(input.Description)
-	template.CreatedDate = time.Now().UTC()
+	template.CreatedDate = helpers.TheTime()
 
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)

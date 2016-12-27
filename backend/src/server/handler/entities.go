@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"database/sql"
 	"encoding/json"
 	"github.com/alexedwards/scs/session"
 	"github.com/elithrar/simple-scrypt"
@@ -9,19 +10,15 @@ import (
 	"net/http"
 	"server/datastore"
 	"server/handler/helpers"
+	"server/handler/helpers/decorators"
 	"server/handler/sessionData"
 	"strconv"
-	"time"
-	"database/sql"
 )
 
-const maxMultipartSize = 32 << 20
-const maxImageFileSize = 16 << 20
-
 func (h *Handler) entitiesRoutes(router chi.Router) {
-	router.Post("/login", helpers.ReplyJson(h.login))
-	router.Get("/logout", helpers.ReplyJson(h.logout))
-	router.Post("/register", helpers.ReplyJson(h.register))
+	router.Post("/login", decorators.ReplyJson(h.login))
+	router.Get("/logout", decorators.ReplyJson(h.logout))
+	router.Post("/register", decorators.ReplyJson(h.register))
 }
 
 func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
@@ -144,22 +141,22 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if contentLength > maxMultipartSize {
+	if contentLength > helpers.MaxMultipartSize {
 		http.Error(w, helpers.Error("Data too big"), http.StatusBadRequest)
 		return
 	}
 
 	var input struct {
-		IdCountry   int64  `json:"idCountry"`
-		Name        string `json:"name"`
-		Email       string `json:"email"`
-		Username    string `json:"username"`
-		Password    string `json:"password"`
-		Mobilephone string `json:"mobilephone"`
-		Telephone   string `json:"telephone"`
-		Role 	    string `json:"role"`
-		imageBytes  []byte
-		imageMime   string
+		IdCountry     int64  `json:"idCountry"`
+		Name          string `json:"name"`
+		Email         string `json:"email"`
+		Username      string `json:"username"`
+		Password      string `json:"password"`
+		Mobilephone   string `json:"mobilephone"`
+		Telephone     string `json:"telephone"`
+		Role          string `json:"role"`
+		imageBytes    []byte
+		imageMimetype string
 	}
 
 	contentType := helpers.GetContentType(r.Header.Get("Content-type"))
@@ -179,7 +176,7 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 		input.Telephone = r.PostFormValue("telephone")
 		input.Role = r.PostFormValue("role")
 
-		input.imageBytes, input.imageMime, err = helpers.ReadImage(r, "image", maxImageFileSize)
+		input.imageBytes, input.imageMimetype, err = helpers.ReadImage(r, "image", helpers.MaxImageFileSize)
 		if err != nil && err != http.ErrMissingFile {
 			http.Error(w, helpers.Error(err.Error()), 500)
 			return
@@ -225,9 +222,9 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 	entity.Password = string(hash)
 	entity.Mobilephone = zero.StringFrom(input.Mobilephone)
 	entity.Telephone = zero.StringFrom(input.Telephone)
-	entity.ImageMimetype = zero.StringFrom(input.imageMime)
+	entity.ImageMimetype = zero.StringFrom(input.imageMimetype)
 	entity.Image = input.imageBytes
-	entity.CreatedDate = time.Now().UTC()
+	entity.CreatedDate = helpers.TheTime()
 
 	err = h.Datastore.SaveEntity(entity)
 	if err != nil {
@@ -240,7 +237,7 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 		auditor := datastore.NewAuditor(false)
 		auditor.IdEntity = entity.Id
 		err = h.Datastore.SaveAuditor(auditor)
-		if err != nil  {
+		if err != nil {
 			http.Error(w, helpers.Error(err.Error()), 500)
 			return
 		}
@@ -248,7 +245,7 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 		client := datastore.NewClient(false)
 		client.IdEntity = entity.Id
 		err = h.Datastore.SaveClient(client)
-		if err != nil  {
+		if err != nil {
 			http.Error(w, helpers.Error(err.Error()), 500)
 			return
 		}
@@ -256,7 +253,7 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 		localAdmin := datastore.NewLocaladmin(false)
 		localAdmin.IdEntity = entity.Id
 		err = h.Datastore.SaveLocaladmin(localAdmin)
-		if err != nil  {
+		if err != nil {
 			http.Error(w, helpers.Error(err.Error()), 500)
 			return
 		}

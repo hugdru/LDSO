@@ -5,12 +5,13 @@ import (
 	"github.com/pressly/chi"
 	"net/http"
 	"server/handler/helpers"
+	"server/handler/helpers/decorators"
 	"strconv"
 )
 
 func (h *Handler) countriesRoutes(router chi.Router) {
-	router.Get("/", helpers.ReplyJson(h.getCountries))
-	router.Get("/:id", helpers.ReplyJson(h.getCountry))
+	router.Get("/", decorators.ReplyJson(h.getCountries))
+	router.Get("/:id", decorators.ReplyJson(h.getCountry))
 }
 
 func (h *Handler) getCountry(w http.ResponseWriter, r *http.Request) {

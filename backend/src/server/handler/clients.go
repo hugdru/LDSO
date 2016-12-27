@@ -5,11 +5,12 @@ import (
 	"github.com/pressly/chi"
 	"net/http"
 	"server/handler/helpers"
+	"server/handler/helpers/decorators"
 	"strconv"
 )
 
 func (h *Handler) clientsRoutes(router chi.Router) {
-	router.Get("/:id", helpers.ReplyJson(h.getClient))
+	router.Get("/:id", decorators.ReplyJson(h.getClient))
 }
 
 func (h *Handler) getClient(w http.ResponseWriter, r *http.Request) {
