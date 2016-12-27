@@ -12,26 +12,27 @@ import (
 	"server/handler/helpers"
 	"strconv"
 	"time"
+	"server/handler/helpers/decorators"
 )
 
 func (h *Handler) criteriaRoutes(router chi.Router) {
-	router.Get("/", helpers.ReplyJson(h.getCriteria))
-	router.Post("/", helpers.RequestJson(helpers.ReplyJson(h.createCriterion)))
-	router.Get("/:idc", helpers.ReplyJson(h.getCriterion))
-	router.Put("/:idc", helpers.RequestJson(helpers.ReplyJson(h.updateCriterion)))
-	router.Delete("/:idc", helpers.ReplyJson(h.deleteCriterion))
+	router.Get("/", decorators.ReplyJson(h.getCriteria))
+	router.Post("/", decorators.RequestJson(decorators.ReplyJson(h.createCriterion)))
+	router.Get("/:idc", decorators.ReplyJson(h.getCriterion))
+	router.Put("/:idc", decorators.RequestJson(decorators.ReplyJson(h.updateCriterion)))
+	router.Delete("/:idc", decorators.ReplyJson(h.deleteCriterion))
 
 	router.Route("/:id/accessibilities", h.criteriaAccessibilitiesSubroutes)
 }
 
 func (h *Handler) criteriaAccessibilitiesSubroutes(router chi.Router) {
 	router.Use(h.criteriaAccessibilitiesContext)
-	router.Get("/", helpers.ReplyJson(h.getCriterionAccessibilities))
-	router.Post("/", helpers.RequestJson(helpers.ReplyJson(h.createCriterionAccessibility)))
-	router.Delete("/", helpers.ReplyJson(h.deleteCriterionAccessibilities))
-	router.Get("/:ida", helpers.ReplyJson(h.getCriterionAccessibility))
-	router.Put("/:ida", helpers.RequestJson(helpers.ReplyJson(h.updateCriterionAccessibility)))
-	router.Delete("/:ida", helpers.ReplyJson(h.deleteCriterionAccessibility))
+	router.Get("/", decorators.ReplyJson(h.getCriterionAccessibilities))
+	router.Post("/", decorators.RequestJson(decorators.ReplyJson(h.createCriterionAccessibility)))
+	router.Delete("/", decorators.ReplyJson(h.deleteCriterionAccessibilities))
+	router.Get("/:ida", decorators.ReplyJson(h.getCriterionAccessibility))
+	router.Put("/:ida", decorators.RequestJson(decorators.ReplyJson(h.updateCriterionAccessibility)))
+	router.Delete("/:ida", decorators.ReplyJson(h.deleteCriterionAccessibility))
 }
 
 func (h *Handler) criteriaAccessibilitiesContext(next http.Handler) http.Handler {

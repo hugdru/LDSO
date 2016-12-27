@@ -10,19 +10,20 @@ import (
 	"server/handler/helpers"
 	"strconv"
 	"time"
+	"server/handler/helpers/decorators"
 )
 
 func (h *Handler) auditsRoutes(router chi.Router) {
-	router.Get("/", helpers.ReplyJson(h.getAudits))
-	router.Post("/", helpers.RequestJson(helpers.ReplyJson(h.createAudit)))
+	router.Get("/", decorators.ReplyJson(h.getAudits))
+	router.Post("/", decorators.RequestJson(decorators.ReplyJson(h.createAudit)))
 
-	router.Get("/:ida", helpers.ReplyJson(h.getAudit))
-	router.Put("/:ida", helpers.RequestJson(helpers.ReplyJson(h.updateAudit)))
-	router.Delete("/:ida", helpers.ReplyJson(h.deleteAudit))
+	router.Get("/:ida", decorators.ReplyJson(h.getAudit))
+	router.Put("/:ida", decorators.RequestJson(decorators.ReplyJson(h.updateAudit)))
+	router.Delete("/:ida", decorators.ReplyJson(h.deleteAudit))
 
-	router.Get("/:ida/subgroups", helpers.ReplyJson(h.getAuditSubgroups))
-	router.Post("/:ida/subgroups", helpers.RequestJson(helpers.ReplyJson(h.createAuditSubgroups)))
-	router.Delete("/:ida/subgroups", helpers.ReplyJson(h.deleteAuditSubgroups))
+	router.Get("/:ida/subgroups", decorators.ReplyJson(h.getAuditSubgroups))
+	router.Post("/:ida/subgroups", decorators.RequestJson(decorators.ReplyJson(h.createAuditSubgroups)))
+	router.Delete("/:ida/subgroups", decorators.ReplyJson(h.deleteAuditSubgroups))
 
 	router.Route("/:ida/criteria", h.auditsCriteriaSubroutes)
 }
@@ -30,12 +31,12 @@ func (h *Handler) auditsRoutes(router chi.Router) {
 func (h *Handler) auditsCriteriaSubroutes(router chi.Router) {
 	router.Use(h.auditsCriteriaContext)
 
-	router.Get("/", helpers.ReplyJson(h.getAuditCriteria))
-	router.Delete("/", helpers.ReplyJson(h.deleteAuditCriteria))
-	router.Get("/:idc", helpers.ReplyJson(h.getAuditCriterion))
-	router.Post("/:idc", helpers.RequestJson(helpers.ReplyJson(h.createAuditCriterion)))
-	router.Put("/:idc", helpers.RequestJson(helpers.ReplyJson(h.updateAuditCriterion)))
-	router.Delete("/:idc", helpers.ReplyJson(h.deleteAuditCriterion))
+	router.Get("/", decorators.ReplyJson(h.getAuditCriteria))
+	router.Delete("/", decorators.ReplyJson(h.deleteAuditCriteria))
+	router.Get("/:idc", decorators.ReplyJson(h.getAuditCriterion))
+	router.Post("/:idc", decorators.RequestJson(decorators.ReplyJson(h.createAuditCriterion)))
+	router.Put("/:idc", decorators.RequestJson(decorators.ReplyJson(h.updateAuditCriterion)))
+	router.Delete("/:idc", decorators.ReplyJson(h.deleteAuditCriterion))
 
 	router.Route("/:idc/remarks", h.auditsCriteriaRemarksSubroutes)
 }
@@ -127,7 +128,7 @@ func (h *Handler) createAudit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = h.Datastore.GetPropertyById(input.IdProperty)
+	_, err = h.Datastore.GetPropertyByIdWithForeign(input.IdProperty)
 	if err != nil {
 		http.Error(w, err.Error(), 400)
 		return

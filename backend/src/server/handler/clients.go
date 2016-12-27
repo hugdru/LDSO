@@ -6,10 +6,11 @@ import (
 	"net/http"
 	"server/handler/helpers"
 	"strconv"
+	"server/handler/helpers/decorators"
 )
 
 func (h *Handler) clientsRoutes(router chi.Router) {
-	router.Get("/:id", helpers.ReplyJson(h.getClient))
+	router.Get("/:id", decorators.ReplyJson(h.getClient))
 }
 
 func (h *Handler) getClient(w http.ResponseWriter, r *http.Request) {

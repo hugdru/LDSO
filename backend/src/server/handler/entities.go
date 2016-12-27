@@ -13,12 +13,13 @@ import (
 	"server/handler/sessionData"
 	"strconv"
 	"time"
+	"server/handler/helpers/decorators"
 )
 
 func (h *Handler) entitiesRoutes(router chi.Router) {
-	router.Post("/login", helpers.ReplyJson(h.login))
-	router.Get("/logout", helpers.ReplyJson(h.logout))
-	router.Post("/register", helpers.ReplyJson(h.register))
+	router.Post("/login", decorators.ReplyJson(h.login))
+	router.Get("/logout", decorators.ReplyJson(h.logout))
+	router.Post("/register", decorators.ReplyJson(h.register))
 }
 
 func (h *Handler) login(w http.ResponseWriter, r *http.Request) {

@@ -14,7 +14,6 @@ func (h *Handler) Init(mux *chi.Mux) {
 	sessionData.GobRegister()
 	mux.Route("/countries", h.countriesRoutes)
 	mux.Route("/properties", h.propertiesRoutes)
-	mux.Route("/addresses", h.addressesRoutes)
 	mux.Route("/clients", h.clientsRoutes)
 	mux.Route("/templates", h.templatesRoutes)
 	mux.Route("/maingroups", h.maingroupsRoutes)

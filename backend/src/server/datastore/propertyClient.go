@@ -140,7 +140,7 @@ func (ds *Datastore) GetPropertyClientClient(pc *PropertyClient) (*Client, error
 }
 
 func (ds *Datastore) GetPropertyClientProperty(pc *PropertyClient) (*Property, error) {
-	return ds.GetPropertyById(pc.IdProperty)
+	return ds.GetPropertyByIdWithForeign(pc.IdProperty)
 }
 
 func (ds *Datastore) GetPropertyClientByIds(idProperty, idClient int64) (*PropertyClient, error) {
