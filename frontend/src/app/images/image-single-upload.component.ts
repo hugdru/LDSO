@@ -1,5 +1,7 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { FileUploader, FileUploaderOptions } from 'ng2-file-upload/ng2-file-upload';
+
+import { Remark } from "remark/remark";
 
 import { imageUploadUrl } from 'shared/shared-data';
 
@@ -12,8 +14,9 @@ import { imageUploadUrl } from 'shared/shared-data';
 
 export class ImageSingleUploadComponent {
 	settings: FileUploaderOptions = {
-		url: imageUploadUrl
-		// url: imageUploadUrl,
+		// url: imageUploadUrl
+		url: imageUploadUrl,
+		// removeAfterUpload: true,
 		// autoUpload: true,
 		// allowedMimeType: ["image"]
 		// allowedFileType: ["jpg","png","jpeg"]
@@ -22,11 +25,21 @@ export class ImageSingleUploadComponent {
 	uploader: FileUploader = new FileUploader(this.settings);
 	hasBaseDropZoneOver: boolean = false;
 
-	@Input() criterionId: number;
-	@Input() auditId: number;
-	@Input() data: string;
+	@Input() remark: Remark;
 
 	constructor() { }
+
+	ngOnInit(): void {
+		this.uploader.onBuildItemForm = (fileItem: any, form: any) => {
+			form.append('data',remark.data);
+		};
+	}
+
+	upload(): void {
+		for (let item of this.uploader.queue) {
+			item.upload();
+		}
+	}
 
 	fileOverBase(res: any): void {
 		this.hasBaseDropZoneOver = res;
