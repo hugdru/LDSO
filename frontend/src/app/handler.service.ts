@@ -1,6 +1,7 @@
 import {Injectable} from "@angular/core";
 import {Http, Response, Headers, RequestOptions} from "@angular/http";
 import {Observable} from "rxjs/Observable";
+import 'rxjs/add/observable/throw';
 import "rxjs/add/operator/map";
 import "rxjs/add/operator/catch";
 
@@ -24,7 +25,7 @@ export class HandlerService {
             errMsg = error.message ? error.message : error.toString();
         }
 
-        console.error(errMsg);
+//        console.error(errMsg);
         return Observable.throw(errMsg);
     }
 
@@ -52,17 +53,21 @@ export class HandlerService {
 
     update<T>(url: string, object: T, id: number): Observable<Response> {
         return this.http.put(url + "/" + id, JSON.stringify(object), this.options)
-                .map((result: Response) => result);
+                .map((response: Response) => response)
+                .catch(this.handleError);
     }
 
     delete(url: string, id: number): Observable<Response> {
         let formated = url + "/" + id;
-        return this.http.delete(formated).map((result: Response) => result);
+        return this.http.delete(formated)
+                .map((response: Response) => response)
+                .catch(this.handleError);
     }
 
     set<T>(url: string, object: T): Observable<Response> {
         return this.http.post(url, JSON.stringify(object), this.options)
-                .map((response: Response) => response);
+                .map((response: Response) => response)
+                .catch(this.handleError);
     }
 
 }

@@ -13,6 +13,7 @@ import {Login} from "login/login";
 export class LoginComponent implements OnInit {
 
     selectedObject: Login;
+    errorMsg: string;
 //    @Output() onAdd = new EventEmitter<Login>();
 
     constructor(private loginService: LoginService) {
@@ -31,7 +32,15 @@ export class LoginComponent implements OnInit {
 
     login(): void {
         this.loginService.setLogin(this.selectedObject).subscribe(
-                response => this.selectedObject.id = response.json().id
+                response => {
+                    this.selectedObject.id = response.json().id;
+                    console.log(response.json());
+                    console.log(this.selectedObject.id);
+                },
+                error => {
+                    this.errorMsg = <any>error;
+                    console.log(this.errorMsg);
+                }
         );
     }
 
