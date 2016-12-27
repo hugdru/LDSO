@@ -41,6 +41,10 @@ func NewPropertyClient(allocateObjects bool) *PropertyClient {
 
 func (ds *Datastore) InsertPropertyClient(pc *PropertyClient) error {
 
+	if pc == nil {
+		return errors.New("propertyClient should not be nil")
+	}
+
 	if pc.Exists() {
 		return errors.New("insert failed: already exists")
 	}
@@ -60,6 +64,10 @@ func (ds *Datastore) InsertPropertyClient(pc *PropertyClient) error {
 
 func (ds *Datastore) UpdatePropertyClient(pc *PropertyClient) error {
 
+	//if pc == nil {
+	//	return errors.New("propertyClient should not be nil")
+	//}
+	//
 	//if !pc.Exists() {
 	//	return errors.New("update failed: does not exist")
 	//}
@@ -89,6 +97,10 @@ func (ds *Datastore) SavePropertyClient(pc *PropertyClient) error {
 
 func (ds *Datastore) UpsertPropertyClient(pc *PropertyClient) error {
 
+	if pc == nil {
+		return errors.New("propertyClient should not be nil")
+	}
+
 	if pc.Exists() {
 		return errors.New("insert failed: already exists")
 	}
@@ -114,6 +126,10 @@ func (ds *Datastore) UpsertPropertyClient(pc *PropertyClient) error {
 }
 
 func (ds *Datastore) DeletePropertyClient(pc *PropertyClient) error {
+
+	if pc == nil {
+		return errors.New("propertyClient should not be nil")
+	}
 
 	if !pc.Exists() {
 		return nil

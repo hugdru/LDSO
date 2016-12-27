@@ -52,6 +52,10 @@ func NewTemplate(allocateObjects bool) *Template {
 
 func (ds *Datastore) InsertTemplate(t *Template) error {
 
+	if t == nil {
+		return errors.New("template should not be nil")
+	}
+
 	if t.Exists() {
 		return errors.New("insert failed: already exists")
 	}
@@ -72,6 +76,10 @@ func (ds *Datastore) InsertTemplate(t *Template) error {
 }
 
 func (ds *Datastore) UpdateTemplate(t *Template) error {
+
+	if t == nil {
+		return errors.New("template should not be nil")
+	}
 
 	if !t.Exists() {
 		return errors.New("update failed: does not exist")
@@ -101,6 +109,10 @@ func (ds *Datastore) SaveTemplate(t *Template) error {
 
 func (ds *Datastore) UpsertTemplate(t *Template) error {
 
+	if t == nil {
+		return errors.New("template should not be nil")
+	}
+
 	if t.Exists() {
 		return errors.New("insert failed: already exists")
 	}
@@ -126,6 +138,10 @@ func (ds *Datastore) UpsertTemplate(t *Template) error {
 }
 
 func (ds *Datastore) DeleteTemplate(t *Template) error {
+
+	if t == nil {
+		return errors.New("template should not be nil")
+	}
 
 	if !t.Exists() {
 		return nil

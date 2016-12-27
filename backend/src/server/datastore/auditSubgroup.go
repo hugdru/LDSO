@@ -40,9 +40,13 @@ func NewAuditSubgroup(allocateObjects bool) *AuditSubgroup {
 	return &auditSubgroup
 }
 
-func (ds *Datastore) InsertAuditSubgroup(ac *AuditSubgroup) error {
+func (ds *Datastore) InsertAuditSubgroup(as *AuditSubgroup) error {
 
-	if ac.Exists() {
+	if as == nil {
+		return errors.New("auditorSubgroup should not be nil")
+	}
+
+	if as.Exists() {
 		return errors.New("insert failed: already exists")
 	}
 
@@ -52,44 +56,48 @@ func (ds *Datastore) InsertAuditSubgroup(ac *AuditSubgroup) error {
 		`$1, $2` +
 		`)`
 
-	_, err := ds.postgres.Exec(sql, ac.IdAudit, ac.IdSubgroup)
+	_, err := ds.postgres.Exec(sql, as.IdAudit, as.IdSubgroup)
 	if err != nil {
 		return err
 	}
 
-	ac.SetExists()
+	as.SetExists()
 
 	return err
 }
 
-func (ds *Datastore) DeleteAuditSubgroup(ac *AuditSubgroup) error {
+func (ds *Datastore) DeleteAuditSubgroup(as *AuditSubgroup) error {
 
-	if !ac.Exists() {
+	if as == nil {
+		return errors.New("auditorSubgroup should not be nil")
+	}
+
+	if !as.Exists() {
 		return nil
 	}
 
-	if ac.Deleted() {
+	if as.Deleted() {
 		return nil
 	}
 
 	const sql = `DELETE FROM places4all.audit_subgroup WHERE id_audit = $1 AND id_subgroup = $2`
 
-	_, err := ds.postgres.Exec(sql, ac.IdAudit, ac.IdSubgroup)
+	_, err := ds.postgres.Exec(sql, as.IdAudit, as.IdSubgroup)
 	if err != nil {
 		return err
 	}
 
-	ac.SetDeleted()
+	as.SetDeleted()
 
 	return err
 }
 
-func (ds *Datastore) GetAuditSubgroupAudit(ac *AuditSubgroup) (*Audit, error) {
-	return ds.GetAuditById(ac.IdAudit)
+func (ds *Datastore) GetAuditSubgroupAudit(as *AuditSubgroup) (*Audit, error) {
+	return ds.GetAuditById(as.IdAudit)
 }
 
-func (ds *Datastore) GetAuditSubgroupSubgroup(ac *AuditSubgroup) (*Subgroup, error) {
-	return ds.GetSubgroupById(ac.IdSubgroup)
+func (ds *Datastore) GetAuditSubgroupSubgroup(as *AuditSubgroup) (*Subgroup, error) {
+	return ds.GetSubgroupById(as.IdSubgroup)
 }
 
 func (ds *Datastore) GetAuditSubgroupById(idAudit, idSubgroup int64) (*AuditSubgroup, error) {
@@ -100,15 +108,15 @@ func (ds *Datastore) GetAuditSubgroupById(idAudit, idSubgroup int64) (*AuditSubg
 		`FROM places4all.audit_subgroup ` +
 		`WHERE id_audit = $1 AND id_subgroup = $2`
 
-	ac := AAuditSubgroup(true)
-	ac.SetExists()
+	as := AAuditSubgroup(true)
+	as.SetExists()
 
-	err = ds.postgres.QueryRowx(sql, idAudit, idSubgroup).StructScan(&ac)
+	err = ds.postgres.QueryRowx(sql, idAudit, idSubgroup).StructScan(&as)
 	if err != nil {
 		return nil, err
 	}
 
-	return &ac, err
+	return &as, err
 }
 
 func (ds *Datastore) GetAuditSubgroupsByIdAudit(idAudit int64, filter map[string]interface{}) ([]int64, error) {

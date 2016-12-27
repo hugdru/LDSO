@@ -52,6 +52,10 @@ func NewMaingroup(allocateObjects bool) *Maingroup {
 
 func (ds *Datastore) InsertMaingroup(m *Maingroup) error {
 
+	if m == nil {
+		return errors.New("maingroup should not be nil")
+	}
+
 	if m.Exists() {
 		return errors.New("insert failed: already exists")
 	}
@@ -73,6 +77,10 @@ func (ds *Datastore) InsertMaingroup(m *Maingroup) error {
 }
 
 func (ds *Datastore) UpdateMaingroup(m *Maingroup) error {
+
+	if m == nil {
+		return errors.New("maingroup should not be nil")
+	}
 
 	if !m.Exists() {
 		return errors.New("update failed: does not exist")
@@ -102,6 +110,10 @@ func (ds *Datastore) SaveMaingroup(m *Maingroup) error {
 
 func (ds *Datastore) UpsertMaingroup(m *Maingroup) error {
 
+	if m == nil {
+		return errors.New("maingroup should not be nil")
+	}
+
 	if m.Exists() {
 		return errors.New("insert failed: already exists")
 	}
@@ -127,6 +139,10 @@ func (ds *Datastore) UpsertMaingroup(m *Maingroup) error {
 }
 
 func (ds *Datastore) DeleteMaingroup(m *Maingroup) error {
+
+	if m == nil {
+		return errors.New("maingroup should not be nil")
+	}
 
 	if !m.Exists() {
 		return nil

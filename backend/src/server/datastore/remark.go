@@ -46,6 +46,10 @@ func NewRemark(allocateObjects bool) *Remark {
 
 func (ds *Datastore) InsertRemark(r *Remark) error {
 
+	if r == nil {
+		return errors.New("remark should not be nil")
+	}
+
 	if r.Exists() {
 		return errors.New("insert failed: already exists")
 	}
@@ -67,6 +71,10 @@ func (ds *Datastore) InsertRemark(r *Remark) error {
 }
 
 func (ds *Datastore) UpdateRemark(r *Remark) error {
+
+	if r == nil {
+		return errors.New("remark should not be nil")
+	}
 
 	if !r.Exists() {
 		return errors.New("update failed: does not exist")

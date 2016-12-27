@@ -48,6 +48,10 @@ func NewImage(allocateObjects bool) *Image {
 
 func (ds *Datastore) InsertImage(i *Image) error {
 
+	if i == nil {
+		return errors.New("image should not be nil")
+	}
+
 	if i.Exists() {
 		return errors.New("insert failed: already exists")
 	}
@@ -69,6 +73,10 @@ func (ds *Datastore) InsertImage(i *Image) error {
 }
 
 func (ds *Datastore) UpdateImage(i *Image) error {
+
+	if i == nil {
+		return errors.New("image should not be nil")
+	}
 
 	if !i.Exists() {
 		return errors.New("update failed: does not exist")
@@ -98,6 +106,10 @@ func (ds *Datastore) SaveImage(i *Image) error {
 
 func (ds *Datastore) UpsertImage(i *Image) error {
 
+	if i == nil {
+		return errors.New("image should not be nil")
+	}
+
 	if i.Exists() {
 		return errors.New("insert failed: already exists")
 	}
@@ -123,6 +135,10 @@ func (ds *Datastore) UpsertImage(i *Image) error {
 }
 
 func (ds *Datastore) DeleteImage(i *Image) error {
+
+	if i == nil {
+		return errors.New("image should not be nil")
+	}
 
 	if !i.Exists() {
 		return nil
