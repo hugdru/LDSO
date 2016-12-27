@@ -7,7 +7,6 @@ import (
 	"server/datastore"
 	"server/handler/helpers"
 	"strconv"
-	"time"
 	"server/handler/helpers/decorators"
 )
 
@@ -106,7 +105,7 @@ func (h *Handler) createMaingroup(w http.ResponseWriter, r *http.Request) {
 	maingroup.IdTemplate = input.IdTemplate
 	maingroup.Name = input.Name
 	maingroup.Weight = input.Weight
-	maingroup.CreatedDate = time.Now().UTC()
+	maingroup.CreatedDate = helpers.TheTime()
 
 	err = h.Datastore.SaveMaingroup(maingroup)
 	if err != nil {

@@ -15,7 +15,6 @@ import (
 func (h *Handler) propertiesRoutes(router chi.Router) {
 	router.Get("/", decorators.ReplyJson(h.getProperties))
 	router.Post("/", decorators.OnlyClients(h.createProperty))
-
 	router.Route("/:idp", h.propertyRoutes)
 }
 
@@ -100,18 +99,14 @@ func (h *Handler) getProperties(w http.ResponseWriter, r *http.Request) {
 	w.Write(propertiesSlice)
 }
 
+func (h *Handler) createProperty(w http.ResponseWriter, r *http.Request) {
+
+}
+
 func (h *Handler) getProperty(w http.ResponseWriter, r *http.Request) {
-	idProperty := chi.URLParam(r, "idp")
-	id, err := helpers.ParseInt64(idProperty)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
-	property, err := h.Datastore.GetPropertyByIdWithForeign(id)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
+
+	property := r.Context().Value("property").(*datastore.Property)
+
 	propertySlice, err := json.Marshal(property)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
@@ -120,16 +115,15 @@ func (h *Handler) getProperty(w http.ResponseWriter, r *http.Request) {
 	w.Write(propertySlice)
 }
 
-func (h *Handler) createProperty(w http.ResponseWriter, r *http.Request) {
-
-}
-
 func (h *Handler) updateProperty(w http.ResponseWriter, r *http.Request) {
+
+	property := r.Context().Value("property").(*datastore.Property)
 
 }
 
 func (h *Handler) deleteProperty(w http.ResponseWriter, r *http.Request) {
 
+	property := r.Context().Value("property").(*datastore.Property)
 }
 
 func (h *Handler) getAddress(w http.ResponseWriter, r *http.Request) {

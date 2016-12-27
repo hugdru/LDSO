@@ -11,7 +11,6 @@ import (
 	"server/datastore"
 	"server/handler/helpers"
 	"strconv"
-	"time"
 	"server/handler/helpers/decorators"
 )
 
@@ -153,7 +152,7 @@ func (h *Handler) createCriterion(w http.ResponseWriter, r *http.Request) {
 	criterion.IdLegislation = zero.IntFrom(input.IdLegislation)
 	criterion.Name = input.Name
 	criterion.Weight = input.Weight
-	criterion.CreatedDate = time.Now().UTC()
+	criterion.CreatedDate = helpers.TheTime()
 
 	if input.Legislation != "" {
 		resultIdLegislation, err := insertOrFetchLegislation(h.Datastore, input.Legislation)
