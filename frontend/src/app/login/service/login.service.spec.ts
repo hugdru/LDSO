@@ -14,7 +14,7 @@ import {HandlerService} from "handler.service";
 
 const mock = {id: 5, username: "carlos", password: "bla"};
 
-describe('Login Service w/ Mock Service', () => {
+describe('Session Service w/ Mock Service', () => {
     let mockBackend: MockBackend;
 
     beforeEach(async(() => {
