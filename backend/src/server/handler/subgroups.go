@@ -14,7 +14,6 @@ func (h *Handler) subgroupsRoutes(router chi.Router) {
 	router.Get("/", decorators.ReplyJson(h.getSubgroups))
 	router.Post("/", decorators.OnlySuperadmins(decorators.ReplyJson(h.createSubgroup)))
 	router.Route("/:ids", h.subgroupRoutes)
-
 }
 
 func (h *Handler) subgroupRoutes(router chi.Router) {

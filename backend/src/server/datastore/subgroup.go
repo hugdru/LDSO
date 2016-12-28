@@ -240,7 +240,7 @@ func (ds *Datastore) GetSubgroupById(id int64) (*Subgroup, error) {
 	return &s, err
 }
 
-func (ds *Datastore) GetSubgroupsByMaingroupId(idMaingroup int64) ([]*Subgroup, error) {
+func (ds *Datastore) GetSubgroupsByMaingroupIdWithCriteria(idMaingroup int64) ([]*Subgroup, error) {
 	subgroups := make([]*Subgroup, 0)
 	rows, err := ds.postgres.Queryx(
 		`SELECT subgroup.id, subgroup.id_maingroup, subgroup.name, subgroup.weight, subgroup.created_date `+

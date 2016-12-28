@@ -257,7 +257,7 @@ func (ds *Datastore) GetMaingroupsByTemplateIdWithSubgroups(idTemplate int64) ([
 			return nil, err
 		}
 		maingroups = append(maingroups, maingroup)
-		maingroup.Subgroups, err = ds.GetSubgroupsByMaingroupId(maingroup.Id)
+		maingroup.Subgroups, err = ds.GetSubgroupsByMaingroupIdWithCriteria(maingroup.Id)
 		if err != nil {
 			return nil, err
 		}

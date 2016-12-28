@@ -85,14 +85,9 @@ func (h *Handler) createLegislation(w http.ResponseWriter, r *http.Request) {
 
 	switch helpers.GetContentType(r.Header.Get("Content-type")) {
 	case "multipart/form-data":
-		var err error
 		input.Name = r.PostFormValue("name")
 		input.Description = r.PostFormValue("description")
 		input.Url = r.PostFormValue("url")
-		if err != nil {
-			http.Error(w, helpers.Error(err.Error()), 400)
-			return
-		}
 	case "application/json":
 		d := json.NewDecoder(r.Body)
 		err := d.Decode(&input)
@@ -157,14 +152,9 @@ func (h *Handler) updateLegislation(w http.ResponseWriter, r *http.Request) {
 
 	switch helpers.GetContentType(r.Header.Get("Content-type")) {
 	case "multipart/form-data":
-		var err error
 		input.Name = r.PostFormValue("name")
 		input.Description = r.PostFormValue("description")
 		input.Url = r.PostFormValue("url")
-		if err != nil {
-			http.Error(w, helpers.Error(err.Error()), 400)
-			return
-		}
 	case "application/json":
 		d := json.NewDecoder(r.Body)
 		err := d.Decode(&input)
