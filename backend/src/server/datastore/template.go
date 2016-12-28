@@ -37,6 +37,33 @@ func (t *Template) Deleted() bool {
 	return t.meta.Deleted
 }
 
+func (t *Template) MustSet(name string) error {
+
+	if name != "" {
+		t.Name = name
+	} else {
+		return errors.New("name must be set")
+	}
+
+	return nil
+}
+
+func (t *Template) AllSetIfNotEmptyOrNil(name, description string) error {
+	if name != "" {
+		t.Name = name
+	}
+
+	return t.OptionalSetIfNotEmptyOrNil(description)
+}
+
+func (t *Template) OptionalSetIfNotEmptyOrNil(description string) error {
+	if description != "" {
+		t.Description = zero.StringFrom(description)
+	}
+
+	return nil
+}
+
 func ATemplate(allocateObjects bool) Template {
 	template := Template{}
 	if allocateObjects {
@@ -193,7 +220,7 @@ func (ds *Datastore) GetTemplateById(id int64) (*Template, error) {
 	return &t, err
 }
 
-func (ds *Datastore) GetTemplates(limit, offset int, filter map[string]interface{}) ([]*Template, error) {
+func (ds *Datastore) GetTemplatesWithMaingroups(limit, offset int, filter map[string]interface{}) ([]*Template, error) {
 
 	where, values := generators.GenerateAndSearchClause(filter)
 
@@ -226,7 +253,7 @@ func (ds *Datastore) GetTemplates(limit, offset int, filter map[string]interface
 	return templates, err
 }
 
-func (ds *Datastore) GetTemplate(id int64) (*Template, error) {
+func (ds *Datastore) GetTemplateWithMaingroups(id int64) (*Template, error) {
 	rows := ds.postgres.QueryRowx(
 		`SELECT template.id, template.name, template.description, template.created_date `+
 			`FROM places4all.template `+
