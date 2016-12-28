@@ -3,6 +3,7 @@ package datastore
 import (
 	"errors"
 	"server/datastore/metadata"
+	"strconv"
 )
 
 type Client struct {
@@ -28,6 +29,16 @@ func (c *Client) Exists() bool {
 
 func (c *Client) Deleted() bool {
 	return c.meta.Deleted
+}
+
+func (c *Client) MustSet(idEntity int64) error {
+	if idEntity != 0 {
+		c.IdEntity = idEntity
+	} else {
+		return errors.New("idEntity must be set")
+	}
+
+	return nil
 }
 
 func AClient(allocateObjects bool) Client {
@@ -161,6 +172,46 @@ func (ds *Datastore) DeleteClient(c *Client) error {
 
 func (ds *Datastore) GetClientEntity(c *Client) (*Entity, error) {
 	return ds.GetEntityById(c.IdEntity)
+}
+
+func (ds *Datastore) getClients(limit, offset int, withForeign bool) ([]*Client, error) {
+
+	rows, err := ds.postgres.Queryx(ds.postgres.Rebind(`SELECT ` +
+		`client.id_entity ` +
+		`FROM places4all.client ` +
+		`ORDER BY client.id_entity DESC LIMIT ` + strconv.Itoa(limit) +
+		`OFFSET ` + strconv.Itoa(offset)))
+
+	if err != nil {
+		return nil, err
+	}
+
+	client := make([]*Client, 0)
+	for rows.Next() {
+		c := NewClient(false)
+		c.SetExists()
+		err = rows.StructScan(c)
+		if err != nil {
+			return nil, err
+		}
+		if withForeign {
+			c.Entity, err = ds.GetEntityByIdWithForeign(c.IdEntity)
+			if err != nil {
+				return nil, err
+			}
+		}
+		client = append(client, c)
+	}
+
+	return client, err
+}
+
+func (ds *Datastore) GetClientsWithForeign(limit, offset int) ([]*Client, error) {
+	return ds.getClients(limit, offset, true)
+}
+
+func (ds *Datastore) GetClients(limit, offset int) ([]*Client, error) {
+	return ds.getClients(limit, offset, false)
 }
 
 func (ds *Datastore) GetClientByIdWithForeign(idEntity int64) (*Client, error) {
