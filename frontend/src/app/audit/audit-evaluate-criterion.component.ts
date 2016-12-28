@@ -14,28 +14,39 @@ import {Remark} from "remark/remark";
 export class AuditEvaluateCriterionComponent {
 	@Input() criteria: Criterion[];
 
-	uncheckedCriteria: Criterion[] = [];
+	unselectedCriteria: Criterion[] = [];
 
 	remark: Remark;
 	remarks: Remark[];
 	selectedAdd: boolean = false;
-	a: boolean = false;
+	checked: boolean = false;
+	b: number = 1;
 
     ngOnInit(): void {
 		this.remarks = [];
     }
 
-	checkedNoCriterion(criterion: Criterion): void {
-		console.log("hello");
-		// this.uncheckedCriteria.push(criterion);
+	changedCheckbox(): void {
+		this.checked = !this.checked;
 	}
 
-	uncheckedNoCriterion(criterion: Criterion, change: boolean): void {
-		console.log("hello " + criterion.name + "  " + change + " " + this.a);
+	setCheckboxValue(criterion: Criterion): void {
+		this.checked = this.checkUnselected(criterion);
 	}
 
-	checkCriterion(criterion: Criterion): boolean {
-		return this.uncheckedCriteria.includes(criterion);
+	submitCriterion(criterion: Criterion): void {
+		if (this.checked && !this.checkUnselected(criterion)) {
+			this.unselectedCriteria.push(criterion);
+		} else if (!this.checked && this.checkUnselected(criterion)) {
+			let index = this.unselectedCriteria.indexOf(criterion, 0);
+			if (index > -1) {
+				this.unselectedCriteria.splice(index, 1);
+			}
+		}
+	}
+
+	checkUnselected(criterion: Criterion): boolean {
+		return this.unselectedCriteria.includes(criterion);
 	}
 
 	selectAdd(): void {

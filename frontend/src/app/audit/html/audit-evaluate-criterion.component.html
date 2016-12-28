@@ -1,44 +1,45 @@
 <p class="h2">Subgrupo Criterio</p>
 <div class="cursor-pointer" *ngFor="let criterion of criteria">
-	<table (click)="auditModal.open()">
-		<tr [class.disable]="checkCriterion(criterion)">
+	<table (click)="setCheckboxValue(criterion); auditModal.open()">
+		<tr [class.disable]="checkUnselected(criterion)">
 			{{criterion.name}}
 		</tr>
 	</table>
 	<modal #auditModal>
-    	<modal-header class="h2">
+    	<modal-header class="h4">
             <p class="h1">Subgrupo Criterio</p>
             <h3>{{criterion.name}}</h3>
+			Decreto de Lei: {{criterion.legislation}}
 		</modal-header>
 		<modal-content>
 			<md-checkbox [checked]="false" color="primary"
-					(change)="uncheckedNoCriterion(criterion, $event)">
+					(change)="changedCheckbox()">
 			Não Aplicavel
 			</md-checkbox>
 			<br>
-			{{criterion.legislation}}
-			<br>
-			Avaliação: <input type="number" step="1" min="0" max="10">
-			<!-- [(ngModel)]="selectedObject.weight" placeholder="peso" [class.warning]="checkPercentage()"/> -->
-			<h4>Observaçoes</h4>
-			<button *ngIf="!selectedAdd"
-					 class="btn btn-primary round outline"
-					(click)="selectAdd()">
-				Adicionar Observação
-				<i class="glyphicon glyphicon-plus"></i>
-			</button>
-			<div *ngIf="selectedAdd">
-				<remark-add
-						[criterion]="criterion"
-						(add)="onAdd($event)">
-				</remark-add>
-			</div>
-			<div *ngFor="let remark of remarks">
-				{{remark.data}}
-			</div>
+			<span *ngIf="!checked">
+				Avaliação: <input type="number" step="1" min="0" max="10">
+				<h4>Observaçoes</h4>
+				<button *ngIf="!selectedAdd"
+						 class="btn btn-primary round outline"
+						(click)="selectAdd()">
+					Adicionar Observação
+					<i class="glyphicon glyphicon-plus"></i>
+				</button>
+				<div *ngIf="selectedAdd">
+					<remark-add
+							[criterion]="criterion"
+							(add)="onAdd($event)">
+					</remark-add>
+				</div>
+				<div *ngFor="let remark of remarks">
+					{{remark.data}}
+				</div>
+			</span>
 		</modal-content>
 		<modal-footer>
-			<button class="btn btn-primary" (click)="auditModal.close()">
+			<button class="btn btn-primary"
+				(click)="submitCriterion(criterion); auditModal.close()">
 				close
 			</button>
 		</modal-footer>
