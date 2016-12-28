@@ -1,8 +1,8 @@
 <div>
-    <h2>{{parentCtemplate.name}}</h2>
+    <h2>{{parentAuditTemplate.name}}</h2>
     <hr>
     <list-manage [objects]="mainGroups"
-                 [father]="parentCtemplate"
+                 [father]="parentAuditTemplate"
                  [objType]="objType"
                  (onDelete)="onDelete($event)"
                  (onShow)="onShow($event)">

@@ -2,7 +2,7 @@ import {environment} from "../../environments/environment";
 
 export const serverUrl = environment.api;
 
-export const ctemplatesUrl = serverUrl + '/templates';
+export const auditTemplatesUrl = serverUrl + '/templates';
 
 export const mainGroupsUrl = serverUrl + '/maingroups';
 
