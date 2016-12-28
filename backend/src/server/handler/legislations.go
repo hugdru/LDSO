@@ -12,15 +12,15 @@ import (
 
 func (h *Handler) legislationsRoutes(router chi.Router) {
 	router.Get("/", decorators.ReplyJson(h.getLegislations))
-	router.Post("/", decorators.OnlySuperadminsOrLocaladminsOrAuditors(decorators.ReplyJson(h.createLegislation)))
+	router.Post("/", decorators.OnlySuperadmins(decorators.ReplyJson(h.createLegislation)))
 	router.Route("/:idl", h.legislationRoutes)
 }
 
 func (h *Handler) legislationRoutes(router chi.Router) {
 	router.Use(h.legislationContext)
 	router.Get("/", decorators.ReplyJson(h.getLegislation))
-	router.Put("/", decorators.OnlySuperadminsOrLocaladminsOrAuditors(decorators.ReplyJson(h.updateLegislation)))
-	router.Delete("/", decorators.OnlySuperadminsOrLocaladminsOrAuditors(decorators.ReplyJson(h.deleteLegislation)))
+	router.Put("/", decorators.OnlySuperadmins(decorators.ReplyJson(h.updateLegislation)))
+	router.Delete("/", decorators.OnlySuperadmins(decorators.ReplyJson(h.deleteLegislation)))
 }
 
 func (h *Handler) legislationContext(next http.Handler) http.Handler {
