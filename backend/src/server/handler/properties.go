@@ -13,15 +13,15 @@ import (
 
 func (h *Handler) propertiesRoutes(router chi.Router) {
 	router.Get("/", decorators.ReplyJson(h.getProperties))
-	router.Post("/", decorators.OnlyClients(h.createProperty))
+	router.Post("/", decorators.OnlyClients(decorators.ReplyJson(h.createProperty)))
 	router.Route("/:idp", h.propertyRoutes)
 }
 
 func (h *Handler) propertyRoutes(router chi.Router) {
 	router.Use(h.propertyContext)
 	router.Get("/", decorators.ReplyJson(h.getProperty))
-	router.Put("/", decorators.OnlySuperadminsOrLocaladminsOrClients(h.updateProperty))
-	router.Delete("/", decorators.OnlySuperadminsOrLocaladminsOrClients(h.deleteProperty))
+	router.Put("/", decorators.OnlySuperadminsOrLocaladminsOrClients(decorators.ReplyJson(h.updateProperty)))
+	router.Delete("/", decorators.OnlySuperadminsOrLocaladminsOrClients(decorators.ReplyJson(h.deleteProperty)))
 	router.Get("/address", decorators.ReplyJson(h.getAddress))
 	router.Put("/address", decorators.OnlySuperadminsOrLocaladminsOrClients(decorators.ReplyJson(h.updateAddress)))
 }
