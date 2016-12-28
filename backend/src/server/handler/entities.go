@@ -233,15 +233,7 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	switch input.Role {
-	case "auditor":
-		auditor := datastore.NewAuditor(false)
-		auditor.IdEntity = entity.Id
-		err = h.Datastore.SaveAuditor(auditor)
-		if err != nil {
-			http.Error(w, helpers.Error(err.Error()), 500)
-			return
-		}
-	case "client":
+	case sessionData.Client:
 		client := datastore.NewClient(false)
 		client.IdEntity = entity.Id
 		err = h.Datastore.SaveClient(client)
@@ -249,10 +241,38 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, helpers.Error(err.Error()), 500)
 			return
 		}
-	case "localadmin":
-		localAdmin := datastore.NewLocaladmin(false)
-		localAdmin.IdEntity = entity.Id
-		err = h.Datastore.SaveLocaladmin(localAdmin)
+	case sessionData.Auditor:
+		if !sessionData.IsSuperadminOrLocaladmin(r) {
+			http.Error(w, helpers.Error("Not superadmin or localadmin"), http.StatusForbidden)
+			return
+		}
+		auditor := datastore.NewAuditor(false)
+		auditor.IdEntity = entity.Id
+		err = h.Datastore.SaveAuditor(auditor)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 500)
+			return
+		}
+	case sessionData.Localadmin:
+		if !sessionData.IsSuperadmin(r) {
+			http.Error(w, helpers.Error("Not superadmin"), http.StatusForbidden)
+			return
+		}
+		localadmin := datastore.NewLocaladmin(false)
+		localadmin.IdEntity = entity.Id
+		err = h.Datastore.SaveLocaladmin(localadmin)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 500)
+			return
+		}
+	case sessionData.Superadmin:
+		if !sessionData.IsSuperadmin(r) {
+			http.Error(w, helpers.Error("Not superadmin"), http.StatusForbidden)
+			return
+		}
+		superadmin := datastore.NewSuperadmin(false)
+		superadmin.IdEntity = entity.Id
+		err = h.Datastore.SaveSuperadmin(superadmin)
 		if err != nil {
 			http.Error(w, helpers.Error(err.Error()), 500)
 			return

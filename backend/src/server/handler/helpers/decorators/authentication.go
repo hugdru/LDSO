@@ -8,7 +8,7 @@ import (
 
 func OnlySuperadmins(f http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if !permittedRole(r, sessionData.Superadmin) {
+		if !sessionData.IsSuperadmin(r) {
 			http.Error(w, helpers.Error("Only superadmins are permitted"), http.StatusForbidden)
 			return
 		}
@@ -18,7 +18,7 @@ func OnlySuperadmins(f http.HandlerFunc) http.HandlerFunc {
 
 func OnlyLocaladmins(f http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if !permittedRole(r, sessionData.Localadmin) {
+		if !sessionData.IsLocaladmin(r) {
 			http.Error(w, helpers.Error("Only localadmins are permitted"), http.StatusForbidden)
 			return
 		}
@@ -28,7 +28,7 @@ func OnlyLocaladmins(f http.HandlerFunc) http.HandlerFunc {
 
 func OnlyAuditors(f http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if !permittedRole(r, sessionData.Auditor) {
+		if !sessionData.IsAuditor(r) {
 			http.Error(w, helpers.Error("Only auditors are permitted"), http.StatusForbidden)
 			return
 		}
@@ -38,7 +38,7 @@ func OnlyAuditors(f http.HandlerFunc) http.HandlerFunc {
 
 func OnlyClients(f http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if !permittedRole(r, sessionData.Client) {
+		if !sessionData.IsClient(r) {
 			http.Error(w, helpers.Error("Only clients are permitted"), http.StatusForbidden)
 			return
 		}
@@ -48,7 +48,7 @@ func OnlyClients(f http.HandlerFunc) http.HandlerFunc {
 
 func OnlySuperadminsOrLocaladminsOrClients(f http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if !permittedRoles(r, []string{sessionData.Superadmin, sessionData.Localadmin, sessionData.Client}) {
+		if !sessionData.IsSuperadminOrLocaladminOrClient(r) {
 			http.Error(w, helpers.Error("Only superadmins or localadmins or clients are permitted"), http.StatusForbidden)
 			return
 		}
@@ -58,7 +58,7 @@ func OnlySuperadminsOrLocaladminsOrClients(f http.HandlerFunc) http.HandlerFunc 
 
 func OnlySuperadminsOrLocaladmins(f http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if !permittedRoles(r, []string{sessionData.Superadmin, sessionData.Localadmin}) {
+		if !sessionData.IsSuperadminOrLocaladmin(r) {
 			http.Error(w, helpers.Error("Only superadmins or localadmins are permitted"), http.StatusForbidden)
 			return
 		}
@@ -68,27 +68,10 @@ func OnlySuperadminsOrLocaladmins(f http.HandlerFunc) http.HandlerFunc {
 
 func OnlySuperadminsOrLocaladminsOrAuditors(f http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if !permittedRoles(r, []string{sessionData.Superadmin, sessionData.Localadmin, sessionData.Auditor}) {
+		if !sessionData.IsSuperadminOrLocaladminOrAuditor(r) {
 			http.Error(w, helpers.Error("Only superadmins or localadmins or auditors are permitted"), http.StatusForbidden)
 			return
 		}
 		f(w, r)
 	}
-}
-
-func permittedRole(r *http.Request, permittedRole string) bool {
-	return permittedRoles(r, []string{permittedRole})
-}
-
-func permittedRoles(r *http.Request, permittedRoles []string) bool {
-	entitySessionData, err := sessionData.GetSessionData(r)
-	if err != nil {
-		panic("Could not retrieve current SessionData")
-	}
-	for _, permittedRole := range permittedRoles {
-		if entitySessionData.Role == permittedRole {
-			return true
-		}
-	}
-	return false
 }
