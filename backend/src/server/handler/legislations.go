@@ -1,22 +1,45 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/pressly/chi"
-	"gopkg.in/guregu/null.v3/zero"
 	"net/http"
 	"server/datastore"
 	"server/handler/helpers"
 	"server/handler/helpers/decorators"
-	"strconv"
 )
 
 func (h *Handler) legislationsRoutes(router chi.Router) {
 	router.Get("/", decorators.ReplyJson(h.getLegislations))
-	router.Post("/", decorators.RequestJson(decorators.ReplyJson(h.createLegislation)))
-	router.Get("/:id", decorators.ReplyJson(h.getLegislation))
-	router.Put("/:id", decorators.RequestJson(decorators.ReplyJson(h.updateLegislation)))
-	router.Delete("/:id", decorators.ReplyJson(h.deleteLegislation))
+	router.Post("/", decorators.OnlySuperadminsOrLocaladminsOrAuditors(decorators.ReplyJson(h.createLegislation)))
+	router.Route("/:idl", h.legislationRoutes)
+}
+
+func (h *Handler) legislationRoutes(router chi.Router) {
+	router.Use(h.legislationContext)
+	router.Get("/", decorators.ReplyJson(h.getLegislation))
+	router.Put("/", decorators.OnlySuperadminsOrLocaladminsOrAuditors(decorators.ReplyJson(h.updateLegislation)))
+	router.Delete("/", decorators.OnlySuperadminsOrLocaladminsOrAuditors(decorators.ReplyJson(h.deleteLegislation)))
+}
+
+func (h *Handler) legislationContext(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		idLegislationStr := chi.URLParam(r, "idl")
+		idLegislation, err := helpers.ParseInt64(idLegislationStr)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+		legislation, err := h.Datastore.GetLegislationById(idLegislation)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), "legislation", legislation)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }
 
 func (h *Handler) getLegislations(w http.ResponseWriter, r *http.Request) {
@@ -42,106 +65,115 @@ func (h *Handler) getLegislations(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
 	}
+
 	legislationsSlice, err := json.Marshal(legislations)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
 	}
-	w.Write(legislationsSlice)
-}
 
-func (h *Handler) getLegislation(w http.ResponseWriter, r *http.Request) {
-	idLegislation := chi.URLParam(r, "id")
-	id, err := strconv.ParseInt(idLegislation, 10, 64)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
-	legislation, err := h.Datastore.GetLegislationById(id)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
-	legislationSlice, err := json.Marshal(legislation)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 500)
-		return
-	}
-	w.Write(legislationSlice)
+	w.Write(legislationsSlice)
 }
 
 func (h *Handler) createLegislation(w http.ResponseWriter, r *http.Request) {
 
-	decoder := json.NewDecoder(r.Body)
-	if decoder == nil {
-		http.Error(w, helpers.Error("JSON decoder failed"), 500)
+	var input struct {
+		Name        string `json:"name"`
+		Description string `json:"description"`
+		Url         string `json:"url"`
+	}
+
+	switch helpers.GetContentType(r.Header.Get("Content-type")) {
+	case "multipart/form-data":
+		var err error
+		input.Name = r.PostFormValue("name")
+		input.Description = r.PostFormValue("description")
+		input.Url = r.PostFormValue("url")
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+	case "application/json":
+		d := json.NewDecoder(r.Body)
+		err := d.Decode(&input)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+	default:
+		http.Error(w, helpers.Error("Content-type not supported"), 415)
 		return
 	}
 
-	var input struct {
-		Name        string
-		Description string
-		Url         string
-	}
-
-	err := decoder.Decode(&input)
+	legislation := datastore.NewLegislation(false)
+	err := legislation.MustSet(input.Name)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
 	}
-
-	if input.Name == "" {
-		http.Error(w, helpers.Error("name [description] [url]"), 400)
+	err = legislation.OptionalSetIfNotEmptyOrNil(input.Description, input.Url)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 400)
 		return
 	}
-
-	legislation := datastore.NewLegislation(true)
-	legislation.Name = input.Name
-	legislation.Description = zero.StringFrom(input.Description)
-	legislation.Url = zero.StringFrom(input.Url)
 
 	err = h.Datastore.SaveLegislation(legislation)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
 	}
+
 	legislationSlice, err := json.Marshal(legislation)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
 	}
+
+	w.Write(legislationSlice)
+}
+
+func (h *Handler) getLegislation(w http.ResponseWriter, r *http.Request) {
+
+	legislation := r.Context().Value("legislation").(*datastore.Legislation)
+
+	legislationSlice, err := json.Marshal(legislation)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 500)
+		return
+	}
+
 	w.Write(legislationSlice)
 }
 
 func (h *Handler) updateLegislation(w http.ResponseWriter, r *http.Request) {
-	idLegislation := chi.URLParam(r, "id")
-	id, err := strconv.ParseInt(idLegislation, 10, 64)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
 
-	legislation, err := h.Datastore.GetLegislationById(id)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
-
-	d := json.NewDecoder(r.Body)
-	if d == nil {
-		http.Error(w, helpers.Error("JSON decoder failed"), 500)
-		return
-	}
+	legislation := r.Context().Value("legislation").(*datastore.Legislation)
 
 	var input struct {
-		Name        string
-		Description string
-		Url         string
+		Name        string `json:"name"`
+		Description string `json:"description"`
+		Url         string `json:"url"`
 	}
 
-	err = d.Decode(&input)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
+	switch helpers.GetContentType(r.Header.Get("Content-type")) {
+	case "multipart/form-data":
+		var err error
+		input.Name = r.PostFormValue("name")
+		input.Description = r.PostFormValue("description")
+		input.Url = r.PostFormValue("url")
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+	case "application/json":
+		d := json.NewDecoder(r.Body)
+		err := d.Decode(&input)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+	default:
+		http.Error(w, helpers.Error("Content-type not supported"), 415)
 		return
 	}
 
@@ -150,16 +182,10 @@ func (h *Handler) updateLegislation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if input.Name != "" {
-		legislation.Name = input.Name
-	}
-
-	if input.Description != "" {
-		legislation.Description = zero.StringFrom(input.Description)
-	}
-
-	if input.Url != "" {
-		legislation.Url = zero.StringFrom(input.Url)
+	err := legislation.AllSetIfNotEmptyOrNil(input.Name, input.Description, input.Url)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 400)
+		return
 	}
 
 	err = h.Datastore.SaveLegislation(legislation)
@@ -170,14 +196,10 @@ func (h *Handler) updateLegislation(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) deleteLegislation(w http.ResponseWriter, r *http.Request) {
-	idLegislation := chi.URLParam(r, "id")
-	id, err := strconv.ParseInt(idLegislation, 10, 64)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
 
-	err = h.Datastore.DeleteLegislationById(id)
+	legislation := r.Context().Value("legislation").(*datastore.Legislation)
+
+	err := h.Datastore.DeleteLegislation(legislation)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
