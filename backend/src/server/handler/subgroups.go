@@ -1,21 +1,46 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/pressly/chi"
 	"net/http"
 	"server/datastore"
 	"server/handler/helpers"
 	"server/handler/helpers/decorators"
-	"strconv"
 )
 
 func (h *Handler) subgroupsRoutes(router chi.Router) {
 	router.Get("/", decorators.ReplyJson(h.getSubgroups))
-	router.Post("/", decorators.RequestJson(decorators.ReplyJson(h.createSubgroup)))
-	router.Get("/:id", decorators.ReplyJson(h.getSubgroup))
-	router.Put("/:id", decorators.RequestJson(decorators.ReplyJson(h.updateSubgroup)))
-	router.Delete("/:id", decorators.ReplyJson(h.deleteSubgroup))
+	router.Post("/", decorators.OnlySuperadmins(decorators.ReplyJson(h.createSubgroup)))
+	router.Route("/:ids", h.subgroupRoutes)
+
+}
+
+func (h *Handler) subgroupRoutes(router chi.Router) {
+	router.Use(h.subgroupContext)
+	router.Get("/", decorators.ReplyJson(h.getSubgroup))
+	router.Put("/", decorators.OnlySuperadmins(decorators.ReplyJson(h.updateSubgroup)))
+	router.Delete("/", decorators.OnlySuperadmins(decorators.ReplyJson(h.deleteSubgroup)))
+}
+
+func (h *Handler) subgroupContext(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		idSubgroupStr := chi.URLParam(r, "ids")
+		idSubgroup, err := helpers.ParseInt64(idSubgroupStr)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+		subgroup, err := h.Datastore.GetSubgroupById(idSubgroup)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), "subgroup", subgroup)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }
 
 func (h *Handler) getSubgroups(w http.ResponseWriter, r *http.Request) {
@@ -41,70 +66,57 @@ func (h *Handler) getSubgroups(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
 	}
+
 	subgroupsSlice, err := json.Marshal(subgroups)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
 	}
-	w.Write(subgroupsSlice)
-}
 
-func (h *Handler) getSubgroup(w http.ResponseWriter, r *http.Request) {
-	idSubgroup := chi.URLParam(r, "id")
-	id, err := strconv.ParseInt(idSubgroup, 10, 64)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
-	subgroup, err := h.Datastore.GetSubgroupById(id)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
-	subgroupSlice, err := json.Marshal(subgroup)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 500)
-		return
-	}
-	w.Write(subgroupSlice)
+	w.Write(subgroupsSlice)
 }
 
 func (h *Handler) createSubgroup(w http.ResponseWriter, r *http.Request) {
 
-	decoder := json.NewDecoder(r.Body)
-	if decoder == nil {
-		http.Error(w, helpers.Error("JSON decoder failed"), 500)
-		return
-	}
-
 	var input struct {
-		IdMaingroup int64
-		Name        string
-		Weight      int
+		IdMaingroup int64  `json:"idMaingroup"`
+		Name        string `json:"name"`
+		Weight      int    `json:"weight"`
 	}
 	input.Weight = -1
 
-	err := decoder.Decode(&input)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
-
-	if input.IdMaingroup == 0 || input.Name == "" || input.Weight == -1 {
-		http.Error(w, helpers.Error("The subgroup must have a name idMaingroup, a name and a weight"), 400)
-		return
-	}
-
-	_, err = h.Datastore.GetMaingroupById(input.IdMaingroup)
-	if err != nil {
-		http.Error(w, err.Error(), 400)
+	switch helpers.GetContentType(r.Header.Get("Content-type")) {
+	case "multipart/form-data":
+		var err error
+		input.IdMaingroup, err = helpers.ParseInt64(r.PostFormValue("idMaingroup"))
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+		input.Name = r.PostFormValue("name")
+		input.Weight, err = helpers.ParseInt(r.PostFormValue("weight"))
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+	case "application/json":
+		d := json.NewDecoder(r.Body)
+		err := d.Decode(&input)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+	default:
+		http.Error(w, helpers.Error("Content-type not supported"), 415)
 		return
 	}
 
 	subgroup := datastore.NewSubgroup(false)
-	subgroup.IdMaingroup = input.IdMaingroup
-	subgroup.Name = input.Name
-	subgroup.Weight = input.Weight
+	err := subgroup.MustSet(input.IdMaingroup, input.Name, input.Weight)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 400)
+		return
+	}
 	subgroup.CreatedDate = helpers.TheTime()
 
 	err = h.Datastore.SaveSubgroup(subgroup)
@@ -112,57 +124,69 @@ func (h *Handler) createSubgroup(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
 	}
+
 	subgroupSlice, err := json.Marshal(subgroup)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
 	}
+
+	w.Write(subgroupSlice)
+}
+
+func (h *Handler) getSubgroup(w http.ResponseWriter, r *http.Request) {
+
+	subgroup := r.Context().Value("subgroup").(*datastore.Subgroup)
+
+	subgroupSlice, err := json.Marshal(subgroup)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 500)
+		return
+	}
+
 	w.Write(subgroupSlice)
 }
 
 func (h *Handler) updateSubgroup(w http.ResponseWriter, r *http.Request) {
-	idSubgroup := chi.URLParam(r, "id")
-	id, err := strconv.ParseInt(idSubgroup, 10, 64)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
 
-	subgroup, err := h.Datastore.GetSubgroupById(id)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
-
-	d := json.NewDecoder(r.Body)
-	if d == nil {
-		http.Error(w, helpers.Error("JSON decoder failed"), 500)
-		return
-	}
+	subgroup := r.Context().Value("subgroup").(*datastore.Subgroup)
 
 	var input struct {
-		Name   string
-		Weight int
+		Name   string `json:"name"`
+		Weight int    `json:"weight"`
 	}
 	input.Weight = -1
 
-	err = d.Decode(&input)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
+	switch helpers.GetContentType(r.Header.Get("Content-type")) {
+	case "multipart/form-data":
+		var err error
+		input.Name = r.PostFormValue("name")
+		input.Weight, err = helpers.ParseInt(r.PostFormValue("weight"))
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+	case "application/json":
+		d := json.NewDecoder(r.Body)
+		err := d.Decode(&input)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+	default:
+		http.Error(w, helpers.Error("Content-type not supported"), 415)
 		return
 	}
 
 	if input.Name == "" && input.Weight == -1 {
-		http.Error(w, helpers.Error("name or weight must be set"), 400)
+		http.Error(w, helpers.Error("[name] [weight]"), 400)
 		return
 	}
 
-	if input.Name != "" {
-		subgroup.Name = input.Name
-	}
-
-	if input.Weight != -1 {
-		subgroup.Weight = input.Weight
+	err := subgroup.UpdateSetIfNotEmptyOrNil(input.Name, input.Weight)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 400)
+		return
 	}
 
 	err = h.Datastore.SaveSubgroup(subgroup)
@@ -173,14 +197,10 @@ func (h *Handler) updateSubgroup(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) deleteSubgroup(w http.ResponseWriter, r *http.Request) {
-	idSubgroup := chi.URLParam(r, "id")
-	id, err := strconv.ParseInt(idSubgroup, 10, 64)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
 
-	err = h.Datastore.DeleteSubgroupById(id)
+	subgroup := r.Context().Value("subgroup").(*datastore.Subgroup)
+
+	err := h.Datastore.DeleteSubgroup(subgroup)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
