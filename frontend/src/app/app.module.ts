@@ -16,9 +16,9 @@ import {SidebarComponent} from "sidebar/sidebar.component";
 import {FootbarComponent} from "footbar/footbar.component";
 import {CenterComponent} from "center/center.component";
 import {LoginComponent} from "login/login.component";
-import {CtemplateComponent} from "ctemplate/ctemplate.component";
-import {CtemplateEditComponent} from "ctemplate/ctemplate-edit.component";
-import {CtemplateAddComponent} from "ctemplate/ctemplate-add.component";
+import {AuditTemplateComponent} from "audit-template/audit-template.component";
+import {AuditTemplateEditComponent} from "audit-template/audit-template-edit.component";
+import {AuditTemplateAddComponent} from "audit-template/audit-template-add.component";
 import {MainGroupComponent} from "main-group/main-group.component";
 import {MainGroupEditComponent} from "main-group/main-group-edit.component";
 import {MainGroupAddComponent} from "main-group/main-group-add.component";
@@ -63,9 +63,9 @@ import {HandlerService} from "handler.service";
         FootbarComponent,
         CenterComponent,
         LoginComponent,
-        CtemplateComponent,
-        CtemplateEditComponent,
-        CtemplateAddComponent,
+        AuditTemplateComponent,
+        AuditTemplateEditComponent,
+        AuditTemplateAddComponent,
         MainGroupComponent,
         MainGroupEditComponent,
         MainGroupAddComponent,

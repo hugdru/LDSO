@@ -1,10 +1,10 @@
 <div [ngSwitch]="objType">
-    <ctemplate-add *ngSwitchCase="'Ctemplate'"
+    <audit-template-add *ngSwitchCase="'AuditTemplate'"
                    [objType]="objType"
-                   (onAdd)="onAdd($event)"></ctemplate-add>
+                   (onAdd)="onAdd($event)"></audit-template-add>
     <main-group-add *ngSwitchCase="'MainGroup'"
                     [weight]="weight"
-                    [ctemplate]="father"
+                    [auditTemplate]="father"
                     (onAdd)="onAdd($event)"></main-group-add>
     <sub-group-add *ngSwitchCase="'SubGroup'"
                    [weight]="weight"

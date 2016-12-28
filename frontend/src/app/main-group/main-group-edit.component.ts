@@ -4,8 +4,8 @@ import {MainGroup} from "main-group/main-group";
 
 @Component({
     selector: 'main-group-edit',
-    templateUrl: '../ctemplate/html/ctemplate-edit.component.html',
-    styleUrls: ['../ctemplate/ctemplate-edit.component.css'],
+    templateUrl: '../audit-template/html/audit-template-edit.component.html',
+    styleUrls: ['../audit-template/audit-template-edit.component.css'],
     providers: [MainGroupService]
 })
 
