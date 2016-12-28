@@ -33,6 +33,37 @@ func (l *Legislation) Deleted() bool {
 	return l.meta.Deleted
 }
 
+func (l *Legislation) MustSet(name string) error {
+
+	if name != "" {
+		l.Name = name
+	} else {
+		return errors.New("name must be set")
+	}
+
+	return nil
+}
+
+func (l *Legislation) AllSetIfNotEmptyOrNil(name string, description string, url string) error {
+	if name != "" {
+		l.Name = name
+	}
+
+	return l.OptionalSetIfNotEmptyOrNil(description, url)
+}
+
+func (l *Legislation) OptionalSetIfNotEmptyOrNil(description, url string) error {
+	if description != "" {
+		l.Description = zero.StringFrom(description)
+	}
+
+	if url != "" {
+		l.Url = zero.StringFrom(url)
+	}
+
+	return nil
+}
+
 func ALegislation(allocateObjects bool) Legislation {
 	return Legislation{}
 }
@@ -175,7 +206,7 @@ func (ds *Datastore) GetLegislationById(id int64) (*Legislation, error) {
 		`FROM places4all.legislation ` +
 		`WHERE id = $1`
 
-	l := ALegislation(true)
+	l := ALegislation(false)
 	l.SetExists()
 
 	err := ds.postgres.QueryRow(sql, id).Scan(&l.Id, &l.Name, &l.Description, &l.Url)
@@ -193,7 +224,7 @@ func (ds *Datastore) GetLegislationByName(name string) (*Legislation, error) {
 		`FROM places4all.legislation ` +
 		`WHERE name = $1`
 
-	l := ALegislation(true)
+	l := ALegislation(false)
 	l.SetExists()
 
 	err := ds.postgres.QueryRow(sql, name).Scan(&l.Id, &l.Name, &l.Description, &l.Url)

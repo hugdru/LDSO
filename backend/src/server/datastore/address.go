@@ -57,51 +57,51 @@ func (a *Address) MustSet(idCountry int64, addressLine1 string) error {
 	return nil
 }
 
-func (a *Address) AllSetIfNotEmptyOrNil(IdCountry int64, AddressLine1 string,
-	AddressLine2 string, AddressLine3 string, TownCity string,
-	County string, Postcode string, Latitude string, Longitude string) error {
-	if IdCountry != 0 {
-		a.IdCountry = IdCountry
+func (a *Address) AllSetIfNotEmptyOrNil(idCountry int64, addressLine1 string,
+	addressLine2 string, addressLine3 string, townCity string,
+	county string, postcode string, latitude string, longitude string) error {
+	if idCountry != 0 {
+		a.IdCountry = idCountry
 	}
 
-	if AddressLine1 != "" {
-		a.AddressLine1 = AddressLine1
+	if addressLine1 != "" {
+		a.AddressLine1 = addressLine1
 	}
 
-	return a.OptionalSetIfNotEmptyOrNil(AddressLine2, AddressLine3, TownCity,
-		County, Postcode, Latitude, Longitude)
+	return a.OptionalSetIfNotEmptyOrNil(addressLine2, addressLine3, townCity,
+		county, postcode, latitude, longitude)
 }
 
 func (a *Address) OptionalSetIfNotEmptyOrNil(
-	AddressLine2 string, AddressLine3 string, TownCity string,
-	County string, Postcode string, Latitude string, Longitude string) error {
+	addressLine2 string, addressLine3 string, townCity string,
+	county string, postcode string, latitude string, longitude string) error {
 
-	if AddressLine2 != "" {
-		a.AddressLine2 = zero.StringFrom(AddressLine2)
+	if addressLine2 != "" {
+		a.AddressLine2 = zero.StringFrom(addressLine2)
 	}
 
-	if AddressLine3 != "" {
-		a.AddressLine3 = zero.StringFrom(AddressLine3)
+	if addressLine3 != "" {
+		a.AddressLine3 = zero.StringFrom(addressLine3)
 	}
 
-	if TownCity != "" {
-		a.TownCity = zero.StringFrom(TownCity)
+	if townCity != "" {
+		a.TownCity = zero.StringFrom(townCity)
 	}
 
-	if County != "" {
-		a.County = zero.StringFrom(County)
+	if county != "" {
+		a.County = zero.StringFrom(county)
 	}
 
-	if Postcode != "" {
-		a.Postcode = zero.StringFrom(Postcode)
+	if postcode != "" {
+		a.Postcode = zero.StringFrom(postcode)
 	}
 
-	if Latitude != "" {
-		a.Latitude = zero.StringFrom(Latitude)
+	if latitude != "" {
+		a.Latitude = zero.StringFrom(latitude)
 	}
 
-	if Longitude != "" {
-		a.Longitude = zero.StringFrom(Longitude)
+	if longitude != "" {
+		a.Longitude = zero.StringFrom(longitude)
 	}
 
 	return nil

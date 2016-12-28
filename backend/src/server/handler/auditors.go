@@ -119,6 +119,7 @@ func (h *Handler) createAuditor(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
 	}
+
 	w.Write(auditorSlice)
 }
 
