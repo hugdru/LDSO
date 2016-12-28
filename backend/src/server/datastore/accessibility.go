@@ -29,6 +29,22 @@ func (a *Accessibility) Deleted() bool {
 	return a.meta.Deleted
 }
 
+func (a *Accessibility) MustSet(name string) error {
+	if name != "" {
+		a.Name = name
+	} else {
+		return errors.New("name must be set")
+	}
+	return nil
+}
+
+func (a *Accessibility) AllSetIfNotEmptyOrNil(name string) error {
+	if name != "" {
+		a.Name = name
+	}
+	return nil
+}
+
 func AAccessibility(allocateObjects bool) Accessibility {
 	accessibility := Accessibility{}
 	//if allocateObjects {
