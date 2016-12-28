@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/pressly/chi"
 	"net/http"
@@ -8,13 +9,11 @@ import (
 	"server/handler/helpers"
 	"server/handler/helpers/decorators"
 	"server/handler/sessionData"
-	"context"
 )
 
 func (h *Handler) auditorsRoutes(router chi.Router) {
 	router.Get("/", decorators.ReplyJson(h.getAuditors))
 	router.Post("/", decorators.OnlySuperadminsOrLocaladmins(decorators.RequestJson(decorators.ReplyJson(h.createAuditor))))
-
 	router.Route("/:ida", h.auditorRoutes)
 }
 
