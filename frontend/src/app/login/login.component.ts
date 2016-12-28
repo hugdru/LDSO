@@ -1,6 +1,6 @@
 import {Component, Output, EventEmitter, OnInit} from "@angular/core";
 import {LoginService} from "login/service/login.service";
-import {Login} from "login/login";
+import {Session} from "./session";
 
 @Component({
     selector: 'login',
@@ -12,39 +12,57 @@ import {Login} from "login/login";
 
 export class LoginComponent implements OnInit {
 
-    selectedObject: Login;
+    session: Session;
     errorMsg: string;
-//    @Output() onAdd = new EventEmitter<Login>();
+//    @Output() onAdd = new EventEmitter<Session>();
 
     constructor(private loginService: LoginService) {
     }
 
     ngOnInit(): void {
-        this.selectedObject = new Login();
+        this.session = new Session();
     }
 
-    pressed(newLogin: Login): void {
-        if (newLogin) {
+    loginPressed(newSession: Session): void {
+        if (newSession) {
             this.login();
         }
-//        this.onAdd.emit(newLogin);
+//        this.onAdd.emit(newSession);
     }
 
     login(): void {
-        this.loginService.setLogin(this.selectedObject).subscribe(
+        this.loginService.setLogin(this.session).subscribe(
                 response => {
-                    this.selectedObject.id = response.json().id;
-                    this.selectedObject.role = response.json().role;
-                    this.selectedObject.name = response.json().name;
-                    this.selectedObject.email = response.json().email;
+                    this.session.id = response.json().id;
+                    this.session.role = response.json().role;
+                    this.session.name = response.json().name;
+                    this.session.email = response.json().email;
                 },
                 error => {
                     this.errorMsg = <any>error;
                     console.log(this.errorMsg);
                 }
         );
-        this.selectedObject.password = "";
-        console.log(this.selectedObject);
+        this.session.password = "";
+        console.log(this.session);
+    }
+
+    logoutPressed(newSession: Session): void {
+        if (newSession) {
+            this.logout();
+        }
+//        this.onAdd.emit(newSession);
+    }
+
+    logout(): void {
+        this.loginService.getLogout().subscribe(
+                response => this.session = new Session(),
+                error => {
+                    this.errorMsg = <any>error;
+                    console.log(this.errorMsg);
+                }
+        );
+        console.log(this.session);
     }
 
 }
