@@ -9,7 +9,7 @@ import {
         ResponseOptions
 } from "@angular/http";
 import {MockBackend, MockConnection} from "@angular/http/testing";
-import {CtemplateService} from "ctemplate/service/ctemplate.service";
+import {AuditTemplateService} from "..//service/auditTemplate.service";
 import {HandlerService} from "handler.service";
 
 const mockArray = [
@@ -18,13 +18,13 @@ const mockArray = [
 ];
 const mock = {id: 26, name: "ana"};
 
-describe('Ctemplate Service w/ Mock Service', () => {
+describe('AuditTemplate Service w/ Mock Service', () => {
     let mockBackend: MockBackend;
 
     beforeEach(async(() => {
         TestBed.configureTestingModule({
             providers: [
-                CtemplateService,
+                AuditTemplateService,
                 HandlerService,
                 MockBackend,
                 BaseRequestOptions,
@@ -44,7 +44,7 @@ describe('Ctemplate Service w/ Mock Service', () => {
     }));
 
     it('Get all main groups', async(() => {
-        let groupService: CtemplateService = getTestBed().get(CtemplateService);
+        let groupService: AuditTemplateService = getTestBed().get(AuditTemplateService);
 
         mockBackend.connections.subscribe((connection: MockConnection) => {
             connection.mockRespond(new Response(new ResponseOptions({
@@ -52,13 +52,13 @@ describe('Ctemplate Service w/ Mock Service', () => {
             })));
         });
 
-        groupService.getCtemplates().subscribe((data) => {
+        groupService.getAuditTemplates().subscribe((data) => {
             expect(data).toBe(mockArray);
         });
     }));
 
     it('Get some main groups', async(() => {
-        let groupService: CtemplateService = getTestBed().get(CtemplateService);
+        let groupService: AuditTemplateService = getTestBed().get(AuditTemplateService);
 
         mockBackend.connections.subscribe((connection: MockConnection) => {
             connection.mockRespond(new Response(new ResponseOptions({
@@ -66,13 +66,13 @@ describe('Ctemplate Service w/ Mock Service', () => {
             })));
         });
 
-        groupService.getSomeCtemplates("name", "ana").subscribe((data) => {
+        groupService.getSomeAuditTemplates("name", "ana").subscribe((data) => {
             expect(data).toBe(mockArray);
         });
     }));
 
     it('Get one main group', async(() => {
-        let groupService: CtemplateService = getTestBed().get(CtemplateService);
+        let groupService: AuditTemplateService = getTestBed().get(AuditTemplateService);
 
         mockBackend.connections.subscribe((connection: MockConnection) => {
             connection.mockRespond(new Response(new ResponseOptions({
@@ -80,13 +80,13 @@ describe('Ctemplate Service w/ Mock Service', () => {
             })));
         });
 
-        groupService.getCtemplate(26).subscribe((data) => {
+        groupService.getAuditTemplate(26).subscribe((data) => {
             expect(data).toBe(mock);
         });
     }));
 
     it('Updade a main group', async(() => {
-        let groupService: CtemplateService = getTestBed().get(CtemplateService);
+        let groupService: AuditTemplateService = getTestBed().get(AuditTemplateService);
 
         mockBackend.connections.subscribe((connection: MockConnection) => {
             expect(connection.request.method).toBe(RequestMethod.Put);
@@ -95,14 +95,14 @@ describe('Ctemplate Service w/ Mock Service', () => {
             })));
         });
 
-        groupService.updateCtemplate(mock).subscribe((result => {
+        groupService.updateAuditTemplate(mock).subscribe((result => {
             expect(result).toBeDefined();
             expect(result.status).toBe(200);
         }));
     }));
 
     it('Add a new main group',
-            async(inject([CtemplateService], (groupService) => {
+            async(inject([AuditTemplateService], (groupService) => {
                 mockBackend.connections
                         .subscribe((connection: MockConnection) => {
                             expect(connection.request.method).toBe(RequestMethod.Post);
@@ -110,14 +110,14 @@ describe('Ctemplate Service w/ Mock Service', () => {
                                     new ResponseOptions({status: 201})));
                         });
 
-                groupService.setCtemplate(mock).subscribe((result => {
+                groupService.setAuditTemplate(mock).subscribe((result => {
                     expect(result).toBeDefined();
                     expect(result.status).toBe(201);
                 }));
             })));
 
     it('Delete a main group',
-            async(inject([CtemplateService], (groupService) => {
+            async(inject([AuditTemplateService], (groupService) => {
                 mockBackend.connections
                         .subscribe((connection: MockConnection) => {
                             expect(connection.request.method).toBe(RequestMethod.Delete);
@@ -125,7 +125,7 @@ describe('Ctemplate Service w/ Mock Service', () => {
                                     new ResponseOptions({status: 204})));
                         });
 
-                groupService.removeCtemplate(15).subscribe((result => {
+                groupService.removeAuditTemplate(15).subscribe((result => {
                     expect(result).toBeDefined();
                     expect(result.status).toBe(204);
                 }));

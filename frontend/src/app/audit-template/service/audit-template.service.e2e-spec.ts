@@ -1,4 +1,4 @@
-describe('Ctemplate Service e2e', () => {
+describe('AuditTemplate Service e2e', () => {
     it('should click something', () => {
         browser.get('http://localhost:4200');
 

@@ -1,7 +1,7 @@
 import {Component, OnInit, Input, SimpleChanges} from "@angular/core";
 import {MainGroupService} from "main-group/service/main-group.service";
 import {MainGroup} from "main-group/main-group";
-import {Ctemplate} from "../ctemplate/ctemplate";
+import {AuditTemplate} from "../audit-template/audit-template";
 
 @Component({
     selector: 'main-group',
@@ -16,7 +16,7 @@ export class MainGroupComponent implements OnInit {
     objType: string;
     errorMsg: string;
 
-    @Input() parentCtemplate: Ctemplate;
+    @Input() parentAuditTemplate: AuditTemplate;
 
     constructor(private mainGroupService: MainGroupService) {
         this.objType = "MainGroup"
@@ -30,11 +30,11 @@ export class MainGroupComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.initMainGroups(this.parentCtemplate.id);
+        this.initMainGroups(this.parentAuditTemplate.id);
     }
 
-    initMainGroups(ctemplateId: number): void {
-        this.mainGroupService.getSomeMainGroups("idTemplate", ctemplateId)
+    initMainGroups(auditTemplateId: number): void {
+        this.mainGroupService.getSomeMainGroups("idTemplate", auditTemplateId)
                 .subscribe(data => this.mainGroups = data,
                 error => this.errorMsg = <any>error
         );

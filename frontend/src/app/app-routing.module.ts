@@ -1,6 +1,6 @@
 import {NgModule} from "@angular/core";
 import {RouterModule, Routes} from "@angular/router";
-import {CtemplateComponent} from "ctemplate/ctemplate.component";
+import {AuditTemplateComponent} from "audit-template/audit-template.component";
 import {AuditComponent} from "audit/audit.component";
 import {ListPropertiesComponent} from "./property/list-properties.component";
 import {LoginComponent} from "./login/login.component";
@@ -8,12 +8,12 @@ import {LoginComponent} from "./login/login.component";
 const routes: Routes = [
     {
         path: '',
-        redirectTo: '/ctemplate', //change to homepage once implemented
+        redirectTo: '/auditTemplate', //change to homepage once implemented
         pathMatch: 'full'
     },
     {
-        path: 'ctemplate',
-        component: CtemplateComponent
+        path: 'auditTemplate',
+        component: AuditTemplateComponent
     },
     {
         path: 'audit/:id',

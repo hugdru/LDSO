@@ -7,7 +7,7 @@ import {Identifier} from "identifier.interface";
 @Component({
     selector: 'list-manage',
     templateUrl: './list-manage.component.html',
-    styleUrls: ['../../ctemplate/ctemplate.component.css'],
+    styleUrls: ['../../audit-template/audit-template.component.css'],
 })
 
 export class ListManageComponent {

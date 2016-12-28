@@ -34,14 +34,17 @@ export class LoginComponent implements OnInit {
         this.loginService.setLogin(this.selectedObject).subscribe(
                 response => {
                     this.selectedObject.id = response.json().id;
-                    console.log(response.json());
-                    console.log(this.selectedObject.id);
+                    this.selectedObject.role = response.json().role;
+                    this.selectedObject.name = response.json().name;
+                    this.selectedObject.email = response.json().email;
                 },
                 error => {
                     this.errorMsg = <any>error;
                     console.log(this.errorMsg);
                 }
         );
+        this.selectedObject.password = "";
+        console.log(this.selectedObject);
     }
 
 }

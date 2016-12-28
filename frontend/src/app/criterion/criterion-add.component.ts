@@ -5,8 +5,8 @@ import {SubGroup} from "sub-group/sub-group";
 
 @Component({
     selector: 'criterion-add',
-    templateUrl: '../ctemplate/html/ctemplate-edit.component.html',
-    styleUrls: ['../ctemplate/ctemplate-edit.component.css'],
+    templateUrl: '../audit-template/html/audit-template-edit.component.html',
+    styleUrls: ['../audit-template/audit-template-edit.component.css'],
     providers: [CriterionService]
 })
 

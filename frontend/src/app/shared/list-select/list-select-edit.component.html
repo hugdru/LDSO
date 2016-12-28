@@ -1,9 +1,9 @@
 <div [ngSwitch]="objType">
-    <ctemplate-edit *ngSwitchCase="'Ctemplate'"
+    <auditTemplate-edit *ngSwitchCase="'AuditTemplate'"
                     [selectedObject]="selectedEditObject"
                     [objType]="objType"
                     (onAction)="onAction()">
-    </ctemplate-edit>
+    </auditTemplate-edit>
     <main-group-edit *ngSwitchCase="'MainGroup'"
                      [selectedObject]="selectedEditObject"
                      [weight]="weight"
