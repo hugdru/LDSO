@@ -139,6 +139,11 @@ func ParseInt64(value string) (int64, error) {
 	return strconv.ParseInt(value, 10, 64)
 }
 
+func ParseInt(value string) (int, error) {
+	integer, err := strconv.ParseInt(value, 10, 0)
+	return int(integer), err
+}
+
 func Int64ToString(n int64) string {
 	return strconv.FormatInt(n, 10)
 }
