@@ -13,14 +13,14 @@ import (
 
 func (h *Handler) clientsRoutes(router chi.Router) {
 	router.Get("/", decorators.ReplyJson(h.getClients))
-	router.Post("/", decorators.OnlySuperadminsOrLocaladmins(decorators.RequestJson(decorators.ReplyJson(h.createClient))))
+	router.Post("/", decorators.OnlySuperadminsOrLocaladmins(decorators.ReplyJson(h.createClient)))
 	router.Route("/:idc", h.clientRoutes)
 }
 
 func (h *Handler) clientRoutes(router chi.Router) {
 	router.Use(h.clientContext)
 	router.Get("/", decorators.ReplyJson(h.getClient))
-	router.Put("/", decorators.OnlySuperadminsOrLocaladminsOrClients(decorators.RequestJson(decorators.ReplyJson(h.updateClient))))
+	router.Put("/", decorators.OnlySuperadminsOrLocaladminsOrClients(decorators.ReplyJson(h.updateClient)))
 	router.Delete("/", decorators.OnlySuperadminsOrLocaladminsOrClients(decorators.ReplyJson(h.deleteClient)))
 }
 

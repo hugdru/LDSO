@@ -13,14 +13,14 @@ import (
 
 func (h *Handler) auditorsRoutes(router chi.Router) {
 	router.Get("/", decorators.ReplyJson(h.getAuditors))
-	router.Post("/", decorators.OnlySuperadminsOrLocaladmins(decorators.RequestJson(decorators.ReplyJson(h.createAuditor))))
+	router.Post("/", decorators.OnlySuperadminsOrLocaladmins(decorators.ReplyJson(h.createAuditor)))
 	router.Route("/:ida", h.auditorRoutes)
 }
 
 func (h *Handler) auditorRoutes(router chi.Router) {
 	router.Use(h.auditorContext)
 	router.Get("/", decorators.ReplyJson(h.getAuditor))
-	router.Put("/", decorators.OnlySuperadminsOrLocaladminsOrAuditors(decorators.RequestJson(decorators.ReplyJson(h.updateAuditor))))
+	router.Put("/", decorators.OnlySuperadminsOrLocaladminsOrAuditors(decorators.ReplyJson(h.updateAuditor)))
 	router.Delete("/", decorators.OnlySuperadminsOrLocaladminsOrAuditors(decorators.ReplyJson(h.deleteAuditor)))
 }
 
