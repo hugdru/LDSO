@@ -61,6 +61,10 @@ func (p *Entity) Deleted() bool {
 
 func (ds *Datastore) InsertEntity(e *Entity) error {
 
+	if e == nil {
+		return errors.New("entity should not be nil")
+	}
+
 	if e.Exists() {
 		return errors.New("insert failed: already exists")
 	}
@@ -82,7 +86,10 @@ func (ds *Datastore) InsertEntity(e *Entity) error {
 }
 
 func (ds *Datastore) UpdateEntity(e *Entity) error {
-	var err error
+
+	if e == nil {
+		return errors.New("entity should not be nil")
+	}
 
 	if !e.Exists() {
 		return errors.New("update failed: does not exist")
@@ -98,7 +105,7 @@ func (ds *Datastore) UpdateEntity(e *Entity) error {
 		`$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13` +
 		`) WHERE id = $14`
 
-	_, err = ds.postgres.Exec(sql, e.IdCountry, e.Name, e.Email, e.Username, e.Password, e.Image, e.ImageMimetype, e.Banned, e.BannedDate, e.Reason, e.Mobilephone, e.Telephone, e.CreatedDate, e.Id)
+	_, err := ds.postgres.Exec(sql, e.IdCountry, e.Name, e.Email, e.Username, e.Password, e.Image, e.ImageMimetype, e.Banned, e.BannedDate, e.Reason, e.Mobilephone, e.Telephone, e.CreatedDate, e.Id)
 	return err
 }
 
@@ -110,9 +117,13 @@ func (ds *Datastore) SaveEntity(e *Entity) error {
 	return ds.InsertEntity(e)
 }
 
-func (ds *Datastore) UpsertEntity(p *Entity) error {
+func (ds *Datastore) UpsertEntity(e *Entity) error {
 
-	if p.Exists() {
+	if e == nil {
+		return errors.New("entity should not be nil")
+	}
+
+	if e.Exists() {
 		return errors.New("insert failed: already exists")
 	}
 
@@ -126,17 +137,21 @@ func (ds *Datastore) UpsertEntity(p *Entity) error {
 		`EXCLUDED.id, EXCLUDED.id_country, EXCLUDED.name, EXCLUDED.email, EXCLUDED.username, EXCLUDED.password, EXCLUDED.image, EXCLUDED.image_mimetype, EXCLUDED.banned, EXCLUDED.banned_date, EXCLUDED.reason, EXCLUDED.mobilephone, EXCLUDED.telephone, EXCLUDED.created_date` +
 		`)`
 
-	_, err := ds.postgres.Exec(sql, p.Id, p.IdCountry, p.Name, p.Email, p.Username, p.Password, p.Image, p.ImageMimetype, p.Banned, p.BannedDate, p.Reason, p.Mobilephone, p.Telephone, p.CreatedDate)
+	_, err := ds.postgres.Exec(sql, e.Id, e.IdCountry, e.Name, e.Email, e.Username, e.Password, e.Image, e.ImageMimetype, e.Banned, e.BannedDate, e.Reason, e.Mobilephone, e.Telephone, e.CreatedDate)
 	if err != nil {
 		return err
 	}
 
-	p.SetExists()
+	e.SetExists()
 
 	return err
 }
 
 func (ds *Datastore) DeleteEntity(e *Entity) error {
+
+	if e == nil {
+		return errors.New("entity should not be nil")
+	}
 
 	if !e.Exists() {
 		return nil
@@ -199,7 +214,6 @@ func (ds *Datastore) GetEntityById(id int64) (*Entity, error) {
 }
 
 func (ds *Datastore) GetEntityByUsername(username string) (*Entity, error) {
-	var err error
 
 	const sql = `SELECT ` +
 		`id, id_country, name, email, username, password, image, banned, banned_date, reason, mobilephone, telephone, created_date ` +
@@ -209,7 +223,7 @@ func (ds *Datastore) GetEntityByUsername(username string) (*Entity, error) {
 	e := AEntity(false)
 	e.SetExists()
 
-	err = ds.postgres.QueryRowx(sql, username).StructScan(&e)
+	err := ds.postgres.QueryRowx(sql, username).StructScan(&e)
 	if err != nil {
 		return nil, err
 	}
@@ -217,7 +231,6 @@ func (ds *Datastore) GetEntityByUsername(username string) (*Entity, error) {
 	return &e, err
 }
 func (ds *Datastore) GetEntityByUsernamePassword(username string, password string) (*Entity, error) {
-	var err error
 
 	const sql = `SELECT ` +
 		`id, id_country, name, email, username, password, image, banned, banned_date, reason, mobilephone, telephone, created_date ` +
@@ -227,7 +240,7 @@ func (ds *Datastore) GetEntityByUsernamePassword(username string, password strin
 	e := AEntity(false)
 	e.SetExists()
 
-	err = ds.postgres.QueryRowx(sql, username, password).StructScan(&e)
+	err := ds.postgres.QueryRowx(sql, username, password).StructScan(&e)
 	if err != nil {
 		return nil, err
 	}

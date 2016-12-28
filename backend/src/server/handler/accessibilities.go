@@ -1,21 +1,45 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/pressly/chi"
 	"net/http"
 	"server/datastore"
 	"server/handler/helpers"
 	"server/handler/helpers/decorators"
-	"strconv"
 )
 
 func (h *Handler) accessibilitiesRoutes(router chi.Router) {
 	router.Get("/", decorators.ReplyJson(h.getAccessibilities))
-	router.Get("/:id", decorators.ReplyJson(h.getAccessibility))
-	router.Post("/", decorators.OnlySuperadmins(decorators.RequestJson(decorators.ReplyJson(h.createAccessibility))))
-	router.Put("/:id", decorators.OnlySuperadmins(decorators.RequestJson(decorators.ReplyJson(h.updateAccessibility))))
-	router.Delete("/:id", decorators.OnlySuperadmins(decorators.ReplyJson(h.deleteAccessibility)))
+	router.Post("/", decorators.OnlySuperadmins(decorators.ReplyJson(h.createAccessibility)))
+	router.Route("/:ida", h.accessibilityRoutes)
+}
+
+func (h *Handler) accessibilityRoutes(router chi.Router) {
+	router.Use(h.accessibilityContext)
+	router.Get("/", decorators.ReplyJson(h.getAccessibility))
+	router.Put("/", decorators.OnlySuperadmins(decorators.ReplyJson(h.updateAccessibility)))
+	router.Delete("/", decorators.OnlySuperadmins(decorators.ReplyJson(h.deleteAccessibility)))
+}
+
+func (h *Handler) accessibilityContext(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		idAccessibilityStr := chi.URLParam(r, "ida")
+		idAccessibility, err := helpers.ParseInt64(idAccessibilityStr)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+		accessibility, err := h.Datastore.GetAccessibilityById(idAccessibility)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), "accessibility", accessibility)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }
 
 func (h *Handler) getAccessibilities(w http.ResponseWriter, r *http.Request) {
@@ -48,102 +72,94 @@ func (h *Handler) getAccessibilities(w http.ResponseWriter, r *http.Request) {
 	w.Write(accessibilitiesSlice)
 }
 
-func (h *Handler) getAccessibility(w http.ResponseWriter, r *http.Request) {
-	idAccessibility := chi.URLParam(r, "id")
-	id, err := strconv.ParseInt(idAccessibility, 10, 64)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
-	accessibility, err := h.Datastore.GetAccessibilityById(id)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
-	accessibilitySlice, err := json.Marshal(accessibility)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 500)
-		return
-	}
-	w.Write(accessibilitySlice)
-}
-
 func (h *Handler) createAccessibility(w http.ResponseWriter, r *http.Request) {
 
-	decoder := json.NewDecoder(r.Body)
-	if decoder == nil {
-		http.Error(w, helpers.Error("JSON decoder failed"), 500)
+	var input struct {
+		Name string `json:"name"`
+	}
+
+	switch helpers.GetContentType(r.Header.Get("Content-type")) {
+	case "multipart/form-data":
+		input.Name = r.PostFormValue("name")
+	case "application/json":
+		d := json.NewDecoder(r.Body)
+		err := d.Decode(&input)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+	default:
+		http.Error(w, helpers.Error("Content-type not supported"), 415)
 		return
 	}
 
-	var input struct {
-		Name string
-	}
-
-	err := decoder.Decode(&input)
+	accessibility := datastore.NewAccessibility(false)
+	err := accessibility.MustSet(input.Name)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
 	}
-
-	if input.Name == "" {
-		http.Error(w, helpers.Error("name"), 400)
-		return
-	}
-
-	accessibility := datastore.NewAccessibility(true)
-	accessibility.Name = input.Name
 
 	err = h.Datastore.SaveAccessibility(accessibility)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
 	}
+
 	accessibilitySlice, err := json.Marshal(accessibility)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
 	}
+
+	w.Write(accessibilitySlice)
+}
+
+func (h *Handler) getAccessibility(w http.ResponseWriter, r *http.Request) {
+
+	accessibility := r.Context().Value("accessibility").(*datastore.Accessibility)
+
+	accessibilitySlice, err := json.Marshal(accessibility)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 500)
+		return
+	}
+
 	w.Write(accessibilitySlice)
 }
 
 func (h *Handler) updateAccessibility(w http.ResponseWriter, r *http.Request) {
-	idAccessibility := chi.URLParam(r, "id")
-	id, err := strconv.ParseInt(idAccessibility, 10, 64)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
 
-	accessibility, err := h.Datastore.GetAccessibilityById(id)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
-
-	d := json.NewDecoder(r.Body)
-	if d == nil {
-		http.Error(w, helpers.Error("JSON decoder failed"), 500)
-		return
-	}
+	accessibility := r.Context().Value("accessibility").(*datastore.Accessibility)
 
 	var input struct {
-		Name string
+		Name string `json:"name"`
 	}
 
-	err = d.Decode(&input)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
+	switch helpers.GetContentType(r.Header.Get("Content-type")) {
+	case "multipart/form-data":
+		input.Name = r.PostFormValue("name")
+	case "application/json":
+		d := json.NewDecoder(r.Body)
+		err := d.Decode(&input)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+	default:
+		http.Error(w, helpers.Error("Content-type not supported"), 415)
 		return
 	}
 
 	if input.Name == "" {
-		http.Error(w, helpers.Error("name"), 400)
+		http.Error(w, helpers.Error("name missing"), 400)
 		return
 	}
 
-	if input.Name != "" {
-		accessibility.Name = input.Name
+	err := accessibility.AllSetIfNotEmptyOrNil(input.Name)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 400)
+		return
 	}
 
 	err = h.Datastore.SaveAccessibility(accessibility)
@@ -154,14 +170,10 @@ func (h *Handler) updateAccessibility(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) deleteAccessibility(w http.ResponseWriter, r *http.Request) {
-	idAccessibility := chi.URLParam(r, "id")
-	id, err := strconv.ParseInt(idAccessibility, 10, 64)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
 
-	err = h.Datastore.DeleteAccessibilityById(id)
+	accessibility := r.Context().Value("accessibility").(*datastore.Accessibility)
+
+	err := h.Datastore.DeleteAccessibility(accessibility)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return

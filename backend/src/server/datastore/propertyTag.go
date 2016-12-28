@@ -41,6 +41,10 @@ func NewPropertyTag(allocateObjects bool) *PropertyTag {
 
 func (ds *Datastore) InsertPropertyTag(pt *PropertyTag) error {
 
+	if pt == nil {
+		return errors.New("propertyTag should not be nil")
+	}
+
 	if pt.Exists() {
 		return errors.New("insert failed: already exists")
 	}
@@ -62,7 +66,10 @@ func (ds *Datastore) InsertPropertyTag(pt *PropertyTag) error {
 }
 
 func (ds *Datastore) UpdatePropertyTag(pt *PropertyTag) error {
-
+	//if pt == nil {
+	//	return errors.New("propertyTag should not be nil")
+	//}
+	//
 	//if !pt.Exists() {
 	//	return errors.New("update failed: does not exist")
 	//}
@@ -92,6 +99,10 @@ func (ds *Datastore) SavePropertyTag(pt *PropertyTag) error {
 
 func (ds *Datastore) UpsertPropertyTag(pt *PropertyTag) error {
 
+	if pt == nil {
+		return errors.New("propertyTag should not be nil")
+	}
+
 	if pt.Exists() {
 		return errors.New("insert failed: already exists")
 	}
@@ -117,6 +128,10 @@ func (ds *Datastore) UpsertPropertyTag(pt *PropertyTag) error {
 }
 
 func (ds *Datastore) DeletePropertyTag(pt *PropertyTag) error {
+
+	if pt == nil {
+		return errors.New("propertyTag should not be nil")
+	}
 
 	if !pt.Exists() {
 		return nil

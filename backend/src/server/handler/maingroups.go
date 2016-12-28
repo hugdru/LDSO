@@ -1,21 +1,45 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/pressly/chi"
 	"net/http"
 	"server/datastore"
 	"server/handler/helpers"
 	"server/handler/helpers/decorators"
-	"strconv"
 )
 
 func (h *Handler) maingroupsRoutes(router chi.Router) {
 	router.Get("/", decorators.ReplyJson(h.getMaingroups))
-	router.Post("/", decorators.RequestJson(decorators.ReplyJson(h.createMaingroup)))
-	router.Get("/:id", decorators.ReplyJson(h.getMaingroup))
-	router.Put("/:id", decorators.RequestJson(decorators.ReplyJson(h.updateMaingroup)))
-	router.Delete("/:id", decorators.ReplyJson(h.deleteMaingroup))
+	router.Post("/", decorators.OnlySuperadmins(decorators.ReplyJson(h.createMaingroup)))
+	router.Route("/:idm", h.maingroupRoutes)
+}
+
+func (h *Handler) maingroupRoutes(router chi.Router) {
+	router.Use(h.maingroupContext)
+	router.Get("/", decorators.ReplyJson(h.getMaingroup))
+	router.Put("/", decorators.OnlySuperadmins(decorators.ReplyJson(h.updateMaingroup)))
+	router.Delete("/", decorators.OnlySuperadmins(decorators.ReplyJson(h.deleteMaingroup)))
+}
+
+func (h *Handler) maingroupContext(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		idMaingroupStr := chi.URLParam(r, "idm")
+		idMaingroup, err := helpers.ParseInt64(idMaingroupStr)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+		maingroup, err := h.Datastore.GetMaingroupById(idMaingroup)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), "maingroup", maingroup)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }
 
 func (h *Handler) getMaingroups(w http.ResponseWriter, r *http.Request) {
@@ -41,70 +65,57 @@ func (h *Handler) getMaingroups(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
 	}
+
 	maingroupsSlice, err := json.Marshal(maingroups)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
 	}
-	w.Write(maingroupsSlice)
-}
 
-func (h *Handler) getMaingroup(w http.ResponseWriter, r *http.Request) {
-	idMaingroup := chi.URLParam(r, "id")
-	id, err := strconv.ParseInt(idMaingroup, 10, 64)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
-	maingroup, err := h.Datastore.GetMaingroupById(id)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
-	maingroupSlice, err := json.Marshal(maingroup)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 500)
-		return
-	}
-	w.Write(maingroupSlice)
+	w.Write(maingroupsSlice)
 }
 
 func (h *Handler) createMaingroup(w http.ResponseWriter, r *http.Request) {
 
-	decoder := json.NewDecoder(r.Body)
-	if decoder == nil {
-		http.Error(w, helpers.Error("JSON decoder failed"), 500)
-		return
-	}
-
 	var input struct {
-		IdTemplate int64
-		Name       string
-		Weight     int
+		IdTemplate int64  `json:"idTemplate"`
+		Name       string `json:"name"`
+		Weight     int    `json:"weight"`
 	}
 	input.Weight = -1
 
-	err := decoder.Decode(&input)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
-
-	if input.IdTemplate == 0 || input.Name == "" || input.Weight == -1 {
-		http.Error(w, helpers.Error("The maingroup must have a name idTemplate, a name and a weight"), 400)
-		return
-	}
-
-	_, err = h.Datastore.GetTemplateById(input.IdTemplate)
-	if err != nil {
-		http.Error(w, err.Error(), 400)
+	switch helpers.GetContentType(r.Header.Get("Content-type")) {
+	case "multipart/form-data":
+		var err error
+		input.IdTemplate, err = helpers.ParseInt64(r.PostFormValue("idTemplate"))
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+		input.Name = r.PostFormValue("name")
+		input.Weight, err = helpers.ParseInt(r.PostFormValue("weight"))
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+	case "application/json":
+		d := json.NewDecoder(r.Body)
+		err := d.Decode(&input)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+	default:
+		http.Error(w, helpers.Error("Content-type not supported"), 415)
 		return
 	}
 
 	maingroup := datastore.NewMaingroup(false)
-	maingroup.IdTemplate = input.IdTemplate
-	maingroup.Name = input.Name
-	maingroup.Weight = input.Weight
+	err := maingroup.MustSet(input.IdTemplate, input.Name, input.Weight)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 400)
+		return
+	}
 	maingroup.CreatedDate = helpers.TheTime()
 
 	err = h.Datastore.SaveMaingroup(maingroup)
@@ -112,57 +123,69 @@ func (h *Handler) createMaingroup(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
 	}
+
 	maingroupSlice, err := json.Marshal(maingroup)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
 	}
+
+	w.Write(maingroupSlice)
+}
+
+func (h *Handler) getMaingroup(w http.ResponseWriter, r *http.Request) {
+
+	maingroup := r.Context().Value("maingroup").(*datastore.Maingroup)
+
+	maingroupSlice, err := json.Marshal(maingroup)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 500)
+		return
+	}
+
 	w.Write(maingroupSlice)
 }
 
 func (h *Handler) updateMaingroup(w http.ResponseWriter, r *http.Request) {
-	idMaingroup := chi.URLParam(r, "id")
-	id, err := strconv.ParseInt(idMaingroup, 10, 64)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
 
-	maingroup, err := h.Datastore.GetMaingroupById(id)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
-
-	d := json.NewDecoder(r.Body)
-	if d == nil {
-		http.Error(w, helpers.Error("JSON decoder failed"), 500)
-		return
-	}
+	maingroup := r.Context().Value("maingroup").(*datastore.Maingroup)
 
 	var input struct {
-		Name   string
-		Weight int
+		Name   string `json:"name"`
+		Weight int    `json:"weight"`
 	}
 	input.Weight = -1
 
-	err = d.Decode(&input)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
+	switch helpers.GetContentType(r.Header.Get("Content-type")) {
+	case "multipart/form-data":
+		var err error
+		input.Name = r.PostFormValue("name")
+		input.Weight, err = helpers.ParseInt(r.PostFormValue("weight"))
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+	case "application/json":
+		d := json.NewDecoder(r.Body)
+		err := d.Decode(&input)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+	default:
+		http.Error(w, helpers.Error("Content-type not supported"), 415)
 		return
 	}
 
 	if input.Name == "" && input.Weight == -1 {
-		http.Error(w, helpers.Error("name or weight must be set"), 400)
+		http.Error(w, helpers.Error("[name] [weight]"), 400)
 		return
 	}
 
-	if input.Name != "" {
-		maingroup.Name = input.Name
-	}
-
-	if input.Weight != -1 {
-		maingroup.Weight = input.Weight
+	err := maingroup.UpdateSetIfNotEmptyOrNil(input.Name, input.Weight)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 400)
+		return
 	}
 
 	err = h.Datastore.SaveMaingroup(maingroup)
@@ -173,14 +196,10 @@ func (h *Handler) updateMaingroup(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) deleteMaingroup(w http.ResponseWriter, r *http.Request) {
-	idMaingroup := chi.URLParam(r, "id")
-	id, err := strconv.ParseInt(idMaingroup, 10, 64)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
 
-	err = h.Datastore.DeleteMaingroupById(id)
+	maingroup := r.Context().Value("maingroup").(*datastore.Maingroup)
+
+	err := h.Datastore.DeleteMaingroup(maingroup)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return

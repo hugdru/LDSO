@@ -51,6 +51,10 @@ func NewAudit(allocateObjects bool) *Audit {
 
 func (ds *Datastore) InsertAudit(a *Audit) error {
 
+	if a == nil {
+		return errors.New("audit should not be nil")
+	}
+
 	if a.Exists() {
 		return errors.New("insert failed: already exists")
 	}
@@ -72,6 +76,10 @@ func (ds *Datastore) InsertAudit(a *Audit) error {
 }
 
 func (ds *Datastore) UpdateAudit(a *Audit) error {
+
+	if a == nil {
+		return errors.New("audit should not be nil")
+	}
 
 	if !a.Exists() {
 		return errors.New("update failed: does not exist")
@@ -101,6 +109,10 @@ func (ds *Datastore) SaveAudit(a *Audit) error {
 
 func (ds *Datastore) UpsertAudit(a *Audit) error {
 
+	if a == nil {
+		return errors.New("audit should not be nil")
+	}
+
 	if a.Exists() {
 		return errors.New("insert failed: already exists")
 	}
@@ -126,6 +138,10 @@ func (ds *Datastore) UpsertAudit(a *Audit) error {
 }
 
 func (ds *Datastore) DeleteAudit(a *Audit) error {
+
+	if a == nil {
+		return errors.New("audit should not be nil")
+	}
 
 	if !a.Exists() {
 		return nil

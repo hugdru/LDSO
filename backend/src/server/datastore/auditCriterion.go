@@ -44,6 +44,10 @@ func NewAuditCriterion(allocateObjects bool) *AuditCriterion {
 
 func (ds *Datastore) InsertAuditCriterion(ac *AuditCriterion) error {
 
+	if ac == nil {
+		return errors.New("auditCriterion should not be nil")
+	}
+
 	if ac.Exists() {
 		return errors.New("insert failed: already exists")
 	}
@@ -65,6 +69,10 @@ func (ds *Datastore) InsertAuditCriterion(ac *AuditCriterion) error {
 }
 
 func (ds *Datastore) UpdateAuditCriterion(ac *AuditCriterion) error {
+
+	if ac == nil {
+		return errors.New("auditCriterion should not be nil")
+	}
 
 	if !ac.Exists() {
 		return errors.New("update failed: does not exist")
@@ -94,6 +102,10 @@ func (ds *Datastore) SaveAuditCriterion(ac *AuditCriterion) error {
 
 func (ds *Datastore) DeleteAuditCriterion(ac *AuditCriterion) error {
 
+	if ac == nil {
+		return errors.New("auditCriterion should not be nil")
+	}
+
 	if !ac.Exists() {
 		return nil
 	}
@@ -115,6 +127,10 @@ func (ds *Datastore) DeleteAuditCriterion(ac *AuditCriterion) error {
 }
 
 func (ds *Datastore) UpsertAuditCriterion(ac *AuditCriterion) error {
+
+	if ac == nil {
+		return errors.New("auditCriterion should not be nil")
+	}
 
 	if ac.Exists() {
 		return errors.New("insert failed: already exists")

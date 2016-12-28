@@ -31,6 +31,16 @@ func (a *Auditor) Deleted() bool {
 	return a.meta.Deleted
 }
 
+func (a *Auditor) MustSet(idEntity int64) error {
+	if idEntity != 0 {
+		a.IdEntity = idEntity
+	} else {
+		return errors.New("idEntity must be set")
+	}
+
+	return nil
+}
+
 func AAuditor(allocateObjects bool) Auditor {
 	auditor := Auditor{}
 	if allocateObjects {
@@ -44,6 +54,10 @@ func NewAuditor(allocateObjects bool) *Auditor {
 }
 
 func (ds *Datastore) InsertAuditor(a *Auditor) error {
+
+	if a == nil {
+		return errors.New("auditor should not be nil")
+	}
 
 	if a.Exists() {
 		return errors.New("insert failed: already exists")
@@ -67,6 +81,10 @@ func (ds *Datastore) InsertAuditor(a *Auditor) error {
 
 func (ds *Datastore) UpdateAuditor(a *Auditor) error {
 
+	//if a == nil {
+	//	return errors.New("auditor should not be nil")
+	//}
+	//
 	//if !a.Exists() {
 	//	return errors.New("update failed: does not exist")
 	//}
@@ -95,7 +113,10 @@ func (ds *Datastore) SaveAuditor(a *Auditor) error {
 }
 
 func (ds *Datastore) UpsertAuditor(a *Auditor) error {
-
+	//if a == nil {
+	//	return errors.New("auditor should not be nil")
+	//}
+	//
 	//if a.Exists() {
 	//	return errors.New("insert failed: already exists")
 	//}
@@ -123,6 +144,10 @@ func (ds *Datastore) UpsertAuditor(a *Auditor) error {
 
 func (ds *Datastore) DeleteAuditor(a *Auditor) error {
 
+	if a == nil {
+		return errors.New("auditor should not be nil")
+	}
+
 	if !a.Exists() {
 		return nil
 	}
@@ -147,7 +172,7 @@ func (ds *Datastore) GetAuditorEntity(a *Auditor) (*Entity, error) {
 	return ds.GetEntityById(a.IdEntity)
 }
 
-func (ds *Datastore) GetAuditors(limit, offset int) ([]*Auditor, error) {
+func (ds *Datastore) getAuditors(limit, offset int, withForeign bool) ([]*Auditor, error) {
 
 	rows, err := ds.postgres.Queryx(ds.postgres.Rebind(`SELECT ` +
 		`auditor.id_entity ` +
@@ -167,10 +192,24 @@ func (ds *Datastore) GetAuditors(limit, offset int) ([]*Auditor, error) {
 		if err != nil {
 			return nil, err
 		}
+		if withForeign {
+			a.Entity, err = ds.GetEntityByIdWithForeign(a.IdEntity)
+			if err != nil {
+				return nil, err
+			}
+		}
 		auditor = append(auditor, a)
 	}
 
 	return auditor, err
+}
+
+func (ds *Datastore) GetAuditorsWithForeign(limit, offset int) ([]*Auditor, error) {
+	return ds.getAuditors(limit, offset, true)
+}
+
+func (ds *Datastore) GetAuditors(limit, offset int) ([]*Auditor, error) {
+	return ds.getAuditors(limit, offset, false)
 }
 
 func (ds *Datastore) GetAuditorByIdWithForeign(idEntity int64) (*Auditor, error) {

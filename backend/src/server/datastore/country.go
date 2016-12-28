@@ -40,6 +40,10 @@ func NewCountry(allocateObjects bool) *Country {
 
 func (ds *Datastore) InsertCountry(c *Country) error {
 
+	if c == nil {
+		return errors.New("country should not be nil")
+	}
+
 	if c.Exists() {
 		return errors.New("insert failed: already exists")
 	}
@@ -61,6 +65,10 @@ func (ds *Datastore) InsertCountry(c *Country) error {
 }
 
 func (ds *Datastore) UpdateCountry(c *Country) error {
+
+	if c == nil {
+		return errors.New("country should not be nil")
+	}
 
 	if !c.Exists() {
 		return errors.New("update failed: does not exist")
@@ -90,6 +98,10 @@ func (ds *Datastore) SaveCountry(c *Country) error {
 
 func (ds *Datastore) UpsertCountry(c *Country) error {
 
+	if c == nil {
+		return errors.New("country should not be nil")
+	}
+
 	if c.Exists() {
 		return errors.New("insert failed: already exists")
 	}
@@ -115,6 +127,10 @@ func (ds *Datastore) UpsertCountry(c *Country) error {
 }
 
 func (ds *Datastore) DeleteCountry(c *Country) error {
+
+	if c == nil {
+		return errors.New("country should not be nil")
+	}
 
 	if !c.Exists() {
 		return nil

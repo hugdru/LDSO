@@ -37,6 +37,52 @@ func (m *Maingroup) Deleted() bool {
 	return m.meta.Deleted
 }
 
+func (m *Maingroup) MustSet(idTemplate int64, name string, weight int) error {
+
+	if idTemplate != 0 {
+		m.IdTemplate = idTemplate
+	} else {
+		return errors.New("idTemplate must be set")
+	}
+	if name != "" {
+		m.Name = name
+	} else {
+		return errors.New("name must be set")
+	}
+	if weight != -1 {
+		m.Weight = weight
+	} else {
+		return errors.New("weight must be set")
+	}
+
+	return nil
+}
+
+func (m *Maingroup) AllSetIfNotEmptyOrNil(idTemplate int64, name string, weight int) error {
+	if idTemplate != 0 {
+		m.IdTemplate = idTemplate
+	}
+	if name != "" {
+		m.Name = name
+	}
+	if weight != -1 {
+		m.Weight = weight
+	}
+
+	return nil
+}
+
+func (m *Maingroup) UpdateSetIfNotEmptyOrNil(name string, weight int) error {
+	if name != "" {
+		m.Name = name
+	}
+	if weight != -1 {
+		m.Weight = weight
+	}
+
+	return nil
+}
+
 func AMaingroup(allocateObjects bool) Maingroup {
 	maingroup := Maingroup{}
 	if allocateObjects {
@@ -51,6 +97,10 @@ func NewMaingroup(allocateObjects bool) *Maingroup {
 }
 
 func (ds *Datastore) InsertMaingroup(m *Maingroup) error {
+
+	if m == nil {
+		return errors.New("maingroup should not be nil")
+	}
 
 	if m.Exists() {
 		return errors.New("insert failed: already exists")
@@ -73,6 +123,10 @@ func (ds *Datastore) InsertMaingroup(m *Maingroup) error {
 }
 
 func (ds *Datastore) UpdateMaingroup(m *Maingroup) error {
+
+	if m == nil {
+		return errors.New("maingroup should not be nil")
+	}
 
 	if !m.Exists() {
 		return errors.New("update failed: does not exist")
@@ -102,6 +156,10 @@ func (ds *Datastore) SaveMaingroup(m *Maingroup) error {
 
 func (ds *Datastore) UpsertMaingroup(m *Maingroup) error {
 
+	if m == nil {
+		return errors.New("maingroup should not be nil")
+	}
+
 	if m.Exists() {
 		return errors.New("insert failed: already exists")
 	}
@@ -127,6 +185,10 @@ func (ds *Datastore) UpsertMaingroup(m *Maingroup) error {
 }
 
 func (ds *Datastore) DeleteMaingroup(m *Maingroup) error {
+
+	if m == nil {
+		return errors.New("maingroup should not be nil")
+	}
 
 	if !m.Exists() {
 		return nil

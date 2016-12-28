@@ -42,6 +42,10 @@ func NewTag(allocateObjects bool) *Tag {
 
 func (ds *Datastore) InsertTag(t *Tag) error {
 
+	if t == nil {
+		return errors.New("tag should not be nil")
+	}
+
 	if t.Exists() {
 		return errors.New("insert failed: already exists")
 	}
@@ -63,6 +67,10 @@ func (ds *Datastore) InsertTag(t *Tag) error {
 }
 
 func (ds *Datastore) UpdateTag(t *Tag) error {
+
+	if t == nil {
+		return errors.New("tag should not be nil")
+	}
 
 	if !t.Exists() {
 		return errors.New("update failed: does not exist")
@@ -92,6 +100,10 @@ func (ds *Datastore) SaveTag(t *Tag) error {
 
 func (ds *Datastore) UpsertTag(t *Tag) error {
 
+	if t == nil {
+		return errors.New("tag should not be nil")
+	}
+
 	if t.Exists() {
 		return errors.New("insert failed: already exists")
 	}
@@ -117,6 +129,10 @@ func (ds *Datastore) UpsertTag(t *Tag) error {
 }
 
 func (ds *Datastore) DeleteTag(t *Tag) error {
+
+	if t == nil {
+		return errors.New("tag should not be nil")
+	}
 
 	if !t.Exists() {
 		return nil

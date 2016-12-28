@@ -37,6 +37,52 @@ func (s *Subgroup) Deleted() bool {
 	return s.meta.Deleted
 }
 
+func (s *Subgroup) MustSet(idMaingroup int64, name string, weight int) error {
+
+	if idMaingroup != 0 {
+		s.IdMaingroup = idMaingroup
+	} else {
+		return errors.New("idMaingroup must be set")
+	}
+	if name != "" {
+		s.Name = name
+	} else {
+		return errors.New("name must be set")
+	}
+	if weight != -1 {
+		s.Weight = weight
+	} else {
+		return errors.New("weight must be set")
+	}
+
+	return nil
+}
+
+func (s *Subgroup) AllSetIfNotEmptyOrNil(idMaingroup int64, name string, weight int) error {
+	if idMaingroup != 0 {
+		s.IdMaingroup = idMaingroup
+	}
+	if name != "" {
+		s.Name = name
+	}
+	if weight != -1 {
+		s.Weight = weight
+	}
+
+	return nil
+}
+
+func (s *Subgroup) UpdateSetIfNotEmptyOrNil(name string, weight int) error {
+	if name != "" {
+		s.Name = name
+	}
+	if weight != -1 {
+		s.Weight = weight
+	}
+
+	return nil
+}
+
 func ASubgroup(allocateObjects bool) Subgroup {
 	subgroup := Subgroup{}
 	if allocateObjects {
@@ -51,6 +97,10 @@ func NewSubgroup(allocateObjects bool) *Subgroup {
 }
 
 func (ds *Datastore) InsertSubgroup(s *Subgroup) error {
+
+	if s == nil {
+		return errors.New("subgroup should not be nil")
+	}
 
 	if s.Exists() {
 		return errors.New("insert failed: already exists")
@@ -73,6 +123,10 @@ func (ds *Datastore) InsertSubgroup(s *Subgroup) error {
 }
 
 func (ds *Datastore) UpdateSubgroup(s *Subgroup) error {
+
+	if s == nil {
+		return errors.New("subgroup should not be nil")
+	}
 
 	if !s.Exists() {
 		return errors.New("update failed: does not exist")
@@ -102,6 +156,10 @@ func (ds *Datastore) SaveSubgroup(s *Subgroup) error {
 
 func (ds *Datastore) UpsertSubgroup(s *Subgroup) error {
 
+	if s == nil {
+		return errors.New("subgroup should not be nil")
+	}
+
 	if s.Exists() {
 		return errors.New("insert failed: already exists")
 	}
@@ -127,6 +185,10 @@ func (ds *Datastore) UpsertSubgroup(s *Subgroup) error {
 }
 
 func (ds *Datastore) DeleteSubgroup(s *Subgroup) error {
+
+	if s == nil {
+		return errors.New("subgroup should not be nil")
+	}
 
 	if !s.Exists() {
 		return nil
