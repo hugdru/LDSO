@@ -1,4 +1,4 @@
-<div>
+<div *ngIf="!user.id">
     <h1>Register</h1>
     <div>
         <input type="text"
@@ -32,13 +32,11 @@
     </div>
     <div>
         <input type="number"
-               required
                [(ngModel)]="user.mobile"
                placeholder="Mobile">
     </div>
     <div>
         <input type="text"
-               required
                [(ngModel)]="user.phone"
                placeholder="Telephone">
     </div>
@@ -49,3 +47,7 @@
         </button>
     </div>
 </div>
+<div *ngIf="user.id">
+    <h3>Registration Successful</h3>
+</div>
+
