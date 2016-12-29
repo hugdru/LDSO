@@ -174,7 +174,7 @@ func (ds *Datastore) GetClientEntity(c *Client) (*Entity, error) {
 	return ds.GetEntityById(c.IdEntity)
 }
 
-func (ds *Datastore) getClients(limit, offset int, withForeign bool) ([]*Client, error) {
+func (ds *Datastore) getClientsWithEntity(limit, offset int, withForeign bool) ([]*Client, error) {
 
 	rows, err := ds.postgres.Queryx(ds.postgres.Rebind(`SELECT ` +
 		`client.id_entity ` +
@@ -195,7 +195,7 @@ func (ds *Datastore) getClients(limit, offset int, withForeign bool) ([]*Client,
 			return nil, err
 		}
 		if withForeign {
-			c.Entity, err = ds.GetEntityByIdWithForeign(c.IdEntity)
+			c.Entity, err = ds.GetEntityByIdWithCountry(c.IdEntity)
 			if err != nil {
 				return nil, err
 			}
@@ -206,15 +206,15 @@ func (ds *Datastore) getClients(limit, offset int, withForeign bool) ([]*Client,
 	return client, err
 }
 
-func (ds *Datastore) GetClientsWithForeign(limit, offset int) ([]*Client, error) {
-	return ds.getClients(limit, offset, true)
+func (ds *Datastore) GetClientsWithEntity(limit, offset int) ([]*Client, error) {
+	return ds.getClientsWithEntity(limit, offset, true)
 }
 
 func (ds *Datastore) GetClients(limit, offset int) ([]*Client, error) {
-	return ds.getClients(limit, offset, false)
+	return ds.getClientsWithEntity(limit, offset, false)
 }
 
-func (ds *Datastore) GetClientByIdWithForeign(idEntity int64) (*Client, error) {
+func (ds *Datastore) GetClientByIdWithEntity(idEntity int64) (*Client, error) {
 	return ds.getClientById(idEntity, true)
 }
 
@@ -238,7 +238,7 @@ func (ds *Datastore) getClientById(idEntity int64, withForeign bool) (*Client, e
 	}
 
 	if withForeign {
-		c.Entity, err = ds.GetEntityByIdWithForeign(c.IdEntity)
+		c.Entity, err = ds.GetEntityByIdWithCountry(c.IdEntity)
 		if err != nil {
 			return nil, err
 		}

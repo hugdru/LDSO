@@ -172,7 +172,7 @@ func (ds *Datastore) GetAuditorEntity(a *Auditor) (*Entity, error) {
 	return ds.GetEntityById(a.IdEntity)
 }
 
-func (ds *Datastore) getAuditors(limit, offset int, withForeign bool) ([]*Auditor, error) {
+func (ds *Datastore) getAuditorsWithEntity(limit, offset int, withForeign bool) ([]*Auditor, error) {
 
 	rows, err := ds.postgres.Queryx(ds.postgres.Rebind(`SELECT ` +
 		`auditor.id_entity ` +
@@ -193,7 +193,7 @@ func (ds *Datastore) getAuditors(limit, offset int, withForeign bool) ([]*Audito
 			return nil, err
 		}
 		if withForeign {
-			a.Entity, err = ds.GetEntityByIdWithForeign(a.IdEntity)
+			a.Entity, err = ds.GetEntityByIdWithCountry(a.IdEntity)
 			if err != nil {
 				return nil, err
 			}
@@ -204,15 +204,15 @@ func (ds *Datastore) getAuditors(limit, offset int, withForeign bool) ([]*Audito
 	return auditor, err
 }
 
-func (ds *Datastore) GetAuditorsWithForeign(limit, offset int) ([]*Auditor, error) {
-	return ds.getAuditors(limit, offset, true)
+func (ds *Datastore) GetAuditorsWithEntity(limit, offset int) ([]*Auditor, error) {
+	return ds.getAuditorsWithEntity(limit, offset, true)
 }
 
 func (ds *Datastore) GetAuditors(limit, offset int) ([]*Auditor, error) {
-	return ds.getAuditors(limit, offset, false)
+	return ds.getAuditorsWithEntity(limit, offset, false)
 }
 
-func (ds *Datastore) GetAuditorByIdWithForeign(idEntity int64) (*Auditor, error) {
+func (ds *Datastore) GetAuditorByIdWithEntity(idEntity int64) (*Auditor, error) {
 	return ds.getAuditorById(idEntity, true)
 }
 
@@ -236,7 +236,7 @@ func (ds *Datastore) getAuditorById(idEntity int64, withForeign bool) (*Auditor,
 	}
 
 	if withForeign {
-		a.Entity, err = ds.GetEntityByIdWithForeign(idEntity)
+		a.Entity, err = ds.GetEntityByIdWithCountry(idEntity)
 		if err != nil {
 			return nil, err
 		}

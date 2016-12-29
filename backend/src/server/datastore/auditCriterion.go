@@ -183,7 +183,7 @@ func (ds *Datastore) GetAuditCriterionAudit(ac *AuditCriterion) (*Audit, error) 
 }
 
 func (ds *Datastore) GetAuditCriterionCriterion(ac *AuditCriterion) (*Criterion, error) {
-	return ds.GetCriterionById(ac.IdCriterion)
+	return ds.GetCriterionByIdWithLegislation(ac.IdCriterion)
 }
 
 func (ds *Datastore) GetAuditCriterionByIds(idAudit, idCriterion int64) (*AuditCriterion, error) {

@@ -32,7 +32,7 @@ func (h *Handler) clientContext(next http.Handler) http.Handler {
 			http.Error(w, helpers.Error(err.Error()), 400)
 			return
 		}
-		client, err := h.Datastore.GetClientByIdWithForeign(idClient)
+		client, err := h.Datastore.GetClientByIdWithEntity(idClient)
 		if err != nil {
 			http.Error(w, helpers.Error(err.Error()), 400)
 			return
@@ -61,7 +61,7 @@ func (h *Handler) getClients(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	clients, err := h.Datastore.GetClientsWithForeign(limit, offset)
+	clients, err := h.Datastore.GetClientsWithEntity(limit, offset)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return

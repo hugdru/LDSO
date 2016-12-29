@@ -183,7 +183,7 @@ func (ds *Datastore) GetAccessibilityById(id int64) (*Accessibility, error) {
 	return &a, err
 }
 
-func (ds *Datastore) GetAccessibilities(limit, offset int, filter map[string]interface{}) ([]*Accessibility, error) {
+func (ds *Datastore) GetAccessibilities(filter map[string]interface{}) ([]*Accessibility, error) {
 
 	where, values := generators.GenerateAndSearchClause(filter)
 

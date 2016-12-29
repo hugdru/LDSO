@@ -160,7 +160,7 @@ func (ds *Datastore) DeleteGallery(g *Gallery) error {
 }
 
 func (ds *Datastore) GetGalleryProperty(g *Gallery) (*Property, error) {
-	return ds.GetPropertyByIdWithForeign(g.IdProperty)
+	return ds.GetPropertyByIdWithAddressTagsOwners(g.IdProperty)
 }
 
 func (ds *Datastore) GetGalleryById(id int64) (*Gallery, error) {

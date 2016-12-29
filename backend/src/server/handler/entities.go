@@ -68,7 +68,7 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 	if input.Password != "" {
 	}
 
-	entity, err := h.Datastore.GetEntityWithForeign(filter)
+	entity, err := h.Datastore.GetEntityWithCountry(filter)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return

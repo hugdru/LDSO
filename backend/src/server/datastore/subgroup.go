@@ -257,7 +257,7 @@ func (ds *Datastore) GetSubgroupsByMaingroupIdWithCriteria(idMaingroup int64) ([
 			return nil, err
 		}
 		subgroups = append(subgroups, subgroup)
-		subgroup.Criteria, err = ds.GetCriteriaBySubgroupId(subgroup.Id)
+		subgroup.Criteria, err = ds.GetCriteriaBySubgroupIdWithLegislation(subgroup.Id)
 		if err != nil {
 			return nil, err
 		}

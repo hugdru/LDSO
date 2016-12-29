@@ -44,12 +44,6 @@ func (h *Handler) accessibilityContext(next http.Handler) http.Handler {
 
 func (h *Handler) getAccessibilities(w http.ResponseWriter, r *http.Request) {
 
-	limit, offset, err := helpers.PaginationParse(r)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
-
 	filter := helpers.GetQueryArgs([][]string{
 		[]string{"id"},
 		[]string{"name"},
@@ -59,7 +53,7 @@ func (h *Handler) getAccessibilities(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accessibilities, err := h.Datastore.GetAccessibilities(limit, offset, filter)
+	accessibilities, err := h.Datastore.GetAccessibilities(filter)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return

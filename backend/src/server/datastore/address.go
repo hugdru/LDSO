@@ -266,7 +266,7 @@ func (ds *Datastore) GetAddressCountry(a *Address) (*Country, error) {
 	return ds.GetCountryById(a.IdCountry)
 }
 
-func (ds *Datastore) GetAddressByIdWithForeign(id int64) (*Address, error) {
+func (ds *Datastore) GetAddressByIdWithCountry(id int64) (*Address, error) {
 
 	sql := ds.postgres.Rebind(`SELECT ` +
 		`id, id_country, address_line1, address_line2, address_line3, town_city, county, postcode, latitude, longitude ` +
