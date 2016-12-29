@@ -1,4 +1,4 @@
-import {Component, Output, EventEmitter, OnInit} from "@angular/core";
+import {Component, OnInit} from "@angular/core";
 import {LoginService} from "login/service/login.service";
 import {Session} from "./session";
 
@@ -13,21 +13,17 @@ import {Session} from "./session";
 export class LoginComponent implements OnInit {
 
     session: Session;
+    loggedIn = false;
     errorMsg: string;
-//    @Output() onAdd = new EventEmitter<Session>();
 
     constructor(private loginService: LoginService) {
+        this.loggedIn = !!localStorage.getItem('auth_token');
     }
 
     ngOnInit(): void {
-        this.session = new Session();
-    }
-
-    loginPressed(newSession: Session): void {
-        if (newSession) {
-            this.login();
-        }
-//        this.onAdd.emit(newSession);
+        if (this.loggedIn)
+            this.session = JSON.parse(localStorage.getItem('session'));
+        else this.session = new Session();
     }
 
     login(): void {
@@ -37,32 +33,30 @@ export class LoginComponent implements OnInit {
                     this.session.role = response.json().role;
                     this.session.name = response.json().name;
                     this.session.email = response.json().email;
+                    this.session.password = "";
+                    this.loggedIn = true;
+                    localStorage.setItem('auth_token', response.json().auth_token);
+                    localStorage.setItem('session', JSON.stringify(this.session));
                 },
                 error => {
                     this.errorMsg = <any>error;
                     console.log(this.errorMsg);
                 }
         );
-        this.session.password = "";
-        console.log(this.session);
-    }
-
-    logoutPressed(newSession: Session): void {
-        if (newSession) {
-            this.logout();
-        }
-//        this.onAdd.emit(newSession);
     }
 
     logout(): void {
         this.loginService.getLogout().subscribe(
-                response => this.session = new Session(),
                 error => {
                     this.errorMsg = <any>error;
                     console.log(this.errorMsg);
                 }
+
         );
-        console.log(this.session);
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('session');
+        this.session = new Session();
+        this.loggedIn = false;
     }
 
 }
