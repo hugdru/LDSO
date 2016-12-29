@@ -153,6 +153,11 @@ func (ds *Datastore) UpdateAudit(a *Audit) error {
 }
 
 func (ds *Datastore) SaveAudit(a *Audit) error {
+
+	if a == nil {
+		return errors.New("audit should not be nil")
+	}
+
 	if a.Exists() {
 		return ds.UpdateAudit(a)
 	}

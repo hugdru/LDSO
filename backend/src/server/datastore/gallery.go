@@ -96,6 +96,11 @@ func (ds *Datastore) UpdateGallery(g *Gallery) error {
 }
 
 func (ds *Datastore) SaveGallery(g *Gallery) error {
+
+	if g == nil {
+		return errors.New("gallery should not be nil")
+	}
+
 	if g.Exists() {
 		return ds.UpdateGallery(g)
 	}

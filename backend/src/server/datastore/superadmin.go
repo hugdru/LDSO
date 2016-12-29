@@ -1,6 +1,7 @@
 package datastore
 
 import (
+	"database/sql"
 	"errors"
 	"server/datastore/metadata"
 )
@@ -44,6 +45,10 @@ func NewSuperadmin(allocateObjects bool) *Superadmin {
 }
 
 func (ds *Datastore) InsertSuperadmin(s *Superadmin) error {
+	return ds.InsertSuperadminTx(nil, s)
+}
+
+func (ds *Datastore) InsertSuperadminTx(tx *sql.Tx, s *Superadmin) error {
 
 	if s == nil {
 		return errors.New("superadmin should not be nil")
@@ -59,7 +64,14 @@ func (ds *Datastore) InsertSuperadmin(s *Superadmin) error {
 		`$1` +
 		`)`
 
-	_, err := ds.postgres.Exec(sql, s.IdEntity)
+	var err error
+
+	if tx != nil {
+		_, err = tx.Exec(sql, s.IdEntity)
+
+	} else {
+		_, err = ds.postgres.Exec(sql, s.IdEntity)
+	}
 	if err != nil {
 		return err
 	}
@@ -68,8 +80,11 @@ func (ds *Datastore) InsertSuperadmin(s *Superadmin) error {
 
 	return err
 }
-
 func (ds *Datastore) UpdateSuperadmin(s *Superadmin) error {
+	return ds.UpdateSuperadminTx(nil, s)
+}
+
+func (ds *Datastore) UpdateSuperadminTx(tx *sql.Tx, s *Superadmin) error {
 	//if s == nil {
 	//	return errors.New("superadmin should not be nil")
 	//}
@@ -94,11 +109,20 @@ func (ds *Datastore) UpdateSuperadmin(s *Superadmin) error {
 }
 
 func (ds *Datastore) SaveSuperadmin(s *Superadmin) error {
-	if s.Exists() {
-		return ds.UpdateSuperadmin(s)
+	return ds.SaveSuperadminTx(nil, s)
+}
+
+func (ds *Datastore) SaveSuperadminTx(tx *sql.Tx, s *Superadmin) error {
+
+	if s == nil {
+		return errors.New("superadmin should not be nil")
 	}
 
-	return ds.InsertSuperadmin(s)
+	if s.Exists() {
+		return ds.UpdateSuperadminTx(tx, s)
+	}
+
+	return ds.InsertSuperadminTx(tx, s)
 }
 
 func (ds *Datastore) UpsertSuperadmin(s *Superadmin) error {

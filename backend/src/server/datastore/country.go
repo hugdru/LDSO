@@ -89,6 +89,11 @@ func (ds *Datastore) UpdateCountry(c *Country) error {
 }
 
 func (ds *Datastore) SaveCountry(c *Country) error {
+
+	if c == nil {
+		return errors.New("country should not be nil")
+	}
+
 	if c.Exists() {
 		return ds.UpdateCountry(c)
 	}

@@ -150,6 +150,10 @@ func (ds *Datastore) GetAuditSubgroupsByIdAudit(idAudit int64, filter map[string
 // TODO: check if subgroup is from the template audit is using
 func (ds *Datastore) SaveAuditSubgroup(idAudit int64, idTemplate int64, idsSubgroups []int64) error {
 
+	if idsSubgroups == nil {
+		return errors.New("idsSubgroups should not be nil")
+	}
+
 	const sql = `INSERT INTO places4all.audit_subgroup (` +
 		`id_audit, id_subgroup` +
 		`) VALUES (` +

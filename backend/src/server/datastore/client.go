@@ -1,6 +1,7 @@
 package datastore
 
 import (
+	"database/sql"
 	"errors"
 	"server/datastore/metadata"
 	"strconv"
@@ -55,6 +56,10 @@ func NewClient(allocateObjects bool) *Client {
 }
 
 func (ds *Datastore) InsertClient(c *Client) error {
+	return ds.InsertClientTx(nil, c)
+}
+
+func (ds *Datastore) InsertClientTx(tx *sql.Tx, c *Client) error {
 
 	if c == nil {
 		return errors.New("client should not be nil")
@@ -70,7 +75,13 @@ func (ds *Datastore) InsertClient(c *Client) error {
 		`$1` +
 		`)`
 
-	_, err := ds.postgres.Exec(sql, c.IdEntity)
+	var err error
+	if tx != nil {
+		_, err = tx.Exec(sql, c.IdEntity)
+
+	} else {
+		_, err = ds.postgres.Exec(sql, c.IdEntity)
+	}
 	if err != nil {
 		return err
 	}
@@ -81,6 +92,10 @@ func (ds *Datastore) InsertClient(c *Client) error {
 }
 
 func (ds *Datastore) UpdateClient(c *Client) error {
+	return ds.UpdateClientTx(nil, c)
+}
+
+func (ds *Datastore) UpdateClientTx(tx *sql.Tx, c *Client) error {
 
 	//if c == nil {
 	//	return errors.New("client should not be nil")
@@ -106,11 +121,20 @@ func (ds *Datastore) UpdateClient(c *Client) error {
 }
 
 func (ds *Datastore) SaveClient(c *Client) error {
-	if c.Exists() {
-		return ds.UpdateClient(c)
+	return ds.SaveClientTx(nil, c)
+}
+
+func (ds *Datastore) SaveClientTx(tx *sql.Tx, c *Client) error {
+
+	if c == nil {
+		return errors.New("client should not be nil")
 	}
 
-	return ds.InsertClient(c)
+	if c.Exists() {
+		return ds.UpdateClientTx(tx, c)
+	}
+
+	return ds.InsertClientTx(tx, c)
 }
 
 func (ds *Datastore) UpsertClient(c *Client) error {

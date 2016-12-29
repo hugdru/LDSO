@@ -147,6 +147,11 @@ func (ds *Datastore) UpdateSubgroup(s *Subgroup) error {
 }
 
 func (ds *Datastore) SaveSubgroup(s *Subgroup) error {
+
+	if s == nil {
+		return errors.New("subgroup should not be nil")
+	}
+
 	if s.Exists() {
 		return ds.UpdateSubgroup(s)
 	}

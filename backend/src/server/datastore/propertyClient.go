@@ -88,6 +88,11 @@ func (ds *Datastore) UpdatePropertyClient(pc *PropertyClient) error {
 }
 
 func (ds *Datastore) SavePropertyClient(pc *PropertyClient) error {
+
+	if pc == nil {
+		return errors.New("propertyClient should not be nil")
+	}
+
 	if pc.Exists() {
 		return ds.UpdatePropertyClient(pc)
 	}

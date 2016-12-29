@@ -95,6 +95,11 @@ func (ds *Datastore) UpdateRemark(r *Remark) error {
 }
 
 func (ds *Datastore) SaveRemark(r *Remark) error {
+
+	if r == nil {
+		return errors.New("remark should not be nil")
+	}
+
 	if r.Exists() {
 		return ds.UpdateRemark(r)
 	}
