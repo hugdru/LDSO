@@ -6,6 +6,16 @@ import (
 	"server/handler/sessionData"
 )
 
+func OnlyLocaladminsOrAuditors(f http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if !sessionData.IsLocaladminOrAuditor(r) {
+			http.Error(w, helpers.Error("Only localadmins and auditors are permitted"), http.StatusForbidden)
+			return
+		}
+		f(w, r)
+	}
+}
+
 func OnlySuperadmins(f http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if !sessionData.IsSuperadmin(r) {

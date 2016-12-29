@@ -131,7 +131,11 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) logout(w http.ResponseWriter, r *http.Request) {
-	session.Destroy(w, r)
+	err := session.Destroy(w, r)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 500)
+		return
+	}
 }
 
 func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
@@ -155,7 +159,7 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 		Mobilephone   string `json:"mobilephone"`
 		Telephone     string `json:"telephone"`
 		Role          string `json:"role"`
-		image         string `json:"image"`
+		Image         string `json:"image"`
 		imageBytes    []byte `json:"-"`
 		imageMimetype string `json:"-"`
 	}
@@ -173,8 +177,8 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, helpers.Error(err.Error()), 400)
 			return
 		}
-		if input.image != "" {
-			input.imageBytes, input.imageMimetype, err = helpers.ReadImageBase64(input.image, helpers.MaxImageFileSize)
+		if input.Image != "" {
+			input.imageBytes, input.imageMimetype, err = helpers.ReadImageBase64(input.Image, helpers.MaxImageFileSize)
 			if err != nil {
 				http.Error(w, helpers.Error(err.Error()), 500)
 				return
@@ -310,6 +314,6 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := []byte(`{"id":"` + strconv.FormatInt(entity.Id, 10) + "}")
+	response := []byte(`{"id":` + strconv.FormatInt(entity.Id, 10) + `}`)
 	w.Write(response)
 }

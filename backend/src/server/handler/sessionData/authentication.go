@@ -19,6 +19,26 @@ func permittedRoles(r *http.Request, permittedRoles []string) bool {
 	return false
 }
 
+func (esd *EntitySessionData) IsSuperadmin() bool {
+	return esd.Role == Superadmin
+}
+
+func (esd *EntitySessionData) IsLocaladmin() bool {
+	return esd.Role == Localadmin
+}
+
+func (esd *EntitySessionData) IsAuditor() bool {
+	return esd.Role == Auditor
+}
+
+func (esd *EntitySessionData) IsClient() bool {
+	return esd.Role == Client
+}
+
+func IsLocaladminOrAuditor(r *http.Request) bool {
+	return permittedRoles(r, []string{Localadmin, Auditor})
+}
+
 func IsSuperadminOrLocaladmin(r *http.Request) bool {
 	return permittedRoles(r, []string{Superadmin, Localadmin})
 }
