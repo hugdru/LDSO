@@ -11,43 +11,63 @@ import (
 	"server/datastore"
 	"server/handler/helpers"
 	"server/handler/helpers/decorators"
-	"strconv"
 )
 
 func (h *Handler) criteriaRoutes(router chi.Router) {
 	router.Get("/", decorators.ReplyJson(h.getCriteria))
-	router.Post("/", decorators.RequestJson(decorators.ReplyJson(h.createCriterion)))
-	router.Get("/:idc", decorators.ReplyJson(h.getCriterion))
-	router.Put("/:idc", decorators.RequestJson(decorators.ReplyJson(h.updateCriterion)))
-	router.Delete("/:idc", decorators.ReplyJson(h.deleteCriterion))
-
-	router.Route("/:id/accessibilities", h.criteriaAccessibilitiesSubroutes)
+	router.Post("/", decorators.OnlySuperadmins(decorators.ReplyJson(h.createCriterion)))
+	router.Route("/:idc", h.criterionSubroutes)
 }
 
-func (h *Handler) criteriaAccessibilitiesSubroutes(router chi.Router) {
-	router.Use(h.criteriaAccessibilitiesContext)
+func (h *Handler) criterionSubroutes(router chi.Router) {
+	router.Use(h.criterionContext)
+	router.Get("/", decorators.ReplyJson(h.getCriterion))
+	router.Put("/", decorators.OnlySuperadmins(decorators.ReplyJson(h.updateCriterion)))
+	router.Delete("/", decorators.OnlySuperadmins(decorators.ReplyJson(h.deleteCriterion)))
+	router.Route("/accessibilities", h.criterionAccessibilitiesSubroutes)
+}
+
+func (h *Handler) criterionAccessibilitiesSubroutes(router chi.Router) {
 	router.Get("/", decorators.ReplyJson(h.getCriterionAccessibilities))
-	router.Post("/", decorators.RequestJson(decorators.ReplyJson(h.createCriterionAccessibility)))
-	router.Delete("/", decorators.ReplyJson(h.deleteCriterionAccessibilities))
-	router.Get("/:ida", decorators.ReplyJson(h.getCriterionAccessibility))
-	router.Put("/:ida", decorators.RequestJson(decorators.ReplyJson(h.updateCriterionAccessibility)))
-	router.Delete("/:ida", decorators.ReplyJson(h.deleteCriterionAccessibility))
+	router.Post("/", decorators.OnlySuperadmins(decorators.ReplyJson(h.createCriterionAccessibility)))
+	router.Delete("/", decorators.OnlySuperadmins(decorators.ReplyJson(h.deleteCriterionAccessibilities)))
+	router.Route("/:ida", h.criterionAccessibilitySubroutes)
 }
 
-func (h *Handler) criteriaAccessibilitiesContext(next http.Handler) http.Handler {
+func (h *Handler) criterionAccessibilitySubroutes(router chi.Router) {
+	router.Use(h.criterionAccessibilityContext)
+	router.Get("/", decorators.ReplyJson(h.getCriterionAccessibility))
+	router.Put("/", decorators.OnlySuperadmins(decorators.ReplyJson(h.updateCriterionAccessibility)))
+	router.Delete("/", decorators.OnlySuperadmins(decorators.ReplyJson(h.deleteCriterionAccessibility)))
+}
+
+func (h *Handler) criterionContext(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		idCriterionStr := chi.URLParam(r, "idc")
-		idCriterion, err := strconv.ParseInt(idCriterionStr, 10, 64)
+		idCriterion, err := helpers.ParseInt64(idCriterionStr)
 		if err != nil {
 			http.Error(w, helpers.Error(err.Error()), 400)
 			return
 		}
-		criterion, err := h.Datastore.GetCriterionById(idCriterion)
+		criterion, err := h.Datastore.GetCriterionByIdWithLegislation(idCriterion)
 		if err != nil {
 			http.Error(w, helpers.Error(err.Error()), 400)
 			return
 		}
 		ctx := context.WithValue(r.Context(), "criterion", criterion)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+func (h *Handler) criterionAccessibilityContext(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		idAccessibilityStr := chi.URLParam(r, "ida")
+		idAccessibility, err := helpers.ParseInt64(idAccessibilityStr)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+		ctx := context.WithValue(r.Context(), "idAccessibility", idAccessibility)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
@@ -71,88 +91,86 @@ func (h *Handler) getCriteria(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	criteria, err := h.Datastore.GetCriteria(limit, offset, filter)
+	criteria, err := h.Datastore.GetCriteriaWithLegislation(limit, offset, filter)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
 	}
+
 	criteriaSlice, err := json.Marshal(criteria)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
 	}
+
 	w.Write(criteriaSlice)
 }
 
-func (h *Handler) getCriterion(w http.ResponseWriter, r *http.Request) {
-	idCriterion := chi.URLParam(r, "idc")
-	id, err := strconv.ParseInt(idCriterion, 10, 64)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
-	criterion, err := h.Datastore.GetCriterionById(id)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
-	criterionSlice, err := json.Marshal(criterion)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 500)
-		return
-	}
-	w.Write(criterionSlice)
-}
-
-type inputLegislation struct {
-	Name        string
-	Description string
-	Url         string
+type inputCriterionLegislation struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Url         string `json:"url"`
 }
 
 func (h *Handler) createCriterion(w http.ResponseWriter, r *http.Request) {
 
-	decoder := json.NewDecoder(r.Body)
-	if decoder == nil {
-		http.Error(w, helpers.Error("JSON decoder failed"), 500)
-		return
-	}
-
 	var input struct {
-		IdSubgroup    int64
-		IdLegislation int64
-		Name          string
-		Weight        int
-		Legislation   string
-		//Legislation   *inputLegislation
+		IdSubgroup    int64  `json:"idSubgroup"`
+		IdLegislation int64  `json:"idLegislation"`
+		Name          string `json:"name"`
+		Weight        int    `json:"weight"`
+		Legislation   string `json:"legislation"`
+		//Legislation   *inputCriterionLegislation `json:"legislation"`
 	}
 	input.Weight = -1
 
-	err := decoder.Decode(&input)
+	switch helpers.GetContentType(r.Header.Get("Content-type")) {
+	case "multipart/form-data":
+		var err error
+		input.IdSubgroup, err = helpers.ParseInt64(r.PostFormValue("idSubgroup"))
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+		input.IdLegislation, err = helpers.ParseInt64(r.PostFormValue("idLegislation"))
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+		input.Name = r.PostFormValue("name")
+		input.Weight, err = helpers.ParseInt(r.PostFormValue("weight"))
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+		input.Legislation = r.PostFormValue("legislation")
+		//input.Legislation.Name = r.PostFormValue("legislation.name")
+		//input.Legislation.Description = r.PostFormValue("legislation.description")
+		//input.Legislation.Url = r.PostFormValue("legislation.url")
+	case "application/json":
+		d := json.NewDecoder(r.Body)
+		err := d.Decode(&input)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+	default:
+		http.Error(w, helpers.Error("Content-type not supported"), 415)
+		return
+	}
+
+	newCriterion := datastore.NewCriterion(false)
+	err := newCriterion.MustSet(input.IdSubgroup, input.Name, input.Weight)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
 	}
-
-	if input.IdSubgroup == 0 || input.Name == "" || input.Weight == -1 {
-		http.Error(w, helpers.Error("idSubgroup name weight [idLegislation]"), 400)
+	err = newCriterion.OptionalSetIfNotEmptyOrNil(input.IdLegislation)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 400)
 		return
 	}
-
-	if input.IdLegislation != 0 {
-		_, err = h.Datastore.GetLegislationById(input.IdLegislation)
-		if err != nil {
-			http.Error(w, err.Error(), 400)
-			return
-		}
-	}
-
-	criterion := datastore.NewCriterion(false)
-	criterion.IdSubgroup = input.IdSubgroup
-	criterion.IdLegislation = zero.IntFrom(input.IdLegislation)
-	criterion.Name = input.Name
-	criterion.Weight = input.Weight
-	criterion.CreatedDate = helpers.TheTime()
+	newCriterion.CreatedDate = helpers.TheTime()
 
 	if input.Legislation != "" {
 		resultIdLegislation, err := insertOrFetchLegislation(h.Datastore, input.Legislation)
@@ -160,105 +178,121 @@ func (h *Handler) createCriterion(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, helpers.Error(err.Error()), 500)
 			return
 		}
-		criterion.IdLegislation = zero.IntFrom(resultIdLegislation)
+		newCriterion.IdLegislation = zero.IntFrom(resultIdLegislation)
 	} else {
-		criterion.IdLegislation = zero.IntFrom(0)
+		newCriterion.IdLegislation = zero.IntFrom(0)
 	}
 
 	/*
 		if input.IdLegislation == 0 && input.Legislation != nil {
-			resultIdLegislation, err := insertOrFetchLegislation(h.Datastore, input.Legislation);
-			if err != nil {
-				http.Error(w, helpers.Error(err.Error()), 500)
-				return
+				resultIdLegislation, err := insertOrFetchLegislation(h.Datastore, input.Legislation)
+				if err != nil {
+					http.Error(w, helpers.Error(err.Error()), 500)
+					return
+				}
+				newCriterion.IdLegislation = zero.IntFrom(resultIdLegislation)
 			}
-			criterion.IdLegislation = zero.IntFrom(resultIdLegislation)
-		}
 	*/
 
-	err = h.Datastore.SaveCriterion(criterion)
+	err = h.Datastore.SaveCriterion(newCriterion)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
 	}
 
-	accessibilities, err := h.Datastore.GetAccessibilities(100, 0, nil)
+	accessibilities, err := h.Datastore.GetAccessibilities(nil)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
 	}
 
 	for _, accessibility := range accessibilities {
-		err = h.Datastore.InsertCriterionAccessibilityByIds(criterion.Id, accessibility.Id, 0)
+		err = h.Datastore.InsertCriterionAccessibilityByIds(newCriterion.Id, accessibility.Id, 0)
 		if err != nil {
 			http.Error(w, helpers.Error(err.Error()), 500)
 			return
 		}
 	}
 
+	criterionSlice, err := json.Marshal(newCriterion)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 500)
+		return
+	}
+
+	w.Write(criterionSlice)
+}
+
+func (h *Handler) getCriterion(w http.ResponseWriter, r *http.Request) {
+
+	criterion := r.Context().Value("criterion").(*datastore.Criterion)
+
 	criterionSlice, err := json.Marshal(criterion)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
 	}
+
 	w.Write(criterionSlice)
 }
 
 func (h *Handler) updateCriterion(w http.ResponseWriter, r *http.Request) {
-	idCriterion := chi.URLParam(r, "idc")
-	id, err := strconv.ParseInt(idCriterion, 10, 64)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
 
-	criterion, err := h.Datastore.GetCriterionById(id)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
-
-	d := json.NewDecoder(r.Body)
-	if d == nil {
-		http.Error(w, helpers.Error("JSON decoder failed"), 500)
-		return
-	}
+	criterion := r.Context().Value("criterion").(*datastore.Criterion)
 
 	var input struct {
-		IdLegislation int64
-		Name          string
-		Weight        int
-		Legislation   string
-		//Legislation   *inputLegislation
+		IdLegislation int64  `json:"idLegislation"`
+		Name          string `json:"name"`
+		Weight        int    `json:"weight"`
+		Legislation   string `json:"legislation"`
+		//Legislation   *inputCriterionLegislation `json:"legislation"`
 	}
 	input.Weight = -1
 
-	err = d.Decode(&input)
+	switch helpers.GetContentType(r.Header.Get("Content-type")) {
+	case "multipart/form-data":
+		var err error
+		input.IdLegislation, err = helpers.ParseInt64(r.PostFormValue("idLegislation"))
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+		input.Name = r.PostFormValue("name")
+		input.Weight, err = helpers.ParseInt(r.PostFormValue("weight"))
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+		input.Legislation = r.PostFormValue("legislation")
+		//input.Legislation.Name = r.PostFormValue("legislation.name")
+		//input.Legislation.Description = r.PostFormValue("legislation.description")
+		//input.Legislation.Url = r.PostFormValue("legislation.url")
+	case "application/json":
+		d := json.NewDecoder(r.Body)
+		err := d.Decode(&input)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+	default:
+		http.Error(w, helpers.Error("Content-type not supported"), 415)
+		return
+	}
+
+	//if input.Name == "" && input.Weight == -1 && input.IdLegislation == 0 && input.Legislation == nil {
+	//	http.Error(w, helpers.Error("[name] [weight] [idLegislation] [legislation]"), 400)
+	//	return
+	//}
+
+	if input.Name == "" && input.Weight == -1 && input.IdLegislation == 0 && input.Legislation == "" {
+		http.Error(w, helpers.Error("[name] [weight] [idLegislation] [legislation]"), 400)
+		return
+	}
+
+	err := criterion.UpdateSetIfNotEmptyOrNil(input.Name, input.Weight, input.IdLegislation)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
-	}
-
-	if input.Name == "" && input.Weight == -1 && input.IdLegislation == 0 {
-		http.Error(w, helpers.Error("name or weight or idLegislation must be set"), 400)
-		return
-	}
-
-	if input.Name != "" {
-		criterion.Name = input.Name
-	}
-
-	if input.Weight != -1 {
-		criterion.Weight = input.Weight
-	}
-
-	if input.IdLegislation != 0 {
-		_, err = h.Datastore.GetLegislationById(input.IdLegislation)
-		if err != nil {
-			http.Error(w, err.Error(), 400)
-			return
-		}
-		criterion.IdLegislation = zero.IntFrom(input.IdLegislation)
 	}
 
 	if input.Legislation != "" {
@@ -274,7 +308,7 @@ func (h *Handler) updateCriterion(w http.ResponseWriter, r *http.Request) {
 
 	/*
 		if input.IdLegislation == 0 && input.Legislation != nil {
-			resultIdLegislation, err := insertOrFetchLegislation(h.Datastore, input.Legislation);
+			resultIdLegislation, err := insertOrFetchLegislation(h.Datastore, input.Legislation)
 			if err != nil {
 				http.Error(w, helpers.Error(err.Error()), 500)
 				return
@@ -291,14 +325,10 @@ func (h *Handler) updateCriterion(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) deleteCriterion(w http.ResponseWriter, r *http.Request) {
-	idCriterion := chi.URLParam(r, "idc")
-	id, err := strconv.ParseInt(idCriterion, 10, 64)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
 
-	err = h.Datastore.DeleteCriterionById(id)
+	criterion := r.Context().Value("criterion").(*datastore.Criterion)
+
+	err := h.Datastore.DeleteCriterion(criterion)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
@@ -306,22 +336,77 @@ func (h *Handler) deleteCriterion(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) getCriterionAccessibilities(w http.ResponseWriter, r *http.Request) {
+
 	criterion := r.Context().Value("criterion").(*datastore.Criterion)
+
 	criterionAccessibilities, err := h.Datastore.GetCriterionAccessibilitiesByCriterionId(criterion.Id)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
 	}
+
 	criterionAccessibilitiesSlice, err := json.Marshal(criterionAccessibilities)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
 	}
+
 	w.Write(criterionAccessibilitiesSlice)
 }
 
-func (h *Handler) deleteCriterionAccessibilities(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) createCriterionAccessibility(w http.ResponseWriter, r *http.Request) {
+
 	criterion := r.Context().Value("criterion").(*datastore.Criterion)
+
+	var input struct {
+		IdAccessibility int64 `json:"idAccessibility"`
+		Weight          int   `json:"weight"`
+	}
+	input.Weight = -1
+
+	contentType := helpers.GetContentType(r.Header.Get("Content-type"))
+	switch contentType {
+	case "multipart/form-data":
+		var err error
+		input.IdAccessibility, err = helpers.ParseInt64(r.PostFormValue("idAccessibility"))
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+		input.Weight, err = helpers.ParseInt(r.PostFormValue("weight"))
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+	case "application/json":
+		d := json.NewDecoder(r.Body)
+		err := d.Decode(&input)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+	default:
+		http.Error(w, helpers.Error("Content-type not supported"), 415)
+		return
+	}
+
+	if input.IdAccessibility == 0 || input.Weight == -1 {
+		http.Error(w, helpers.Error("idAccessibility weight"), 400)
+		return
+	}
+
+	err := h.Datastore.InsertCriterionAccessibilityByIds(criterion.Id, input.IdAccessibility, input.Weight)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 400)
+		return
+	}
+
+}
+
+func (h *Handler) deleteCriterionAccessibilities(w http.ResponseWriter, r *http.Request) {
+
+	criterion := r.Context().Value("criterion").(*datastore.Criterion)
+
 	err := h.Datastore.DeleteCriterionAccessibilitiesByCriterionId(criterion.Id)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
@@ -330,14 +415,10 @@ func (h *Handler) deleteCriterionAccessibilities(w http.ResponseWriter, r *http.
 }
 
 func (h *Handler) getCriterionAccessibility(w http.ResponseWriter, r *http.Request) {
-	idAccessibilityStr := chi.URLParam(r, "ida")
-	idAccessibility, err := strconv.ParseInt(idAccessibilityStr, 10, 64)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
 
 	criterion := r.Context().Value("criterion").(*datastore.Criterion)
+
+	idAccessibility := r.Context().Value("idAccessibility").(int64)
 
 	criterionAccessibility, err := h.Datastore.GetCriterionAccessibilityByIds(criterion.Id, idAccessibility)
 	if err != nil {
@@ -352,45 +433,11 @@ func (h *Handler) getCriterionAccessibility(w http.ResponseWriter, r *http.Reque
 	w.Write(criterionAccessibilitySlice)
 }
 
-func (h *Handler) createCriterionAccessibility(w http.ResponseWriter, r *http.Request) {
-	criterion := r.Context().Value("criterion").(*datastore.Criterion)
-
-	var input struct {
-		IdAccessibility int64
-		Weight          int
-	}
-	input.Weight = -1
-
-	decoder := json.NewDecoder(r.Body)
-	if decoder == nil {
-		http.Error(w, helpers.Error("JSON decoder failed"), 500)
-		return
-	}
-
-	err := decoder.Decode(&input)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
-
-	if input.Weight == -1 || input.IdAccessibility == 0 {
-		http.Error(w, helpers.Error("weight and idAccessibility must be set"), 400)
-		return
-	}
-
-	err = h.Datastore.InsertCriterionAccessibilityByIds(criterion.Id, input.IdAccessibility, input.Weight)
-
-}
-
 func (h *Handler) updateCriterionAccessibility(w http.ResponseWriter, r *http.Request) {
-	idAccessibilityStr := chi.URLParam(r, "ida")
-	idAccessibility, err := strconv.ParseInt(idAccessibilityStr, 10, 64)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
 
 	criterion := r.Context().Value("criterion").(*datastore.Criterion)
+
+	idAccessibility := r.Context().Value("idAccessibility").(int64)
 
 	criterionAccessibility, err := h.Datastore.GetCriterionAccessibilityByIds(criterion.Id, idAccessibility)
 	if err != nil {
@@ -398,20 +445,29 @@ func (h *Handler) updateCriterionAccessibility(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	d := json.NewDecoder(r.Body)
-	if d == nil {
-		http.Error(w, helpers.Error("JSON decoder failed"), 500)
-		return
-	}
-
 	var input struct {
-		Weight int
+		Weight int `json:"weight"`
 	}
 	input.Weight = -1
 
-	err = d.Decode(&input)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
+	contentType := helpers.GetContentType(r.Header.Get("Content-type"))
+	switch contentType {
+	case "multipart/form-data":
+		var err error
+		input.Weight, err = helpers.ParseInt(r.PostFormValue("weight"))
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+	case "application/json":
+		d := json.NewDecoder(r.Body)
+		err := d.Decode(&input)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+	default:
+		http.Error(w, helpers.Error("Content-type not supported"), 415)
 		return
 	}
 
@@ -430,16 +486,12 @@ func (h *Handler) updateCriterionAccessibility(w http.ResponseWriter, r *http.Re
 }
 
 func (h *Handler) deleteCriterionAccessibility(w http.ResponseWriter, r *http.Request) {
-	idAccessibilityStr := chi.URLParam(r, "ida")
-	idAccessibility, err := strconv.ParseInt(idAccessibilityStr, 10, 64)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
 
 	criterion := r.Context().Value("criterion").(*datastore.Criterion)
 
-	err = h.Datastore.DeleteCriterionAccessibilityByIds(criterion.Id, idAccessibility)
+	idAccessibility := r.Context().Value("idAccessibility").(int64)
+
+	err := h.Datastore.DeleteCriterionAccessibilityByIds(criterion.Id, idAccessibility)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
@@ -466,16 +518,19 @@ func insertOrFetchLegislation(d *datastore.Datastore,
 }
 
 /*
-func insertOrFetchLegislation(d *datastore.Datastore, inputLegislation *inputLegislation) (int64, error) {
+func insertOrFetchLegislation(d *datastore.Datastore, inputLegislation *inputCriterionLegislation) (int64, error) {
 	if inputLegislation.Name == "" {
 		return 0, errors.New("At least a name must be specified")
 	}
+
 	legislation, err := d.GetLegislationByName(inputLegislation.Name)
+
 	if err == sql.ErrNoRows {
-		legislation = datastore.NewLegislation(true)
-		legislation.Name = inputLegislation.Name
-		legislation.Description = zero.StringFrom(inputLegislation.Description)
-		legislation.Url = zero.StringFrom(inputLegislation.Url)
+		legislation = datastore.NewLegislation(false)
+		err = legislation.AllSetIfNotEmptyOrNil(inputLegislation.Name, inputLegislation.Description, inputLegislation.Url)
+		if err != nil {
+			return 0, err
+		}
 		err = d.InsertLegislation(legislation)
 		if err != nil {
 			return 0, err
@@ -483,6 +538,7 @@ func insertOrFetchLegislation(d *datastore.Datastore, inputLegislation *inputLeg
 	} else if err != nil {
 		return 0, err
 	}
+
 	return legislation.Id, nil
 }
 */

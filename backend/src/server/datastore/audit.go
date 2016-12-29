@@ -164,11 +164,11 @@ func (ds *Datastore) DeleteAudit(a *Audit) error {
 }
 
 func (ds *Datastore) GetAuditAuditor(a *Audit) (*Auditor, error) {
-	return ds.GetAuditorByIdWithForeign(a.IdAuditor)
+	return ds.GetAuditorByIdWithEntity(a.IdAuditor)
 }
 
 func (ds *Datastore) GetAuditProperty(a *Audit) (*Property, error) {
-	return ds.GetPropertyByIdWithForeign(a.IdProperty)
+	return ds.GetPropertyByIdWithAddressTagsOwners(a.IdProperty)
 }
 
 func (ds *Datastore) GetAuditTemplate(a *Audit) (*Template, error) {

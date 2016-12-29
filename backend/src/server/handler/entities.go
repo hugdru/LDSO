@@ -68,7 +68,7 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 	if input.Password != "" {
 	}
 
-	entity, err := h.Datastore.GetEntityWithForeign(filter)
+	entity, err := h.Datastore.GetEntityWithCountry(filter)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
@@ -155,12 +155,31 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 		Mobilephone   string `json:"mobilephone"`
 		Telephone     string `json:"telephone"`
 		Role          string `json:"role"`
-		imageBytes    []byte
-		imageMimetype string
+		image         string `json:"image"`
+		imageBytes    []byte `json:"-"`
+		imageMimetype string `json:"-"`
 	}
 
 	contentType := helpers.GetContentType(r.Header.Get("Content-type"))
 	switch contentType {
+	case "application/json":
+		decoder := json.NewDecoder(r.Body)
+		if decoder == nil {
+			http.Error(w, helpers.Error("JSON decoder failed"), 500)
+			return
+		}
+		err := decoder.Decode(&input)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+		if input.image != "" {
+			input.imageBytes, input.imageMimetype, err = helpers.ReadImageBase64(input.image, helpers.MaxImageFileSize)
+			if err != nil {
+				http.Error(w, helpers.Error(err.Error()), 500)
+				return
+			}
+		}
 	case "multipart/form-data":
 		postIdCountry, err := helpers.ParseInt64(r.PostFormValue("idCountry"))
 		if err != nil {
@@ -186,7 +205,7 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if input.IdCountry == 0 || input.Name == "" || input.Email == "" || input.Username == "" || input.Password == "" || input.Role == "" {
+	if input.Name == "" || input.Email == "" || input.Username == "" || input.Password == "" || input.Role == "" {
 		http.Error(w, helpers.Error("country, name, email, username, password, role are required"), 400)
 		return
 	}
@@ -210,7 +229,16 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	entity := datastore.NewEntity(false)
-	entity.IdCountry = input.IdCountry
+	if input.IdCountry == 0 {
+		portugal, err := h.Datastore.GetCountryByName("Portugal")
+		entity.IdCountry = portugal.Id
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 500)
+			return
+		}
+	} else {
+		entity.IdCountry = input.IdCountry
+	}
 	entity.Name = input.Name
 	entity.Email = input.Email
 	entity.Username = input.Username

@@ -152,11 +152,11 @@ func (ds *Datastore) DeletePropertyClient(pc *PropertyClient) error {
 }
 
 func (ds *Datastore) GetPropertyClientClient(pc *PropertyClient) (*Client, error) {
-	return ds.GetClientByIdWithForeign(pc.IdClient)
+	return ds.GetClientByIdWithEntity(pc.IdClient)
 }
 
 func (ds *Datastore) GetPropertyClientProperty(pc *PropertyClient) (*Property, error) {
-	return ds.GetPropertyByIdWithForeign(pc.IdProperty)
+	return ds.GetPropertyByIdWithAddressTagsOwners(pc.IdProperty)
 }
 
 func (ds *Datastore) GetPropertyClientByIds(idProperty, idClient int64) (*PropertyClient, error) {

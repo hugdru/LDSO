@@ -161,7 +161,7 @@ func (ds *Datastore) GetSuperadminEntity(s *Superadmin) (*Entity, error) {
 	return ds.GetEntityById(s.IdEntity)
 }
 
-func (ds *Datastore) GetSuperadminByIdWithForeign(idEntity int64) (*Superadmin, error) {
+func (ds *Datastore) GetSuperadminByIdWithEntity(idEntity int64) (*Superadmin, error) {
 	return ds.getSuperadminById(idEntity, true)
 }
 
@@ -185,7 +185,7 @@ func (ds *Datastore) getSuperadminById(idEntity int64, withForeign bool) (*Super
 	}
 
 	if withForeign {
-		s.Entity, err = ds.GetEntityByIdWithForeign(idEntity)
+		s.Entity, err = ds.GetEntityByIdWithCountry(idEntity)
 		if err != nil {
 			return nil, err
 		}
