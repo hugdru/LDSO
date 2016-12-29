@@ -49,7 +49,6 @@ export class LoginComponent implements OnInit {
                 error => {
                     this.errorMsg = <any>error;
                 }
-
         );
         localStorage.removeItem('auth_token');
         localStorage.removeItem('session');

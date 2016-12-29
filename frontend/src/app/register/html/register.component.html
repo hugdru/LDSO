@@ -1,0 +1,51 @@
+<div>
+    <h1>Register</h1>
+    <div>
+        <input type="text"
+               required
+               [(ngModel)]="user.username"
+               placeholder="Username">
+    </div>
+    <div>
+        <input type="password"
+               required
+               [(ngModel)]="user.password"
+               placeholder="Password">
+    </div>
+    <div>
+        <input type="text"
+               required
+               [(ngModel)]="user.name"
+               placeholder="Name">
+    </div>
+    <div>
+        <input type="text"
+               required
+               [(ngModel)]="user.email"
+               placeholder="Email">
+    </div>
+    <div>
+        <input type="text"
+               required
+               [(ngModel)]="user.role"
+               placeholder="Role">
+    </div>
+    <div>
+        <input type="number"
+               required
+               [(ngModel)]="user.mobile"
+               placeholder="Mobile">
+    </div>
+    <div>
+        <input type="text"
+               required
+               [(ngModel)]="user.phone"
+               placeholder="Telephone">
+    </div>
+    <div>
+        <button class="btn btn-success round outline"
+                (click)="register()">
+            <i class="glyphicon glyphicon-ok"></i>
+        </button>
+    </div>
+</div>
