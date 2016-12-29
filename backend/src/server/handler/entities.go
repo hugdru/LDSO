@@ -155,12 +155,31 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 		Mobilephone   string `json:"mobilephone"`
 		Telephone     string `json:"telephone"`
 		Role          string `json:"role"`
-		imageBytes    []byte
-		imageMimetype string
+		image         string `json:"image"`
+		imageBytes    []byte `json:"-"`
+		imageMimetype string `json:"-"`
 	}
 
 	contentType := helpers.GetContentType(r.Header.Get("Content-type"))
 	switch contentType {
+	case "application/json":
+		decoder := json.NewDecoder(r.Body)
+		if decoder == nil {
+			http.Error(w, helpers.Error("JSON decoder failed"), 500)
+			return
+		}
+		err := decoder.Decode(&input)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+		if input.image != "" {
+			input.imageBytes, input.imageMimetype, err = helpers.ReadImageBase64(input.image, helpers.MaxImageFileSize)
+			if err != nil {
+				http.Error(w, helpers.Error(err.Error()), 500)
+				return
+			}
+		}
 	case "multipart/form-data":
 		postIdCountry, err := helpers.ParseInt64(r.PostFormValue("idCountry"))
 		if err != nil {

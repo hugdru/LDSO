@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"encoding/base64"
 	"errors"
 	"io/ioutil"
 	"net/http"
@@ -44,5 +45,28 @@ func ReadImage(r *http.Request, imageName string, maxImageSize int) ([]byte, str
 		return nil, "", errors.New("image is too big, max: " + strconv.Itoa(maxImageSize) + " bytes")
 	}
 
-	return imageBytes, imageMime, nil
+	return imageBytes, imageMime, err
+}
+
+func ReadImageBase64(image string, maxImageSize int) ([]byte, string, error) {
+	imageBytes, err := base64.StdEncoding.DecodeString(image)
+	if err != nil {
+		return nil, "", err
+	}
+
+	if len(imageBytes) > maxImageSize {
+		return nil, "", errors.New("image is too big, max: " + strconv.Itoa(maxImageSize) + " bytes")
+	}
+
+	mimetypeBuffer := make([]byte, 512)
+	if copy(mimetypeBuffer, imageBytes) != 512 {
+		return nil, "", errors.New("Expecting at least 512 bytes")
+	}
+
+	imageMime := http.DetectContentType(mimetypeBuffer)
+	if !acceptedImageTypes[imageMime] {
+		return nil, "", errors.New("Gif, jpeg or png image")
+	}
+
+	return imageBytes, imageMime, err
 }
