@@ -147,6 +147,11 @@ func (ds *Datastore) UpdateMaingroup(m *Maingroup) error {
 }
 
 func (ds *Datastore) SaveMaingroup(m *Maingroup) error {
+
+	if m == nil {
+		return errors.New("maingroup should not be nil")
+	}
+
 	if m.Exists() {
 		return ds.UpdateMaingroup(m)
 	}

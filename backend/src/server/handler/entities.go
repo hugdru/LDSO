@@ -118,22 +118,23 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 
 	sessionData := sessionData.SetSessionData(entity, role, w, r)
 	if sessionData == nil {
-		http.Error(w, helpers.Error("Failed setting session"), 500)
+		http.Error(w, helpers.Error("Failed setting session"), http.StatusInternalServerError)
 		return
 	}
 
 	sessionDataSlice, err := json.Marshal(sessionData)
 	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 500)
+		http.Error(w, helpers.Error(err.Error()), http.StatusInternalServerError)
 		return
 	}
+
 	w.Write(sessionDataSlice)
 }
 
 func (h *Handler) logout(w http.ResponseWriter, r *http.Request) {
 	err := session.Destroy(w, r)
 	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 500)
+		http.Error(w, helpers.Error(err.Error()), http.StatusInternalServerError)
 		return
 	}
 }
@@ -169,28 +170,28 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 	case "application/json":
 		decoder := json.NewDecoder(r.Body)
 		if decoder == nil {
-			http.Error(w, helpers.Error("JSON decoder failed"), 500)
+			http.Error(w, helpers.Error("JSON decoder failed"), http.StatusInternalServerError)
 			return
 		}
 		err := decoder.Decode(&input)
 		if err != nil {
-			http.Error(w, helpers.Error(err.Error()), 400)
+			http.Error(w, helpers.Error(err.Error()), http.StatusBadRequest)
 			return
 		}
 		if input.Image != "" {
 			input.imageBytes, input.imageMimetype, err = helpers.ReadImageBase64(input.Image, helpers.MaxImageFileSize)
 			if err != nil {
-				http.Error(w, helpers.Error(err.Error()), 500)
+				http.Error(w, helpers.Error(err.Error()), http.StatusInternalServerError)
 				return
 			}
 		}
 	case "multipart/form-data":
-		postIdCountry, err := helpers.ParseInt64(r.PostFormValue("idCountry"))
+		var err error
+		input.IdCountry, err = helpers.ParseInt64(r.PostFormValue("idCountry"))
 		if err != nil {
-			http.Error(w, helpers.Error(err.Error()), 400)
+			http.Error(w, helpers.Error(err.Error()), http.StatusBadRequest)
 			return
 		}
-		input.IdCountry = postIdCountry
 		input.Name = r.PostFormValue("name")
 		input.Email = r.PostFormValue("email")
 		input.Username = r.PostFormValue("username")
@@ -235,11 +236,11 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 	entity := datastore.NewEntity(false)
 	if input.IdCountry == 0 {
 		portugal, err := h.Datastore.GetCountryByName("Portugal")
-		entity.IdCountry = portugal.Id
 		if err != nil {
 			http.Error(w, helpers.Error(err.Error()), 500)
 			return
 		}
+		entity.IdCountry = portugal.Id
 	} else {
 		entity.IdCountry = input.IdCountry
 	}
@@ -258,7 +259,20 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 	entity.Image = input.imageBytes
 	entity.CreatedDate = helpers.TheTime()
 
-	err = h.Datastore.SaveEntity(entity)
+	tx, err := h.Datastore.BeginTransaction()
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 500)
+		return
+	}
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+			return
+		}
+		err = tx.Commit()
+	}()
+
+	err = h.Datastore.SaveEntityTx(tx, entity)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
@@ -268,7 +282,7 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 	case sessionData.Client:
 		client := datastore.NewClient(false)
 		client.IdEntity = entity.Id
-		err = h.Datastore.SaveClient(client)
+		err = h.Datastore.SaveClientTx(tx, client)
 		if err != nil {
 			http.Error(w, helpers.Error(err.Error()), 500)
 			return
@@ -280,7 +294,7 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 		}
 		auditor := datastore.NewAuditor(false)
 		auditor.IdEntity = entity.Id
-		err = h.Datastore.SaveAuditor(auditor)
+		err = h.Datastore.SaveAuditorTx(tx, auditor)
 		if err != nil {
 			http.Error(w, helpers.Error(err.Error()), 500)
 			return
@@ -292,7 +306,7 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 		}
 		localadmin := datastore.NewLocaladmin(false)
 		localadmin.IdEntity = entity.Id
-		err = h.Datastore.SaveLocaladmin(localadmin)
+		err = h.Datastore.SaveLocaladminTx(tx, localadmin)
 		if err != nil {
 			http.Error(w, helpers.Error(err.Error()), 500)
 			return
@@ -304,7 +318,7 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 		}
 		superadmin := datastore.NewSuperadmin(false)
 		superadmin.IdEntity = entity.Id
-		err = h.Datastore.SaveSuperadmin(superadmin)
+		err = h.Datastore.SaveSuperadminTx(tx, superadmin)
 		if err != nil {
 			http.Error(w, helpers.Error(err.Error()), 500)
 			return

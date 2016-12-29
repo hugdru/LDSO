@@ -1,6 +1,7 @@
 package datastore
 
 import (
+	"database/sql"
 	"github.com/alexedwards/scs/engine/redisstore"
 	"github.com/alexedwards/scs/session"
 	"github.com/garyburd/redigo/redis"
@@ -43,6 +44,10 @@ func (datastore *Datastore) Close() {
 		panic(err)
 	}
 	datastore.postgres = nil
+}
+
+func (datastore *Datastore) BeginTransaction() (*sql.Tx, error) {
+	return datastore.postgres.Begin()
 }
 
 func ServerError(w http.ResponseWriter, r *http.Request, err error) {

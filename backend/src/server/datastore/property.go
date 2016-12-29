@@ -152,6 +152,11 @@ func (ds *Datastore) UpdatePropertyTx(tx *sql.Tx, p *Property) error {
 }
 
 func (ds *Datastore) SaveProperty(p *Property) error {
+
+	if p == nil {
+		return errors.New("property should not be nil")
+	}
+
 	if p.Exists() {
 		return ds.UpdateProperty(p)
 	}
@@ -160,6 +165,11 @@ func (ds *Datastore) SaveProperty(p *Property) error {
 }
 
 func (ds *Datastore) SavePropertyWithAddress(p *Property) error {
+
+	if p == nil {
+		return errors.New("property should not be nil")
+	}
+
 	if p.Exists() {
 		return ds.UpdatePropertyWithAddress(p)
 	}

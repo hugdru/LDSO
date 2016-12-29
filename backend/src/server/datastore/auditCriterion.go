@@ -93,6 +93,11 @@ func (ds *Datastore) UpdateAuditCriterion(ac *AuditCriterion) error {
 }
 
 func (ds *Datastore) SaveAuditCriterion(ac *AuditCriterion) error {
+
+	if ac == nil {
+		return errors.New("auditCriterion should not be nil")
+	}
+
 	if ac.Exists() {
 		return ds.UpdateAuditCriterion(ac)
 	}

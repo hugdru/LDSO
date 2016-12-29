@@ -91,6 +91,11 @@ func (ds *Datastore) UpdateTag(t *Tag) error {
 }
 
 func (ds *Datastore) SaveTag(t *Tag) error {
+
+	if t == nil {
+		return errors.New("tag should not be nil")
+	}
+
 	if t.Exists() {
 		return ds.UpdateTag(t)
 	}

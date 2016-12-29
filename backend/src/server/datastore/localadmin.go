@@ -1,6 +1,7 @@
 package datastore
 
 import (
+	"database/sql"
 	"errors"
 	"server/datastore/metadata"
 )
@@ -43,6 +44,10 @@ func NewLocaladmin(allocateObjects bool) *Localadmin {
 }
 
 func (ds *Datastore) InsertLocaladmin(l *Localadmin) error {
+	return ds.InsertLocaladminTx(nil, l)
+}
+
+func (ds *Datastore) InsertLocaladminTx(tx *sql.Tx, l *Localadmin) error {
 
 	if l == nil {
 		return errors.New("localadmin should not be nil")
@@ -58,7 +63,13 @@ func (ds *Datastore) InsertLocaladmin(l *Localadmin) error {
 		`$1` +
 		`)`
 
-	_, err := ds.postgres.Exec(sql, l.IdEntity)
+	var err error
+	if tx != nil {
+		_, err = tx.Exec(sql, l.IdEntity)
+
+	} else {
+		_, err = ds.postgres.Exec(sql, l.IdEntity)
+	}
 	if err != nil {
 		return err
 	}
@@ -69,6 +80,10 @@ func (ds *Datastore) InsertLocaladmin(l *Localadmin) error {
 }
 
 func (ds *Datastore) UpdateLocaladmin(l *Localadmin) error {
+	return ds.UpdateLocaladminTx(nil, l)
+}
+
+func (ds *Datastore) UpdateLocaladminTx(tx *sql.Tx, l *Localadmin) error {
 
 	//if l == nil {
 	//	return errors.New("localadmin should not be nil")
@@ -94,11 +109,20 @@ func (ds *Datastore) UpdateLocaladmin(l *Localadmin) error {
 }
 
 func (ds *Datastore) SaveLocaladmin(l *Localadmin) error {
-	if l.Exists() {
-		return ds.UpdateLocaladmin(l)
+	return ds.SaveLocaladminTx(nil, l)
+}
+
+func (ds *Datastore) SaveLocaladminTx(tx *sql.Tx, l *Localadmin) error {
+
+	if l == nil {
+		return errors.New("localadmin should not be nil")
 	}
 
-	return ds.InsertLocaladmin(l)
+	if l.Exists() {
+		return ds.UpdateLocaladminTx(tx, l)
+	}
+
+	return ds.InsertLocaladminTx(tx, l)
 }
 
 func (ds *Datastore) UpsertLocalAdmin(l *Localadmin) error {

@@ -1,6 +1,7 @@
 package datastore
 
 import (
+	"database/sql"
 	"errors"
 	"server/datastore/metadata"
 	"strconv"
@@ -54,6 +55,10 @@ func NewAuditor(allocateObjects bool) *Auditor {
 }
 
 func (ds *Datastore) InsertAuditor(a *Auditor) error {
+	return ds.InsertAuditorTx(nil, a)
+}
+
+func (ds *Datastore) InsertAuditorTx(tx *sql.Tx, a *Auditor) error {
 
 	if a == nil {
 		return errors.New("auditor should not be nil")
@@ -69,7 +74,14 @@ func (ds *Datastore) InsertAuditor(a *Auditor) error {
 		`$1` +
 		`)`
 
-	_, err := ds.postgres.Exec(sql, a.IdEntity)
+	var err error
+	if tx != nil {
+		_, err = tx.Exec(sql, a.IdEntity)
+
+	} else {
+		_, err = ds.postgres.Exec(sql, a.IdEntity)
+
+	}
 	if err != nil {
 		return err
 	}
@@ -80,6 +92,10 @@ func (ds *Datastore) InsertAuditor(a *Auditor) error {
 }
 
 func (ds *Datastore) UpdateAuditor(a *Auditor) error {
+	return ds.UpdateAuditorTx(nil, a)
+}
+
+func (ds *Datastore) UpdateAuditorTx(tx *sql.Tx, a *Auditor) error {
 
 	//if a == nil {
 	//	return errors.New("auditor should not be nil")
@@ -105,11 +121,20 @@ func (ds *Datastore) UpdateAuditor(a *Auditor) error {
 }
 
 func (ds *Datastore) SaveAuditor(a *Auditor) error {
-	if a.Exists() {
-		return ds.UpdateAuditor(a)
+	return ds.SaveAuditorTx(nil, a)
+}
+
+func (ds *Datastore) SaveAuditorTx(tx *sql.Tx, a *Auditor) error {
+
+	if a == nil {
+		return errors.New("auditor should not be nil")
 	}
 
-	return ds.InsertAuditor(a)
+	if a.Exists() {
+		return ds.UpdateAuditorTx(tx, a)
+	}
+
+	return ds.InsertAuditorTx(tx, a)
 }
 
 func (ds *Datastore) UpsertAuditor(a *Auditor) error {

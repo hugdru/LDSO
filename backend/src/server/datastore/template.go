@@ -127,6 +127,11 @@ func (ds *Datastore) UpdateTemplate(t *Template) error {
 }
 
 func (ds *Datastore) SaveTemplate(t *Template) error {
+
+	if t == nil {
+		return errors.New("template should not be nil")
+	}
+
 	if t.Exists() {
 		return ds.UpdateTemplate(t)
 	}
