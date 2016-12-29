@@ -1,4 +1,4 @@
-<div *ngIf="!session.id">
+<div *ngIf="!loggedIn">
     <h1>Login</h1>
     <input type="text"
            required
@@ -9,16 +9,16 @@
            [(ngModel)]="session.password"
            placeholder="Password">
     <button class="btn btn-success round outline"
-            (click)="loginPressed(session)">
+            (click)="login()">
         <i class="glyphicon glyphicon-ok"></i>
     </button>
 </div>
 
-<div *ngIf="session.id">
+<div *ngIf="loggedIn">
     <h1>Logout</h1>
     <h3>{{session.name}}</h3>
     <button class="btn btn-success round outline"
-            (click)="logoutPressed(session)">
+            (click)="logout()">
         <i class="glyphicon glyphicon-ok"></i>
     </button>
 </div>
