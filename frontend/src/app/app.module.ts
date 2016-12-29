@@ -14,6 +14,7 @@ import {SidebarComponent} from "sidebar/sidebar.component";
 import {FootbarComponent} from "footbar/footbar.component";
 import {CenterComponent} from "center/center.component";
 import {LoginComponent} from "login/login.component";
+import {RegisterComponent} from "./register/register.component";
 import {AuditTemplateComponent} from "audit-template/audit-template.component";
 import {AuditTemplateEditComponent} from "audit-template/audit-template-edit.component";
 import {AuditTemplateAddComponent} from "audit-template/audit-template-add.component";
@@ -61,6 +62,7 @@ import {HandlerService} from "handler.service";
         FootbarComponent,
         CenterComponent,
         LoginComponent,
+        RegisterComponent,
         AuditTemplateComponent,
         AuditTemplateEditComponent,
         AuditTemplateAddComponent,
