@@ -24,8 +24,7 @@ export class HandlerService {
         } else {
             errMsg = error.message ? error.message : error.toString();
         }
-
-//        console.error(errMsg);
+        console.error(errMsg);
         return Observable.throw(errMsg);
     }
 
@@ -69,5 +68,19 @@ export class HandlerService {
                 .map((response: Response) => response)
                 .catch(this.handleError);
     }
+
+    login<T>(url: string, object: T): Observable<Response> {
+        return this.http.post(url, JSON.stringify(object), this.options)
+                .map((response: Response) => response.json())
+                .map((response) => {
+                    if (response.success) {
+                        localStorage.setItem('auth_token', response.auth_token);
+                    }
+                    return response.success;
+                })
+                .catch(this.handleError);
+    }
+
+
 
 }
