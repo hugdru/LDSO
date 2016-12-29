@@ -40,7 +40,6 @@ export class LoginComponent implements OnInit {
                 },
                 error => {
                     this.errorMsg = <any>error;
-                    console.log(this.errorMsg);
                 }
         );
     }
@@ -49,7 +48,6 @@ export class LoginComponent implements OnInit {
         this.loginService.getLogout().subscribe(
                 error => {
                     this.errorMsg = <any>error;
-                    console.log(this.errorMsg);
                 }
 
         );
