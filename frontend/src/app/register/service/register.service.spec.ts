@@ -9,7 +9,7 @@ import {
     ResponseOptions
 } from "@angular/http";
 import {MockBackend, MockConnection} from "@angular/http/testing";
-import {LoginService} from "login/service/login.service";
+import {RegisterService} from "register/service/register.service";
 import {HandlerService} from "handler.service";
 
 const mock = {id: 5, username: "carlos", password: "bla"};
@@ -20,7 +20,7 @@ describe('Session Service w/ Mock Service', () => {
     beforeEach(async(() => {
         TestBed.configureTestingModule({
             providers: [
-                LoginService,
+                RegisterService,
                 HandlerService,
                 MockBackend,
                 BaseRequestOptions,
@@ -39,8 +39,8 @@ describe('Session Service w/ Mock Service', () => {
         mockBackend = getTestBed().get(MockBackend);
     }));
 
-    it('Add a new login',
-            async(inject([LoginService], (loginService) => {
+    it('Add a new register',
+            async(inject([RegisterService], (registerService) => {
                 mockBackend.connections
                         .subscribe((connection: MockConnection) => {
                             expect(connection.request.method).toBe(RequestMethod.Post);
@@ -48,24 +48,10 @@ describe('Session Service w/ Mock Service', () => {
                                     new ResponseOptions({status: 201})));
                         });
 
-                loginService.setLogin(mock).subscribe((result => {
+                registerService.setRegister(mock).subscribe((result => {
                     expect(result).toBeDefined();
                     expect(result.status).toBe(201);
                 }));
             })));
-
-    it('Get logout', async(() => {
-        let loginService: LoginService = getTestBed().get(LoginService);
-
-        mockBackend.connections.subscribe((connection: MockConnection) => {
-            connection.mockRespond(new Response(
-                    new ResponseOptions({status: 200})));
-        });
-
-        loginService.getLogout().subscribe((response => {
-            expect(response).toBeDefined();
-            expect(response.status).toBe(200);
-        }));
-    }));
 
 });

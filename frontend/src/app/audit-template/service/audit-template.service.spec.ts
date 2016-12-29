@@ -9,7 +9,7 @@ import {
         ResponseOptions
 } from "@angular/http";
 import {MockBackend, MockConnection} from "@angular/http/testing";
-import {AuditTemplateService} from "..//service/auditTemplate.service";
+import {AuditTemplateService} from "./audit-template.service";
 import {HandlerService} from "handler.service";
 
 const mockArray = [
