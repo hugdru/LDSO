@@ -161,7 +161,7 @@ func (ds *Datastore) GetLocaladminEntity(l *Localadmin) (*Entity, error) {
 	return ds.GetEntityById(l.IdEntity)
 }
 
-func (ds *Datastore) GetLocaladminByIdWithForeign(idEntity int64) (*Localadmin, error) {
+func (ds *Datastore) GetLocaladminByIdWithEntity(idEntity int64) (*Localadmin, error) {
 	return ds.getLocaladminById(idEntity, true)
 }
 
@@ -185,7 +185,7 @@ func (ds *Datastore) getLocaladminById(idEntity int64, withForeign bool) (*Local
 	}
 
 	if withForeign {
-		l.Entity, err = ds.GetEntityByIdWithForeign(idEntity)
+		l.Entity, err = ds.GetEntityByIdWithCountry(idEntity)
 		if err != nil {
 			return nil, err
 		}

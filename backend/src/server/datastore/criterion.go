@@ -16,10 +16,10 @@ type Criterion struct {
 	Name          string    `json:"name" db:"name"`
 	Weight        int       `json:"weight" db:"weight"`
 	CreatedDate   time.Time `json:"createdDate" db:"created_date"`
-	Legislation   string    `json:"legislation, omitempty"`
 
 	// Objects
-	// Legislation *Legislation `json:"legislation, omitempty"`
+	Legislation string `json:"legislation, omitempty"`
+	//Legislation            *Legislation              `json:"legislation, omitempty"`
 	CriterionAccessibility []*CriterionAccessibility `json:"accessibilities,omitempty"`
 
 	meta metadata.Metadata
@@ -39,6 +39,64 @@ func (c *Criterion) Exists() bool {
 
 func (c *Criterion) Deleted() bool {
 	return c.meta.Deleted
+}
+
+func (c *Criterion) MustSet(idSubgroup int64, name string, weight int) error {
+
+	if idSubgroup != 0 {
+		c.IdSubgroup = idSubgroup
+	} else {
+		return errors.New("idSubgroup must be set")
+	}
+	if name != "" {
+		c.Name = name
+	} else {
+		return errors.New("name must be set")
+	}
+	if weight != -1 {
+		c.Weight = weight
+	} else {
+		return errors.New("weight must be set")
+	}
+
+	return nil
+}
+
+func (c *Criterion) AllSetIfNotEmptyOrNil(idSubgroup int64, name string, weight int, idLegislation int64) error {
+	if idSubgroup != 0 {
+		c.IdSubgroup = idSubgroup
+	}
+	if name != "" {
+		c.Name = name
+	}
+	if weight != -1 {
+		c.Weight = weight
+	}
+
+	return c.OptionalSetIfNotEmptyOrNil(idLegislation)
+}
+
+func (c *Criterion) OptionalSetIfNotEmptyOrNil(idLegislation int64) error {
+
+	if idLegislation != 0 {
+		c.IdLegislation = zero.IntFrom(idLegislation)
+	}
+
+	return nil
+}
+
+func (c *Criterion) UpdateSetIfNotEmptyOrNil(name string, weight int, idLegislation int64) error {
+	if name != "" {
+		c.Name = name
+	}
+	if weight != -1 {
+		c.Weight = weight
+	}
+	if idLegislation != 0 {
+		c.IdLegislation = zero.IntFrom(idLegislation)
+	}
+
+	return nil
 }
 
 func ACriterion(allocateObjects bool) Criterion {
@@ -183,7 +241,7 @@ func (ds *Datastore) GetCriterionLegislation(c *Criterion) (*Legislation, error)
 	return ds.GetLegislationById(c.IdLegislation.Int64)
 }
 
-func (ds *Datastore) GetCriterionById(id int64) (*Criterion, error) {
+func (ds *Datastore) GetCriterionByIdWithLegislation(id int64) (*Criterion, error) {
 
 	const sql = `SELECT ` +
 		`id, id_subgroup, id_legislation, name, weight, created_date ` +
@@ -207,7 +265,7 @@ func (ds *Datastore) GetCriterionById(id int64) (*Criterion, error) {
 	}
 	/*
 		if c.IdLegislation.Valid {
-			c.Legislation = NewLegislation(true)
+			c.Legislation = NewLegislation(false)
 			c.Legislation, err = ds.GetLegislationById(c.IdLegislation.Int64)
 			if err != nil {
 				return nil, err
@@ -217,7 +275,7 @@ func (ds *Datastore) GetCriterionById(id int64) (*Criterion, error) {
 	return &c, err
 }
 
-func (ds *Datastore) GetCriteriaBySubgroupId(idSubgroup int64) ([]*Criterion, error) {
+func (ds *Datastore) GetCriteriaBySubgroupIdWithLegislation(idSubgroup int64) ([]*Criterion, error) {
 	criteria := make([]*Criterion, 0)
 	rows, err := ds.postgres.Queryx(
 		`SELECT criterion.id, criterion.id_subgroup, criterion.id_legislation, criterion.name, criterion.weight, criterion.created_date `+
@@ -243,7 +301,7 @@ func (ds *Datastore) GetCriteriaBySubgroupId(idSubgroup int64) ([]*Criterion, er
 		}
 		/*
 			if criterion.IdLegislation.Valid {
-				criterion.Legislation = NewLegislation(true)
+				criterion.Legislation = NewLegislation(false)
 				criterion.Legislation, err = ds.GetLegislationById(criterion.IdLegislation.Int64)
 				if err != nil {
 					return nil, err
@@ -260,7 +318,7 @@ func (ds *Datastore) GetCriteriaBySubgroupId(idSubgroup int64) ([]*Criterion, er
 	return criteria, err
 }
 
-func (ds *Datastore) GetCriteria(limit, offset int, filter map[string]interface{}) ([]*Criterion, error) {
+func (ds *Datastore) GetCriteriaWithLegislation(limit, offset int, filter map[string]interface{}) ([]*Criterion, error) {
 
 	where, values := generators.GenerateAndSearchClause(filter)
 
@@ -293,7 +351,7 @@ func (ds *Datastore) GetCriteria(limit, offset int, filter map[string]interface{
 		}
 		/*
 			if criterion.IdLegislation.Valid {
-				criterion.Legislation = NewLegislation(true)
+				criterion.Legislation = NewLegislation(false)
 				criterion.Legislation, err = ds.GetLegislationById(criterion.IdLegislation.Int64)
 				if err != nil {
 					return nil, err

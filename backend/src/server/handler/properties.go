@@ -34,7 +34,7 @@ func (h *Handler) propertyContext(next http.Handler) http.Handler {
 			http.Error(w, helpers.Error(err.Error()), 400)
 			return
 		}
-		property, err := h.Datastore.GetPropertyByIdWithForeign(idProperty)
+		property, err := h.Datastore.GetPropertyByIdWithAddressTagsOwners(idProperty)
 		if err != nil {
 			http.Error(w, helpers.Error(err.Error()), 400)
 			return
@@ -85,7 +85,7 @@ func (h *Handler) getProperties(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	properties, err := h.Datastore.GetPropertiesWithForeign(limit, offset, filter)
+	properties, err := h.Datastore.GetPropertiesWithForeignAddressTagsOwners(limit, offset, filter)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
@@ -113,7 +113,7 @@ func (h *Handler) createProperty(w http.ResponseWriter, r *http.Request) {
 			Postcode     string `json:"postcode"`
 			Latitude     string `json:"latitude"`
 			Longitude    string `json:"longitude"`
-		}
+		} `json:"address"`
 	}
 
 	contentType := helpers.GetContentType(r.Header.Get("Content-type"))
@@ -122,19 +122,19 @@ func (h *Handler) createProperty(w http.ResponseWriter, r *http.Request) {
 		input.Name = r.PostFormValue("name")
 		input.Details = r.PostFormValue("details")
 		var err error
-		input.Address.IdCountry, err = helpers.ParseInt64(r.PostFormValue("idCountry"))
+		input.Address.IdCountry, err = helpers.ParseInt64(r.PostFormValue("address.idCountry"))
 		if err != nil {
 			http.Error(w, helpers.Error(err.Error()), 400)
 			return
 		}
-		input.Address.AddressLine1 = r.PostFormValue("addressLine1")
-		input.Address.AddressLine2 = r.PostFormValue("addressLine2")
-		input.Address.AddressLine3 = r.PostFormValue("addressLine3")
-		input.Address.TownCity = r.PostFormValue("townCity")
-		input.Address.County = r.PostFormValue("county")
-		input.Address.Postcode = r.PostFormValue("postcode")
-		input.Address.Latitude = r.PostFormValue("latitude")
-		input.Address.Longitude = r.PostFormValue("longitude")
+		input.Address.AddressLine1 = r.PostFormValue("address.addressLine1")
+		input.Address.AddressLine2 = r.PostFormValue("address.addressLine2")
+		input.Address.AddressLine3 = r.PostFormValue("address.addressLine3")
+		input.Address.TownCity = r.PostFormValue("address.townCity")
+		input.Address.County = r.PostFormValue("address.county")
+		input.Address.Postcode = r.PostFormValue("address.postcode")
+		input.Address.Latitude = r.PostFormValue("address.latitude")
+		input.Address.Longitude = r.PostFormValue("address.longitude")
 	case "application/json":
 		d := json.NewDecoder(r.Body)
 		err := d.Decode(&input)
@@ -174,7 +174,7 @@ func (h *Handler) createProperty(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.Datastore.SavePropertyWithForeign(newProperty)
+	err = h.Datastore.SavePropertyWithAddress(newProperty)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
@@ -217,7 +217,7 @@ func (h *Handler) updateProperty(w http.ResponseWriter, r *http.Request) {
 			Postcode     string `json:"postcode"`
 			Latitude     string `json:"latitude"`
 			Longitude    string `json:"longitude"`
-		}
+		} `json:"address"`
 	}
 
 	contentType := helpers.GetContentType(r.Header.Get("Content-type"))
@@ -226,19 +226,19 @@ func (h *Handler) updateProperty(w http.ResponseWriter, r *http.Request) {
 		input.Name = r.PostFormValue("name")
 		input.Details = r.PostFormValue("details")
 		var err error
-		input.Address.IdCountry, err = helpers.ParseInt64(r.PostFormValue("idCountry"))
+		input.Address.IdCountry, err = helpers.ParseInt64(r.PostFormValue("address.idCountry"))
 		if err != nil {
 			http.Error(w, helpers.Error(err.Error()), 400)
 			return
 		}
-		input.Address.AddressLine1 = r.PostFormValue("addressLine1")
-		input.Address.AddressLine2 = r.PostFormValue("addressLine2")
-		input.Address.AddressLine3 = r.PostFormValue("addressLine3")
-		input.Address.TownCity = r.PostFormValue("townCity")
-		input.Address.County = r.PostFormValue("county")
-		input.Address.Postcode = r.PostFormValue("postcode")
-		input.Address.Latitude = r.PostFormValue("latitude")
-		input.Address.Longitude = r.PostFormValue("longitude")
+		input.Address.AddressLine1 = r.PostFormValue("address.addressLine1")
+		input.Address.AddressLine2 = r.PostFormValue("address.addressLine2")
+		input.Address.AddressLine3 = r.PostFormValue("address.addressLine3")
+		input.Address.TownCity = r.PostFormValue("address.townCity")
+		input.Address.County = r.PostFormValue("address.county")
+		input.Address.Postcode = r.PostFormValue("address.postcode")
+		input.Address.Latitude = r.PostFormValue("address.latitude")
+		input.Address.Longitude = r.PostFormValue("address.longitude")
 	case "application/json":
 		d := json.NewDecoder(r.Body)
 		err := d.Decode(&input)
@@ -279,7 +279,7 @@ func (h *Handler) updateProperty(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.Datastore.SavePropertyWithForeign(property)
+	err = h.Datastore.SavePropertyWithAddress(property)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
@@ -297,7 +297,7 @@ func (h *Handler) updateProperty(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) deleteProperty(w http.ResponseWriter, r *http.Request) {
 
 	property := r.Context().Value("property").(*datastore.Property)
-	err := h.Datastore.DeletePropertyWithForeign(property)
+	err := h.Datastore.DeletePropertyWithAddress(property)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
@@ -308,7 +308,7 @@ func (h *Handler) getAddress(w http.ResponseWriter, r *http.Request) {
 
 	property := r.Context().Value("property").(*datastore.Property)
 
-	address, err := h.Datastore.GetAddressByIdWithForeign(property.IdAddress)
+	address, err := h.Datastore.GetAddressByIdWithCountry(property.IdAddress)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
@@ -343,19 +343,19 @@ func (h *Handler) updateAddress(w http.ResponseWriter, r *http.Request) {
 	switch contentType {
 	case "multipart/form-data":
 		var err error
-		input.IdCountry, err = helpers.ParseInt64(r.PostFormValue("idCountry"))
+		input.IdCountry, err = helpers.ParseInt64(r.PostFormValue("address.idCountry"))
 		if err != nil {
 			http.Error(w, helpers.Error(err.Error()), 400)
 			return
 		}
-		input.AddressLine1 = r.PostFormValue("addressLine1")
-		input.AddressLine2 = r.PostFormValue("addressLine2")
-		input.AddressLine3 = r.PostFormValue("addressLine3")
-		input.TownCity = r.PostFormValue("townCity")
-		input.County = r.PostFormValue("county")
-		input.Postcode = r.PostFormValue("postcode")
-		input.Latitude = r.PostFormValue("latitude")
-		input.Longitude = r.PostFormValue("longitude")
+		input.AddressLine1 = r.PostFormValue("address.addressLine1")
+		input.AddressLine2 = r.PostFormValue("address.addressLine2")
+		input.AddressLine3 = r.PostFormValue("address.addressLine3")
+		input.TownCity = r.PostFormValue("address.townCity")
+		input.County = r.PostFormValue("address.county")
+		input.Postcode = r.PostFormValue("address.postcode")
+		input.Latitude = r.PostFormValue("address.latitude")
+		input.Longitude = r.PostFormValue("address.longitude")
 	case "application/json":
 		d := json.NewDecoder(r.Body)
 		err := d.Decode(&input)

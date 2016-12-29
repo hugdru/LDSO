@@ -159,15 +159,15 @@ func (ds *Datastore) SaveProperty(p *Property) error {
 	return ds.InsertProperty(p)
 }
 
-func (ds *Datastore) SavePropertyWithForeign(p *Property) error {
+func (ds *Datastore) SavePropertyWithAddress(p *Property) error {
 	if p.Exists() {
-		return ds.UpdatePropertyWithForeign(p)
+		return ds.UpdatePropertyWithAddress(p)
 	}
 
-	return ds.InsertPropertyWithForeign(p)
+	return ds.InsertPropertyWithAddress(p)
 }
 
-func (ds *Datastore) UpdatePropertyWithForeign(p *Property) error {
+func (ds *Datastore) UpdatePropertyWithAddress(p *Property) error {
 
 	if p == nil {
 		return errors.New("property should not be nil")
@@ -185,11 +185,12 @@ func (ds *Datastore) UpdatePropertyWithForeign(p *Property) error {
 		err = tx.Commit()
 	}()
 
-	err = ds.UpdatePropertyTx(tx, p)
+	err = ds.UpdateAddressTx(tx, p.Address)
 	if err != nil {
 		return err
 	}
-	err = ds.UpdateAddressTx(tx, p.Address)
+
+	err = ds.UpdatePropertyTx(tx, p)
 	if err != nil {
 		return err
 	}
@@ -197,7 +198,7 @@ func (ds *Datastore) UpdatePropertyWithForeign(p *Property) error {
 	return err
 }
 
-func (ds *Datastore) InsertPropertyWithForeign(p *Property) error {
+func (ds *Datastore) InsertPropertyWithAddress(p *Property) error {
 
 	if p == nil {
 		return errors.New("property should not be nil")
@@ -215,11 +216,12 @@ func (ds *Datastore) InsertPropertyWithForeign(p *Property) error {
 		err = tx.Commit()
 	}()
 
-	err = ds.InsertPropertyTx(tx, p)
+	err = ds.InsertAddressTx(tx, p.Address)
 	if err != nil {
 		return err
 	}
-	err = ds.InsertAddressTx(tx, p.Address)
+
+	err = ds.InsertPropertyTx(tx, p)
 	if err != nil {
 		return err
 	}
@@ -294,7 +296,7 @@ func (ds *Datastore) DeleteProperty(p *Property) error {
 	return ds.DeletePropertyTx(nil, p)
 }
 
-func (ds *Datastore) DeletePropertyWithForeign(p *Property) error {
+func (ds *Datastore) DeletePropertyWithAddress(p *Property) error {
 	if p == nil {
 		return errors.New("property should not be nil")
 	}
@@ -324,10 +326,10 @@ func (ds *Datastore) DeletePropertyWithForeign(p *Property) error {
 }
 
 func (ds *Datastore) GetPropertyAddress(p *Property) (*Address, error) {
-	return ds.GetAddressByIdWithForeign(p.IdAddress)
+	return ds.GetAddressByIdWithCountry(p.IdAddress)
 }
 
-func (ds *Datastore) GetPropertyByIdWithForeign(id int64) (*Property, error) {
+func (ds *Datastore) GetPropertyByIdWithAddressTagsOwners(id int64) (*Property, error) {
 
 	p := NewProperty(false)
 	err := ds.postgres.QueryRowx(`SELECT `+
@@ -339,7 +341,7 @@ func (ds *Datastore) GetPropertyByIdWithForeign(id int64) (*Property, error) {
 		return nil, err
 	}
 
-	p.Address, err = ds.GetAddressByIdWithForeign(p.IdAddress)
+	p.Address, err = ds.GetAddressByIdWithCountry(p.IdAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -355,7 +357,7 @@ func (ds *Datastore) GetPropertyByIdWithForeign(id int64) (*Property, error) {
 	return p, err
 }
 
-func (ds *Datastore) GetPropertiesWithForeign(limit, offset int, filter map[string]interface{}) ([]*Property, error) {
+func (ds *Datastore) GetPropertiesWithForeignAddressTagsOwners(limit, offset int, filter map[string]interface{}) ([]*Property, error) {
 
 	where, values := generators.GenerateAndSearchClause(filter)
 
@@ -377,7 +379,7 @@ func (ds *Datastore) GetPropertiesWithForeign(limit, offset int, filter map[stri
 		if err != nil {
 			return nil, err
 		}
-		p.Address, err = ds.GetAddressByIdWithForeign(p.IdAddress)
+		p.Address, err = ds.GetAddressByIdWithCountry(p.IdAddress)
 		if err != nil {
 			return nil, err
 		}

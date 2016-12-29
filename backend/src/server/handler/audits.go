@@ -127,12 +127,12 @@ func (h *Handler) createAudit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = h.Datastore.GetPropertyByIdWithForeign(input.IdProperty)
+	_, err = h.Datastore.GetPropertyByIdWithAddressTagsOwners(input.IdProperty)
 	if err != nil {
 		http.Error(w, err.Error(), 400)
 		return
 	}
-	_, err = h.Datastore.GetAuditorByIdWithForeign(input.IdAuditor)
+	_, err = h.Datastore.GetAuditorByIdWithEntity(input.IdAuditor)
 	if err != nil {
 		http.Error(w, err.Error(), 400)
 		return

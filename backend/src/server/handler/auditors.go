@@ -32,7 +32,7 @@ func (h *Handler) auditorContext(next http.Handler) http.Handler {
 			http.Error(w, helpers.Error(err.Error()), 400)
 			return
 		}
-		auditor, err := h.Datastore.GetAuditorByIdWithForeign(idAuditor)
+		auditor, err := h.Datastore.GetAuditorByIdWithEntity(idAuditor)
 		if err != nil {
 			http.Error(w, helpers.Error(err.Error()), 400)
 			return
@@ -62,7 +62,7 @@ func (h *Handler) getAuditors(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	auditors, err := h.Datastore.GetAuditorsWithForeign(limit, offset)
+	auditors, err := h.Datastore.GetAuditorsWithEntity(limit, offset)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return

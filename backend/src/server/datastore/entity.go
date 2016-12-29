@@ -262,7 +262,7 @@ func (ds *Datastore) CheckEntityExists(filter map[string]interface{}) error {
 	return ds.postgres.QueryRow(query, values...).Scan(&id)
 }
 
-func (ds *Datastore) GetEntityWithForeign(filter map[string]interface{}) (*Entity, error) {
+func (ds *Datastore) GetEntityWithCountry(filter map[string]interface{}) (*Entity, error) {
 	where, values := generators.GenerateAndSearchClause(filter)
 	sql := ds.postgres.Rebind(`SELECT ` +
 		`entity.id, entity.id_country, entity.name, entity.email, entity.username, entity.password, entity.image, entity.image_mimetype, entity.banned, entity.banned_date, entity.reason, entity.mobilephone, entity.telephone, entity.created_date ` +
@@ -284,7 +284,7 @@ func (ds *Datastore) GetEntityWithForeign(filter map[string]interface{}) (*Entit
 	return &e, err
 }
 
-func (ds *Datastore) GetEntityByIdWithForeign(id int64) (*Entity, error) {
+func (ds *Datastore) GetEntityByIdWithCountry(id int64) (*Entity, error) {
 	sql := ds.postgres.Rebind(`SELECT ` +
 		`entity.id, entity.id_country, entity.name, entity.email, entity.username, entity.password, entity.image, entity.image_mimetype, entity.banned, entity.banned_date, entity.reason, entity.mobilephone, entity.telephone, entity.created_date ` +
 		`FROM places4all.entity ` +
