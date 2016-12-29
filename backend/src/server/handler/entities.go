@@ -205,7 +205,7 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if input.IdCountry == 0 || input.Name == "" || input.Email == "" || input.Username == "" || input.Password == "" || input.Role == "" {
+	if input.Name == "" || input.Email == "" || input.Username == "" || input.Password == "" || input.Role == "" {
 		http.Error(w, helpers.Error("country, name, email, username, password, role are required"), 400)
 		return
 	}
@@ -229,7 +229,16 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	entity := datastore.NewEntity(false)
-	entity.IdCountry = input.IdCountry
+	if input.IdCountry == 0 {
+		portugal, err := h.Datastore.GetCountryByName("Portugal")
+		entity.IdCountry = portugal.Id
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 500)
+			return
+		}
+	} else {
+		entity.IdCountry = input.IdCountry
+	}
 	entity.Name = input.Name
 	entity.Email = input.Email
 	entity.Username = input.Username
