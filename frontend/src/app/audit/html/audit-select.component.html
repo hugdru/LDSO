@@ -10,12 +10,18 @@
 <hr>
 <div *ngIf='subGroups'>
     <p class="h2">SubGrupos Criterios</p>
+	<md-checkbox [checked]="allSelected()"
+		[indeterminate]="isIndeterminate()" (change)="toggleAll()">
+		Selecionar Todos
+	</md-checkbox>
     <div *ngFor='let subGroup of subGroups'>
         <table>
             <tr>
-                {{subGroup.name}}
-				<input type="checkbox" [checked]="checkedSubGroup(subGroup)"
-						(change)="toggleSubGroup(subGroup)">
+				<md-checkbox style="padding-left: 30px;"
+					 [checked]="isSelected(subGroup)"
+					 (change)="toggleSubGroup(subGroup)">
+					{{subGroup.name}}
+				</md-checkbox>
             </tr>
         </table>
     </div>

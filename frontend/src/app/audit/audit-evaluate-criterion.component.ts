@@ -1,5 +1,4 @@
 import {Component, OnInit, Input} from "@angular/core";
-import {MdCheckbox} from '@angular/material';
 
 import {Criterion} from "criterion/criterion";
 import {Remark} from "remark/remark";

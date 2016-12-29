@@ -1,4 +1,5 @@
 import {Component, OnInit, Output, EventEmitter} from "@angular/core";
+
 import {MainGroup} from "main-group/main-group";
 import {SubGroup} from "../sub-group/sub-group";
 import {MainGroupService} from "main-group/service/main-group.service";
@@ -46,10 +47,7 @@ export class AuditSelectComponent implements OnInit {
     }
 
     toggleSubGroup(subGroup: SubGroup): void {
-        var index = this.selectedSubGroups.map(
-                function (x) {
-                    return x.id;
-                }).indexOf(subGroup.id);
+		let index = this.selectedSubGroups.indexOf(subGroup, 0);
         if (index > -1) {
             this.selectedSubGroups.splice(index, 1);
         }
@@ -58,16 +56,28 @@ export class AuditSelectComponent implements OnInit {
         }
     }
 
-    checkedSubGroup(subGroup: SubGroup): boolean {
-        var index = this.selectedSubGroups.map(
-                function (x) {
-                    return x.id;
-                }).indexOf(subGroup.id);
-        return index > -1;
-    }
+	isSelected(subGroup: SubGroup): boolean {
+		return this.selectedSubGroups.includes(subGroup);
+	}
 
     pressed(): void {
         this.onDone.emit(this.selectedSubGroups);
     }
 
+	allSelected(): boolean {
+		return this.subGroups.length == this.selectedSubGroups.length;
+	}
+
+	isIndeterminate(): boolean {
+		return this.selectedSubGroups.length != 0 &&
+			this.subGroups.length != this.selectedSubGroups.length;
+	}
+
+	toggleAll(): void {
+		for (let subGroup of this.subGroups) {
+			if (!this.isSelected(subGroup)) {
+				this.toggleSubGroup(subGroup);
+			}
+		}
+	}
 }
