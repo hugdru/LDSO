@@ -34,6 +34,59 @@ func (a *Audit) Exists() bool {
 	return a.meta.Exists
 }
 
+func (a *Audit) MustSet(idProperty, idAuditor, idTemplate int64) error {
+
+	if idProperty != 0 {
+		a.IdProperty = idProperty
+	} else {
+		return errors.New("idProperty must be set")
+	}
+	if idAuditor != 0 {
+		a.IdAuditor = idAuditor
+	} else {
+		return errors.New("idAuditor must be set")
+	}
+	if idTemplate != 0 {
+		a.IdTemplate = idTemplate
+	} else {
+		return errors.New("idTemplate must be set")
+	}
+
+	return nil
+}
+
+func (a *Audit) AllSetIfNotEmptyOrNil(
+	idProperty, idAuditor, idTemplate int64,
+	rating int64, observation string) error {
+
+	if idProperty != 0 {
+		a.IdProperty = idProperty
+	}
+
+	if idAuditor != 0 {
+		a.IdAuditor = idAuditor
+	}
+
+	if idTemplate != 0 {
+		a.IdTemplate = idTemplate
+	}
+
+	return a.OptionalSetIfNotEmptyOrNil(rating, observation)
+}
+
+func (a *Audit) OptionalSetIfNotEmptyOrNil(rating int64, observation string) error {
+
+	if rating != 0 {
+		a.Rating = zero.IntFrom(rating)
+	}
+
+	if observation != "" {
+		a.Observation = zero.StringFrom(observation)
+	}
+
+	return nil
+}
+
 func (a *Audit) Deleted() bool {
 	return a.meta.Deleted
 }
