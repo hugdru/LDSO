@@ -124,6 +124,11 @@ func (ds *Datastore) UpdateLegislation(l *Legislation) error {
 }
 
 func (ds *Datastore) SaveLegislation(l *Legislation) error {
+
+	if l == nil {
+		return errors.New("legislation should not be nil")
+	}
+
 	if l.Exists() {
 		return ds.UpdateLegislation(l)
 	}

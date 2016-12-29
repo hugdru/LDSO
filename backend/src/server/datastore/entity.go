@@ -1,6 +1,7 @@
 package datastore
 
 import (
+	"database/sql"
 	"errors"
 	"gopkg.in/guregu/null.v3/zero"
 	"server/datastore/generators"
@@ -60,6 +61,10 @@ func (p *Entity) Deleted() bool {
 }
 
 func (ds *Datastore) InsertEntity(e *Entity) error {
+	return ds.InsertEntityTx(nil, e)
+}
+
+func (ds *Datastore) InsertEntityTx(tx *sql.Tx, e *Entity) error {
 
 	if e == nil {
 		return errors.New("entity should not be nil")
@@ -75,7 +80,12 @@ func (ds *Datastore) InsertEntity(e *Entity) error {
 		`$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13` +
 		`) RETURNING id`
 
-	err := ds.postgres.QueryRow(sql, e.IdCountry, e.Name, e.Email, e.Username, e.Password, e.Image, e.ImageMimetype, e.Banned, e.BannedDate, e.Reason, e.Mobilephone, e.Telephone, e.CreatedDate).Scan(&e.Id)
+	var err error
+	if tx != nil {
+		err = tx.QueryRow(sql, e.IdCountry, e.Name, e.Email, e.Username, e.Password, e.Image, e.ImageMimetype, e.Banned, e.BannedDate, e.Reason, e.Mobilephone, e.Telephone, e.CreatedDate).Scan(&e.Id)
+	} else {
+		err = ds.postgres.QueryRow(sql, e.IdCountry, e.Name, e.Email, e.Username, e.Password, e.Image, e.ImageMimetype, e.Banned, e.BannedDate, e.Reason, e.Mobilephone, e.Telephone, e.CreatedDate).Scan(&e.Id)
+	}
 	if err != nil {
 		return err
 	}
@@ -86,6 +96,10 @@ func (ds *Datastore) InsertEntity(e *Entity) error {
 }
 
 func (ds *Datastore) UpdateEntity(e *Entity) error {
+	return ds.UpdateEntityTx(nil, e)
+}
+
+func (ds *Datastore) UpdateEntityTx(tx *sql.Tx, e *Entity) error {
 
 	if e == nil {
 		return errors.New("entity should not be nil")
@@ -105,16 +119,31 @@ func (ds *Datastore) UpdateEntity(e *Entity) error {
 		`$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13` +
 		`) WHERE id = $14`
 
-	_, err := ds.postgres.Exec(sql, e.IdCountry, e.Name, e.Email, e.Username, e.Password, e.Image, e.ImageMimetype, e.Banned, e.BannedDate, e.Reason, e.Mobilephone, e.Telephone, e.CreatedDate, e.Id)
+	var err error
+	if tx != nil {
+		_, err = tx.Exec(sql, e.IdCountry, e.Name, e.Email, e.Username, e.Password, e.Image, e.ImageMimetype, e.Banned, e.BannedDate, e.Reason, e.Mobilephone, e.Telephone, e.CreatedDate, e.Id)
+
+	} else {
+		_, err = ds.postgres.Exec(sql, e.IdCountry, e.Name, e.Email, e.Username, e.Password, e.Image, e.ImageMimetype, e.Banned, e.BannedDate, e.Reason, e.Mobilephone, e.Telephone, e.CreatedDate, e.Id)
+	}
 	return err
 }
 
 func (ds *Datastore) SaveEntity(e *Entity) error {
-	if e.Exists() {
-		return ds.UpdateEntity(e)
+	return ds.SaveEntityTx(nil, e)
+}
+
+func (ds *Datastore) SaveEntityTx(tx *sql.Tx, e *Entity) error {
+
+	if e == nil {
+		return errors.New("entity should not be nil")
 	}
 
-	return ds.InsertEntity(e)
+	if e.Exists() {
+		return ds.UpdateEntityTx(tx, e)
+	}
+
+	return ds.InsertEntityTx(tx, e)
 }
 
 func (ds *Datastore) UpsertEntity(e *Entity) error {

@@ -113,6 +113,11 @@ func (ds *Datastore) GetCriterionAccessibilityByIds(idCriterion, idAccessibility
 }
 
 func (ds *Datastore) SaveCriterionAccessibility(criterionAccessibility *CriterionAccessibility) error {
+
+	if criterionAccessibility == nil {
+		return errors.New("criterionAccessibility should not be nil")
+	}
+
 	if !criterionAccessibility.Exists() {
 		return errors.New("update failed: does not exist")
 	}

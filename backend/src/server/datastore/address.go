@@ -188,6 +188,11 @@ func (ds *Datastore) UpdateAddressTx(tx *sql.Tx, a *Address) error {
 }
 
 func (ds *Datastore) SaveAddress(a *Address) error {
+
+	if a == nil {
+		return errors.New("address should not be nil")
+	}
+
 	if a.Exists() {
 		return ds.UpdateAddress(a)
 	}

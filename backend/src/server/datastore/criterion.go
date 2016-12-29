@@ -162,6 +162,11 @@ func (ds *Datastore) UpdateCriterion(c *Criterion) error {
 }
 
 func (ds *Datastore) SaveCriterion(c *Criterion) error {
+
+	if c == nil {
+		return errors.New("criterion should not be nil")
+	}
+
 	if c.Exists() {
 		return ds.UpdateCriterion(c)
 	}

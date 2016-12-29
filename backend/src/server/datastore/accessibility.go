@@ -99,6 +99,11 @@ func (ds *Datastore) UpdateAccessibility(a *Accessibility) error {
 }
 
 func (ds *Datastore) SaveAccessibility(a *Accessibility) error {
+
+	if a == nil {
+		return errors.New("accessibility should not be nil")
+	}
+
 	if a.Exists() {
 		return ds.UpdateAccessibility(a)
 	}

@@ -90,6 +90,11 @@ func (ds *Datastore) UpdatePropertyTag(pt *PropertyTag) error {
 }
 
 func (ds *Datastore) SavePropertyTag(pt *PropertyTag) error {
+
+	if pt == nil {
+		return errors.New("propertyTag should not be nil")
+	}
+
 	if pt.Exists() {
 		return ds.UpdatePropertyTag(pt)
 	}

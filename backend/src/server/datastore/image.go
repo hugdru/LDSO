@@ -97,6 +97,11 @@ func (ds *Datastore) UpdateImage(i *Image) error {
 }
 
 func (ds *Datastore) SaveImage(i *Image) error {
+
+	if i == nil {
+		return errors.New("image should not be nil")
+	}
+
 	if i.Exists() {
 		return ds.UpdateImage(i)
 	}
