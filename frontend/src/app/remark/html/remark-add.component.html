@@ -1,5 +1,6 @@
 <div>
-	<input [(ngModel)]="remark.data" placeholder="Descrição da observação"/>
+    <textarea rows="4" cols="50" [(ngModel)]="remark.data" placeholder="Descrição da observação">
+    </textarea>
     <button class="btn btn-success round outline"
             (click)="onAdd(remark)">
         <i class="glyphicon glyphicon-ok"></i>
