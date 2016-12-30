@@ -148,7 +148,7 @@ func (ds *Datastore) GetAuditSubgroupsByIdAudit(idAudit int64, filter map[string
 }
 
 // TODO: check if subgroup is from the template audit is using
-func (ds *Datastore) SaveAuditSubgroup(idAudit int64, idTemplate int64, idsSubgroups []int64) error {
+func (ds *Datastore) SaveAuditSubgroup(idAudit int64, idTemplate int64, idsSubgroups []int64) (err error) {
 
 	if idsSubgroups == nil {
 		return errors.New("idsSubgroups should not be nil")
@@ -173,7 +173,7 @@ func (ds *Datastore) SaveAuditSubgroup(idAudit int64, idTemplate int64, idsSubgr
 	}()
 
 	for _, idSubgroup := range idsSubgroups {
-		_, err := tx.Exec(sql, idAudit, idSubgroup)
+		_, err = tx.Exec(sql, idAudit, idSubgroup)
 		if err != nil {
 			return err
 		}
