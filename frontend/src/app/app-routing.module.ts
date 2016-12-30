@@ -4,6 +4,7 @@ import {AuditTemplateComponent} from "audit-template/audit-template.component";
 import {AuditComponent} from "audit/audit.component";
 import {ListPropertiesComponent} from "./property/list-properties.component";
 import {LoginComponent} from "./login/login.component";
+import {RegisterComponent} from "./register/register.component";
 
 const routes: Routes = [
     {
@@ -26,9 +27,9 @@ const routes: Routes = [
     {
         path: 'login',
         component: LoginComponent },
-/*    {
-        path: 'signup',
-        component: SignupComponent },*/
+    {
+        path: 'register',
+        component: RegisterComponent },
 
 ];
 

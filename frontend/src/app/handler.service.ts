@@ -50,6 +50,12 @@ export class HandlerService {
                 }).catch(this.handleError);
     }
 
+    getResponse(url: string): Observable<Response> {
+        return this.http.get(url)
+                .map((response: Response) => response)
+                .catch(this.handleError);
+    }
+
     update<T>(url: string, object: T, id: number): Observable<Response> {
         return this.http.put(url + "/" + id, JSON.stringify(object), this.options)
                 .map((response: Response) => response)
@@ -68,19 +74,6 @@ export class HandlerService {
                 .map((response: Response) => response)
                 .catch(this.handleError);
     }
-
-    login<T>(url: string, object: T): Observable<Response> {
-        return this.http.post(url, JSON.stringify(object), this.options)
-                .map((response: Response) => response.json())
-                .map((response) => {
-                    if (response.success) {
-                        localStorage.setItem('auth_token', response.auth_token);
-                    }
-                    return response.success;
-                })
-                .catch(this.handleError);
-    }
-
 
 
 }

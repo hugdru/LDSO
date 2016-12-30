@@ -40,23 +40,25 @@ export class LoginComponent implements OnInit {
                 },
                 error => {
                     this.errorMsg = <any>error;
-                    console.log(this.errorMsg);
                 }
         );
+        console.log(this.session)
     }
 
     logout(): void {
         this.loginService.getLogout().subscribe(
                 error => {
                     this.errorMsg = <any>error;
-                    console.log(this.errorMsg);
                 }
-
         );
         localStorage.removeItem('auth_token');
         localStorage.removeItem('session');
         this.session = new Session();
         this.loggedIn = false;
+    }
+
+    cancel(): void {
+        this.session = new Session();
     }
 
 }

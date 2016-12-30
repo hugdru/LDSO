@@ -14,8 +14,8 @@ export class LoginService {
         return this.handler.set<Session>(loginUrl, session);
     }
 
-    getLogout(): Observable<Session> {
-        return this.handler.getAll<Session>(logoutUrl);
+    getLogout(): Observable<Response> {
+        return this.handler.getResponse(logoutUrl);
     }
 
 }
