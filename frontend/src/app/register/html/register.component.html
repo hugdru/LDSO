@@ -1,53 +1,92 @@
-<div *ngIf="!user.id">
+<div class="col-md-6 col-md-offset-3">
     <h1>Register</h1>
-    <div>
-        <input type="text"
-               required
-               [(ngModel)]="user.username"
-               placeholder="Username">
-    </div>
-    <div>
-        <input type="password"
-               required
-               [(ngModel)]="user.password"
-               placeholder="Password">
-    </div>
-    <div>
-        <input type="text"
-               required
-               [(ngModel)]="user.name"
-               placeholder="Name">
-    </div>
-    <div>
-        <input type="text"
-               required
-               [(ngModel)]="user.email"
-               placeholder="Email">
-    </div>
-    <div>
-        <input type="text"
-               required
-               [(ngModel)]="user.role"
-               placeholder="Role">
-    </div>
-    <div>
-        <input type="number"
-               [(ngModel)]="user.mobile"
-               placeholder="Mobile">
-    </div>
-    <div>
-        <input type="text"
-               [(ngModel)]="user.phone"
-               placeholder="Telephone">
-    </div>
-    <div>
-        <button class="btn btn-success round outline"
-                (click)="register()">
-            <i class="glyphicon glyphicon-ok"></i>
-        </button>
-    </div>
+    <form name="form" (ngSubmit)="f.form.valid && register()" #f="ngForm" novalidate>
+        <div class="form-group"
+             [ngClass]="{'has-error': f.submitted && !username.valid}">
+            <input type="text"
+                   class="form-control"
+                   name="username"
+                   [(ngModel)]="user.username"
+                   #username="ngModel"
+                   placeholder="Username"
+                   required pattern="^[A-Za-z][A-Za-z0-9\.\-_]{2,15}$">
+        </div>
+        <div *ngIf="f.submitted && !username.valid" class="help-block">
+            Username must start with a letter and have 3-16 letters or numbers
+        </div>
+        <div class="form-group"
+             [ngClass]="{'has-error': f.submitted && !name.valid}">
+            <input type="text"
+                   class="form-control"
+                   name="name"
+                   [(ngModel)]="user.name"
+                   #name="ngModel"
+                   placeholder="Name"
+                   required>
+        </div>
+        <div *ngIf="f.submitted && !username.valid" class="help-block">
+            Name is required
+        </div>
+        <div class="form-group"
+             [ngClass]="{'has-error': f.submitted && !email.valid}">
+            <input type="text"
+                   class="form-control"
+                   name="email"
+                   [(ngModel)]="user.email"
+                   #email="ngModel"
+                   placeholder="Email"
+                   required pattern="^[^\s@]+@[^\s@]+\.[^\s@.]+$">
+        </div>
+        <div *ngIf="f.submitted && !email.valid" class="help-block">
+            Email is required and format should be <i>john@doe.com</i>.
+        </div>
+        <div class="form-group"
+             [ngClass]="{'has-error': f.submitted && !password.valid}">
+            <input type="password"
+                   class="form-control"
+                   name="password"
+                   [(ngModel)]="user.password"
+                   #password="ngModel"
+                   placeholder="Password"
+                   required validateEqual="confirmPassword" reverse="true">
+        </div>
+        <div *ngIf="f.submitted && !password.valid" class="help-block">
+            Password is required
+        </div>
+        <div class="form-group"
+             [ngClass]="{'has-error': f.submitted && !confirmPassword.valid}">
+            <input type="password"
+                   class="form-control"
+                   name="confirmPassword"
+                   [(ngModel)]="user.confirmPassword"
+                   #confirmPassword="ngModel"
+                   placeholder="Confirm Password"
+                   required validateEqual="password">
+        </div>
+        <div *ngIf="f.submitted && !confirmPassword.valid" class="help-block">
+            Confirm Password is required and must be equal to Password
+        </div>
+        <div class="form-group">
+            <input type="number"
+                   class="form-control"
+                   name="mobile"
+                   [(ngModel)]="user.mobile"
+                   #mobile="ngModel"
+                   placeholder="Mobile">
+        </div>
+        <div class="form-group">
+            <input type="number"
+                   class="form-control"
+                   name="phone"
+                   [(ngModel)]="user.phone"
+                   #mobile="ngModel"
+                   placeholder="Telephone">
+        </div>
+        <div class="form-group">
+            <button type="submit"
+                    class="btn btn-success round outline">
+                <i class="glyphicon glyphicon-ok"></i>
+            </button>
+        </div>
+    </form>
 </div>
-<div *ngIf="user.id">
-    <h3>Registration Successful</h3>
-</div>
-
