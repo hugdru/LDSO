@@ -9,6 +9,15 @@ import (
 	"time"
 )
 
+func entityVisibility(restricted bool) string {
+	const auditorRestricted = "entity.id, entity.id_country, entity.name, entity.username, entity.image, entity.image_mimetype, entity.created_date "
+	const auditorAll = "entity.id, entity.id_country, entity.name, entity.email, entity.username, entity.password, entity.image, entity.image_mimetype, entity.banned, entity.banned_date, entity.reason, entity.mobilephone, entity.telephone, entity.created_date "
+	if restricted {
+		return auditorRestricted
+	}
+	return auditorAll
+}
+
 type Entity struct {
 	Id            int64       `json:"id" db:"id"`
 	IdCountry     int64       `json:"idCountry" db:"id_country"`
@@ -16,7 +25,7 @@ type Entity struct {
 	Email         string      `json:"email" db:"email"`
 	Username      string      `json:"username" db:"username"`
 	Password      string      `json:"-" db:"password"`
-	Image         []byte      `json:"image" db:"image"`
+	Image         []byte      `json:"-" db:"image"`
 	ImageMimetype zero.String `json:"-" db:"image_mimetype"`
 	Banned        zero.Bool   `json:"banned" db:"banned"`
 	BannedDate    zero.Time   `json:"bannedDate" db:"banned_date"`
@@ -206,77 +215,6 @@ func (ds *Datastore) GetEntityCountry(e *Entity) (*Country, error) {
 	return ds.GetCountryById(e.IdCountry)
 }
 
-func (ds *Datastore) GetEntityByEmail(email string) (*Entity, error) {
-
-	const sql = `SELECT ` +
-		`id, id_country, name, email, username, password, image, banned, banned_date, reason, mobilephone, telephone, created_date ` +
-		`FROM places4all.entity ` +
-		`WHERE email = $1`
-
-	e := AEntity(false)
-	e.SetExists()
-
-	err := ds.postgres.QueryRowx(sql, email).StructScan(&e)
-	if err != nil {
-		return nil, err
-	}
-
-	return &e, err
-}
-
-func (ds *Datastore) GetEntityById(id int64) (*Entity, error) {
-
-	const sql = `SELECT ` +
-		`id, id_country, name, email, username, password, image, banned, banned_date, reason, mobilephone, telephone, created_date ` +
-		`FROM places4all.entity ` +
-		`WHERE id = $1`
-
-	e := AEntity(false)
-	e.SetExists()
-
-	err := ds.postgres.QueryRowx(sql, id).StructScan(&e)
-	if err != nil {
-		return nil, err
-	}
-
-	return &e, err
-}
-
-func (ds *Datastore) GetEntityByUsername(username string) (*Entity, error) {
-
-	const sql = `SELECT ` +
-		`id, id_country, name, email, username, password, image, banned, banned_date, reason, mobilephone, telephone, created_date ` +
-		`FROM places4all.entity ` +
-		`WHERE username = $1`
-
-	e := AEntity(false)
-	e.SetExists()
-
-	err := ds.postgres.QueryRowx(sql, username).StructScan(&e)
-	if err != nil {
-		return nil, err
-	}
-
-	return &e, err
-}
-func (ds *Datastore) GetEntityByUsernamePassword(username string, password string) (*Entity, error) {
-
-	const sql = `SELECT ` +
-		`id, id_country, name, email, username, password, image, banned, banned_date, reason, mobilephone, telephone, created_date ` +
-		`FROM places4all.entity ` +
-		`WHERE username = $1 and password = $2`
-
-	e := AEntity(false)
-	e.SetExists()
-
-	err := ds.postgres.QueryRowx(sql, username, password).StructScan(&e)
-	if err != nil {
-		return nil, err
-	}
-
-	return &e, err
-}
-
 func (ds *Datastore) CheckEntityExists(filter map[string]interface{}) error {
 
 	where, values := generators.GenerateOrSearchClause(filter)
@@ -291,45 +229,50 @@ func (ds *Datastore) CheckEntityExists(filter map[string]interface{}) error {
 	return ds.postgres.QueryRow(query, values...).Scan(&id)
 }
 
-func (ds *Datastore) GetEntityWithCountry(filter map[string]interface{}) (*Entity, error) {
+func (ds *Datastore) GetEntityByEmail(email string, withCountry, restricted bool) (*Entity, error) {
+	filter := make(map[string]interface{})
+	filter["email"] = email
+	return ds.GetEntity(filter, withCountry, restricted)
+}
+
+func (ds *Datastore) GetEntityByUsername(username string, withCountry, restricted bool) (*Entity, error) {
+	filter := make(map[string]interface{})
+	filter["username"] = username
+	return ds.GetEntity(filter, withCountry, restricted)
+}
+func (ds *Datastore) GetEntityByUsernamePassword(username, password string, withCountry, restricted bool) (*Entity, error) {
+	filter := make(map[string]interface{})
+	filter["username"] = username
+	filter["password"] = password
+	return ds.GetEntity(filter, withCountry, restricted)
+}
+
+func (ds *Datastore) GetEntityById(id int64, withCountry, restricted bool) (*Entity, error) {
+	filter := make(map[string]interface{})
+	filter["id"] = id
+	return ds.GetEntity(filter, withCountry, restricted)
+}
+
+func (ds *Datastore) GetEntity(filter map[string]interface{}, withCountry, restricted bool) (*Entity, error) {
 	where, values := generators.GenerateAndSearchClause(filter)
 	sql := ds.postgres.Rebind(`SELECT ` +
-		`entity.id, entity.id_country, entity.name, entity.email, entity.username, entity.password, entity.image, entity.image_mimetype, entity.banned, entity.banned_date, entity.reason, entity.mobilephone, entity.telephone, entity.created_date ` +
+		entityVisibility(restricted) +
 		`FROM places4all.entity ` +
 		where)
 
 	e := AEntity(false)
+	e.SetExists()
 
 	err := ds.postgres.QueryRowx(sql, values...).StructScan(&e)
 	if err != nil {
 		return nil, err
 	}
 
-	e.Country, err = ds.GetCountryById(e.IdCountry)
-	if err != nil {
-		return nil, err
-	}
-
-	return &e, err
-}
-
-func (ds *Datastore) GetEntityByIdWithCountry(id int64) (*Entity, error) {
-	sql := ds.postgres.Rebind(`SELECT ` +
-		`entity.id, entity.id_country, entity.name, entity.email, entity.username, entity.password, entity.image, entity.image_mimetype, entity.banned, entity.banned_date, entity.reason, entity.mobilephone, entity.telephone, entity.created_date ` +
-		`FROM places4all.entity ` +
-		`WHERE id = ?`)
-
-	e := AEntity(false)
-	e.SetExists()
-
-	err := ds.postgres.QueryRowx(sql, id).StructScan(&e)
-	if err != nil {
-		return nil, err
-	}
-
-	e.Country, err = ds.GetCountryById(e.IdCountry)
-	if err != nil {
-		return nil, err
+	if withCountry {
+		e.Country, err = ds.GetCountryById(e.IdCountry)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return &e, err

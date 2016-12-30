@@ -68,7 +68,7 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 	if input.Password != "" {
 	}
 
-	entity, err := h.Datastore.GetEntityWithCountry(filter)
+	entity, err := h.Datastore.GetEntity(filter, true, false)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
@@ -81,28 +81,28 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 
 	var role interface{}
 
-	superadmin, err := h.Datastore.GetSuperadminById(entity.Id)
+	superadmin, err := h.Datastore.GetSuperadminById(entity.Id, false, false)
 	if err == nil {
 		role = superadmin
 	} else if err != sql.ErrNoRows {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	} else {
-		localadmin, err := h.Datastore.GetLocaladminById(entity.Id)
+		localadmin, err := h.Datastore.GetLocaladminById(entity.Id, false, false)
 		if err == nil {
 			role = localadmin
 		} else if err != sql.ErrNoRows {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		} else {
-			auditor, err := h.Datastore.GetAuditorById(entity.Id)
+			auditor, err := h.Datastore.GetAuditorById(entity.Id, false, false)
 			if err == nil {
 				role = auditor
 			} else if err != sql.ErrNoRows {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			} else {
-				client, err := h.Datastore.GetClientById(entity.Id)
+				client, err := h.Datastore.GetClientById(entity.Id, false, false)
 				if err == nil {
 					role = client
 				} else if err != sql.ErrNoRows {

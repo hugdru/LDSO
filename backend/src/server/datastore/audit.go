@@ -221,12 +221,12 @@ func (ds *Datastore) DeleteAudit(a *Audit) error {
 	return err
 }
 
-func (ds *Datastore) GetAuditAuditor(a *Audit) (*Auditor, error) {
-	return ds.GetAuditorByIdWithEntity(a.IdAuditor)
+func (ds *Datastore) GetAuditAuditor(a *Audit, withEntity, restricted bool) (*Auditor, error) {
+	return ds.GetAuditorById(a.IdAuditor, withEntity, restricted)
 }
 
-func (ds *Datastore) GetAuditProperty(a *Audit) (*Property, error) {
-	return ds.GetPropertyByIdWithAddressTagsOwners(a.IdProperty)
+func (ds *Datastore) GetAuditProperty(a *Audit, withEntity, restricted bool) (*Property, error) {
+	return ds.GetPropertyByIdWithAddressTagsOwners(a.IdProperty, withEntity, restricted)
 }
 
 func (ds *Datastore) GetAuditTemplate(a *Audit) (*Template, error) {

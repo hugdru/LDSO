@@ -156,12 +156,12 @@ func (ds *Datastore) DeletePropertyClient(pc *PropertyClient) error {
 	return err
 }
 
-func (ds *Datastore) GetPropertyClientClient(pc *PropertyClient) (*Client, error) {
-	return ds.GetClientByIdWithEntity(pc.IdClient)
+func (ds *Datastore) GetPropertyClientClient(pc *PropertyClient, withEntity, restricted bool) (*Client, error) {
+	return ds.GetClientById(pc.IdClient, withEntity, restricted)
 }
 
-func (ds *Datastore) GetPropertyClientProperty(pc *PropertyClient) (*Property, error) {
-	return ds.GetPropertyByIdWithAddressTagsOwners(pc.IdProperty)
+func (ds *Datastore) GetPropertyClientProperty(pc *PropertyClient, withEntity, restricted bool) (*Property, error) {
+	return ds.GetPropertyByIdWithAddressTagsOwners(pc.IdProperty, withEntity, restricted)
 }
 
 func (ds *Datastore) GetPropertyClientByIds(idProperty, idClient int64) (*PropertyClient, error) {
@@ -182,15 +182,15 @@ func (ds *Datastore) GetPropertyClientByIds(idProperty, idClient int64) (*Proper
 	return &pc, err
 }
 
-func (ds *Datastore) GetPropertyClientsByIdProperty(idProperty int64) ([]*Client, error) {
+func (ds *Datastore) GetPropertyClientsByIdProperty(idProperty int64, withEntity, restricted bool) ([]*Client, error) {
 
-	const sql = `SELECT client.id_entity, entity.id, entity.name, entity.username, entity.image ` +
-		`FROM places4all.entity ` +
-		`JOIN places4all.client ON client.id_entity = entity.id ` +
+	query := `SELECT ` +
+		clientVisibility(restricted) +
+		`FROM places4all.client ` +
 		`JOIN places4all.property_client ON property_client.id_client = client.id_entity ` +
 		`WHERE property_client.id_property = $1`
 
-	rows, err := ds.postgres.Queryx(sql, idProperty)
+	rows, err := ds.postgres.Queryx(query, idProperty)
 	if err != nil {
 		return nil, err
 	}
@@ -198,11 +198,16 @@ func (ds *Datastore) GetPropertyClientsByIdProperty(idProperty int64) ([]*Client
 	clients := make([]*Client, 0)
 	for rows.Next() {
 		client := NewClient(false)
-		client.Entity = NewEntity(false)
 		client.SetExists()
-		err := rows.Scan(&client.IdEntity, &client.Entity.Id, &client.Entity.Name, &client.Entity.Username, &client.Entity.Image)
+		err := rows.StructScan(client)
 		if err != nil {
 			return nil, err
+		}
+		if withEntity {
+			client.Entity, err = ds.GetEntityById(client.IdEntity, true, restricted)
+			if err != nil {
+				return nil, err
+			}
 		}
 		clients = append(clients, client)
 	}

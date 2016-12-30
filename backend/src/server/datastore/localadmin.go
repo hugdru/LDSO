@@ -3,8 +3,19 @@ package datastore
 import (
 	"database/sql"
 	"errors"
+	"server/datastore/generators"
 	"server/datastore/metadata"
+	"strconv"
 )
+
+func localadminVisibility(restricted bool) string {
+	const localadminRestricted = "localadmin.id_entity "
+	const localadminAll = "localadmin.id_entity "
+	if restricted {
+		return localadminRestricted
+	}
+	return localadminAll
+}
 
 type Localadmin struct {
 	IdEntity int64 `json:"IdEntity" db:"id_entity"`
@@ -29,6 +40,16 @@ func (l *Localadmin) Exists() bool {
 
 func (l *Localadmin) Deleted() bool {
 	return l.meta.Deleted
+}
+
+func (l *Localadmin) MustSet(idEntity int64) error {
+	if idEntity != 0 {
+		l.IdEntity = idEntity
+	} else {
+		return errors.New("idEntity must be set")
+	}
+
+	return nil
 }
 
 func ALocaladmin(allocateObjects bool) Localadmin {
@@ -181,39 +202,68 @@ func (ds *Datastore) DeleteLocaladmin(l *Localadmin) error {
 	return err
 }
 
-func (ds *Datastore) GetLocaladminEntity(l *Localadmin) (*Entity, error) {
-	return ds.GetEntityById(l.IdEntity)
+func (ds *Datastore) GetLocaladminEntity(l *Localadmin, withCountry, restricted bool) (*Entity, error) {
+	return ds.GetEntityById(l.IdEntity, withCountry, restricted)
 }
 
-func (ds *Datastore) GetLocaladminByIdWithEntity(idEntity int64) (*Localadmin, error) {
-	return ds.getLocaladminById(idEntity, true)
-}
-
-func (ds *Datastore) GetLocaladminById(idEntity int64) (*Localadmin, error) {
-	return ds.getLocaladminById(idEntity, false)
-}
-
-func (ds *Datastore) getLocaladminById(idEntity int64, withForeign bool) (*Localadmin, error) {
-
-	const sql = `SELECT ` +
-		`id_entity ` +
+func (ds *Datastore) GetLocaladmins(limit, offset int, withEntity, restricted bool) ([]*Localadmin, error) {
+	rows, err := ds.postgres.Queryx(ds.postgres.Rebind(`SELECT ` +
+		localadminVisibility(restricted) +
 		`FROM places4all.localadmin ` +
-		`WHERE id_entity = $1`
+		`ORDER BY localadmin.id_entity DESC LIMIT ` + strconv.Itoa(limit) +
+		`OFFSET ` + strconv.Itoa(offset)))
 
-	l := ALocaladmin(false)
-	l.SetExists()
-
-	err := ds.postgres.QueryRow(sql, idEntity).Scan(&l.IdEntity)
 	if err != nil {
 		return nil, err
 	}
 
-	if withForeign {
-		l.Entity, err = ds.GetEntityByIdWithCountry(idEntity)
+	localadmin := make([]*Localadmin, 0)
+	for rows.Next() {
+		c := NewLocaladmin(false)
+		c.SetExists()
+		err = rows.StructScan(c)
+		if err != nil {
+			return nil, err
+		}
+		if withEntity {
+			c.Entity, err = ds.GetEntityById(c.IdEntity, true, restricted)
+			if err != nil {
+				return nil, err
+			}
+		}
+		localadmin = append(localadmin, c)
+	}
+
+	return localadmin, err
+}
+
+func (ds *Datastore) GetLocaladminById(idEntity int64, withEntity, restricted bool) (*Localadmin, error) {
+	filter := make(map[string]interface{})
+	filter["id_entity"] = idEntity
+	return ds.GetLocaladmin(filter, withEntity, restricted)
+}
+
+func (ds *Datastore) GetLocaladmin(filter map[string]interface{}, withEntity, restricted bool) (*Localadmin, error) {
+	where, values := generators.GenerateAndSearchClause(filter)
+	sql := ds.postgres.Rebind(`SELECT ` +
+		localadminVisibility(restricted) +
+		`FROM places4all.localadmin ` +
+		where)
+
+	a := ALocaladmin(false)
+	a.SetExists()
+
+	err := ds.postgres.QueryRowx(sql, values...).StructScan(&a)
+	if err != nil {
+		return nil, err
+	}
+
+	if withEntity {
+		a.Entity, err = ds.GetEntityById(a.IdEntity, true, restricted)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	return &l, err
+	return &a, err
 }

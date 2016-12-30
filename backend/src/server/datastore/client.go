@@ -3,9 +3,19 @@ package datastore
 import (
 	"database/sql"
 	"errors"
+	"server/datastore/generators"
 	"server/datastore/metadata"
 	"strconv"
 )
+
+func clientVisibility(restricted bool) string {
+	const clientRestricted = "client.id_entity "
+	const clientAll = "client.id_entity "
+	if restricted {
+		return clientRestricted
+	}
+	return clientAll
+}
 
 type Client struct {
 	IdEntity int64 `json:"IdEntity" db:"id_entity"`
@@ -194,14 +204,13 @@ func (ds *Datastore) DeleteClient(c *Client) error {
 	return err
 }
 
-func (ds *Datastore) GetClientEntity(c *Client) (*Entity, error) {
-	return ds.GetEntityById(c.IdEntity)
+func (ds *Datastore) GetClientEntity(c *Client, withCountry, restricted bool) (*Entity, error) {
+	return ds.GetEntityById(c.IdEntity, withCountry, restricted)
 }
 
-func (ds *Datastore) getClientsWithEntity(limit, offset int, withForeign bool) ([]*Client, error) {
-
+func (ds *Datastore) GetClients(limit, offset int, withEntity, restricted bool) ([]*Client, error) {
 	rows, err := ds.postgres.Queryx(ds.postgres.Rebind(`SELECT ` +
-		`client.id_entity ` +
+		clientVisibility(restricted) +
 		`FROM places4all.client ` +
 		`ORDER BY client.id_entity DESC LIMIT ` + strconv.Itoa(limit) +
 		`OFFSET ` + strconv.Itoa(offset)))
@@ -218,8 +227,8 @@ func (ds *Datastore) getClientsWithEntity(limit, offset int, withForeign bool) (
 		if err != nil {
 			return nil, err
 		}
-		if withForeign {
-			c.Entity, err = ds.GetEntityByIdWithCountry(c.IdEntity)
+		if withEntity {
+			c.Entity, err = ds.GetEntityById(c.IdEntity, true, restricted)
 			if err != nil {
 				return nil, err
 			}
@@ -230,43 +239,33 @@ func (ds *Datastore) getClientsWithEntity(limit, offset int, withForeign bool) (
 	return client, err
 }
 
-func (ds *Datastore) GetClientsWithEntity(limit, offset int) ([]*Client, error) {
-	return ds.getClientsWithEntity(limit, offset, true)
+func (ds *Datastore) GetClientById(idEntity int64, withEntity, restricted bool) (*Client, error) {
+	filter := make(map[string]interface{})
+	filter["id_entity"] = idEntity
+	return ds.GetClient(filter, withEntity, restricted)
 }
 
-func (ds *Datastore) GetClients(limit, offset int) ([]*Client, error) {
-	return ds.getClientsWithEntity(limit, offset, false)
-}
-
-func (ds *Datastore) GetClientByIdWithEntity(idEntity int64) (*Client, error) {
-	return ds.getClientById(idEntity, true)
-}
-
-func (ds *Datastore) GetClientById(idEntity int64) (*Client, error) {
-	return ds.getClientById(idEntity, false)
-}
-
-func (ds *Datastore) getClientById(idEntity int64, withForeign bool) (*Client, error) {
-
-	const sql = `SELECT ` +
-		`client.id_entity ` +
+func (ds *Datastore) GetClient(filter map[string]interface{}, withEntity, restricted bool) (*Client, error) {
+	where, values := generators.GenerateAndSearchClause(filter)
+	sql := ds.postgres.Rebind(`SELECT ` +
+		clientVisibility(restricted) +
 		`FROM places4all.client ` +
-		`WHERE client.id_entity = $1`
+		where)
 
-	c := NewClient(false)
-	c.SetExists()
+	a := AClient(false)
+	a.SetExists()
 
-	err := ds.postgres.QueryRowx(sql, idEntity).StructScan(c)
+	err := ds.postgres.QueryRowx(sql, values...).StructScan(&a)
 	if err != nil {
 		return nil, err
 	}
 
-	if withForeign {
-		c.Entity, err = ds.GetEntityByIdWithCountry(c.IdEntity)
+	if withEntity {
+		a.Entity, err = ds.GetEntityById(a.IdEntity, true, restricted)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	return c, err
+	return &a, err
 }

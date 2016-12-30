@@ -3,8 +3,19 @@ package datastore
 import (
 	"database/sql"
 	"errors"
+	"server/datastore/generators"
 	"server/datastore/metadata"
+	"strconv"
 )
+
+func superadminVisibility(restricted bool) string {
+	const superadminRestricted = "superadmin.id_entity "
+	const superadminAll = "superadmin.id_entity "
+	if restricted {
+		return superadminRestricted
+	}
+	return superadminAll
+}
 
 type Superadmin struct {
 	IdEntity int64 `json:"idEntity" db:"id_entity"`
@@ -29,6 +40,16 @@ func (s *Superadmin) Exists() bool {
 
 func (s *Superadmin) Deleted() bool {
 	return s.meta.Deleted
+}
+
+func (s *Superadmin) MustSet(idEntity int64) error {
+	if idEntity != 0 {
+		s.IdEntity = idEntity
+	} else {
+		return errors.New("idEntity must be set")
+	}
+
+	return nil
 }
 
 func ASuperadmin(allocateObjects bool) Superadmin {
@@ -181,40 +202,68 @@ func (ds *Datastore) DeleteSuperadmin(s *Superadmin) error {
 	return err
 }
 
-func (ds *Datastore) GetSuperadminEntity(s *Superadmin) (*Entity, error) {
-	return ds.GetEntityById(s.IdEntity)
+func (ds *Datastore) GetSuperadminEntity(s *Superadmin, withCountry, restricted bool) (*Entity, error) {
+	return ds.GetEntityById(s.IdEntity, withCountry, restricted)
 }
 
-func (ds *Datastore) GetSuperadminByIdWithEntity(idEntity int64) (*Superadmin, error) {
-	return ds.getSuperadminById(idEntity, true)
-}
-
-func (ds *Datastore) GetSuperadminById(idEntity int64) (*Superadmin, error) {
-	return ds.getSuperadminById(idEntity, false)
-}
-
-func (ds *Datastore) getSuperadminById(idEntity int64, withForeign bool) (*Superadmin, error) {
-
-	const sql = `SELECT ` +
-		`id_entity ` +
+func (ds *Datastore) GetSuperadmins(limit, offset int, withEntity, restricted bool) ([]*Superadmin, error) {
+	rows, err := ds.postgres.Queryx(ds.postgres.Rebind(`SELECT ` +
+		superadminVisibility(restricted) +
 		`FROM places4all.superadmin ` +
-		`WHERE id_entity = $1`
+		`ORDER BY superadmin.id_entity DESC LIMIT ` + strconv.Itoa(limit) +
+		`OFFSET ` + strconv.Itoa(offset)))
 
-	s := ASuperadmin(false)
-	s.SetExists()
-
-	err := ds.postgres.QueryRow(sql, idEntity).Scan(&s.IdEntity)
 	if err != nil {
 		return nil, err
 	}
 
-	if withForeign {
-		s.Entity, err = ds.GetEntityByIdWithCountry(idEntity)
+	superadmin := make([]*Superadmin, 0)
+	for rows.Next() {
+		c := NewSuperadmin(false)
+		c.SetExists()
+		err = rows.StructScan(c)
+		if err != nil {
+			return nil, err
+		}
+		if withEntity {
+			c.Entity, err = ds.GetEntityById(c.IdEntity, true, restricted)
+			if err != nil {
+				return nil, err
+			}
+		}
+		superadmin = append(superadmin, c)
+	}
+
+	return superadmin, err
+}
+
+func (ds *Datastore) GetSuperadminById(idEntity int64, withEntity, restricted bool) (*Superadmin, error) {
+	filter := make(map[string]interface{})
+	filter["id_entity"] = idEntity
+	return ds.GetSuperadmin(filter, withEntity, restricted)
+}
+
+func (ds *Datastore) GetSuperadmin(filter map[string]interface{}, withEntity, restricted bool) (*Superadmin, error) {
+	where, values := generators.GenerateAndSearchClause(filter)
+	sql := ds.postgres.Rebind(`SELECT ` +
+		superadminVisibility(restricted) +
+		`FROM places4all.superadmin ` +
+		where)
+
+	a := ASuperadmin(false)
+	a.SetExists()
+
+	err := ds.postgres.QueryRowx(sql, values...).StructScan(&a)
+	if err != nil {
+		return nil, err
+	}
+
+	if withEntity {
+		a.Entity, err = ds.GetEntityById(a.IdEntity, true, restricted)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	return &s, err
-
+	return &a, err
 }

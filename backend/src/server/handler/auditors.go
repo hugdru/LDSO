@@ -32,19 +32,31 @@ func (h *Handler) auditorContext(next http.Handler) http.Handler {
 			http.Error(w, helpers.Error(err.Error()), 400)
 			return
 		}
-		auditor, err := h.Datastore.GetAuditorByIdWithEntity(idAuditor)
+
+		esd, err := sessionData.GetSessionData(r)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+
+		restricted := true
+		switch esd.Role {
+		case sessionData.Superadmin, sessionData.Localadmin:
+			restricted = false
+		case sessionData.Auditor:
+			if esd.Id == idAuditor {
+				restricted = false
+			}
+		}
+
+		auditor, err := h.Datastore.GetAuditorById(idAuditor, true, restricted)
 		if err != nil {
 			http.Error(w, helpers.Error(err.Error()), 400)
 			return
 		}
 
 		if r.Method != http.MethodGet {
-			entitySessionData, err := sessionData.GetSessionData(r)
-			if err != nil {
-				http.Error(w, helpers.Error(err.Error()), 400)
-				return
-			}
-			if entitySessionData.Id != auditor.IdEntity && entitySessionData.Role != sessionData.Superadmin && entitySessionData.Role != sessionData.Localadmin {
+			if esd.Id != auditor.IdEntity && esd.Role != sessionData.Superadmin && esd.Role != sessionData.Localadmin {
 				http.Error(w, helpers.Error("Not the owner of the account"), http.StatusForbidden)
 				return
 			}
@@ -56,22 +68,36 @@ func (h *Handler) auditorContext(next http.Handler) http.Handler {
 
 func (h *Handler) getAuditors(w http.ResponseWriter, r *http.Request) {
 
+	esd, err := sessionData.GetSessionData(r)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 400)
+		return
+	}
+
+	restricted := true
+	switch esd.Role {
+	case sessionData.Superadmin, sessionData.Localadmin:
+		restricted = false
+	}
+
 	limit, offset, err := helpers.PaginationParse(r)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
 	}
 
-	auditors, err := h.Datastore.GetAuditorsWithEntity(limit, offset)
+	auditors, err := h.Datastore.GetAuditors(limit, offset, true, restricted)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
 	}
+
 	auditorsSlice, err := json.Marshal(auditors)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
 	}
+
 	w.Write(auditorsSlice)
 }
 

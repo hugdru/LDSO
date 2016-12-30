@@ -339,7 +339,7 @@ func (ds *Datastore) GetPropertyAddress(p *Property) (*Address, error) {
 	return ds.GetAddressByIdWithCountry(p.IdAddress)
 }
 
-func (ds *Datastore) GetPropertyByIdWithAddressTagsOwners(id int64) (*Property, error) {
+func (ds *Datastore) GetPropertyByIdWithAddressTagsOwners(id int64, withEntity, restricted bool) (*Property, error) {
 
 	p := NewProperty(false)
 	err := ds.postgres.QueryRowx(`SELECT `+
@@ -359,7 +359,7 @@ func (ds *Datastore) GetPropertyByIdWithAddressTagsOwners(id int64) (*Property, 
 	if err != nil {
 		return nil, err
 	}
-	p.Owners, err = ds.GetPropertyClientsByIdProperty(p.Id)
+	p.Owners, err = ds.GetPropertyClientsByIdProperty(p.Id, withEntity, restricted)
 	if err != nil {
 		return nil, err
 	}
@@ -367,7 +367,7 @@ func (ds *Datastore) GetPropertyByIdWithAddressTagsOwners(id int64) (*Property, 
 	return p, err
 }
 
-func (ds *Datastore) GetPropertiesWithForeignAddressTagsOwners(limit, offset int, filter map[string]interface{}) ([]*Property, error) {
+func (ds *Datastore) GetPropertiesWithAddressTagsOwners(limit, offset int, filter map[string]interface{}, withEntity, restricted bool) ([]*Property, error) {
 
 	where, values := generators.GenerateAndSearchClause(filter)
 
@@ -397,7 +397,7 @@ func (ds *Datastore) GetPropertiesWithForeignAddressTagsOwners(limit, offset int
 		if err != nil {
 			return nil, err
 		}
-		p.Owners, err = ds.GetPropertyClientsByIdProperty(p.Id)
+		p.Owners, err = ds.GetPropertyClientsByIdProperty(p.Id, withEntity, restricted)
 		if err != nil {
 			return nil, err
 		}
