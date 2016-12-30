@@ -19,8 +19,22 @@ INSERT INTO property_tag(id_property, id_tag) VALUES
 INSERT INTO entity(id_country, name, email, username, password, image, banned_date, banned, reason, mobilephone, telephone, created_date) VALUES
   ((SELECT id FROM country where name='Portugal'), 'FC Porto', 'fcporto@fcporto.pt', 'fcporto', '16384$8$1$4cddfcdf22ffed7b834ffa53bb1fe257$c6d9547d6d7737845a31dfdc01488ba945d5086ba54ce0aa360e025b3d0423c9', NULL, NULL, NULL, NULL, NULL, '22 557 0400', '2016-11-25T14:46:26.680513Z'); -- 1
 
+INSERT INTO entity (id_country, name, email, username, password, image, banned_date, banned, reason, mobilephone, telephone, created_date)
+VALUES
+  ((SELECT id
+    FROM country
+    WHERE name = 'Portugal'), 'Administrador',
+                              'admin@places4all.com',
+                              'admin',
+                              '16384$8$1$5988aab191af88bfc35d3bffb34a38c0$8c3076ca573af12f4b8493aaa75487cc9686f329024f39bb2d1035c47ca64799',
+                              NULL, NULL, NULL, NULL, NULL, NULL,
+   '2016-11-25T14:46:26.680513Z'); -- 2
+
 INSERT INTO client(id_entity) VALUES
   (1);
+
+INSERT INTO superadmin(id_entity) VALUES
+  (2);
 
 INSERT INTO property_client(id_property, id_client) VALUES
   (1, 1);

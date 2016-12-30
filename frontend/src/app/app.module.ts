@@ -9,6 +9,7 @@ import {
     FileDropDirective
 } from "ng2-file-upload/ng2-file-upload";
 import {AppRoutingModule} from "app-routing.module";
+import {SelectModule} from 'angular2-select';
 import {AppComponent} from "app.component";
 import {HeaderComponent} from "header/header.component";
 import {SidebarComponent} from "sidebar/sidebar.component";
@@ -93,6 +94,7 @@ import {HandlerService} from "handler.service";
         BrowserModule,
         HttpModule,
         FormsModule,
+        SelectModule,
         NgbModule.forRoot(),
         ModalModule
     ],

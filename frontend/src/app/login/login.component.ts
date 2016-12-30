@@ -57,4 +57,8 @@ export class LoginComponent implements OnInit {
         this.loggedIn = false;
     }
 
+    cancel(): void {
+        this.session = new Session();
+    }
+
 }
