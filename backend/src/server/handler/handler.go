@@ -24,4 +24,6 @@ func (h *Handler) Init(mux *chi.Mux) {
 	mux.Route("/accessibilities", h.accessibilitiesRoutes)
 	mux.Route("/auditors", h.auditorsRoutes)
 	mux.Route("/entities", h.entitiesRoutes)
+	mux.Route("/localadmins", h.localadminsRoutes)
+	mux.Route("/superadmins", h.superadminsRoutes)
 }

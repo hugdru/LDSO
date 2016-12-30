@@ -34,41 +34,63 @@ func (h *Handler) propertyContext(next http.Handler) http.Handler {
 			http.Error(w, helpers.Error(err.Error()), 400)
 			return
 		}
-		property, err := h.Datastore.GetPropertyByIdWithAddressTagsOwners(idProperty)
+
+		esd, err := sessionData.GetSessionData(r)
 		if err != nil {
 			http.Error(w, helpers.Error(err.Error()), 400)
 			return
 		}
 
+		owners, err := h.Datastore.GetPropertyClientsByIdProperty(idProperty, false, false)
+		isOwner := false
+		for _, owner := range owners {
+			if owner.IdEntity == esd.Id {
+				isOwner = true
+				break
+			}
+		}
+
+		restricted := true
+		switch esd.Role {
+		case sessionData.Superadmin, sessionData.Localadmin, sessionData.Auditor:
+			restricted = false
+		case sessionData.Client:
+			if isOwner {
+				restricted = false
+			}
+		}
+
 		if r.Method != http.MethodGet {
-			entitySessionData, err := sessionData.GetSessionData(r)
-			if err != nil {
-				http.Error(w, helpers.Error(err.Error()), 400)
-				return
-			}
-			owners, err := h.Datastore.GetPropertyClientsByIdProperty(idProperty)
-			if err != nil {
-				http.Error(w, helpers.Error(err.Error()), 400)
-				return
-			}
-			found := false
-			for _, owner := range owners {
-				if owner.IdEntity == entitySessionData.Id {
-					found = true
-					break
-				}
-			}
-			if !found && entitySessionData.Role != sessionData.Superadmin && entitySessionData.Role != sessionData.Localadmin {
+			if !isOwner && esd.Role != sessionData.Superadmin && esd.Role != sessionData.Localadmin {
 				http.Error(w, helpers.Error("Not the owner of the property"), http.StatusForbidden)
 				return
 			}
 		}
+
+		property, err := h.Datastore.GetPropertyByIdWithAddressTagsOwners(idProperty, true, restricted)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+
 		ctx := context.WithValue(r.Context(), "property", property)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
 func (h *Handler) getProperties(w http.ResponseWriter, r *http.Request) {
+
+	esd, err := sessionData.GetSessionData(r)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 400)
+		return
+	}
+
+	restricted := true
+	switch esd.Role {
+	case sessionData.Superadmin, sessionData.Localadmin, sessionData.Auditor:
+		restricted = false
+	}
 
 	limit, offset, err := helpers.PaginationParse(r)
 	if err != nil {
@@ -85,7 +107,7 @@ func (h *Handler) getProperties(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	properties, err := h.Datastore.GetPropertiesWithForeignAddressTagsOwners(limit, offset, filter)
+	properties, err := h.Datastore.GetPropertiesWithAddressTagsOwners(limit, offset, filter, true, restricted)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return

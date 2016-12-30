@@ -158,8 +158,8 @@ func (ds *Datastore) DeletePropertyTag(pt *PropertyTag) error {
 	return err
 }
 
-func (ds *Datastore) GetPropertyTagProperty(pt *PropertyTag) (*Property, error) {
-	return ds.GetPropertyByIdWithAddressTagsOwners(pt.IdProperty)
+func (ds *Datastore) GetPropertyTagProperty(pt *PropertyTag, withEntity, restricted bool) (*Property, error) {
+	return ds.GetPropertyByIdWithAddressTagsOwners(pt.IdProperty, withEntity, restricted)
 }
 
 func (ds *Datastore) GetPropertyTagTag(pt *PropertyTag) (*Tag, error) {

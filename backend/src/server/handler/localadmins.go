@@ -11,23 +11,23 @@ import (
 	"server/handler/sessionData"
 )
 
-func (h *Handler) clientsRoutes(router chi.Router) {
-	router.Get("/", decorators.ReplyJson(h.getClients))
-	router.Post("/", decorators.OnlySuperadminsOrLocaladmins(decorators.ReplyJson(h.createClient)))
-	router.Route("/:idc", h.clientRoutes)
+func (h *Handler) localadminsRoutes(router chi.Router) {
+	router.Get("/", decorators.ReplyJson(h.getLocaladmins))
+	router.Post("/", decorators.OnlySuperadmins(decorators.ReplyJson(h.createLocaladmin)))
+	router.Route("/:idl", h.localadminRoutes)
 }
 
-func (h *Handler) clientRoutes(router chi.Router) {
-	router.Use(h.clientContext)
-	router.Get("/", decorators.ReplyJson(h.getClient))
-	router.Put("/", decorators.OnlySuperadminsOrLocaladminsOrClients(decorators.ReplyJson(h.updateClient)))
-	router.Delete("/", decorators.OnlySuperadminsOrLocaladminsOrClients(decorators.ReplyJson(h.deleteClient)))
+func (h *Handler) localadminRoutes(router chi.Router) {
+	router.Use(h.localadminContext)
+	router.Get("/", decorators.ReplyJson(h.getLocaladmin))
+	router.Put("/", decorators.OnlySuperadmins(decorators.ReplyJson(h.updateLocaladmin)))
+	router.Delete("/", decorators.OnlySuperadmins(decorators.ReplyJson(h.deleteLocaladmin)))
 }
 
-func (h *Handler) clientContext(next http.Handler) http.Handler {
+func (h *Handler) localadminContext(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		idClientStr := chi.URLParam(r, "idc")
-		idClient, err := helpers.ParseInt64(idClientStr)
+		idLocaladminStr := chi.URLParam(r, "idl")
+		idLocaladmin, err := helpers.ParseInt64(idLocaladminStr)
 		if err != nil {
 			http.Error(w, helpers.Error(err.Error()), 400)
 			return
@@ -41,32 +41,32 @@ func (h *Handler) clientContext(next http.Handler) http.Handler {
 
 		restricted := true
 		switch esd.Role {
-		case sessionData.Superadmin, sessionData.Localadmin, sessionData.Auditor:
+		case sessionData.Superadmin:
 			restricted = false
-		case sessionData.Client:
-			if esd.Id == idClient {
+		case sessionData.Localadmin:
+			if esd.Id == idLocaladmin {
 				restricted = false
 			}
 		}
 
-		client, err := h.Datastore.GetClientById(idClient, true, restricted)
+		localadmin, err := h.Datastore.GetLocaladminById(idLocaladmin, true, restricted)
 		if err != nil {
 			http.Error(w, helpers.Error(err.Error()), 400)
 			return
 		}
 
 		if r.Method != http.MethodGet {
-			if esd.Id != client.IdEntity && esd.Role != sessionData.Superadmin && esd.Role != sessionData.Localadmin {
+			if esd.Id != localadmin.IdEntity && esd.Role != sessionData.Superadmin {
 				http.Error(w, helpers.Error("Not the owner of the account"), http.StatusForbidden)
 				return
 			}
 		}
-		ctx := context.WithValue(r.Context(), "client", client)
+		ctx := context.WithValue(r.Context(), "localadmin", localadmin)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
-func (h *Handler) getClients(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) getLocaladmins(w http.ResponseWriter, r *http.Request) {
 
 	esd, err := sessionData.GetSessionData(r)
 	if err != nil {
@@ -76,7 +76,7 @@ func (h *Handler) getClients(w http.ResponseWriter, r *http.Request) {
 
 	restricted := true
 	switch esd.Role {
-	case sessionData.Superadmin, sessionData.Localadmin, sessionData.Auditor:
+	case sessionData.Superadmin:
 		restricted = false
 	}
 
@@ -86,22 +86,22 @@ func (h *Handler) getClients(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	clients, err := h.Datastore.GetClients(limit, offset, true, restricted)
+	localadmins, err := h.Datastore.GetLocaladmins(limit, offset, true, restricted)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
 	}
 
-	clientsSlice, err := json.Marshal(clients)
+	localadminsSlice, err := json.Marshal(localadmins)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
 	}
 
-	w.Write(clientsSlice)
+	w.Write(localadminsSlice)
 }
 
-func (h *Handler) createClient(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) createLocaladmin(w http.ResponseWriter, r *http.Request) {
 
 	var input struct {
 		IdEntity int64 `json:"IdEntity"`
@@ -127,50 +127,50 @@ func (h *Handler) createClient(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newClient := datastore.NewClient(false)
-	err := newClient.MustSet(input.IdEntity)
+	newLocaladmin := datastore.NewLocaladmin(false)
+	err := newLocaladmin.MustSet(input.IdEntity)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
 	}
 
-	err = h.Datastore.SaveClient(newClient)
+	err = h.Datastore.SaveLocaladmin(newLocaladmin)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
 	}
 
-	clientSlice, err := json.Marshal(newClient)
+	localadminSlice, err := json.Marshal(newLocaladmin)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
 	}
 
-	w.Write(clientSlice)
+	w.Write(localadminSlice)
 }
 
-func (h *Handler) getClient(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) getLocaladmin(w http.ResponseWriter, r *http.Request) {
 
-	client := r.Context().Value("client").(*datastore.Client)
+	localadmin := r.Context().Value("localadmin").(*datastore.Localadmin)
 
-	clientSlice, err := json.Marshal(client)
+	localadminSlice, err := json.Marshal(localadmin)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
 	}
 
-	w.Write(clientSlice)
+	w.Write(localadminSlice)
 }
 
-func (h *Handler) updateClient(w http.ResponseWriter, r *http.Request) {
-	http.Error(w, helpers.Error("Not implemented because client only has one column idEntity"), http.StatusNotImplemented)
+func (h *Handler) updateLocaladmin(w http.ResponseWriter, r *http.Request) {
+	http.Error(w, helpers.Error("Not implemented because localadmin only has one column idEntity"), http.StatusNotImplemented)
 }
 
-func (h *Handler) deleteClient(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) deleteLocaladmin(w http.ResponseWriter, r *http.Request) {
 
-	client := r.Context().Value("client").(*datastore.Client)
+	localadmin := r.Context().Value("localadmin").(*datastore.Localadmin)
 
-	err := h.Datastore.DeleteClient(client)
+	err := h.Datastore.DeleteLocaladmin(localadmin)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return

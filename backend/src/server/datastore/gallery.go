@@ -164,8 +164,8 @@ func (ds *Datastore) DeleteGallery(g *Gallery) error {
 	return err
 }
 
-func (ds *Datastore) GetGalleryProperty(g *Gallery) (*Property, error) {
-	return ds.GetPropertyByIdWithAddressTagsOwners(g.IdProperty)
+func (ds *Datastore) GetGalleryProperty(g *Gallery, withEntity, restricted bool) (*Property, error) {
+	return ds.GetPropertyByIdWithAddressTagsOwners(g.IdProperty, withEntity, restricted)
 }
 
 func (ds *Datastore) GetGalleryById(id int64) (*Gallery, error) {

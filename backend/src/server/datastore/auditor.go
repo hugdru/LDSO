@@ -3,9 +3,19 @@ package datastore
 import (
 	"database/sql"
 	"errors"
+	"server/datastore/generators"
 	"server/datastore/metadata"
 	"strconv"
 )
+
+func auditorVisibility(restricted bool) string {
+	const auditorRestricted = "auditor.id_entity "
+	const auditorAll = "auditor.id_entity "
+	if restricted {
+		return auditorRestricted
+	}
+	return auditorAll
+}
 
 type Auditor struct {
 	IdEntity int64 `json:"IdEntity" db:"id_entity"`
@@ -193,14 +203,13 @@ func (ds *Datastore) DeleteAuditor(a *Auditor) error {
 	return err
 }
 
-func (ds *Datastore) GetAuditorEntity(a *Auditor) (*Entity, error) {
-	return ds.GetEntityById(a.IdEntity)
+func (ds *Datastore) GetAuditorEntity(a *Auditor, withCountry, restricted bool) (*Entity, error) {
+	return ds.GetEntityById(a.IdEntity, withCountry, restricted)
 }
 
-func (ds *Datastore) getAuditorsWithEntity(limit, offset int, withForeign bool) ([]*Auditor, error) {
-
+func (ds *Datastore) GetAuditors(limit, offset int, withEntity, restricted bool) ([]*Auditor, error) {
 	rows, err := ds.postgres.Queryx(ds.postgres.Rebind(`SELECT ` +
-		`auditor.id_entity ` +
+		auditorVisibility(restricted) +
 		`FROM places4all.auditor ` +
 		`ORDER BY auditor.id_entity DESC LIMIT ` + strconv.Itoa(limit) +
 		`OFFSET ` + strconv.Itoa(offset)))
@@ -217,8 +226,8 @@ func (ds *Datastore) getAuditorsWithEntity(limit, offset int, withForeign bool) 
 		if err != nil {
 			return nil, err
 		}
-		if withForeign {
-			a.Entity, err = ds.GetEntityByIdWithCountry(a.IdEntity)
+		if withEntity {
+			a.Entity, err = ds.GetEntityById(a.IdEntity, true, restricted)
 			if err != nil {
 				return nil, err
 			}
@@ -229,39 +238,29 @@ func (ds *Datastore) getAuditorsWithEntity(limit, offset int, withForeign bool) 
 	return auditor, err
 }
 
-func (ds *Datastore) GetAuditorsWithEntity(limit, offset int) ([]*Auditor, error) {
-	return ds.getAuditorsWithEntity(limit, offset, true)
+func (ds *Datastore) GetAuditorById(idEntity int64, withEntity, restricted bool) (*Auditor, error) {
+	filter := make(map[string]interface{})
+	filter["id_entity"] = idEntity
+	return ds.GetAuditor(filter, withEntity, restricted)
 }
 
-func (ds *Datastore) GetAuditors(limit, offset int) ([]*Auditor, error) {
-	return ds.getAuditorsWithEntity(limit, offset, false)
-}
-
-func (ds *Datastore) GetAuditorByIdWithEntity(idEntity int64) (*Auditor, error) {
-	return ds.getAuditorById(idEntity, true)
-}
-
-func (ds *Datastore) GetAuditorById(idEntity int64) (*Auditor, error) {
-	return ds.getAuditorById(idEntity, false)
-}
-
-func (ds *Datastore) getAuditorById(idEntity int64, withForeign bool) (*Auditor, error) {
-
+func (ds *Datastore) GetAuditor(filter map[string]interface{}, withEntity, restricted bool) (*Auditor, error) {
+	where, values := generators.GenerateAndSearchClause(filter)
 	sql := ds.postgres.Rebind(`SELECT ` +
-		`auditor.id_entity ` +
+		auditorVisibility(restricted) +
 		`FROM places4all.auditor ` +
-		`WHERE auditor.id_entity = $1`)
+		where)
 
 	a := AAuditor(false)
 	a.SetExists()
 
-	err := ds.postgres.QueryRow(sql, idEntity).Scan(&a.IdEntity)
+	err := ds.postgres.QueryRowx(sql, values...).StructScan(&a)
 	if err != nil {
 		return nil, err
 	}
 
-	if withForeign {
-		a.Entity, err = ds.GetEntityByIdWithCountry(idEntity)
+	if withEntity {
+		a.Entity, err = ds.GetEntityById(a.IdEntity, true, restricted)
 		if err != nil {
 			return nil, err
 		}
