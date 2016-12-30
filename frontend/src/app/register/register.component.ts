@@ -46,7 +46,6 @@ export class RegisterComponent implements OnInit {
                     this.errorMsg = <any>error;
                 }
         );
-        console.log(this.user);
     }
 
     cancel(): void {
