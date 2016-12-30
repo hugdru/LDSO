@@ -1,6 +1,6 @@
 <div>
     <input *ngIf="objType!='Accessibility'" [(ngModel)]="selectedObject.name"
-           placeholder="name"/>
+           placeholder="name" size="60" /> <br>
     <span *ngIf="objType=='Accessibility'" class={{selectedObject.name}}>
         {{selectedObject.name}}</span>
     <label *ngIf="objType=='Criterion'">
