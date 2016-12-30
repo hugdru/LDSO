@@ -140,194 +140,199 @@ func (h *Handler) logout(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
-	contentLength := helpers.GetContentLength(r.Header.Get("Content-Length"))
-	if contentLength == -1 {
-		http.Error(w, helpers.Error("Invalid Content-Length header value"), http.StatusBadRequest)
-		return
-	}
-
-	if contentLength > helpers.MaxMultipartSize {
-		http.Error(w, helpers.Error("Data too big"), http.StatusBadRequest)
-		return
-	}
-
-	var input struct {
-		IdCountry     int64  `json:"idCountry"`
-		Name          string `json:"name"`
-		Email         string `json:"email"`
-		Username      string `json:"username"`
-		Password      string `json:"password"`
-		Mobilephone   string `json:"mobilephone"`
-		Telephone     string `json:"telephone"`
-		Role          string `json:"role"`
-		Image         string `json:"image"`
-		imageBytes    []byte `json:"-"`
-		imageMimetype string `json:"-"`
-	}
-
-	contentType := helpers.GetContentType(r.Header.Get("Content-type"))
-	switch contentType {
-	case "application/json":
-		decoder := json.NewDecoder(r.Body)
-		if decoder == nil {
-			http.Error(w, helpers.Error("JSON decoder failed"), http.StatusInternalServerError)
-			return
+	tx, successful := func() (*sql.Tx, bool) {
+		contentLength := helpers.GetContentLength(r.Header.Get("Content-Length"))
+		if contentLength == -1 {
+			http.Error(w, helpers.Error("Invalid Content-Length header value"), http.StatusBadRequest)
+			return nil, false
 		}
-		err := decoder.Decode(&input)
-		if err != nil {
-			http.Error(w, helpers.Error(err.Error()), http.StatusBadRequest)
-			return
+
+		if contentLength > helpers.MaxMultipartSize {
+			http.Error(w, helpers.Error("Data too big"), http.StatusBadRequest)
+			return nil, false
 		}
-		if input.Image != "" {
-			input.imageBytes, input.imageMimetype, err = helpers.ReadImageBase64(input.Image, helpers.MaxImageFileSize)
-			if err != nil {
-				http.Error(w, helpers.Error(err.Error()), http.StatusInternalServerError)
-				return
+
+		var input struct {
+			IdCountry     int64  `json:"idCountry"`
+			Name          string `json:"name"`
+			Email         string `json:"email"`
+			Username      string `json:"username"`
+			Password      string `json:"password"`
+			Mobilephone   string `json:"mobilephone"`
+			Telephone     string `json:"telephone"`
+			Role          string `json:"role"`
+			Image         string `json:"image"`
+			imageBytes    []byte `json:"-"`
+			imageMimetype string `json:"-"`
+		}
+
+		contentType := helpers.GetContentType(r.Header.Get("Content-type"))
+		switch contentType {
+		case "application/json":
+			decoder := json.NewDecoder(r.Body)
+			if decoder == nil {
+				http.Error(w, helpers.Error("JSON decoder failed"), http.StatusInternalServerError)
+				return nil, false
 			}
-		}
-	case "multipart/form-data":
-		var err error
-		input.IdCountry, err = helpers.ParseInt64(r.PostFormValue("idCountry"))
-		if err != nil {
-			http.Error(w, helpers.Error(err.Error()), http.StatusBadRequest)
-			return
-		}
-		input.Name = r.PostFormValue("name")
-		input.Email = r.PostFormValue("email")
-		input.Username = r.PostFormValue("username")
-		input.Password = r.PostFormValue("password")
-		input.Mobilephone = r.PostFormValue("mobilephone")
-		input.Telephone = r.PostFormValue("telephone")
-		input.Role = r.PostFormValue("role")
+			err := decoder.Decode(&input)
+			if err != nil {
+				http.Error(w, helpers.Error(err.Error()), http.StatusBadRequest)
+				return nil, false
+			}
+			if input.Image != "" {
+				input.imageBytes, input.imageMimetype, err = helpers.ReadImageBase64(input.Image, helpers.MaxImageFileSize)
+				if err != nil {
+					http.Error(w, helpers.Error(err.Error()), http.StatusInternalServerError)
+					return nil, false
+				}
+			}
+		case "multipart/form-data":
+			var err error
+			input.IdCountry, err = helpers.ParseInt64(r.PostFormValue("idCountry"))
+			if err != nil {
+				input.IdCountry = 0
+				//http.Error(w, helpers.Error(err.Error()), http.StatusBadRequest)
+				//return
+			}
+			input.Name = r.PostFormValue("name")
+			input.Email = r.PostFormValue("email")
+			input.Username = r.PostFormValue("username")
+			input.Password = r.PostFormValue("password")
+			input.Mobilephone = r.PostFormValue("mobilephone")
+			input.Telephone = r.PostFormValue("telephone")
+			input.Role = r.PostFormValue("role")
 
-		input.imageBytes, input.imageMimetype, err = helpers.ReadImage(r, "image", helpers.MaxImageFileSize)
-		if err != nil && err != http.ErrMissingFile {
+			input.imageBytes, input.imageMimetype, err = helpers.ReadImage(r, "image", helpers.MaxImageFileSize)
+			if err != nil && err != http.ErrMissingFile {
+				http.Error(w, helpers.Error(err.Error()), 500)
+				return nil, false
+			}
+		default:
+			http.Error(w, helpers.Error("Content-type not supported"), 415)
+			return nil, false
+		}
+
+		if input.Name == "" || input.Email == "" || input.Username == "" || input.Password == "" || input.Role == "" {
+			http.Error(w, helpers.Error("country, name, email, username, password, role are required"), 400)
+			return nil, false
+		}
+
+		filter := make(map[string]interface{})
+		if input.Username != "" {
+			filter["username"] = input.Username
+		}
+
+		if input.Email != "" {
+			filter["email"] = input.Email
+		}
+
+		err := h.Datastore.CheckEntityExists(filter)
+		if err == nil {
+			http.Error(w, helpers.Error("already Exists"), 400)
+			return nil, false
+		} else if err != sql.ErrNoRows {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return nil, false
+		}
+
+		entity := datastore.NewEntity(false)
+		if input.IdCountry == 0 {
+			portugal, err := h.Datastore.GetCountryByName("Portugal")
+			if err != nil {
+				http.Error(w, helpers.Error(err.Error()), 500)
+				return nil, false
+			}
+			entity.IdCountry = portugal.Id
+		} else {
+			entity.IdCountry = input.IdCountry
+		}
+		entity.Name = input.Name
+		entity.Email = input.Email
+		entity.Username = input.Username
+		hash, err := scrypt.GenerateFromPassword([]byte(input.Password), scrypt.DefaultParams)
+		if err != nil {
+			http.Error(w, helpers.Error("Failed to create hash"), 500)
+			return nil, false
+		}
+		entity.Password = string(hash)
+		entity.Mobilephone = zero.StringFrom(input.Mobilephone)
+		entity.Telephone = zero.StringFrom(input.Telephone)
+		entity.ImageMimetype = zero.StringFrom(input.imageMimetype)
+		entity.Image = input.imageBytes
+		entity.CreatedDate = helpers.TheTime()
+
+		tx, err := h.Datastore.BeginTransaction()
+		if err != nil {
 			http.Error(w, helpers.Error(err.Error()), 500)
-			return
+			return nil, false
 		}
-	default:
-		http.Error(w, helpers.Error("Content-type not supported"), 415)
-		return
-	}
 
-	if input.Name == "" || input.Email == "" || input.Username == "" || input.Password == "" || input.Role == "" {
-		http.Error(w, helpers.Error("country, name, email, username, password, role are required"), 400)
-		return
-	}
-
-	filter := make(map[string]interface{})
-	if input.Username != "" {
-		filter["username"] = input.Username
-	}
-
-	if input.Email != "" {
-		filter["email"] = input.Email
-	}
-
-	err := h.Datastore.CheckEntityExists(filter)
-	if err == nil {
-		http.Error(w, helpers.Error("already Exists"), 400)
-		return
-	} else if err != sql.ErrNoRows {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
-
-	entity := datastore.NewEntity(false)
-	if input.IdCountry == 0 {
-		portugal, err := h.Datastore.GetCountryByName("Portugal")
+		err = h.Datastore.SaveEntityTx(tx, entity)
 		if err != nil {
 			http.Error(w, helpers.Error(err.Error()), 500)
-			return
+			return tx, false
 		}
-		entity.IdCountry = portugal.Id
-	} else {
-		entity.IdCountry = input.IdCountry
-	}
-	entity.Name = input.Name
-	entity.Email = input.Email
-	entity.Username = input.Username
-	hash, err := scrypt.GenerateFromPassword([]byte(input.Password), scrypt.DefaultParams)
-	if err != nil {
-		http.Error(w, helpers.Error("Failed to create hash"), 500)
-		return
-	}
-	entity.Password = string(hash)
-	entity.Mobilephone = zero.StringFrom(input.Mobilephone)
-	entity.Telephone = zero.StringFrom(input.Telephone)
-	entity.ImageMimetype = zero.StringFrom(input.imageMimetype)
-	entity.Image = input.imageBytes
-	entity.CreatedDate = helpers.TheTime()
 
-	tx, err := h.Datastore.BeginTransaction()
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 500)
-		return
-	}
-	defer func() {
-		if err != nil {
-			tx.Rollback()
-			return
+		switch input.Role {
+		case sessionData.Client:
+			client := datastore.NewClient(false)
+			client.IdEntity = entity.Id
+			err = h.Datastore.SaveClientTx(tx, client)
+			if err != nil {
+				http.Error(w, helpers.Error(err.Error()), 500)
+				return tx, false
+			}
+		case sessionData.Auditor:
+			if !sessionData.IsSuperadminOrLocaladmin(r) {
+				http.Error(w, helpers.Error("Not superadmin or localadmin"), http.StatusForbidden)
+				return tx, false
+			}
+			auditor := datastore.NewAuditor(false)
+			auditor.IdEntity = entity.Id
+			err = h.Datastore.SaveAuditorTx(tx, auditor)
+			if err != nil {
+				http.Error(w, helpers.Error(err.Error()), 500)
+				return tx, false
+			}
+		case sessionData.Localadmin:
+			if !sessionData.IsSuperadmin(r) {
+				http.Error(w, helpers.Error("Not superadmin"), http.StatusForbidden)
+				return tx, false
+			}
+			localadmin := datastore.NewLocaladmin(false)
+			localadmin.IdEntity = entity.Id
+			err = h.Datastore.SaveLocaladminTx(tx, localadmin)
+			if err != nil {
+				http.Error(w, helpers.Error(err.Error()), 500)
+				return tx, false
+			}
+		case sessionData.Superadmin:
+			if !sessionData.IsSuperadmin(r) {
+				http.Error(w, helpers.Error("Not superadmin"), http.StatusForbidden)
+				return tx, false
+			}
+			superadmin := datastore.NewSuperadmin(false)
+			superadmin.IdEntity = entity.Id
+			err = h.Datastore.SaveSuperadminTx(tx, superadmin)
+			if err != nil {
+				http.Error(w, helpers.Error(err.Error()), 500)
+				return tx, false
+			}
+		default:
+			http.Error(w, helpers.Error(err.Error()), 500)
+			return tx, false
 		}
-		err = tx.Commit()
+
+		response := []byte(`{"id":` + strconv.FormatInt(entity.Id, 10) + `}`)
+		w.Write(response)
+
+		return tx, true
 	}()
-
-	err = h.Datastore.SaveEntityTx(tx, entity)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 500)
-		return
+	if tx != nil {
+		if successful {
+			tx.Commit()
+		} else {
+			tx.Rollback()
+		}
 	}
-
-	switch input.Role {
-	case sessionData.Client:
-		client := datastore.NewClient(false)
-		client.IdEntity = entity.Id
-		err = h.Datastore.SaveClientTx(tx, client)
-		if err != nil {
-			http.Error(w, helpers.Error(err.Error()), 500)
-			return
-		}
-	case sessionData.Auditor:
-		if !sessionData.IsSuperadminOrLocaladmin(r) {
-			http.Error(w, helpers.Error("Not superadmin or localadmin"), http.StatusForbidden)
-			return
-		}
-		auditor := datastore.NewAuditor(false)
-		auditor.IdEntity = entity.Id
-		err = h.Datastore.SaveAuditorTx(tx, auditor)
-		if err != nil {
-			http.Error(w, helpers.Error(err.Error()), 500)
-			return
-		}
-	case sessionData.Localadmin:
-		if !sessionData.IsSuperadmin(r) {
-			http.Error(w, helpers.Error("Not superadmin"), http.StatusForbidden)
-			return
-		}
-		localadmin := datastore.NewLocaladmin(false)
-		localadmin.IdEntity = entity.Id
-		err = h.Datastore.SaveLocaladminTx(tx, localadmin)
-		if err != nil {
-			http.Error(w, helpers.Error(err.Error()), 500)
-			return
-		}
-	case sessionData.Superadmin:
-		if !sessionData.IsSuperadmin(r) {
-			http.Error(w, helpers.Error("Not superadmin"), http.StatusForbidden)
-			return
-		}
-		superadmin := datastore.NewSuperadmin(false)
-		superadmin.IdEntity = entity.Id
-		err = h.Datastore.SaveSuperadminTx(tx, superadmin)
-		if err != nil {
-			http.Error(w, helpers.Error(err.Error()), 500)
-			return
-		}
-	default:
-		http.Error(w, helpers.Error(err.Error()), 500)
-		return
-	}
-
-	response := []byte(`{"id":` + strconv.FormatInt(entity.Id, 10) + `}`)
-	w.Write(response)
 }
