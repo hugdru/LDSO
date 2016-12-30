@@ -8,11 +8,12 @@
                    name="username"
                    [(ngModel)]="user.username"
                    #username="ngModel"
-                   placeholder="Username"
+                   placeholder="Utilizador"
                    required pattern="^[A-Za-z][A-Za-z0-9\.\-_]{2,15}$">
         </div>
         <div *ngIf="f.submitted && !username.valid" class="help-block">
-            Username must start with a letter and have 3-16 letters or numbers
+            Utilizador tem que começar com uma letra e ter entre 3 e 16
+            letras ou números
         </div>
         <div class="form-group"
              [ngClass]="{'has-error': f.submitted && !name.valid}">
@@ -21,11 +22,11 @@
                    name="name"
                    [(ngModel)]="user.name"
                    #name="ngModel"
-                   placeholder="Name"
+                   placeholder="Nome"
                    required>
         </div>
         <div *ngIf="f.submitted && !username.valid" class="help-block">
-            Name is required
+            Nome tem que ser preenchido
         </div>
         <div class="form-group"
              [ngClass]="{'has-error': f.submitted && !email.valid}">
@@ -38,7 +39,7 @@
                    required pattern="^[^\s@]+@[^\s@]+\.[^\s@.]+$">
         </div>
         <div *ngIf="f.submitted && !email.valid" class="help-block">
-            Email is required and format should be <i>john@doe.com</i>.
+            Email tem que ser preenchido e deve ser do tipo <i>john@doe.com</i>.
         </div>
         <div class="form-group"
              [ngClass]="{'has-error': f.submitted && !password.valid}">
@@ -47,11 +48,11 @@
                    name="password"
                    [(ngModel)]="user.password"
                    #password="ngModel"
-                   placeholder="Password"
+                   placeholder="Palavra Passe"
                    required validateEqual="confirmPassword" reverse="true">
         </div>
         <div *ngIf="f.submitted && !password.valid" class="help-block">
-            Password is required
+            Palavra passe tem que ser preenchida
         </div>
         <div class="form-group"
              [ngClass]="{'has-error': f.submitted && !confirmPassword.valid}">
@@ -60,11 +61,27 @@
                    name="confirmPassword"
                    [(ngModel)]="user.confirmPassword"
                    #confirmPassword="ngModel"
-                   placeholder="Confirm Password"
+                   placeholder="Confirme Palavra Passe"
                    required validateEqual="password">
         </div>
         <div *ngIf="f.submitted && !confirmPassword.valid" class="help-block">
-            Confirm Password is required and must be equal to Password
+            Palavra passe tem que ser confirmada
+        </div>
+        <div *ngIf="session.role == 'superadmin' || session.role == 'localadmin'"
+             class="form-group"
+             [ngClass]="{'has-error': f.submitted && !user.role}">
+            Tipo:
+            <select class="form-control"
+                    [(ngModel)]="user.role"
+                    name="role"
+                    required>
+                <option *ngFor="let optionRole of optionRoles"
+                        [ngValue]="optionRole.value">{{optionRole.label}}</option>
+            </select>
+        </div>
+        <div *ngIf="session.role && f.submitted && !user.role"
+             class="help-block">
+            Tem que escolher um tipo de utilizador
         </div>
         <div class="form-group">
             <input type="number"
@@ -72,7 +89,7 @@
                    name="mobile"
                    [(ngModel)]="user.mobile"
                    #mobile="ngModel"
-                   placeholder="Mobile">
+                   placeholder="Telemóvel">
         </div>
         <div class="form-group">
             <input type="number"
@@ -80,12 +97,17 @@
                    name="phone"
                    [(ngModel)]="user.phone"
                    #mobile="ngModel"
-                   placeholder="Telephone">
+                   placeholder="Telefone">
         </div>
         <div class="form-group">
             <button type="submit"
                     class="btn btn-success round outline">
                 <i class="glyphicon glyphicon-ok"></i>
+            </button>
+            <button type="button"
+                    class="btn btn-neutral round outline"
+                    (click)="cancel()">
+                <i class="glyphicon glyphicon-remove"></i>
             </button>
         </div>
     </form>
