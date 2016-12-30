@@ -1,4 +1,4 @@
-<th class={{object.name}}> {{object.name}} </th>
+<th class={{object.name}}> {{object.name}} </th> <br>
 <th *ngIf="objType=='Criterion'" class="indent"> {{object.legislation}} </th>
 <th *ngIf="objType!='Ctemplate'" class="indent" [class.warning]="checkPercentage()"
     data-toggle="tooltip" data-placement="top"
