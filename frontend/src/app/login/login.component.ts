@@ -42,6 +42,7 @@ export class LoginComponent implements OnInit {
                     this.errorMsg = <any>error;
                 }
         );
+        console.log(this.session)
     }
 
     logout(): void {
