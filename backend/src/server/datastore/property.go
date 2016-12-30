@@ -177,7 +177,7 @@ func (ds *Datastore) SavePropertyWithAddress(p *Property) error {
 	return ds.InsertPropertyWithAddress(p)
 }
 
-func (ds *Datastore) UpdatePropertyWithAddress(p *Property) error {
+func (ds *Datastore) UpdatePropertyWithAddress(p *Property) (err error) {
 
 	if p == nil {
 		return errors.New("property should not be nil")
@@ -208,7 +208,7 @@ func (ds *Datastore) UpdatePropertyWithAddress(p *Property) error {
 	return err
 }
 
-func (ds *Datastore) InsertPropertyWithAddress(p *Property) error {
+func (ds *Datastore) InsertPropertyWithAddress(p *Property) (err error) {
 
 	if p == nil {
 		return errors.New("property should not be nil")
@@ -306,7 +306,7 @@ func (ds *Datastore) DeleteProperty(p *Property) error {
 	return ds.DeletePropertyTx(nil, p)
 }
 
-func (ds *Datastore) DeletePropertyWithAddress(p *Property) error {
+func (ds *Datastore) DeletePropertyWithAddress(p *Property) (err error) {
 	if p == nil {
 		return errors.New("property should not be nil")
 	}
