@@ -10,8 +10,8 @@ import (
 )
 
 func entityVisibility(restricted bool) string {
-	const auditorRestricted = "entity.id, entity.id_country, entity.name, entity.username, entity.image, entity.image_mimetype, entity.created_date "
-	const auditorAll = "entity.id, entity.id_country, entity.name, entity.email, entity.username, entity.password, entity.image, entity.image_mimetype, entity.banned, entity.banned_date, entity.reason, entity.mobilephone, entity.telephone, entity.created_date "
+	const auditorRestricted = "entity.id, entity.id_country, entity.name, entity.username, entity.image, entity.image_mimetype, entity.image_hash, entity.created_date "
+	const auditorAll = "entity.id, entity.id_country, entity.name, entity.email, entity.username, entity.password, entity.image, entity.image_mimetype, entity.image_hash, entity.banned, entity.banned_date, entity.reason, entity.mobilephone, entity.telephone, entity.created_date "
 	if restricted {
 		return auditorRestricted
 	}
@@ -27,6 +27,7 @@ type Entity struct {
 	Password      string      `json:"-" db:"password"`
 	Image         []byte      `json:"-" db:"image"`
 	ImageMimetype zero.String `json:"-" db:"image_mimetype"`
+	ImageHash     zero.String `json:"imageLocation" db:"image_hash"`
 	Banned        zero.Bool   `json:"banned" db:"banned"`
 	BannedDate    zero.Time   `json:"bannedDate" db:"banned_date"`
 	Reason        zero.String `json:"reason" db:"reason"`
@@ -84,16 +85,16 @@ func (ds *Datastore) InsertEntityTx(tx *sql.Tx, e *Entity) error {
 	}
 
 	const sql = `INSERT INTO places4all.entity (` +
-		`id_country, name, email, username, password, image, image_mimetype, banned, banned_date, reason, mobilephone, telephone, created_date` +
+		`id_country, name, email, username, password, image, image_mimetype, image_hash, banned, banned_date, reason, mobilephone, telephone, created_date` +
 		`) VALUES (` +
-		`$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13` +
+		`$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14` +
 		`) RETURNING id`
 
 	var err error
 	if tx != nil {
-		err = tx.QueryRow(sql, e.IdCountry, e.Name, e.Email, e.Username, e.Password, e.Image, e.ImageMimetype, e.Banned, e.BannedDate, e.Reason, e.Mobilephone, e.Telephone, e.CreatedDate).Scan(&e.Id)
+		err = tx.QueryRow(sql, e.IdCountry, e.Name, e.Email, e.Username, e.Password, e.Image, e.ImageMimetype, e.ImageHash, e.Banned, e.BannedDate, e.Reason, e.Mobilephone, e.Telephone, e.CreatedDate).Scan(&e.Id)
 	} else {
-		err = ds.postgres.QueryRow(sql, e.IdCountry, e.Name, e.Email, e.Username, e.Password, e.Image, e.ImageMimetype, e.Banned, e.BannedDate, e.Reason, e.Mobilephone, e.Telephone, e.CreatedDate).Scan(&e.Id)
+		err = ds.postgres.QueryRow(sql, e.IdCountry, e.Name, e.Email, e.Username, e.Password, e.Image, e.ImageMimetype, e.ImageHash, e.Banned, e.BannedDate, e.Reason, e.Mobilephone, e.Telephone, e.CreatedDate).Scan(&e.Id)
 	}
 	if err != nil {
 		return err
@@ -123,17 +124,17 @@ func (ds *Datastore) UpdateEntityTx(tx *sql.Tx, e *Entity) error {
 	}
 
 	const sql = `UPDATE places4all.entity SET (` +
-		`id_country, name, email, username, password, image, image_mimetype, banned, banned_date, reason, mobilephone, telephone, created_date` +
+		`id_country, name, email, username, password, image, image_mimetype, image_hash, banned, banned_date, reason, mobilephone, telephone, created_date` +
 		`) = ( ` +
-		`$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13` +
-		`) WHERE id = $14`
+		`$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14` +
+		`) WHERE id = $15`
 
 	var err error
 	if tx != nil {
-		_, err = tx.Exec(sql, e.IdCountry, e.Name, e.Email, e.Username, e.Password, e.Image, e.ImageMimetype, e.Banned, e.BannedDate, e.Reason, e.Mobilephone, e.Telephone, e.CreatedDate, e.Id)
+		_, err = tx.Exec(sql, e.IdCountry, e.Name, e.Email, e.Username, e.Password, e.Image, e.ImageMimetype, e.ImageHash, e.Banned, e.BannedDate, e.Reason, e.Mobilephone, e.Telephone, e.CreatedDate, e.Id)
 
 	} else {
-		_, err = ds.postgres.Exec(sql, e.IdCountry, e.Name, e.Email, e.Username, e.Password, e.Image, e.ImageMimetype, e.Banned, e.BannedDate, e.Reason, e.Mobilephone, e.Telephone, e.CreatedDate, e.Id)
+		_, err = ds.postgres.Exec(sql, e.IdCountry, e.Name, e.Email, e.Username, e.Password, e.Image, e.ImageMimetype, e.ImageHash, e.Banned, e.BannedDate, e.Reason, e.Mobilephone, e.Telephone, e.CreatedDate, e.Id)
 	}
 	return err
 }
@@ -166,16 +167,16 @@ func (ds *Datastore) UpsertEntity(e *Entity) error {
 	}
 
 	const sql = `INSERT INTO places4all.entity (` +
-		`id, id_country, name, email, username, password, image, image_mimetype, banned, banned_date, reason, mobilephone, telephone, created_date` +
+		`id, id_country, name, email, username, password, image, image_mimetype, image_hash, banned, banned_date, reason, mobilephone, telephone, created_date` +
 		`) VALUES (` +
-		`$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14` +
+		`$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15` +
 		`) ON CONFLICT (id) DO UPDATE SET (` +
-		`id, id_country, name, email, username, password, image, image_mimetype, banned, banned_date, reason, mobilephone, telephone, created_date` +
+		`id, id_country, name, email, username, password, image, image_mimetype, image_hash, banned, banned_date, reason, mobilephone, telephone, created_date` +
 		`) = (` +
-		`EXCLUDED.id, EXCLUDED.id_country, EXCLUDED.name, EXCLUDED.email, EXCLUDED.username, EXCLUDED.password, EXCLUDED.image, EXCLUDED.image_mimetype, EXCLUDED.banned, EXCLUDED.banned_date, EXCLUDED.reason, EXCLUDED.mobilephone, EXCLUDED.telephone, EXCLUDED.created_date` +
+		`EXCLUDED.id, EXCLUDED.id_country, EXCLUDED.name, EXCLUDED.email, EXCLUDED.username, EXCLUDED.password, EXCLUDED.image, EXCLUDED.image_mimetype, EXCLUDED.image_hash, EXCLUDED.banned, EXCLUDED.banned_date, EXCLUDED.reason, EXCLUDED.mobilephone, EXCLUDED.telephone, EXCLUDED.created_date` +
 		`)`
 
-	_, err := ds.postgres.Exec(sql, e.Id, e.IdCountry, e.Name, e.Email, e.Username, e.Password, e.Image, e.ImageMimetype, e.Banned, e.BannedDate, e.Reason, e.Mobilephone, e.Telephone, e.CreatedDate)
+	_, err := ds.postgres.Exec(sql, e.Id, e.IdCountry, e.Name, e.Email, e.Username, e.Password, e.Image, e.ImageMimetype, e.ImageHash, e.Banned, e.BannedDate, e.Reason, e.Mobilephone, e.Telephone, e.CreatedDate)
 	if err != nil {
 		return err
 	}

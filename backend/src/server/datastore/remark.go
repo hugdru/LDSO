@@ -12,7 +12,8 @@ type Remark struct {
 	IdCriterion   int64       `json:"idCriterion" db:"id_criterion"`
 	Observation   zero.String `json:"observation" db:"observation"`
 	Image         []byte      `json:"-" db:"image"`
-	ImageMimeType zero.String `json:"imageMimeType" db:"image_mimetype"`
+	ImageMimetype zero.String `json:"-" db:"image_mimetype"`
+	ImageHash     zero.String `json:"imageLocation" db:"image_hash"`
 
 	meta metadata.Metadata
 }
@@ -55,12 +56,12 @@ func (ds *Datastore) InsertRemark(r *Remark) error {
 	}
 
 	const sql = `INSERT INTO places4all.remark (` +
-		`id_audit, id_criterion, observation, image, image_mimetype ` +
+		`id_audit, id_criterion, observation, image, image_mimetype, image_hash ` +
 		`) VALUES (` +
-		`$1, $2, $3, $4, $5 ` +
+		`$1, $2, $3, $4, $5, $6 ` +
 		`) RETURNING id`
 
-	err := ds.postgres.QueryRow(sql, r.IdAudit, r.IdCriterion, r.Observation, r.Image, r.ImageMimeType).Scan(&r.Id)
+	err := ds.postgres.QueryRow(sql, r.IdAudit, r.IdCriterion, r.Observation, r.Image, r.ImageMimetype, r.ImageHash).Scan(&r.Id)
 	if err != nil {
 		return err
 	}
@@ -85,12 +86,12 @@ func (ds *Datastore) UpdateRemark(r *Remark) error {
 	}
 
 	const sql = `UPDATE places4all.remark SET (` +
-		`observation, image, image_mimetype` +
+		`observation, image, image_mimetype, image_hash` +
 		`) = (` +
-		`$1, $2, $3` +
-		`) WHERE id = $4 `
+		`$1, $2, $3, $4` +
+		`) WHERE id = $5 `
 
-	_, err := ds.postgres.Exec(sql, r.Observation, r.Image, r.ImageMimeType, r.Id)
+	_, err := ds.postgres.Exec(sql, r.Observation, r.Image, r.ImageMimetype, r.ImageHash, r.Id)
 	return err
 }
 
@@ -110,14 +111,14 @@ func (ds *Datastore) SaveRemark(r *Remark) error {
 func (ds *Datastore) GetRemarkByIdsAuditCriterionRemark(idAudit, idCriterion, idRemark int64) (*Remark, error) {
 
 	const sql = `SELECT ` +
-		`remark.id, remark.id_audit, remark.id_criterion, remark.observation, remark.image, remark.image_mimetype FROM places4all.remark ` +
+		`remark.id, remark.id_audit, remark.id_criterion, remark.observation, remark.image, remark.image_mimetype, remark.image_hash FROM places4all.remark ` +
 		`WHERE remark.id_audit = $1 AND remark.id_criterion = $2 AND remark.id = $3`
 
 	r := ARemark(true)
 	r.SetExists()
 
 	err := ds.postgres.QueryRow(sql, idRemark).Scan(
-		&r.Id, &r.IdAudit, &r.IdCriterion, &r.Observation, &r.Image, &r.ImageMimeType,
+		&r.Id, &r.IdAudit, &r.IdCriterion, &r.Observation, &r.Image, &r.ImageMimetype, &r.ImageHash,
 	)
 
 	if err != nil {
@@ -131,7 +132,7 @@ func (ds *Datastore) GetRemarkByIdsAuditCriterionRemark(idAudit, idCriterion, id
 func (ds *Datastore) GetRemarksByIdsAuditCriterion(idAudit int64, idCriterion int64) ([]*Remark, error) {
 
 	const sql = `SELECT ` +
-		`remark.id, remark.id_audit, remark.id_criterion, remark.observation, remark.image, remark.image_mimetype FROM places4all.remark ` +
+		`remark.id, remark.id_audit, remark.id_criterion, remark.observation, remark.image, remark.image_mimetype, image_hash FROM places4all.remark ` +
 		`WHERE remark.id_audit = $1 AND remark.id_criterion = $2`
 
 	rows, err := ds.postgres.Queryx(sql, idAudit, idCriterion)
