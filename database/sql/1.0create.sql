@@ -39,6 +39,7 @@ CREATE TABLE entity (
   password VARCHAR(200) NOT NULL,
   image BYTEA,
   image_mimetype VARCHAR(100),
+  image_hash CHAR(64),
   banned BOOLEAN,
   banned_date TIMESTAMP,
   reason TEXT,
@@ -185,7 +186,8 @@ CREATE TABLE remark (
   id_criterion INTEGER NOT NULL REFERENCES criterion(id),
   observation TEXT,
   image BYTEA,
-  image_mimetype VARCHAR(100)
+  image_mimetype VARCHAR(100),
+  image_hash CHAR(64)
 );
 
 GRANT ALL ON DATABASE "places4all" to admin;

@@ -21,13 +21,14 @@ func GobRegister() {
 }
 
 type EntitySessionData struct {
-	Id        int64  `json:"id"`
-	Username  string `json:"username"`
-	Email     string `json:"email"`
-	Name      string `json:"name"`
-	IdCountry int64  `json:"idCountry"`
-	Country   string `json:"country"`
-	Role      string `json:"role"`
+	Id            int64  `json:"id"`
+	Username      string `json:"username"`
+	Email         string `json:"email"`
+	Name          string `json:"name"`
+	IdCountry     int64  `json:"idCountry"`
+	Country       string `json:"country"`
+	Role          string `json:"role"`
+	ImageLocation string `json:"imageLocation"`
 }
 
 func GetSessionData(r *http.Request) (*EntitySessionData, error) {
@@ -49,13 +50,14 @@ func SetSessionData(entity *datastore.Entity, roleInterface interface{},
 	}
 
 	sessionData := &EntitySessionData{
-		Id:        entity.Id,
-		Username:  entity.Username,
-		Email:     entity.Email,
-		Name:      entity.Name,
-		IdCountry: entity.IdCountry,
-		Country:   entity.Country.Name,
-		Role:      "",
+		Id:            entity.Id,
+		Username:      entity.Username,
+		Email:         entity.Email,
+		Name:          entity.Name,
+		IdCountry:     entity.IdCountry,
+		Country:       entity.Country.Name,
+		ImageLocation: entity.ImageHash.String,
+		Role:          "",
 	}
 
 	//switch userRole := userRoleInterface.(type) {

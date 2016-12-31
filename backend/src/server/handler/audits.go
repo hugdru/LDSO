@@ -10,7 +10,6 @@ import (
 	"server/handler/helpers"
 	"server/handler/helpers/decorators"
 	"server/handler/sessionData"
-	"strconv"
 )
 
 func (h *Handler) auditsRoutes(router chi.Router) {
@@ -61,7 +60,7 @@ func (h *Handler) auditCriterionRemarkSubroutes(router chi.Router) {
 	router.Get("/", decorators.ReplyJson(h.getCriterionRemark))
 	router.Put("/", decorators.OnlySuperadminsOrLocaladminsOrAuditors(decorators.ReplyJson(h.updateCriterionRemark)))
 	router.Delete("/", decorators.OnlySuperadminsOrLocaladminsOrAuditors(decorators.ReplyJson(h.deleteCriterionRemark)))
-	router.Get("/image", h.getCriterionRemarkImage)
+	router.Get("/image/:hash", h.getCriterionRemarkImage)
 }
 
 func (h *Handler) auditContext(next http.Handler) http.Handler {
@@ -624,9 +623,10 @@ func (h *Handler) createCriterionRemark(w http.ResponseWriter, r *http.Request) 
 	idCriterion := r.Context().Value("idCriterion").(int64)
 
 	var input struct {
-		Observation   string
-		imageMimetype string
-		imageBytes    []byte
+		Observation   string `json:"observation"`
+		imageMimetype string `json:"-"`
+		imageBytes    []byte `json:"-"`
+		imageHash     string `json:"-"`
 	}
 
 	contentType := helpers.GetContentType(r.Header.Get("Content-type"))
@@ -634,7 +634,7 @@ func (h *Handler) createCriterionRemark(w http.ResponseWriter, r *http.Request) 
 	case "multipart/form-data":
 		input.Observation = r.PostFormValue("Observation")
 		var err error
-		input.imageBytes, input.imageMimetype, err = helpers.ReadImage(r, "image", helpers.MaxImageFileSize)
+		input.imageBytes, input.imageMimetype, input.imageHash, err = helpers.ReadImage(r, "image", helpers.MaxImageFileSize)
 		if err != nil && err != http.ErrMissingFile {
 			http.Error(w, helpers.Error(err.Error()), 500)
 			return
@@ -654,7 +654,7 @@ func (h *Handler) createCriterionRemark(w http.ResponseWriter, r *http.Request) 
 	remark.IdCriterion = idCriterion
 	remark.Observation = zero.StringFrom(input.Observation)
 	remark.Image = input.imageBytes
-	remark.ImageMimeType = zero.StringFrom(input.imageMimetype)
+	remark.ImageMimetype = zero.StringFrom(input.imageMimetype)
 
 	err := h.Datastore.InsertRemark(remark)
 	if err != nil {
@@ -706,17 +706,18 @@ func (h *Handler) updateCriterionRemark(w http.ResponseWriter, r *http.Request) 
 	idRemark := r.Context().Value("idRemark").(int64)
 
 	var input struct {
-		Observation   string
-		imageMimetype string
-		imageBytes    []byte
+		Observation   string `json:"observation"`
+		imageMimetype string `json:"-"`
+		imageBytes    []byte `json:"-"`
+		imageHash     string `json:"-"`
 	}
 
 	contentType := helpers.GetContentType(r.Header.Get("Content-type"))
 	switch contentType {
 	case "multipart/form-data":
-		input.Observation = r.PostFormValue("Observation")
+		input.Observation = r.PostFormValue("observation")
 		var err error
-		input.imageBytes, input.imageMimetype, err = helpers.ReadImage(r, "image", helpers.MaxImageFileSize)
+		input.imageBytes, input.imageMimetype, input.imageHash, err = helpers.ReadImage(r, "image", helpers.MaxImageFileSize)
 		if err != nil && err != http.ErrMissingFile {
 			http.Error(w, helpers.Error(err.Error()), 500)
 			return
@@ -773,18 +774,31 @@ func (h *Handler) getCriterionRemarkImage(w http.ResponseWriter, r *http.Request
 
 	idRemark := r.Context().Value("idRemark").(int64)
 
+	urlHash := chi.URLParam(r, "hash")
+	if !helpers.ImageHashSizeIsValid(len(urlHash)) {
+		http.Error(w, helpers.Error("Invalid image hash"), 400)
+		return
+	}
+
 	auditCriterionRemark, err := h.Datastore.GetRemarkByIdsAuditCriterionRemark(audit.Id, idCriterion, idRemark)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), http.StatusBadRequest)
 		return
 	}
 
-	if auditCriterionRemark.ImageMimeType.Valid && auditCriterionRemark.Image != nil {
-		w.Header().Set("Content-type", auditCriterionRemark.ImageMimeType.String)
-		w.Header().Set("Content-Length", strconv.Itoa(len(auditCriterionRemark.Image)))
-		w.Write(auditCriterionRemark.Image)
+	if auditCriterionRemark.ImageMimetype.Valid && auditCriterionRemark.Image != nil && auditCriterionRemark.ImageHash.Valid {
+		scheme := "https://"
+		if r.TLS == nil {
+			scheme = "http://"
+		}
+		redirectUrl := helpers.FastConcat(scheme, r.Host, "/audits/", helpers.Int64ToString(audit.Id), "/criteria/", helpers.Int64ToString(idCriterion), "/remarks/", helpers.Int64ToString(idRemark), "/image/", auditCriterionRemark.ImageHash.String)
+		if err := helpers.ImageCashingControlWriter(w, r, urlHash, auditCriterionRemark.ImageHash.String, auditCriterionRemark.ImageMimetype.String, auditCriterionRemark.Image, redirectUrl); err != nil {
+			http.Error(w, helpers.Error(err.Error()), http.StatusInternalServerError)
+			return
+		}
+		return
 	} else {
-		http.Error(w, helpers.Error("no image"), http.StatusBadRequest)
+		http.Error(w, helpers.Error("no image"), http.StatusNotFound)
 		return
 	}
 }

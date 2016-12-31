@@ -19,6 +19,7 @@ func (h *Handler) entitiesRoutes(router chi.Router) {
 	router.Post("/login", decorators.ReplyJson(h.login))
 	router.Get("/logout", decorators.ReplyJson(h.logout))
 	router.Post("/register", decorators.ReplyJson(h.register))
+	router.Get("/:ide/image/:hash", h.getImage)
 }
 
 func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
@@ -164,6 +165,7 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 			Image         string `json:"image"`
 			imageBytes    []byte `json:"-"`
 			imageMimetype string `json:"-"`
+			imageHash     string `json:"-"`
 		}
 
 		contentType := helpers.GetContentType(r.Header.Get("Content-type"))
@@ -180,7 +182,7 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 				return nil, false
 			}
 			if input.Image != "" {
-				input.imageBytes, input.imageMimetype, err = helpers.ReadImageBase64(input.Image, helpers.MaxImageFileSize)
+				input.imageBytes, input.imageMimetype, input.imageHash, err = helpers.ReadImageBase64(input.Image, helpers.MaxImageFileSize)
 				if err != nil {
 					http.Error(w, helpers.Error(err.Error()), http.StatusInternalServerError)
 					return nil, false
@@ -202,7 +204,7 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 			input.Telephone = r.PostFormValue("telephone")
 			input.Role = r.PostFormValue("role")
 
-			input.imageBytes, input.imageMimetype, err = helpers.ReadImage(r, "image", helpers.MaxImageFileSize)
+			input.imageBytes, input.imageMimetype, input.imageHash, err = helpers.ReadImage(r, "image", helpers.MaxImageFileSize)
 			if err != nil && err != http.ErrMissingFile {
 				http.Error(w, helpers.Error(err.Error()), 500)
 				return nil, false
@@ -259,6 +261,7 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 		entity.Telephone = zero.StringFrom(input.Telephone)
 		entity.ImageMimetype = zero.StringFrom(input.imageMimetype)
 		entity.Image = input.imageBytes
+		entity.ImageHash = zero.StringFrom(input.imageHash)
 		entity.CreatedDate = helpers.TheTime()
 
 		tx, err := h.Datastore.BeginTransaction()
@@ -334,5 +337,40 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 		} else {
 			tx.Rollback()
 		}
+	}
+}
+
+func (h *Handler) getImage(w http.ResponseWriter, r *http.Request) {
+	idEntity, err := helpers.ParseInt64(chi.URLParam(r, "ide"))
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 400)
+		return
+	}
+	urlHash := chi.URLParam(r, "hash")
+	if !helpers.ImageHashSizeIsValid(len(urlHash)) {
+		http.Error(w, helpers.Error("Invalid image hash"), 400)
+		return
+	}
+
+	entity, err := h.Datastore.GetEntityById(idEntity, false, true)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 400)
+		return
+	}
+
+	if entity.ImageMimetype.Valid && entity.Image != nil && entity.ImageHash.Valid {
+		scheme := "https://"
+		if r.TLS == nil {
+			scheme = "http://"
+		}
+		redirectUrl := helpers.FastConcat(scheme, r.Host, "/entities/", helpers.Int64ToString(idEntity), "/image/", entity.ImageHash.String)
+		if err := helpers.ImageCashingControlWriter(w, r, urlHash, entity.ImageHash.String, entity.ImageMimetype.String, entity.Image, redirectUrl); err != nil {
+			http.Error(w, helpers.Error(err.Error()), http.StatusInternalServerError)
+			return
+		}
+		return
+	} else {
+		http.Error(w, helpers.Error("no image"), http.StatusNotFound)
+		return
 	}
 }

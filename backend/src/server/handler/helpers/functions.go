@@ -147,3 +147,11 @@ func ParseInt(value string) (int, error) {
 func Int64ToString(n int64) string {
 	return strconv.FormatInt(n, 10)
 }
+
+func FastConcat(strings ...string) string {
+	var buffer bytes.Buffer
+	for i := range strings {
+		buffer.WriteString(strings[i])
+	}
+	return buffer.String()
+}
