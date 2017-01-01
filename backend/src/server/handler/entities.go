@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"github.com/alexedwards/scs/session"
@@ -19,7 +20,25 @@ func (h *Handler) entitiesRoutes(router chi.Router) {
 	router.Post("/login", decorators.ReplyJson(h.login))
 	router.Get("/logout", decorators.ReplyJson(h.logout))
 	router.Post("/register", decorators.ReplyJson(h.register))
-	router.Get("/:ide/image/:hash", h.getImage)
+}
+
+func (h *Handler) entityContext(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		idEntity, err := helpers.ParseInt64(chi.URLParam(r, "ide"))
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+
+		entity, err := h.Datastore.GetClientById(idEntity, false, true)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), "client", entity)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }
 
 func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
@@ -190,12 +209,7 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 			}
 		case "multipart/form-data":
 			var err error
-			input.IdCountry, err = helpers.ParseInt64(r.PostFormValue("idCountry"))
-			if err != nil {
-				input.IdCountry = 0
-				//http.Error(w, helpers.Error(err.Error()), http.StatusBadRequest)
-				//return
-			}
+			input.IdCountry, _ = helpers.ParseInt64(r.PostFormValue("idCountry"))
 			input.Name = r.PostFormValue("name")
 			input.Email = r.PostFormValue("email")
 			input.Username = r.PostFormValue("username")
@@ -340,37 +354,133 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *Handler) getImage(w http.ResponseWriter, r *http.Request) {
-	idEntity, err := helpers.ParseInt64(chi.URLParam(r, "ide"))
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
-	}
-	urlHash := chi.URLParam(r, "hash")
-	if !helpers.ImageHashSizeIsValid(len(urlHash)) {
-		http.Error(w, helpers.Error("Invalid image hash"), 400)
-		return
-	}
-
-	entity, err := h.Datastore.GetEntityById(idEntity, false, true)
-	if err != nil {
-		http.Error(w, helpers.Error(err.Error()), 400)
-		return
+func getEntityImage(w http.ResponseWriter, r *http.Request, entity *datastore.Entity, urlHash, redirectUrl string) bool {
+	if entity == nil {
+		http.Error(w, helpers.Error("entity != nil"), http.StatusInternalServerError)
+		return false
 	}
 
 	if entity.ImageMimetype.Valid && entity.Image != nil && entity.ImageHash.Valid {
-		scheme := "https://"
-		if r.TLS == nil {
-			scheme = "http://"
-		}
-		redirectUrl := helpers.FastConcat(scheme, r.Host, "/entities/", helpers.Int64ToString(idEntity), "/image/", entity.ImageHash.String)
 		if err := helpers.ImageCashingControlWriter(w, r, urlHash, entity.ImageHash.String, entity.ImageMimetype.String, entity.Image, redirectUrl); err != nil {
 			http.Error(w, helpers.Error(err.Error()), http.StatusInternalServerError)
-			return
+			return false
 		}
-		return
-	} else {
-		http.Error(w, helpers.Error("no image"), http.StatusNotFound)
-		return
+		return true
 	}
+	http.Error(w, helpers.Error("no image"), http.StatusNotFound)
+	return false
+}
+
+func (h *Handler) updateEntity(w http.ResponseWriter, r *http.Request, tx *sql.Tx, entity *datastore.Entity) bool {
+	if entity == nil {
+		http.Error(w, helpers.Error("entity != nil"), http.StatusInternalServerError)
+		return false
+	}
+
+	var input struct {
+		Entity struct {
+			IdCountry     int64  `json:"idCountry"`
+			Name          string `json:"name"`
+			Email         string `json:"email"`
+			Username      string `json:"username"`
+			Password      string `json:"password"`
+			Mobilephone   string `json:"mobilephone"`
+			Telephone     string `json:"telephone"`
+			Image         string `json:"image"`
+			imageBytes    []byte `json:"-"`
+			imageMimetype string `json:"-"`
+			imageHash     string `json:"-"`
+		} `json:"entity"`
+	}
+
+	contentType := helpers.GetContentType(r.Header.Get("Content-type"))
+	switch contentType {
+	case "application/json":
+		decoder := json.NewDecoder(r.Body)
+		if decoder == nil {
+			http.Error(w, helpers.Error("JSON decoder failed"), http.StatusInternalServerError)
+			return false
+		}
+		err := decoder.Decode(&input)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), http.StatusBadRequest)
+			return false
+		}
+		if input.Entity.Image != "" {
+			input.Entity.imageBytes, input.Entity.imageMimetype, input.Entity.imageHash, err = helpers.ReadImageBase64(input.Entity.Image, helpers.MaxImageFileSize)
+			if err != nil {
+				http.Error(w, helpers.Error(err.Error()), http.StatusInternalServerError)
+				return false
+			}
+		}
+	case "multipart/form-data":
+		var err error
+		input.Entity.IdCountry, _ = helpers.ParseInt64(r.PostFormValue("entity.idCountry"))
+		input.Entity.Name = r.PostFormValue("entity.name")
+		input.Entity.Email = r.PostFormValue("entity.email")
+		input.Entity.Username = r.PostFormValue("entity.username")
+		input.Entity.Password = r.PostFormValue("entity.password")
+		input.Entity.Mobilephone = r.PostFormValue("entity.mobilephone")
+		input.Entity.Telephone = r.PostFormValue("entity.telephone")
+
+		input.Entity.imageBytes, input.Entity.imageMimetype, input.Entity.imageHash, err = helpers.ReadImage(r, "image", helpers.MaxImageFileSize)
+		if err != nil && err != http.ErrMissingFile {
+			http.Error(w, helpers.Error(err.Error()), 500)
+			return false
+		}
+	default:
+		http.Error(w, helpers.Error("Content-type not supported"), 415)
+		return false
+	}
+
+	if input.Entity.IdCountry == 0 && input.Entity.Name == "" && input.Entity.Email == "" && input.Entity.Username == "" && input.Entity.Password == "" && input.Entity.Mobilephone == "" && input.Entity.Telephone == "" && input.Entity.imageBytes == nil {
+		http.Error(w, helpers.Error("At least one"), 400)
+		return false
+	}
+
+	if input.Entity.IdCountry != 0 {
+		entity.IdCountry = input.Entity.IdCountry
+	}
+
+	if input.Entity.Name != "" {
+		entity.Name = input.Entity.Name
+	}
+
+	if input.Entity.Email != "" {
+		entity.Email = input.Entity.Email
+	}
+
+	if input.Entity.Username != "" {
+		entity.Username = input.Entity.Username
+	}
+
+	if input.Entity.Password != "" {
+		hash, err := scrypt.GenerateFromPassword([]byte(input.Entity.Password), scrypt.DefaultParams)
+		if err != nil {
+			http.Error(w, helpers.Error("Failed to create hash"), 500)
+			return false
+		}
+		entity.Password = string(hash)
+	}
+
+	if input.Entity.imageBytes != nil {
+		entity.Image = input.Entity.imageBytes
+		entity.ImageMimetype = zero.StringFrom(input.Entity.imageMimetype)
+		entity.ImageHash = zero.StringFrom(input.Entity.imageHash)
+	}
+
+	if input.Entity.Mobilephone != "" {
+		entity.Mobilephone = zero.StringFrom(input.Entity.Mobilephone)
+	}
+
+	if input.Entity.Telephone != "" {
+		entity.Telephone = zero.StringFrom(input.Entity.Telephone)
+	}
+
+	err := h.Datastore.SaveEntityTx(tx, entity)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 500)
+		return false
+	}
+	return true
 }

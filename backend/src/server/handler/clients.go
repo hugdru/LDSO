@@ -20,6 +20,7 @@ func (h *Handler) clientsRoutes(router chi.Router) {
 func (h *Handler) clientRoutes(router chi.Router) {
 	router.Use(h.clientContext)
 	router.Get("/", decorators.ReplyJson(h.getClient))
+	router.Get("/image/:hash", h.getClientImage)
 	router.Put("/", decorators.OnlySuperadminsOrLocaladminsOrClients(decorators.ReplyJson(h.updateClient)))
 	router.Delete("/", decorators.OnlySuperadminsOrLocaladminsOrClients(decorators.ReplyJson(h.deleteClient)))
 }
@@ -162,8 +163,26 @@ func (h *Handler) getClient(w http.ResponseWriter, r *http.Request) {
 	w.Write(clientSlice)
 }
 
+func (h *Handler) getClientImage(w http.ResponseWriter, r *http.Request) {
+
+	client := r.Context().Value("client").(*datastore.Client)
+	entity := client.Entity
+
+	urlHash := chi.URLParam(r, "hash")
+
+	scheme := "https://"
+	if r.TLS == nil {
+		scheme = "http://"
+	}
+	redirectUrl := helpers.FastConcat(scheme, r.Host, "/clients/", helpers.Int64ToString(entity.Id), "/image/", entity.ImageHash.String)
+	getEntityImage(w, r, entity, urlHash, redirectUrl)
+}
+
 func (h *Handler) updateClient(w http.ResponseWriter, r *http.Request) {
-	http.Error(w, helpers.Error("Not implemented because client only has one column idEntity"), http.StatusNotImplemented)
+	client := r.Context().Value("client").(*datastore.Client)
+	if !h.updateEntity(w, r, nil, client.Entity) {
+		return
+	}
 }
 
 func (h *Handler) deleteClient(w http.ResponseWriter, r *http.Request) {

@@ -160,10 +160,9 @@ func (h *Handler) updateSubgroup(w http.ResponseWriter, r *http.Request) {
 	case "multipart/form-data":
 		var err error
 		input.Name = r.PostFormValue("name")
-		input.Weight, err = helpers.ParseInt(r.PostFormValue("weight"))
+		input.Weight, _ = helpers.ParseInt(r.PostFormValue("weight"))
 		if err != nil {
-			http.Error(w, helpers.Error(err.Error()), 400)
-			return
+			input.Weight = -1
 		}
 	case "application/json":
 		d := json.NewDecoder(r.Body)

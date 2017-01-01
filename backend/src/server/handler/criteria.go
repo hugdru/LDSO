@@ -132,11 +132,7 @@ func (h *Handler) createCriterion(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, helpers.Error(err.Error()), 400)
 			return
 		}
-		input.IdLegislation, err = helpers.ParseInt64(r.PostFormValue("idLegislation"))
-		if err != nil {
-			http.Error(w, helpers.Error(err.Error()), 400)
-			return
-		}
+		input.IdLegislation, _ = helpers.ParseInt64(r.PostFormValue("idLegislation"))
 		input.Name = r.PostFormValue("name")
 		input.Weight, err = helpers.ParseInt(r.PostFormValue("weight"))
 		if err != nil {
@@ -252,16 +248,11 @@ func (h *Handler) updateCriterion(w http.ResponseWriter, r *http.Request) {
 	switch helpers.GetContentType(r.Header.Get("Content-type")) {
 	case "multipart/form-data":
 		var err error
-		input.IdLegislation, err = helpers.ParseInt64(r.PostFormValue("idLegislation"))
-		if err != nil {
-			http.Error(w, helpers.Error(err.Error()), 400)
-			return
-		}
+		input.IdLegislation, _ = helpers.ParseInt64(r.PostFormValue("idLegislation"))
 		input.Name = r.PostFormValue("name")
-		input.Weight, err = helpers.ParseInt(r.PostFormValue("weight"))
+		input.Weight, _ = helpers.ParseInt(r.PostFormValue("weight"))
 		if err != nil {
-			http.Error(w, helpers.Error(err.Error()), 400)
-			return
+			input.Weight = -1
 		}
 		input.Legislation = r.PostFormValue("legislation")
 		//input.Legislation.Name = r.PostFormValue("legislation.name")

@@ -20,6 +20,7 @@ func (h *Handler) localadminsRoutes(router chi.Router) {
 func (h *Handler) localadminRoutes(router chi.Router) {
 	router.Use(h.localadminContext)
 	router.Get("/", decorators.ReplyJson(h.getLocaladmin))
+	router.Get("/image/:hash", h.getLocaladminImage)
 	router.Put("/", decorators.OnlySuperadmins(decorators.ReplyJson(h.updateLocaladmin)))
 	router.Delete("/", decorators.OnlySuperadmins(decorators.ReplyJson(h.deleteLocaladmin)))
 }
@@ -149,6 +150,21 @@ func (h *Handler) createLocaladmin(w http.ResponseWriter, r *http.Request) {
 	w.Write(localadminSlice)
 }
 
+func (h *Handler) getLocaladminImage(w http.ResponseWriter, r *http.Request) {
+
+	localadmin := r.Context().Value("localadmin").(*datastore.Localadmin)
+	entity := localadmin.Entity
+
+	urlHash := chi.URLParam(r, "hash")
+
+	scheme := "https://"
+	if r.TLS == nil {
+		scheme = "http://"
+	}
+	redirectUrl := helpers.FastConcat(scheme, r.Host, "/localadmins/", helpers.Int64ToString(entity.Id), "/image/", entity.ImageHash.String)
+	getEntityImage(w, r, entity, urlHash, redirectUrl)
+}
+
 func (h *Handler) getLocaladmin(w http.ResponseWriter, r *http.Request) {
 
 	localadmin := r.Context().Value("localadmin").(*datastore.Localadmin)
@@ -163,7 +179,10 @@ func (h *Handler) getLocaladmin(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) updateLocaladmin(w http.ResponseWriter, r *http.Request) {
-	http.Error(w, helpers.Error("Not implemented because localadmin only has one column idEntity"), http.StatusNotImplemented)
+	localadmin := r.Context().Value("localadmin").(*datastore.Localadmin)
+	if !h.updateEntity(w, r, nil, localadmin.Entity) {
+		return
+	}
 }
 
 func (h *Handler) deleteLocaladmin(w http.ResponseWriter, r *http.Request) {

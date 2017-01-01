@@ -143,12 +143,7 @@ func (h *Handler) createProperty(w http.ResponseWriter, r *http.Request) {
 	case "multipart/form-data":
 		input.Name = r.PostFormValue("name")
 		input.Details = r.PostFormValue("details")
-		var err error
-		input.Address.IdCountry, err = helpers.ParseInt64(r.PostFormValue("address.idCountry"))
-		if err != nil {
-			http.Error(w, helpers.Error(err.Error()), 400)
-			return
-		}
+		input.Address.IdCountry, _ = helpers.ParseInt64(r.PostFormValue("address.idCountry"))
 		input.Address.AddressLine1 = r.PostFormValue("address.addressLine1")
 		input.Address.AddressLine2 = r.PostFormValue("address.addressLine2")
 		input.Address.AddressLine3 = r.PostFormValue("address.addressLine3")
@@ -167,6 +162,15 @@ func (h *Handler) createProperty(w http.ResponseWriter, r *http.Request) {
 	default:
 		http.Error(w, helpers.Error("Content-type not supported"), 415)
 		return
+	}
+
+	if input.Address.IdCountry == 0 {
+		portugal, err := h.Datastore.GetCountryByName("Portugal")
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 500)
+			return
+		}
+		input.Address.IdCountry = portugal.Id
 	}
 
 	newProperty := datastore.NewProperty(false)
@@ -247,12 +251,7 @@ func (h *Handler) updateProperty(w http.ResponseWriter, r *http.Request) {
 	case "multipart/form-data":
 		input.Name = r.PostFormValue("name")
 		input.Details = r.PostFormValue("details")
-		var err error
-		input.Address.IdCountry, err = helpers.ParseInt64(r.PostFormValue("address.idCountry"))
-		if err != nil {
-			http.Error(w, helpers.Error(err.Error()), 400)
-			return
-		}
+		input.Address.IdCountry, _ = helpers.ParseInt64(r.PostFormValue("address.idCountry"))
 		input.Address.AddressLine1 = r.PostFormValue("address.addressLine1")
 		input.Address.AddressLine2 = r.PostFormValue("address.addressLine2")
 		input.Address.AddressLine3 = r.PostFormValue("address.addressLine3")
@@ -364,20 +363,15 @@ func (h *Handler) updateAddress(w http.ResponseWriter, r *http.Request) {
 	contentType := helpers.GetContentType(r.Header.Get("Content-type"))
 	switch contentType {
 	case "multipart/form-data":
-		var err error
-		input.IdCountry, err = helpers.ParseInt64(r.PostFormValue("address.idCountry"))
-		if err != nil {
-			http.Error(w, helpers.Error(err.Error()), 400)
-			return
-		}
-		input.AddressLine1 = r.PostFormValue("address.addressLine1")
-		input.AddressLine2 = r.PostFormValue("address.addressLine2")
-		input.AddressLine3 = r.PostFormValue("address.addressLine3")
-		input.TownCity = r.PostFormValue("address.townCity")
-		input.County = r.PostFormValue("address.county")
-		input.Postcode = r.PostFormValue("address.postcode")
-		input.Latitude = r.PostFormValue("address.latitude")
-		input.Longitude = r.PostFormValue("address.longitude")
+		input.IdCountry, _ = helpers.ParseInt64(r.PostFormValue("idCountry"))
+		input.AddressLine1 = r.PostFormValue("addressLine1")
+		input.AddressLine2 = r.PostFormValue("addressLine2")
+		input.AddressLine3 = r.PostFormValue("addressLine3")
+		input.TownCity = r.PostFormValue("townCity")
+		input.County = r.PostFormValue("county")
+		input.Postcode = r.PostFormValue("postcode")
+		input.Latitude = r.PostFormValue("latitude")
+		input.Longitude = r.PostFormValue("longitude")
 	case "application/json":
 		d := json.NewDecoder(r.Body)
 		err := d.Decode(&input)

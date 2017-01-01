@@ -97,11 +97,15 @@ func CalculateImageHash(imageBytes []byte) string {
 	return encodedHash
 }
 
-func ImageHashSizeIsValid(size int) bool {
+func imageHashSizeIsValid(size int) bool {
 	return size == encodedImageHashSize
 }
 
 func ImageCashingControlWriter(w http.ResponseWriter, r *http.Request, urlHash, imageHash, imageMimetype string, imageBytes []byte, redirectUrl string) error {
+	if !imageHashSizeIsValid(len(urlHash)) {
+		return errors.New("Invalid image hash")
+	}
+
 	if urlHash != imageHash {
 		http.Redirect(w, r, redirectUrl, http.StatusPermanentRedirect)
 		return nil

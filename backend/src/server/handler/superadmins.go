@@ -20,6 +20,7 @@ func (h *Handler) superadminsRoutes(router chi.Router) {
 func (h *Handler) superadminRoutes(router chi.Router) {
 	router.Use(h.superadminContext)
 	router.Get("/", decorators.ReplyJson(h.getSuperadmin))
+	router.Get("/image/:hash", h.getSuperadminImage)
 	router.Put("/", decorators.OnlySuperadmins(decorators.ReplyJson(h.updateSuperadmin)))
 	router.Delete("/", decorators.OnlySuperadmins(decorators.ReplyJson(h.deleteSuperadmin)))
 }
@@ -164,8 +165,26 @@ func (h *Handler) getSuperadmin(w http.ResponseWriter, r *http.Request) {
 	w.Write(superadminSlice)
 }
 
+func (h *Handler) getSuperadminImage(w http.ResponseWriter, r *http.Request) {
+
+	superadmin := r.Context().Value("superadmin").(*datastore.Superadmin)
+	entity := superadmin.Entity
+
+	urlHash := chi.URLParam(r, "hash")
+
+	scheme := "https://"
+	if r.TLS == nil {
+		scheme = "http://"
+	}
+	redirectUrl := helpers.FastConcat(scheme, r.Host, "/superadmins/", helpers.Int64ToString(entity.Id), "/image/", entity.ImageHash.String)
+	getEntityImage(w, r, entity, urlHash, redirectUrl)
+}
+
 func (h *Handler) updateSuperadmin(w http.ResponseWriter, r *http.Request) {
-	http.Error(w, helpers.Error("Not implemented because superadmin only has one column idEntity"), http.StatusNotImplemented)
+	superadmin := r.Context().Value("superadmin").(*datastore.Superadmin)
+	if !h.updateEntity(w, r, nil, superadmin.Entity) {
+		return
+	}
 }
 
 func (h *Handler) deleteSuperadmin(w http.ResponseWriter, r *http.Request) {
