@@ -162,8 +162,7 @@ func (h *Handler) updateMaingroup(w http.ResponseWriter, r *http.Request) {
 		input.Name = r.PostFormValue("name")
 		input.Weight, err = helpers.ParseInt(r.PostFormValue("weight"))
 		if err != nil {
-			http.Error(w, helpers.Error(err.Error()), 400)
-			return
+			input.Weight = -1
 		}
 	case "application/json":
 		d := json.NewDecoder(r.Body)

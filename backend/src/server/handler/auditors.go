@@ -20,6 +20,7 @@ func (h *Handler) auditorsRoutes(router chi.Router) {
 func (h *Handler) auditorRoutes(router chi.Router) {
 	router.Use(h.auditorContext)
 	router.Get("/", decorators.ReplyJson(h.getAuditor))
+	router.Get("/image/:hash", h.getAuditorImage)
 	router.Put("/", decorators.OnlySuperadminsOrLocaladminsOrAuditors(decorators.ReplyJson(h.updateAuditor)))
 	router.Delete("/", decorators.OnlySuperadminsOrLocaladminsOrAuditors(decorators.ReplyJson(h.deleteAuditor)))
 }
@@ -161,8 +162,26 @@ func (h *Handler) getAuditor(w http.ResponseWriter, r *http.Request) {
 	w.Write(auditorSlice)
 }
 
+func (h *Handler) getAuditorImage(w http.ResponseWriter, r *http.Request) {
+
+	auditor := r.Context().Value("auditor").(*datastore.Auditor)
+	entity := auditor.Entity
+
+	urlHash := chi.URLParam(r, "hash")
+
+	scheme := "https://"
+	if r.TLS == nil {
+		scheme = "http://"
+	}
+	redirectUrl := helpers.FastConcat(scheme, r.Host, "/auditors/", helpers.Int64ToString(entity.Id), "/image/", entity.ImageHash.String)
+	getEntityImage(w, r, entity, urlHash, redirectUrl)
+}
+
 func (h *Handler) updateAuditor(w http.ResponseWriter, r *http.Request) {
-	http.Error(w, helpers.Error("Not implemented because auditor only has one column idEntity"), http.StatusNotImplemented)
+	auditor := r.Context().Value("auditor").(*datastore.Auditor)
+	if !h.updateEntity(w, r, nil, auditor.Entity) {
+		return
+	}
 }
 
 func (h *Handler) deleteAuditor(w http.ResponseWriter, r *http.Request) {

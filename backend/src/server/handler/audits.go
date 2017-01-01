@@ -254,15 +254,10 @@ func (h *Handler) updateAudit(w http.ResponseWriter, r *http.Request) {
 	switch helpers.GetContentType(r.Header.Get("Content-type")) {
 	case "multipart/form-data":
 		var err error
-		input.IdAuditor, err = helpers.ParseInt64(r.PostFormValue("idAuditor"))
-		if err != nil {
-			http.Error(w, helpers.Error(err.Error()), 400)
-			return
-		}
+		input.IdAuditor, _ = helpers.ParseInt64(r.PostFormValue("idAuditor"))
 		input.Rating, err = helpers.ParseInt64(r.PostFormValue("rating"))
 		if err != nil {
-			http.Error(w, helpers.Error(err.Error()), 400)
-			return
+			input.Rating = -1
 		}
 		input.Observation = r.PostFormValue("observation")
 	case "application/json":
@@ -775,10 +770,6 @@ func (h *Handler) getCriterionRemarkImage(w http.ResponseWriter, r *http.Request
 	idRemark := r.Context().Value("idRemark").(int64)
 
 	urlHash := chi.URLParam(r, "hash")
-	if !helpers.ImageHashSizeIsValid(len(urlHash)) {
-		http.Error(w, helpers.Error("Invalid image hash"), 400)
-		return
-	}
 
 	auditCriterionRemark, err := h.Datastore.GetRemarkByIdsAuditCriterionRemark(audit.Id, idCriterion, idRemark)
 	if err != nil {
