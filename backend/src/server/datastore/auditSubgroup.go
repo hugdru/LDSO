@@ -147,14 +147,32 @@ func (ds *Datastore) GetAuditSubgroupsByIdAudit(idAudit int64, filter map[string
 	return subgroups, err
 }
 
-// TODO: check if subgroup is from the template audit is using
-func (ds *Datastore) SaveAuditSubgroup(idAudit int64, idTemplate int64, idsSubgroups []int64) (err error) {
+func (ds *Datastore) SaveAuditSubgroup(idAudit int64, idTemplate int64, idsSubgroups []int64) (def error) {
 
 	if idsSubgroups == nil {
 		return errors.New("idsSubgroups should not be nil")
 	}
 
-	const sql = `INSERT INTO places4all.audit_subgroup (` +
+	in, values := generators.GenerateIn(idsSubgroups)
+	if in == "" || values == nil {
+		return errors.New("GenerateIn failed")
+	}
+
+	sqlCheck := ds.postgres.Rebind(`SELECT count(*) as count ` +
+		`FROM places4all.subgroup ` +
+		`JOIN places4all.maingroup ON maingroup.id = subgroup.id_maingroup ` +
+		`JOIN places4all.template ON template.id = maingroup.id_template ` +
+		`WHERE subgroup.id IN (` + in + `)`)
+	var count int
+	err := ds.postgres.QueryRow(sqlCheck, values...).Scan(&count)
+	if err != nil {
+		return err
+	}
+	if count != len(idsSubgroups) {
+		return errors.New("Some subgroups don't belong to template")
+	}
+
+	const sqlInsert = `INSERT INTO places4all.audit_subgroup (` +
 		`id_audit, id_subgroup` +
 		`) VALUES (` +
 		`$1, $2` +
@@ -165,15 +183,15 @@ func (ds *Datastore) SaveAuditSubgroup(idAudit int64, idTemplate int64, idsSubgr
 		return err
 	}
 	defer func() {
-		if err != nil {
+		if def != nil {
 			tx.Rollback()
 			return
 		}
-		err = tx.Commit()
+		def = tx.Commit()
 	}()
 
 	for _, idSubgroup := range idsSubgroups {
-		_, err = tx.Exec(sql, idAudit, idSubgroup)
+		_, err = tx.Exec(sqlInsert, idAudit, idSubgroup)
 		if err != nil {
 			return err
 		}

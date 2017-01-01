@@ -48,3 +48,21 @@ func GenerateSearchClause(filter map[string]interface{}, withAnd bool) (string, 
 
 	return whereBuffer.String(), values
 }
+
+func GenerateIn(ids []int64) (string, []interface{}) {
+	if ids == nil {
+		return "", nil
+	}
+
+	values := make([]interface{}, len(ids))
+	var inBuffer bytes.Buffer
+
+	for index := len(ids) - 1; index != 0; index-- {
+		values[index] = ids[index]
+		inBuffer.WriteString("?,")
+	}
+	inBuffer.WriteString("?")
+	values[0] = ids[0]
+
+	return inBuffer.String(), values
+}
