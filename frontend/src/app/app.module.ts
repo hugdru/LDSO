@@ -86,7 +86,7 @@ import { MainPageComponent } from './main-page/main-page.component';
         AuditEvaluateComponent,
         AuditEvaluateCriterionComponent,
         AuditSelectComponent,
-    	RemarkAddComponent,
+		RemarkAddComponent,
 		ImageSingleUploadComponent,
 		MainPageComponent
     ],
