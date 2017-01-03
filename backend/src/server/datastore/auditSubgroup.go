@@ -1,6 +1,7 @@
 package datastore
 
 import (
+	"database/sql"
 	"errors"
 	"server/datastore/generators"
 	"server/datastore/metadata"
@@ -147,30 +148,9 @@ func (ds *Datastore) GetAuditSubgroupsByIdAudit(idAudit int64, filter map[string
 	return subgroups, err
 }
 
-func (ds *Datastore) SaveAuditSubgroup(idAudit int64, idTemplate int64, idsSubgroups []int64) (def error) {
-
+func (ds *Datastore) InsertAuditSubgroups(idAudit int64, idTemplate int64, idsSubgroups []int64) (def error) {
 	if idsSubgroups == nil {
 		return errors.New("idsSubgroups should not be nil")
-	}
-
-	in, values := generators.GenerateIn(idsSubgroups)
-	if in == "" || values == nil {
-		return errors.New("GenerateIn failed")
-	}
-
-	sqlCheck := ds.postgres.Rebind(`SELECT count(*) as count ` +
-		`FROM places4all.subgroup ` +
-		`JOIN places4all.maingroup ON maingroup.id = subgroup.id_maingroup ` +
-		`JOIN places4all.template ON template.id = maingroup.id_template ` +
-		`WHERE subgroup.id IN (` + in + `) AND template.id = ?`)
-	values = append(values, idTemplate)
-	var count int
-	err := ds.postgres.QueryRow(sqlCheck, values...).Scan(&count)
-	if err != nil {
-		return err
-	}
-	if count != len(idsSubgroups) {
-		return errors.New("Some subgroups don't belong to template")
 	}
 
 	const sqlInsert = `INSERT INTO places4all.audit_subgroup (` +
@@ -199,6 +179,32 @@ func (ds *Datastore) SaveAuditSubgroup(idAudit int64, idTemplate int64, idsSubgr
 	}
 
 	return err
+}
+
+func (ds *Datastore) InsertAuditSubgroupsTx(tx *sql.Tx, idAudit int64, idTemplate int64, idsSubgroups []int64) (def error) {
+
+	if idsSubgroups == nil {
+		return errors.New("idsSubgroups should not be nil")
+	}
+
+	if tx == nil {
+		ds.InsertAuditSubgroups(idAudit, idTemplate, idsSubgroups)
+	}
+
+	const sqlInsert = `INSERT INTO places4all.audit_subgroup (` +
+		`id_audit, id_subgroup` +
+		`) VALUES (` +
+		`$1, $2` +
+		`)`
+
+	for _, idSubgroup := range idsSubgroups {
+		_, err := tx.Exec(sqlInsert, idAudit, idSubgroup)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (ds *Datastore) DeleteAuditSubgroupsByIdAudit(idAudit int64) error {

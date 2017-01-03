@@ -24,6 +24,7 @@ DECLARE
   _c evaluation_criterion_type;
   _id_audit INTEGER := 0;
 BEGIN
+  SET search_path TO places4all, public;
 
   IF TG_OP = 'DELETE' THEN
     _id_audit := OLD.id_audit;
@@ -87,6 +88,7 @@ FOR EACH ROW EXECUTE PROCEDURE evaluation_procedure();
 
 CREATE FUNCTION check_audit_criterion_belongs_to_audit_subgroup_procedure() RETURNS TRIGGER AS $$
 BEGIN
+  SET search_path TO places4all, public;
   PERFORM id_audit
   FROM audit_subgroup
   JOIN criterion ON criterion.id_subgroup = audit_subgroup.id_subgroup
@@ -103,6 +105,7 @@ FOR EACH ROW EXECUTE PROCEDURE check_audit_criterion_belongs_to_audit_subgroup_p
 
 CREATE FUNCTION initialize_audit_criterion_on_audit_subgroup_procedure() RETURNS TRIGGER AS $$
 BEGIN
+  SET search_path TO places4all, public;
   INSERT INTO audit_criterion (id_audit, id_criterion, value)
   SELECT NEW.id_audit id, crit, 0 val
   FROM unnest(ARRAY(
@@ -119,6 +122,7 @@ FOR EACH ROW EXECUTE PROCEDURE initialize_audit_criterion_on_audit_subgroup_proc
 
 CREATE FUNCTION audit_subgroup_audit_criterion_consistency_procedure() RETURNS TRIGGER AS $$
 BEGIN
+  SET search_path TO places4all, public;
   PERFORM criterion.id
   FROM audit_criterion
   JOIN criterion ON criterion.id = audit_criterion.id_criterion AND criterion.id_subgroup = OLD.id_subgroup
@@ -140,10 +144,11 @@ FOR EACH ROW EXECUTE PROCEDURE audit_subgroup_audit_criterion_consistency_proced
 
 CREATE FUNCTION audit_subgroup_belongs_to_audit_template_procedure() RETURNS TRIGGER AS $$
 BEGIN
+  SET search_path TO places4all, public;
   PERFORM subgroup.id
-  FROM places4all.subgroup
-  JOIN places4all.maingroup ON maingroup.id = subgroup.id_maingroup
-  JOIN places4all.template ON template.id = maingroup.id_template
+  FROM subgroup
+  JOIN maingroup ON maingroup.id = subgroup.id_maingroup
+  JOIN template ON template.id = maingroup.id_template
   WHERE subgroup.id = NEW.id_subgroup AND template.id = (SELECT id_template FROM audit WHERE audit.id = NEW.id_audit);
   IF NOT FOUND THEN
     RAISE EXCEPTION 'audit subgroup does not belong to audit template';

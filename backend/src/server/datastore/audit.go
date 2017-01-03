@@ -1,6 +1,7 @@
 package datastore
 
 import (
+	"database/sql"
 	"errors"
 	"gopkg.in/guregu/null.v3/zero"
 	"server/datastore/generators"
@@ -103,6 +104,10 @@ func NewAudit(allocateObjects bool) *Audit {
 }
 
 func (ds *Datastore) InsertAudit(a *Audit) error {
+	return ds.InsertAuditTx(nil, a)
+}
+
+func (ds *Datastore) InsertAuditTx(tx *sql.Tx, a *Audit) error {
 
 	if a == nil {
 		return errors.New("audit should not be nil")
@@ -118,7 +123,12 @@ func (ds *Datastore) InsertAudit(a *Audit) error {
 		`$1, $2, $3, $4, $5, $6, $7` +
 		`) RETURNING id`)
 
-	err := ds.postgres.QueryRow(sql, a.IdProperty, a.IdAuditor, a.IdTemplate, a.Rating, a.Observation, a.CreatedDate, a.FinishedDate).Scan(&a.Id)
+	var err error
+	if tx != nil {
+		err = tx.QueryRow(sql, a.IdProperty, a.IdAuditor, a.IdTemplate, a.Rating, a.Observation, a.CreatedDate, a.FinishedDate).Scan(&a.Id)
+	} else {
+		err = ds.postgres.QueryRow(sql, a.IdProperty, a.IdAuditor, a.IdTemplate, a.Rating, a.Observation, a.CreatedDate, a.FinishedDate).Scan(&a.Id)
+	}
 	if err != nil {
 		return err
 	}
@@ -129,6 +139,10 @@ func (ds *Datastore) InsertAudit(a *Audit) error {
 }
 
 func (ds *Datastore) UpdateAudit(a *Audit) error {
+	return ds.UpdateAuditTx(nil, a)
+}
+
+func (ds *Datastore) UpdateAuditTx(tx *sql.Tx, a *Audit) error {
 
 	if a == nil {
 		return errors.New("audit should not be nil")
@@ -148,21 +162,30 @@ func (ds *Datastore) UpdateAudit(a *Audit) error {
 		`$1, $2, $3, $4, $5, $6, $7` +
 		`) WHERE id = $8`
 
-	_, err := ds.postgres.Exec(sql, a.IdProperty, a.IdAuditor, a.IdTemplate, a.Rating, a.Observation, a.CreatedDate, a.FinishedDate, a.Id)
+	var err error
+	if tx != nil {
+		_, err = tx.Exec(sql, a.IdProperty, a.IdAuditor, a.IdTemplate, a.Rating, a.Observation, a.CreatedDate, a.FinishedDate, a.Id)
+	} else {
+		_, err = ds.postgres.Exec(sql, a.IdProperty, a.IdAuditor, a.IdTemplate, a.Rating, a.Observation, a.CreatedDate, a.FinishedDate, a.Id)
+	}
 	return err
 }
 
 func (ds *Datastore) SaveAudit(a *Audit) error {
+	return ds.SaveAuditTx(nil, a)
+}
+
+func (ds *Datastore) SaveAuditTx(tx *sql.Tx, a *Audit) error {
 
 	if a == nil {
 		return errors.New("audit should not be nil")
 	}
 
 	if a.Exists() {
-		return ds.UpdateAudit(a)
+		return ds.UpdateAuditTx(tx, a)
 	}
 
-	return ds.InsertAudit(a)
+	return ds.InsertAuditTx(tx, a)
 }
 
 func (ds *Datastore) UpsertAudit(a *Audit) error {

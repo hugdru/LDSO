@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"github.com/pressly/chi"
 	"gopkg.in/guregu/null.v3/zero"
@@ -15,6 +16,7 @@ import (
 func (h *Handler) auditsRoutes(router chi.Router) {
 	router.Get("/", decorators.ReplyJson(h.getAudits))
 	router.Post("/", decorators.OnlySuperadminsOrLocaladmins(decorators.ReplyJson(h.createAudit)))
+	router.Post("/subgroups", decorators.OnlySuperadminsOrLocaladminsOrAuditors(decorators.ReplyJson(h.createAuditWithSubgroups)))
 	router.Route("/:ida", h.auditRoutes)
 }
 
@@ -216,6 +218,126 @@ func (h *Handler) createAudit(w http.ResponseWriter, r *http.Request) {
 	w.Write(auditSlice)
 }
 
+func (h *Handler) createAuditWithSubgroups(w http.ResponseWriter, r *http.Request) {
+
+	var input struct {
+		IdProperty int64   `json:"idProperty"`
+		IdTemplate int64   `json:"idTemplate"`
+		IdAuditor  int64   `json:"idAuditor"`
+		Subgroups  []int64 `json:"subgroups"`
+	}
+
+	switch helpers.GetContentType(r.Header.Get("Content-type")) {
+	case "multipart/form-data":
+		if err := r.ParseForm(); err != nil {
+			http.Error(w, helpers.Error(err.Error()), 500)
+			return
+		}
+		var err error
+		input.IdProperty, err = helpers.ParseInt64(r.PostFormValue("idProperty"))
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+		input.IdTemplate, _ = helpers.ParseInt64(r.PostFormValue("idTemplate"))
+		input.IdAuditor, _ = helpers.ParseInt64(r.PostFormValue("idAuditor"))
+		idsSubgroupsStr := r.PostForm["idSubgroup"]
+		if nSubgroups := len(idsSubgroupsStr); nSubgroups != 0 {
+			input.Subgroups = make([]int64, nSubgroups)
+			for index, idSubgroupStr := range idsSubgroupsStr {
+				var idSubgroup int64
+				idSubgroup, err := helpers.ParseInt64(idSubgroupStr)
+				if err != nil {
+					http.Error(w, helpers.Error(err.Error()), 400)
+					return
+				}
+				input.Subgroups[index] = idSubgroup
+			}
+		}
+	case "application/json":
+		d := json.NewDecoder(r.Body)
+		err := d.Decode(&input)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+	default:
+		http.Error(w, helpers.Error("Content-type not supported"), 415)
+		return
+	}
+
+	if input.IdProperty == 0 {
+		http.Error(w, helpers.Error("idProperty must be set"), 400)
+		return
+	}
+
+	if input.IdAuditor == 0 {
+		esd, err := sessionData.GetSessionData(r)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+		if esd.IsAuditor() {
+			input.IdAuditor = esd.Id
+		} else {
+			http.Error(w, helpers.Error("user not an auditor, set idAuditor"), 400)
+			return
+		}
+	}
+
+	if input.IdTemplate == 0 {
+		currentTemplate, err := h.Datastore.GetCurrentTemplate()
+		if err != nil {
+			http.Error(w, helpers.Error("No closed template exists"), 400)
+			return
+		}
+		input.IdTemplate = currentTemplate.Id
+	}
+
+	audit := datastore.NewAudit(false)
+	err := audit.MustSet(input.IdProperty, input.IdAuditor, input.IdTemplate)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 400)
+		return
+	}
+	audit.CreatedDate = helpers.TheTime()
+
+	tx, successful := func() (*sql.Tx, bool) {
+		tx, err := h.Datastore.BeginTransaction()
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 500)
+			return nil, false
+		}
+
+		err = h.Datastore.SaveAuditTx(tx, audit)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 500)
+			return tx, false
+		}
+
+		err = h.Datastore.InsertAuditSubgroupsTx(tx, audit.Id, audit.IdTemplate, input.Subgroups)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 500)
+			return tx, false
+		}
+
+		auditSlice, err := json.Marshal(audit)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 500)
+			return tx, false
+		}
+		w.Write(auditSlice)
+		return tx, true
+	}()
+	if tx != nil {
+		if successful {
+			tx.Commit()
+		} else {
+			tx.Rollback()
+		}
+	}
+}
+
 func (h *Handler) getAudit(w http.ResponseWriter, r *http.Request) {
 
 	audit := r.Context().Value("audit").(*datastore.Audit)
@@ -385,7 +507,7 @@ func (h *Handler) createAuditSubgroups(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := h.Datastore.SaveAuditSubgroup(audit.Id, audit.IdTemplate, input.Subgroups)
+	err := h.Datastore.InsertAuditSubgroups(audit.Id, audit.IdTemplate, input.Subgroups)
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 500)
 		return
