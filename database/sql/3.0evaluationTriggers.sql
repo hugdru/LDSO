@@ -127,3 +127,20 @@ $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER audit_subgroup_audit_criterion_consistency_trigger BEFORE DELETE OR UPDATE ON audit_subgroup
 FOR EACH ROW EXECUTE PROCEDURE audit_subgroup_audit_criterion_consistency_procedure();
+
+CREATE FUNCTION audit_subgroup_belongs_to_audit_template_procedure() RETURNS TRIGGER AS $$
+BEGIN
+  PERFORM subgroup.id
+  FROM places4all.subgroup
+  JOIN places4all.maingroup ON maingroup.id = subgroup.id_maingroup
+  JOIN places4all.template ON template.id = maingroup.id_template
+  WHERE subgroup.id = NEW.id_subgroup AND template.id = (SELECT id_template FROM audit WHERE audit.id = NEW.id_audit);
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'audit subgroup does not belong to audit template';
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER audit_subgroup_belongs_to_audit_template_trigger BEFORE UPDATE OR INSERT ON audit_subgroup
+FOR EACH ROW EXECUTE PROCEDURE audit_subgroup_belongs_to_audit_template_procedure();
