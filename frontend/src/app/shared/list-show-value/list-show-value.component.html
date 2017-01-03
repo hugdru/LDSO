@@ -1,7 +1,7 @@
-<th class={{object.name}}> {{object.name}}</th>
-<th *ngIf="objType=='Criterion'"> {{object.legislation}}</th>
-<th *ngIf="objType!='AuditTemplate'" [class.warning]="checkPercentage()"
+<th class={{object.name}}> {{object.name}} </th> <br>
+<th *ngIf="objType=='Criterion'" class="indent"> {{object.legislation}} </th>
+<th *ngIf="objType!='AuditTemplate'" class="indent" [class.warning]="checkPercentage()"
     data-toggle="tooltip" data-placement="top"
-    title="A soma das percentegens deve ser 100%">
+    title="A soma das percentegens deve ser 100%" >
     {{object.weight}}%
 </th>
