@@ -5,10 +5,12 @@ import (
 	"database/sql"
 	"encoding/json"
 	"github.com/pressly/chi"
+	"gopkg.in/guregu/null.v3/zero"
 	"net/http"
 	"server/datastore"
 	"server/handler/helpers"
 	"server/handler/helpers/decorators"
+	"strconv"
 )
 
 func (h *Handler) templatesRoutes(router chi.Router) {
@@ -98,12 +100,22 @@ func (h *Handler) createTemplate(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Name        string `json:"name"`
 		Description string `json:"description"`
+		Closed      bool   `json:"closed"`
 	}
 
 	switch helpers.GetContentType(r.Header.Get("Content-type")) {
 	case "multipart/form-data":
 		input.Name = r.PostFormValue("name")
 		input.Description = r.PostFormValue("description")
+		closedStr := r.PostFormValue("closed")
+		if closedStr != "" {
+			var err error
+			input.Closed, err = strconv.ParseBool(closedStr)
+			if err != nil {
+				http.Error(w, helpers.Error(err.Error()), 400)
+				return
+			}
+		}
 	case "application/json":
 		d := json.NewDecoder(r.Body)
 		err := d.Decode(&input)
@@ -127,7 +139,11 @@ func (h *Handler) createTemplate(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
 	}
-	template.CreatedDate = helpers.TheTime()
+	timeNow := helpers.TheTime()
+	template.CreatedDate = timeNow
+	if input.Closed {
+		template.ClosedDate = zero.TimeFrom(timeNow)
+	}
 
 	err = h.Datastore.SaveTemplate(template)
 	if err != nil {
@@ -170,12 +186,22 @@ func (h *Handler) updateTemplate(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Name        string `json:"name"`
 		Description string `json:"description"`
+		Closed      bool   `json:"closed"`
 	}
 
 	switch helpers.GetContentType(r.Header.Get("Content-type")) {
 	case "multipart/form-data":
 		input.Name = r.PostFormValue("name")
 		input.Description = r.PostFormValue("description")
+		closedStr := r.PostFormValue("closed")
+		if closedStr != "" {
+			var err error
+			input.Closed, err = strconv.ParseBool(closedStr)
+			if err != nil {
+				http.Error(w, helpers.Error(err.Error()), 400)
+				return
+			}
+		}
 	case "application/json":
 		d := json.NewDecoder(r.Body)
 		err := d.Decode(&input)
@@ -197,6 +223,10 @@ func (h *Handler) updateTemplate(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
+	}
+
+	if input.Closed {
+		template.ClosedDate = zero.TimeFrom(helpers.TheTime())
 	}
 
 	err = h.Datastore.SaveTemplate(template)
