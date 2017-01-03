@@ -22,7 +22,17 @@ DECLARE
   _m evaluation_maingroup_type;
   _s evaluation_subgroup_type;
   _c evaluation_criterion_type;
+  _id_audit INTEGER := 0;
 BEGIN
+
+  IF TG_OP = 'DELETE' THEN
+    _id_audit := OLD.id_audit;
+  ELSIF TG_OP = 'UPDATE' OR TG_OP = 'INSERT' THEN
+    _id_audit := NEW.id_audit;
+  ELSE
+    RAISE EXCEPTION 'EXPECTING ONLY (DELETE|UPDATE|INSERT)';
+  END IF;
+
   _evals := ARRAY (
     SELECT (maingroup.id, maingroup.weight,
       array_agg((scac.id, scac.weight, scac.criteria)::evaluation_subgroup_type))::evaluation_maingroup_type
@@ -33,7 +43,7 @@ BEGIN
       FROM audit_criterion
       JOIN criterion ON criterion.id = audit_criterion.id_criterion
       JOIN subgroup ON subgroup.id = criterion.id_subgroup
-      WHERE audit_criterion.id_audit = NEW.id_audit
+      WHERE audit_criterion.id_audit = _id_audit
       GROUP BY subgroup.id
     ) scac ON scac.id_maingroup = maingroup.id
     GROUP BY maingroup.id
@@ -65,14 +75,14 @@ BEGIN
 
   UPDATE audit
   SET rating = _rating::INTEGER
-  WHERE audit.id = NEW.id_audit;
+  WHERE audit.id = _id_audit;
 
   RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
 
 
-CREATE TRIGGER evaluation_trigger AFTER UPDATE OR INSERT ON audit_criterion
+CREATE TRIGGER evaluation_trigger AFTER UPDATE OR INSERT OR DELETE ON audit_criterion
 FOR EACH ROW EXECUTE PROCEDURE evaluation_procedure();
 
 CREATE FUNCTION check_audit_criterion_belongs_to_audit_subgroup_procedure() RETURNS TRIGGER AS $$
