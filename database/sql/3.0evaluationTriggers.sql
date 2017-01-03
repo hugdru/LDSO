@@ -267,3 +267,30 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER block_criterion_accessibility_if_template_closed_trigger BEFORE UPDATE OR DELETE ON criterion_accessibility FOR EACH ROW EXECUTE PROCEDURE block_criterion_accessibility_if_template_closed_procedure();
+
+CREATE FUNCTION only_closed_templates_on_audit_procedure() RETURNS TRIGGER AS $$
+BEGIN
+  SET search_path TO places4all, public;
+
+  IF TG_OP = 'INSERT' AND NEW.id_template IS NULL THEN
+    RAISE EXCEPTION 'audit insert must always come with id_template';
+  END IF;
+
+  IF TG_OP = 'UPDATE' AND NEW.id_template IS NULL THEN
+    RETURN NEW;
+  END IF;
+
+  PERFORM template.id
+  FROM template
+  WHERE template.id = NEW.id_template AND template.closed_date IS NOT NULL;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'audit only accepts closed templates';
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER only_closed_templates_on_audit_trigger BEFORE UPDATE OR INSERT ON audit
+FOR EACH ROW EXECUTE PROCEDURE only_closed_templates_on_audit_procedure();
