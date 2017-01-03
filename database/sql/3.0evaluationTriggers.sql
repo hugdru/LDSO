@@ -82,20 +82,22 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-
 CREATE TRIGGER evaluation_trigger AFTER UPDATE OR INSERT OR DELETE ON audit_criterion
 FOR EACH ROW EXECUTE PROCEDURE evaluation_procedure();
 
 CREATE FUNCTION check_audit_criterion_belongs_to_audit_subgroup_procedure() RETURNS TRIGGER AS $$
 BEGIN
   SET search_path TO places4all, public;
+
   PERFORM id_audit
   FROM audit_subgroup
   JOIN criterion ON criterion.id_subgroup = audit_subgroup.id_subgroup
   WHERE audit_subgroup.id_audit = NEW.id_audit AND criterion.id = NEW.id_criterion;
+
   IF NOT FOUND THEN
     RAISE EXCEPTION 'criterion not in audit subgroups';
   END IF;
+
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -106,6 +108,7 @@ FOR EACH ROW EXECUTE PROCEDURE check_audit_criterion_belongs_to_audit_subgroup_p
 CREATE FUNCTION initialize_audit_criterion_on_audit_subgroup_procedure() RETURNS TRIGGER AS $$
 BEGIN
   SET search_path TO places4all, public;
+
   INSERT INTO audit_criterion (id_audit, id_criterion, value)
   SELECT NEW.id_audit id, crit, 0 val
   FROM unnest(ARRAY(
@@ -113,6 +116,7 @@ BEGIN
     FROM criterion
     WHERE criterion.id_subgroup = NEW.id_subgroup
   )) crit;
+
   RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -123,18 +127,22 @@ FOR EACH ROW EXECUTE PROCEDURE initialize_audit_criterion_on_audit_subgroup_proc
 CREATE FUNCTION audit_subgroup_audit_criterion_consistency_procedure() RETURNS TRIGGER AS $$
 BEGIN
   SET search_path TO places4all, public;
+
   PERFORM criterion.id
   FROM audit_criterion
   JOIN criterion ON criterion.id = audit_criterion.id_criterion AND criterion.id_subgroup = OLD.id_subgroup
   WHERE audit_criterion.id_audit = OLD.id_audit;
+
   IF FOUND THEN
     RAISE EXCEPTION 'audit subgroup delete/update not permitted related audit_criterion exists';
   END IF;
+
   IF TG_OP = 'DELETE' THEN
     return OLD;
   ELSIF TG_OP = 'UPDATE' THEN
     return NEW;
   END IF;
+
   RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -145,17 +153,117 @@ FOR EACH ROW EXECUTE PROCEDURE audit_subgroup_audit_criterion_consistency_proced
 CREATE FUNCTION audit_subgroup_belongs_to_audit_template_procedure() RETURNS TRIGGER AS $$
 BEGIN
   SET search_path TO places4all, public;
+
   PERFORM subgroup.id
   FROM subgroup
   JOIN maingroup ON maingroup.id = subgroup.id_maingroup
   JOIN template ON template.id = maingroup.id_template
   WHERE subgroup.id = NEW.id_subgroup AND template.id = (SELECT id_template FROM audit WHERE audit.id = NEW.id_audit);
+
   IF NOT FOUND THEN
     RAISE EXCEPTION 'audit subgroup does not belong to audit template';
   END IF;
+
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER audit_subgroup_belongs_to_audit_template_trigger BEFORE UPDATE OR INSERT ON audit_subgroup
 FOR EACH ROW EXECUTE PROCEDURE audit_subgroup_belongs_to_audit_template_procedure();
+
+CREATE FUNCTION block_maingroup_if_template_closed_procedure() RETURNS TRIGGER AS $$
+BEGIN
+  SET search_path TO places4all, public;
+
+  PERFORM maingroup.id
+  FROM maingroup
+  JOIN template ON template.id = maingroup.id_template AND template.closed_date IS NULL
+  WHERE maingroup.id = OLD.id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'template is closed operation not permitted';
+  END IF;
+
+  IF TG_OP = 'DELETE' THEN
+    return OLD;
+  ELSIF TG_OP = 'UPDATE' THEN
+    return NEW;
+  END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER block_maingroup_if_template_closed_trigger BEFORE UPDATE OR DELETE ON maingroup FOR EACH ROW EXECUTE PROCEDURE block_maingroup_if_template_closed_procedure();
+
+CREATE FUNCTION block_subgroup_if_template_closed_procedure() RETURNS TRIGGER AS $$
+BEGIN
+  SET search_path TO places4all, public;
+
+  PERFORM subgroup.id
+  FROM subgroup
+  JOIN maingroup ON maingroup.id = subgroup.id_maingroup
+  JOIN template ON template.id = maingroup.id_template AND template.closed_date IS NULL
+  WHERE subgroup.id = OLD.id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'template is closed operation not permitted';
+  END IF;
+
+  IF TG_OP = 'DELETE' THEN
+    return OLD;
+  ELSIF TG_OP = 'UPDATE' THEN
+    return NEW;
+  END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER block_subgroup_if_template_closed_trigger BEFORE UPDATE OR DELETE ON subgroup FOR EACH ROW EXECUTE PROCEDURE block_subgroup_if_template_closed_procedure();
+
+CREATE FUNCTION block_criterion_if_template_closed_procedure() RETURNS TRIGGER AS $$
+BEGIN
+  SET search_path TO places4all, public;
+
+  PERFORM criterion.id
+  FROM criterion
+  JOIN subgroup ON subgroup.id = criterion.id_subgroup
+  JOIN maingroup ON maingroup.id = subgroup.id_maingroup
+  JOIN template ON template.id = maingroup.id_template AND template.closed_date IS NULL
+  WHERE criterion.id = OLD.id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'template is closed operation not permitted';
+  END IF;
+
+  IF TG_OP = 'DELETE' THEN
+    return OLD;
+  ELSIF TG_OP = 'UPDATE' THEN
+    return NEW;
+  END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER block_criterion_if_template_closed_trigger BEFORE UPDATE OR DELETE ON criterion FOR EACH ROW EXECUTE PROCEDURE block_criterion_if_template_closed_procedure();
+
+CREATE FUNCTION block_criterion_accessibility_if_template_closed_procedure() RETURNS TRIGGER AS $$
+BEGIN
+  SET search_path TO places4all, public;
+
+  PERFORM criterion.id
+  FROM criterion
+  JOIN subgroup ON subgroup.id = criterion.id_subgroup
+  JOIN maingroup ON maingroup.id = subgroup.id_maingroup
+  JOIN template ON template.id = maingroup.id_template AND template.closed_date IS NULL
+  WHERE criterion.id = OLD.id_criterion;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'template is closed operation not permitted';
+  END IF;
+
+  IF TG_OP = 'DELETE' THEN
+    return OLD;
+  ELSIF TG_OP = 'UPDATE' THEN
+    return NEW;
+  END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER block_criterion_accessibility_if_template_closed_trigger BEFORE UPDATE OR DELETE ON criterion_accessibility FOR EACH ROW EXECUTE PROCEDURE block_criterion_accessibility_if_template_closed_procedure();
