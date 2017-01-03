@@ -4,6 +4,8 @@ DROP SCHEMA IF EXISTS "places4all" CASCADE;
 CREATE SCHEMA "places4all";
 SET SCHEMA 'places4all';
 
+CREATE DOMAIN PERCENTAGE AS INTEGER CHECK (VALUE >= 0 AND VALUE <= 100);
+
 CREATE TABLE country (
   id SERIAL PRIMARY KEY,
   name VARCHAR(100) UNIQUE NOT NULL,
@@ -116,7 +118,7 @@ CREATE TABLE maingroup (
   id SERIAL PRIMARY KEY,
   id_template INTEGER NOT NULL REFERENCES template(id) ON DELETE CASCADE,
   name VARCHAR(100) NOT NULL,
-  weight INTEGER NOT NULL,
+  weight PERCENTAGE NOT NULL,
   created_date TIMESTAMP NOT NULL
 );
 
@@ -124,7 +126,7 @@ CREATE TABLE subgroup (
   id SERIAL PRIMARY KEY,
   id_maingroup INTEGER NOT NULL REFERENCES maingroup(id) ON DELETE CASCADE,
   name VARCHAR(100) NOT NULL,
-  weight INTEGER NOT NULL,
+  weight PERCENTAGE NOT NULL,
   created_date TIMESTAMP NOT NULL
 );
 
@@ -140,7 +142,7 @@ CREATE TABLE criterion (
   id_subgroup INTEGER NOT NULL REFERENCES subgroup(id) ON DELETE CASCADE,
   id_legislation INTEGER REFERENCES legislation(id),
   name VARCHAR(100) NOT NULL,
-  weight INTEGER NOT NULL,
+  weight PERCENTAGE NOT NULL,
   created_date TIMESTAMP NOT NULL
 );
 
@@ -152,7 +154,7 @@ CREATE TABLE accessibility (
 CREATE TABLE criterion_accessibility (
   id_criterion INTEGER REFERENCES criterion(id) ON DELETE CASCADE,
   id_accessibility INTEGER REFERENCES accessibility(id),
-  weight INTEGER NOT NULL,
+  weight PERCENTAGE NOT NULL,
   PRIMARY KEY(id_criterion, id_accessibility)
 );
 
@@ -161,7 +163,7 @@ CREATE TABLE audit (
   id_property INTEGER NOT NULL REFERENCES property(id),
   id_auditor INTEGER NOT NULL REFERENCES auditor(id_entity),
   id_template INTEGER NOT NULL REFERENCES template(id),
-  rating INTEGER,
+  rating PERCENTAGE,
   observation TEXT,
   created_date TIMESTAMP NOT NULL,
   finished_date TIMESTAMP
