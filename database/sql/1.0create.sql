@@ -111,6 +111,7 @@ CREATE TABLE template (
   id SERIAL PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
   description TEXT,
+  closed_date TIMESTAMP,
   created_date TIMESTAMP NOT NULL
 );
 
