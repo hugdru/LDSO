@@ -162,7 +162,8 @@ func (ds *Datastore) SaveAuditSubgroup(idAudit int64, idTemplate int64, idsSubgr
 		`FROM places4all.subgroup ` +
 		`JOIN places4all.maingroup ON maingroup.id = subgroup.id_maingroup ` +
 		`JOIN places4all.template ON template.id = maingroup.id_template ` +
-		`WHERE subgroup.id IN (` + in + `)`)
+		`WHERE subgroup.id IN (` + in + `) AND template.id = ?`)
+	values = append(values, idTemplate)
 	var count int
 	err := ds.postgres.QueryRow(sqlCheck, values...).Scan(&count)
 	if err != nil {
