@@ -1,7 +1,7 @@
 import {Response} from "@angular/http";
 import {Injectable} from "@angular/core";
 import {Observable} from "rxjs/Observable";
-import {auditTemplatesUrl} from "shared/shared-data";
+import {auditTemplatesUrl, currentAuditTemplateUrl} from "shared/shared-data";
 import {HandlerService} from "../../shared/service/handler.service";
 import {AuditTemplate} from "../audit-template";
 
@@ -21,6 +21,10 @@ export class AuditTemplateService {
 
     getAuditTemplate(id: number): Observable<AuditTemplate> {
         return this.handler.get<AuditTemplate>(auditTemplatesUrl, id);
+    }
+
+    getCurrentAuditTemplate(): Observable<AuditTemplate> {
+        return this.handler.getAll<AuditTemplate>(currentAuditTemplateUrl);
     }
 
     updateAuditTemplate(group: AuditTemplate): Observable<Response> {
