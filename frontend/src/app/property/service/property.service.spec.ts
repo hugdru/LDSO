@@ -10,7 +10,7 @@ import {
 } from "@angular/http";
 import {MockBackend, MockConnection} from "@angular/http/testing";
 import {PropertyService} from "property/service/property.service";
-import {HandlerService} from "handler.service";
+import {HandlerService} from "../../shared/service/handler.service";
 
 const mockArray = [
     {id: 26, name: "ana", image_path: "bla"},

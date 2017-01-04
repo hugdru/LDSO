@@ -45,9 +45,9 @@ import {AuditEvaluateCriterionComponent} from "audit/audit-evaluate-criterion.co
 import {AuditSelectComponent} from "audit/audit-select.component";
 import {RemarkAddComponent} from "remark/remark-add.component";
 import {ImageSingleUploadComponent} from "images/image-single-upload.component";
-import {HandlerService} from "handler.service";
-import { MainPageComponent } from './main-page/main-page.component';
-import { PropertyEvaluationComponent } from './property-evaluation/property-evaluation.component';
+import {HandlerService} from "shared/service/handler.service";
+import {MainPageComponent} from "./main-page/main-page.component";
+import {PropertyEvaluationComponent} from "./property-evaluation/property-evaluation.component";
 
 @NgModule({
     declarations: [
@@ -87,10 +87,10 @@ import { PropertyEvaluationComponent } from './property-evaluation/property-eval
         AuditEvaluateComponent,
         AuditEvaluateCriterionComponent,
         AuditSelectComponent,
-		RemarkAddComponent,
-		ImageSingleUploadComponent,
-		MainPageComponent,
-		PropertyEvaluationComponent
+        RemarkAddComponent,
+        ImageSingleUploadComponent,
+        MainPageComponent,
+        PropertyEvaluationComponent
     ],
     imports: [
         AppRoutingModule,

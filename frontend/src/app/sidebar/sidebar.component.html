@@ -12,65 +12,71 @@
         </div>
         <div class="collapse navbar-collapse" id="bs-sidebar-navbar-collapse-1">
             <ul class="nav navbar-nav">
-                <li class="active">
-                    <a href="#">
-                        Home
+                <li>
+                    <a href="/main-page">
+                        Início
                         <span style="font-size:16px;" class="pull-right
 								hidden-xs showopacity glyphicon glyphicon-home">
 						</span>
                     </a>
                 </li>
-                <li class="dropdown">
+                <li *ngIf="loggedIn">
                     <a routerLink="/login" routerLinkActive="active">
-                        Login
+                        Sair
                         <span style="font-size:16px;" class="pull-right
-								hidden-xs showopacity glyphicon glyphicon-user">
+								hidden-xs showopacity glyphicon glyphicon-log-out">
 						</span>
                     </a>
+                </li>
+                <li *ngIf="!loggedIn">
+                    <a routerLink="/login" routerLinkActive="active">
+                        Entrar
+                        <span style="font-size:16px;" class="pull-right
+								hidden-xs showopacity glyphicon glyphicon-log-in">
+						</span>
+                    </a>
+                </li>
+                <li>
                     <a routerLink="/register" routerLinkActive="active">
-                        Register
+                        Registar
                         <span style="font-size:16px;" class="pull-right
 								hidden-xs showopacity glyphicon glyphicon-user">
 						</span>
                     </a>
-                    <a routerLink="/propertyEvaluation/1" routerLinkActive="active">
-                        Property Evaluation
-                        <span style="font-size:16px;" class="pull-right
-								hidden-xs showopacity glyphicon glyphicon-user">
-						</span>
-                    </a>
-                    <ul class="dropdown-menu forAnimate" role="menu">
-                        <li><a>Crition</a></li>
-                        <li><a href="#">Reportar</a></li>
-                        <li class="divider"></li>
-                        <li><a href="#">Separated link</a></li>
-                        <li class="divider"></li>
-                        <li><a href="#">Informes</a></li>
-                    </ul>
                 </li>
                 <li>
                     <a routerLink="/auditTemplate" routerLinkActive="active">
-                        Editar Critérios
+                        Modelos
                         <span style="font-size:16px;" class="pull-right
 								hidden-xs showopacity glyphicon
-								glyphicon-th-list">
+								glyphicon glyphicon-wrench">
 						</span>
                     </a>
                 </li>
                 <li>
                     <a routerLink="/listProperties" routerLinkActive="active">
-                        Listar Propriedades
+                        Auditar
                         <span style="font-size:16px;" class="pull-right
 								hidden-xs showopacity glyphicon
-								glyphicon-th-list">
+								glyphicon glyphicon-edit">
 						</span>
                     </a>
                 </li>
                 <li>
-                    <a href="#">
-                        Tags
+                    <a routerLink="propertyEvaluation/1" routerLinkActive="active">
+                        Propriedades
                         <span style="font-size:16px;" class="pull-right
-								hidden-xs showopacity glyphicon glyphicon-tags">
+								hidden-xs showopacity glyphicon
+								glyphicon glyphicon-eye-open">
+						</span>
+                    </a>
+                </li>
+                <li>
+                    <a routerLink="/listProperties" routerLinkActive="active">
+                        Submeter Propriedade
+                        <span style="font-size:16px;" class="pull-right
+								hidden-xs showopacity glyphicon
+								glyphicon glyphicon glyphicon-plus">
 						</span>
                     </a>
                 </li>
