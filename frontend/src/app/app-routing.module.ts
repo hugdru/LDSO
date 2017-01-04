@@ -1,4 +1,4 @@
-import {NgModule} from "@angular/core";
+import {NgModule, Injectable} from "@angular/core";
 import {RouterModule, Routes} from "@angular/router";
 import {AuditTemplateComponent} from "audit-template/audit-template.component";
 import {MainPageComponent} from "main-page/main-page.component";
@@ -6,11 +6,14 @@ import {AuditComponent} from "audit/audit.component";
 import {ListPropertiesComponent} from "./property/list-properties.component";
 import {LoginComponent} from "./login/login.component";
 import {RegisterComponent} from "./register/register.component";
+import {PropertyEvaluationComponent} from "./property-evaluation/property-evaluation.component";
+import {SuperAdminGuard} from "shared/service/superadmin.guard";
+import {AuditGuard} from "./shared/service/audit.guard";
 
 const routes: Routes = [
     {
         path: '',
-        redirectTo: '/main-page', //change to homepage once implemented
+        redirectTo: '/main-page',
         pathMatch: 'full'
     },
     {
@@ -19,22 +22,31 @@ const routes: Routes = [
     },
     {
         path: 'auditTemplate',
-        component: AuditTemplateComponent
+        component: AuditTemplateComponent,
+        canActivate: [SuperAdminGuard]
     },
     {
         path: 'audit/:id',
-        component: AuditComponent
+        component: AuditComponent,
+        canActivate: [AuditGuard]
     },
     {
         path: 'listProperties',
-        component: ListPropertiesComponent
+        component: ListPropertiesComponent,
+        canActivate: [AuditGuard]
     },
     {
         path: 'login',
-        component: LoginComponent },
+        component: LoginComponent
+    },
     {
         path: 'register',
-        component: RegisterComponent },
+        component: RegisterComponent
+    },
+    {
+        path: 'propertyEvaluation/:id',
+        component: PropertyEvaluationComponent
+    },
 
 ];
 
@@ -43,6 +55,7 @@ const routes: Routes = [
     exports: [RouterModule]
 })
 
+@Injectable()
 export class AppRoutingModule {
 
 }

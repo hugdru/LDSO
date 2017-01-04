@@ -1,6 +1,7 @@
 import {Component, OnInit} from "@angular/core";
 import {LoginService} from "login/service/login.service";
 import {Session} from "./session";
+import {SessionAnnounceService} from "../shared/service/session-announce.service";
 
 @Component({
     selector: 'login',
@@ -16,7 +17,8 @@ export class LoginComponent implements OnInit {
     loggedIn = false;
     errorMsg: string;
 
-    constructor(private loginService: LoginService) {
+    constructor(private loginService: LoginService,
+                private sessionService: SessionAnnounceService) {
         this.loggedIn = !!localStorage.getItem('auth_token');
     }
 
@@ -34,15 +36,15 @@ export class LoginComponent implements OnInit {
                     this.session.name = response.json().name;
                     this.session.email = response.json().email;
                     this.session.password = "";
-                    this.loggedIn = true;
                     localStorage.setItem('auth_token', response.json().auth_token);
                     localStorage.setItem('session', JSON.stringify(this.session));
+                    this.loggedIn = true;
+                    this.sessionService.announceSession(this.loggedIn);
                 },
                 error => {
                     this.errorMsg = <any>error;
                 }
         );
-        console.log(this.session)
     }
 
     logout(): void {
@@ -55,6 +57,7 @@ export class LoginComponent implements OnInit {
         localStorage.removeItem('session');
         this.session = new Session();
         this.loggedIn = false;
+        this.sessionService.announceSession(this.loggedIn);
     }
 
     cancel(): void {

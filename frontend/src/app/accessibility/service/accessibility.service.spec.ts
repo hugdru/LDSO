@@ -10,7 +10,7 @@ import {
 } from "@angular/http";
 import {MockBackend, MockConnection} from "@angular/http/testing";
 import {AccessibilityService} from "accessibility/service/accessibility.service";
-import {HandlerService} from "handler.service";
+import {HandlerService} from "../../shared/service/handler.service";
 
 const mockArray = [
     {id: 5, name: "carlos", weight: 25},
