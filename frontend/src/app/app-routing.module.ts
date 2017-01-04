@@ -37,7 +37,7 @@ const routes: Routes = [
         path: 'register',
         component: RegisterComponent },
     {
-        path: 'propertyEvaluation',
+        path: 'propertyEvaluation/:id',
         component: PropertyEvaluationComponent
     },
 
