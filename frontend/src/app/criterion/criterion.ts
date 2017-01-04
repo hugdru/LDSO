@@ -3,5 +3,6 @@ export class Criterion {
     name: string;
     weight: number;
     legislation: string;
-    idSubgroup: number;
+    idSubgroup: number
+    closed: boolean;
 }

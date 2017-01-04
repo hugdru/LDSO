@@ -1,7 +1,7 @@
 <div>
-    <input *ngIf="objType!='Accessibility'" [(ngModel)]="login.name"
+    <input *ngIf="objType!='Accessibility'" [(ngModel)]="selectedObject.name"
            placeholder="name" size="60" /> <br>
-    <span *ngIf="objType=='Accessibility'" class="{{login.name}}">
+    <span *ngIf="objType=='Accessibility'" class="{{selectedObject.name}}">
         {{selectedObject.name}}</span>
     <label *ngIf="objType=='Criterion'">
         Boa Pratica <input type="checkbox"
@@ -10,13 +10,13 @@
                            (change)="!goodPractice">
     </label>
     <input *ngIf="objType=='Criterion'"
-           [(ngModel)]="login.legislation"
+           [(ngModel)]="selectedObject.legislation"
            [disabled]="goodPractice"
            placeholder="legislação"/>
     <input *ngIf="objType!='AuditTemplate'"
            type="number" step="1" min="0" max="100"
            required
-           [(ngModel)]="login.weight"
+           [(ngModel)]="selectedObject.weight"
            placeholder="peso" [class.warning]="checkPercentage()"/>
     <button class="btn btn-success round outline"
             (click)="pressed(selectedObject)">

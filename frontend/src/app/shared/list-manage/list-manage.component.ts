@@ -16,6 +16,8 @@ export class ListManageComponent {
     @Input() father: Identifier;
     @Output() onShow = new EventEmitter<Object>();
     @Output() onDelete = new EventEmitter<Object>();
+    @Output() onClose = new EventEmitter<Object>();
+    @Output() onOpen = new EventEmitter<Object>();
 
     showChildren(obj: Identifier) {
         this.onShow.emit(obj);
@@ -31,6 +33,14 @@ export class ListManageComponent {
             }
         }
         this.objects.splice(position, 1);
+    }
+
+    closeObject(obj: Identifier): void {
+        this.onClose.emit(obj);
+    }
+
+    openObject(obj: Identifier): void {
+        this.onOpen.emit(obj);
     }
 
     selectAddObject() {

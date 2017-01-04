@@ -3,4 +3,5 @@ export class SubGroup {
     name: string;
     weight: number;
     idMaingroup: number;
+    closed: boolean;
 }
