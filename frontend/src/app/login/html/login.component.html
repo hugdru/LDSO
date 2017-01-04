@@ -1,5 +1,5 @@
 <div *ngIf="!loggedIn">
-    <h1>Login</h1>
+    <h1>Entrar</h1>
     <input type="text"
            required
            [(ngModel)]="session.username"
@@ -22,6 +22,6 @@
     <h3>{{session.name}}</h3>
     <button type="button" class="btn btn-primary btn-md buttonAccept"
         (click)="logout()">
-        LOGOUT
+        SAIR
     </button>
 </div>

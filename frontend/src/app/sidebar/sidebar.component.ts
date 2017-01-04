@@ -1,6 +1,6 @@
 import {Component, OnInit} from "@angular/core";
 import {Session} from "../login/session";
-import {SessionService} from "../shared/service/session.service";
+import {SessionAnnounceService} from "../shared/service/session-announce.service";
 import {Subscription} from "rxjs";
 
 
@@ -16,7 +16,7 @@ export class SidebarComponent implements OnInit {
     session: Session;
     subscription: Subscription;
 
-    constructor(sessionService: SessionService) {
+    constructor(private sessionService: SessionAnnounceService) {
         this.loggedIn = !!localStorage.getItem('auth_token');
         this.subscription = sessionService.sessionAnnounced$.subscribe(
                 loggedIn => {
@@ -37,10 +37,6 @@ export class SidebarComponent implements OnInit {
         if (loggedIn)
             this.session = JSON.parse(localStorage.getItem('session'));
         else this.session = new Session();
-    }
-
-    setLogin(value: boolean): void {
-        this.loggedIn = value;
     }
 
     ngOnDestroy() {

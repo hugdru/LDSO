@@ -1,15 +1,31 @@
-import { Injectable } from '@angular/core';
-import { Subject }    from 'rxjs/Subject';
+import {Injectable} from '@angular/core';
+import {Session} from "../../login/session";
 
 @Injectable()
 export class SessionService {
 
-    private sessionAnnouncedSource = new Subject<boolean>();
+    private loggedIn: boolean;
+    private session: Session;
 
-    sessionAnnounced$ = this.sessionAnnouncedSource.asObservable();
+    constructor() {
+        this.loggedIn = !!localStorage.getItem('auth_token');
+        this.initSession(this.loggedIn)
+    }
 
-    announceSession(loggedIn: boolean) {
-        this.sessionAnnouncedSource.next(loggedIn);
+    initSession(loggedIn: boolean): void {
+        if (loggedIn)
+            this.session = JSON.parse(localStorage.getItem('session'));
+        else {
+            this.session = new Session();
+        }
+    }
+
+    getSession(): Session {
+        this.loggedIn = !!localStorage.getItem('auth_token');
+        this.initSession(this.loggedIn);
+        return this.session;
     }
 
 }
+
+

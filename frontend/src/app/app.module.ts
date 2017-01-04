@@ -46,9 +46,13 @@ import {AuditEvaluateCriterionComponent} from "audit/audit-evaluate-criterion.co
 import {AuditSelectComponent} from "audit/audit-select.component";
 import {RemarkAddComponent} from "remark/remark-add.component";
 import {ImageSingleUploadComponent} from "images/image-single-upload.component";
-import {HandlerService} from "handler.service";
-import { MainPageComponent } from './main-page/main-page.component';
-import { PropertyEvaluationComponent } from './property-evaluation/property-evaluation.component';
+import {HandlerService} from "shared/service/handler.service";
+import {MainPageComponent} from "./main-page/main-page.component";
+import {PropertyEvaluationComponent} from "./property-evaluation/property-evaluation.component";
+import {SessionAnnounceService} from "./shared/service/session-announce.service";
+import {SuperAdminGuard} from "shared/service/superadmin.guard";
+import {SessionService} from "./shared/service/session.service";
+import {AuditGuard} from "./shared/service/audit.guard";
 
 @NgModule({
     declarations: [
@@ -88,10 +92,10 @@ import { PropertyEvaluationComponent } from './property-evaluation/property-eval
         AuditEvaluateComponent,
         AuditEvaluateCriterionComponent,
         AuditSelectComponent,
-		RemarkAddComponent,
-		ImageSingleUploadComponent,
-		MainPageComponent,
-		PropertyEvaluationComponent
+        RemarkAddComponent,
+        ImageSingleUploadComponent,
+        MainPageComponent,
+        PropertyEvaluationComponent,
     ],
     imports: [
         AppRoutingModule,
@@ -102,7 +106,13 @@ import { PropertyEvaluationComponent } from './property-evaluation/property-eval
         ModalModule,
 		MaterialModule.forRoot()
     ],
-    providers: [HandlerService],
+    providers: [
+        HandlerService,
+        SessionService,
+        SessionAnnounceService,
+        SuperAdminGuard,
+        AuditGuard
+    ],
     bootstrap: [AppComponent]
 })
 
