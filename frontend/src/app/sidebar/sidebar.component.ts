@@ -7,8 +7,7 @@ import {Subscription} from "rxjs";
 @Component({
     selector: 'p4a-sidebar',
     templateUrl: './sidebar.component.html',
-    styleUrls: ['./sidebar.component.css']
-
+    styleUrls: ['./sidebar.component.css'],
 })
 
 export class SidebarComponent implements OnInit {
@@ -21,14 +20,13 @@ export class SidebarComponent implements OnInit {
         this.loggedIn = !!localStorage.getItem('auth_token');
         this.subscription = sessionService.sessionAnnounced$.subscribe(
                 loggedIn => {
-                    console.log(loggedIn);
                     this.loggedIn = loggedIn;
-                    this.initSession(this.loggedIn);
+                    this.initSession(loggedIn);
                 });
     }
 
     ngOnInit(): void {
-        this.initSession(this.loggedIn);
+        this.initSession(this.loggedIn)
     }
 
     ngOnChanges(): void {

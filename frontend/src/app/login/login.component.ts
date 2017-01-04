@@ -36,10 +36,10 @@ export class LoginComponent implements OnInit {
                     this.session.name = response.json().name;
                     this.session.email = response.json().email;
                     this.session.password = "";
-                    this.loggedIn = true;
-                    this.sessionService.announceSession(this.loggedIn);
                     localStorage.setItem('auth_token', response.json().auth_token);
                     localStorage.setItem('session', JSON.stringify(this.session));
+                    this.loggedIn = true;
+                    this.sessionService.announceSession(this.loggedIn);
                 },
                 error => {
                     this.errorMsg = <any>error;
