@@ -3,4 +3,5 @@ export class MainGroup {
     name: string;
     weight: number;
     idTemplate: number;
+    closed: boolean;
 }

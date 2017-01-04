@@ -2,6 +2,8 @@
     <list-manage [objects]="auditTemplates"
                  [objType]="objType"
                  (onDelete)="onDelete($event)"
+                 (onClose)="onClose($event)"
+                 (onOpen)="onOpen($event)"
                  (onShow)="onShow($event)">
     </list-manage>
 </div>

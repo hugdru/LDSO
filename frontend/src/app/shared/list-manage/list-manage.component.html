@@ -24,17 +24,33 @@
                         [objType]="objType">
                 </list-show-value>
                 <th>
-                    <button class="btn btn-neutral round outline"
+                    <button *ngIf="!obj.closed"
+                            class="btn btn-neutral round outline"
                             (click)="selectEditObject(obj)">
                         <i class="glyphicon glyphicon-pencil"></i>
                     </button>
                 </th>
                 <th>
-                    <button *ngIf="objType !='Accessibility'"
+                    <button *ngIf="!obj.closed && objType !='Accessibility'"
                             type="button"
                             class="btn btn-delete round outline"
                             (click)="deleteObject(obj)">
                         <span class="glyphicon glyphicon-trash"></span>
+                    </button>
+                </th>
+                <th>
+                    <button *ngIf="!obj.closed && objType =='AuditTemplate'"
+                            class="btn btn-neutral round outline"
+                            (click)="closeObject(obj)">
+                        <i class="glyphicon glyphicon-lock"></i>
+                    </button>
+                </th>
+                <th>
+                    <button
+                            *ngIf="!obj.used && obj.closed && objType =='AuditTemplate'"
+                            class="btn btn-neutral round outline"
+                            (click)="openObject(obj)">
+                        <i class="glyphicon glyphicon-lock"></i>
                     </button>
                 </th>
             </tr>

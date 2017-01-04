@@ -1,9 +1,13 @@
 import {Response} from "@angular/http";
 import {Injectable} from "@angular/core";
 import {Observable} from "rxjs/Observable";
-import {auditTemplatesUrl, currentAuditTemplateUrl} from "shared/shared-data";
+import {
+    auditTemplatesUrl, currentAuditTemplateUrl,
+    closeAuditTemplateUrl
+} from "shared/shared-data";
 import {HandlerService} from "../../shared/service/handler.service";
 import {AuditTemplate} from "../audit-template";
+import {Close} from "../close";
 
 @Injectable()
 export class AuditTemplateService {
@@ -38,4 +42,10 @@ export class AuditTemplateService {
     removeAuditTemplate(id: number): Observable<Response> {
         return this.handler.delete(auditTemplatesUrl, id);
     }
+
+    closeAuditTemplate(id: number, close: Close): Observable<Response> {
+        return this.handler.set<Close>(
+                closeAuditTemplateUrl.replace(/#/g, id.toString()), close);
+    }
+
 }
