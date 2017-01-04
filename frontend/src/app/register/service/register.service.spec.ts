@@ -10,7 +10,7 @@ import {
 } from "@angular/http";
 import {MockBackend, MockConnection} from "@angular/http/testing";
 import {RegisterService} from "register/service/register.service";
-import {HandlerService} from "handler.service";
+import {HandlerService} from "../../shared/service/handler.service";
 
 const mock = {id: 5, username: "carlos", password: "bla"};
 

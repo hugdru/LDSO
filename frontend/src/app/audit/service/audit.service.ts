@@ -4,7 +4,7 @@ import {Observable} from "rxjs/Observable";
 import {auditsUrl} from "shared/shared-data";
 import {auditsSubGroupsUrl} from "shared/shared-data";
 import {auditsCriterionUrl} from "shared/shared-data";
-import {HandlerService} from "handler.service";
+import {HandlerService} from "../../shared/service/handler.service";
 import {Audit} from "audit/audit";
 import {AuditCriterion} from "audit/audit";
 import {SubGroup} from "sub-group/sub-group";

@@ -46,8 +46,8 @@ import {AuditEvaluateCriterionComponent} from "audit/audit-evaluate-criterion.co
 import {AuditSelectComponent} from "audit/audit-select.component";
 import {RemarkAddComponent} from "remark/remark-add.component";
 import {ImageSingleUploadComponent} from "images/image-single-upload.component";
-import {HandlerService} from "handler.service";
-import { MainPageComponent } from './main-page/main-page.component';
+import {HandlerService} from "shared/service/handler.service";
+import {MainPageComponent} from './main-page/main-page.component';
 
 @NgModule({
     declarations: [
