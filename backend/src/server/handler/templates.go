@@ -100,22 +100,14 @@ func (h *Handler) createTemplate(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Name        string `json:"name"`
 		Description string `json:"description"`
-		Closed      bool   `json:"closed"`
+		Close       string `json:"close"`
 	}
 
 	switch helpers.GetContentType(r.Header.Get("Content-type")) {
 	case "multipart/form-data":
 		input.Name = r.PostFormValue("name")
 		input.Description = r.PostFormValue("description")
-		closedStr := r.PostFormValue("closed")
-		if closedStr != "" {
-			var err error
-			input.Closed, err = strconv.ParseBool(closedStr)
-			if err != nil {
-				http.Error(w, helpers.Error(err.Error()), 400)
-				return
-			}
-		}
+		input.Close = r.PostFormValue("close")
 	case "application/json":
 		d := json.NewDecoder(r.Body)
 		err := d.Decode(&input)
@@ -141,8 +133,16 @@ func (h *Handler) createTemplate(w http.ResponseWriter, r *http.Request) {
 	}
 	timeNow := helpers.TheTime()
 	template.CreatedDate = timeNow
-	if input.Closed {
-		template.ClosedDate = zero.TimeFrom(timeNow)
+
+	if input.Close != "" {
+		close, err := strconv.ParseBool(input.Close)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+		if close {
+			template.ClosedDate = zero.TimeFrom(timeNow)
+		}
 	}
 
 	err = h.Datastore.SaveTemplate(template)
@@ -186,22 +186,14 @@ func (h *Handler) updateTemplate(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Name        string `json:"name"`
 		Description string `json:"description"`
-		Closed      bool   `json:"closed"`
+		Close       string `json:"close"`
 	}
 
 	switch helpers.GetContentType(r.Header.Get("Content-type")) {
 	case "multipart/form-data":
 		input.Name = r.PostFormValue("name")
 		input.Description = r.PostFormValue("description")
-		closedStr := r.PostFormValue("closed")
-		if closedStr != "" {
-			var err error
-			input.Closed, err = strconv.ParseBool(closedStr)
-			if err != nil {
-				http.Error(w, helpers.Error(err.Error()), 400)
-				return
-			}
-		}
+		input.Close = r.PostFormValue("close")
 	case "application/json":
 		d := json.NewDecoder(r.Body)
 		err := d.Decode(&input)
@@ -225,8 +217,17 @@ func (h *Handler) updateTemplate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if input.Closed {
-		template.ClosedDate = zero.TimeFrom(helpers.TheTime())
+	if input.Close != "" {
+		close, err := strconv.ParseBool(input.Close)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+		if close {
+			template.ClosedDate = zero.TimeFrom(helpers.TheTime())
+		} else {
+			template.ClosedDate = zero.Time{}
+		}
 	}
 
 	err = h.Datastore.SaveTemplate(template)
