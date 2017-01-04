@@ -2,16 +2,20 @@ package handler
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"github.com/pressly/chi"
+	"gopkg.in/guregu/null.v3/zero"
 	"net/http"
 	"server/datastore"
 	"server/handler/helpers"
 	"server/handler/helpers/decorators"
+	"strconv"
 )
 
 func (h *Handler) templatesRoutes(router chi.Router) {
 	router.Get("/", decorators.ReplyJson(h.getTemplates))
+	router.Get("/current", decorators.ReplyJson(h.getCurrentTemplate))
 	router.Post("/", decorators.OnlySuperadmins(decorators.ReplyJson(h.createTemplate)))
 	router.Route("/:idt", h.templateRoutes)
 }
@@ -75,17 +79,35 @@ func (h *Handler) getTemplates(w http.ResponseWriter, r *http.Request) {
 	w.Write(templatesSlice)
 }
 
+func (h *Handler) getCurrentTemplate(w http.ResponseWriter, r *http.Request) {
+	template, err := h.Datastore.GetCurrentTemplate()
+	if err != sql.ErrNoRows && err != nil {
+		http.Error(w, helpers.Error(err.Error()), 400)
+		return
+	}
+
+	templateSlice, err := json.Marshal(template)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 500)
+		return
+	}
+
+	w.Write(templateSlice)
+}
+
 func (h *Handler) createTemplate(w http.ResponseWriter, r *http.Request) {
 
 	var input struct {
 		Name        string `json:"name"`
 		Description string `json:"description"`
+		Close       string `json:"close"`
 	}
 
 	switch helpers.GetContentType(r.Header.Get("Content-type")) {
 	case "multipart/form-data":
 		input.Name = r.PostFormValue("name")
 		input.Description = r.PostFormValue("description")
+		input.Close = r.PostFormValue("close")
 	case "application/json":
 		d := json.NewDecoder(r.Body)
 		err := d.Decode(&input)
@@ -109,7 +131,19 @@ func (h *Handler) createTemplate(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
 	}
-	template.CreatedDate = helpers.TheTime()
+	timeNow := helpers.TheTime()
+	template.CreatedDate = timeNow
+
+	if input.Close != "" {
+		close, err := strconv.ParseBool(input.Close)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+		if close {
+			template.ClosedDate = zero.TimeFrom(timeNow)
+		}
+	}
 
 	err = h.Datastore.SaveTemplate(template)
 	if err != nil {
@@ -152,12 +186,14 @@ func (h *Handler) updateTemplate(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Name        string `json:"name"`
 		Description string `json:"description"`
+		Close       string `json:"close"`
 	}
 
 	switch helpers.GetContentType(r.Header.Get("Content-type")) {
 	case "multipart/form-data":
 		input.Name = r.PostFormValue("name")
 		input.Description = r.PostFormValue("description")
+		input.Close = r.PostFormValue("close")
 	case "application/json":
 		d := json.NewDecoder(r.Body)
 		err := d.Decode(&input)
@@ -179,6 +215,19 @@ func (h *Handler) updateTemplate(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, helpers.Error(err.Error()), 400)
 		return
+	}
+
+	if input.Close != "" {
+		close, err := strconv.ParseBool(input.Close)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+		if close {
+			template.ClosedDate = zero.TimeFrom(helpers.TheTime())
+		} else {
+			template.ClosedDate = zero.Time{}
+		}
 	}
 
 	err = h.Datastore.SaveTemplate(template)
