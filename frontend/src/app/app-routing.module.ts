@@ -6,6 +6,7 @@ import {AuditComponent} from "audit/audit.component";
 import {ListPropertiesComponent} from "./property/list-properties.component";
 import {LoginComponent} from "./login/login.component";
 import {RegisterComponent} from "./register/register.component";
+import { PropertyEvaluationComponent } from './property-evaluation/property-evaluation.component';
 
 const routes: Routes = [
     {
@@ -35,6 +36,10 @@ const routes: Routes = [
     {
         path: 'register',
         component: RegisterComponent },
+    {
+        path: 'propertyEvaluation',
+        component: PropertyEvaluationComponent
+    },
 
 ];
 
