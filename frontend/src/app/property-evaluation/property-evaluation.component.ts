@@ -15,8 +15,8 @@ export class PropertyEvaluationComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.propertyEvaluationS.getPropertyEvaluation(this.propertyid)
-            .subscribe(data => this.propertyE = data);
+        this.propertyEvaluationS.getPropertyEvaluation(this.propertyid);
+
 
     }
 }
