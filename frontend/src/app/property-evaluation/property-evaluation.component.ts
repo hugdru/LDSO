@@ -14,16 +14,15 @@ export class PropertyEvaluationComponent implements OnInit {
     errorMsg: string;
 
     constructor(private PorpertyEv: PropertyEvaluationService) {
-
         this.PorpertyEv.getPropertyEvaluation(1).subscribe(
 
-            response=> console.log(response)
+            response=> console.log(response.json())
+
             ,
             error => this.errorMsg = <any>error
 
         );
 
-       // console.log(this.propertyE.rating);
     }
 
     ngOnInit(): void {

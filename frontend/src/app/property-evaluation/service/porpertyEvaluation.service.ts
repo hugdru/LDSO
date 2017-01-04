@@ -11,7 +11,7 @@ export class PropertyEvaluationService {
     }
 
     getPropertyEvaluation(id: number): Observable<Response> {
-        let formated = "/properties/" + id + "/audits";
+        let formated = "/audits?idProperty=" + id ;
         return this.handler.getResponse(formated);
     }
 
