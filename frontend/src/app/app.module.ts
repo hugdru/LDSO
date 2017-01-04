@@ -48,6 +48,10 @@ import {ImageSingleUploadComponent} from "images/image-single-upload.component";
 import {HandlerService} from "shared/service/handler.service";
 import {MainPageComponent} from "./main-page/main-page.component";
 import {PropertyEvaluationComponent} from "./property-evaluation/property-evaluation.component";
+import {SessionAnnounceService} from "./shared/service/session-announce.service";
+import {SuperAdminGuard} from "shared/service/superadmin.guard";
+import {SessionService} from "./shared/service/session.service";
+import {AuditGuard} from "./shared/service/audit.guard";
 
 @NgModule({
     declarations: [
@@ -90,7 +94,7 @@ import {PropertyEvaluationComponent} from "./property-evaluation/property-evalua
         RemarkAddComponent,
         ImageSingleUploadComponent,
         MainPageComponent,
-        PropertyEvaluationComponent
+        PropertyEvaluationComponent,
     ],
     imports: [
         AppRoutingModule,
@@ -100,7 +104,13 @@ import {PropertyEvaluationComponent} from "./property-evaluation/property-evalua
         NgbModule.forRoot(),
         ModalModule
     ],
-    providers: [HandlerService],
+    providers: [
+        HandlerService,
+        SessionService,
+        SessionAnnounceService,
+        SuperAdminGuard,
+        AuditGuard
+    ],
     bootstrap: [AppComponent]
 })
 
