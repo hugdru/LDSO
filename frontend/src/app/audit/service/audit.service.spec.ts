@@ -10,7 +10,7 @@ import {
 } from "@angular/http";
 import {MockBackend, MockConnection} from "@angular/http/testing";
 import {AuditService} from "audit/service/audit.service";
-import {HandlerService} from "handler.service";
+import {HandlerService} from "../../shared/service/handler.service";
 
 const mockArray = [
     {

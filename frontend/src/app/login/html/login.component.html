@@ -19,10 +19,9 @@
 </div>
 
 <div *ngIf="loggedIn">
-    <h1>Logout</h1>
     <h3>{{session.name}}</h3>
-    <button class="btn btn-success round outline"
-            (click)="logout()">
-        <i class="glyphicon glyphicon-ok"></i>
+    <button type="button" class="btn btn-primary btn-md buttonAccept"
+        (click)="logout()">
+        LOGOUT
     </button>
 </div>
