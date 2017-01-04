@@ -5,16 +5,19 @@ import {SubGroup} from "../sub-group/sub-group";
 import {MainGroupService} from "main-group/service/main-group.service";
 import {SubGroupService} from "../sub-group/service/sub-group.service";
 import {AuditService} from "../audit/service/audit.service";
+import {AuditTemplateService} from "../audit-template/service/audit-template.service";
+import {AuditTemplate} from "../audit-template/audit-template";
 
 @Component({
     selector: 'audit-select',
     templateUrl: './html/audit-select.component.html',
     styleUrls: ['./audit.component.css'],
-    providers: [MainGroupService, SubGroupService, AuditService]
+    providers: [AuditTemplateService, MainGroupService, SubGroupService, AuditService]
 })
 
 export class AuditSelectComponent implements OnInit {
 
+    auditTemplate: AuditTemplate;
     mainGroups: MainGroup[];
     subGroups: SubGroup[];
     selectedSubGroups: SubGroup[];
@@ -24,24 +27,39 @@ export class AuditSelectComponent implements OnInit {
     @Output() onDone = new EventEmitter<SubGroup[]>();
     @Output() sendId = new EventEmitter<number>();
 
-    constructor(private mainGroupService: MainGroupService,
+    constructor(private auditTemplateService: AuditTemplateService,
+                private mainGroupService: MainGroupService,
 				private auditService: AuditService,
                 private subGroupService: SubGroupService) {
     }
 
     ngOnInit(): void {
-        this.initMainGroups();
+        this.initAuditTemplate();
+        this.mainGroups = [];
+        this.subGroups = [];
         this.selectedSubGroups = [];
     }
 
-    initMainGroups(): void {
-        this.mainGroupService.getMainGroups().subscribe(
+    initAuditTemplate() : void {
+        this.auditTemplateService.getCurrentAuditTemplate().subscribe(
+                data => this.auditTemplate = data,
+                error => this.errorMsg = <any> error
+        );
+    }
+
+    showMainGroups(auditTemplate: AuditTemplate): void {
+        this.initMainGroups(auditTemplate);
+    }
+
+    initMainGroups(auditTemplate: AuditTemplate): void {
+        this.mainGroupService.getSomeMainGroups("idTemplate",
+                auditTemplate.id).subscribe(
                 data => this.mainGroups = data,
                 error => this.errorMsg = <any> error
         );
     }
 
-    showChildren(mainGroup: MainGroup): void {
+    showSubGroups(mainGroup: MainGroup): void {
         this.initSubGroups(mainGroup);
     }
 

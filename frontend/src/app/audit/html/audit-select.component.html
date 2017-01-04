@@ -1,17 +1,27 @@
-<p class="h1">Auditoria - Escolha dos Sub-grupos</p>
+<p class="h1">Auditoria - Escolha dos Subgrupos</p>
 <br>
-<p class="h2">Grupos</p>
-<div class="list" *ngFor='let mainGroup of mainGroups'>
-
-    <table class="cursor-pointer" (click)="showChildren(mainGroup)">
+<div *ngIf='auditTemplate' class="list">
+    <p class="h2">Modelo</p>
+    <table class="cursor-pointer" (click)="showMainGroups(auditTemplate)">
         <tr>
-            {{mainGroup.name}}
+            {{auditTemplate.name}}
         </tr>
     </table>
+    <hr>
 </div>
-<hr>
-<div *ngIf='subGroups'>
-    <p class="h2">Sub-grupos</p>
+<div *ngIf='mainGroups.length > 0'>
+    <p class="h2">Grupos</p>
+    <div class="list" *ngFor='let mainGroup of mainGroups'>
+        <table class="cursor-pointer" (click)="showSubGroups(mainGroup)">
+            <tr>
+                {{mainGroup.name}}
+            </tr>
+        </table>
+    </div>
+    <hr>
+</div>
+<div *ngIf='subGroups.length > 0'>
+    <p class="h2">Subgrupos</p>
     <div *ngFor='let subGroup of subGroups'>
         <table>
             <tr>
@@ -22,8 +32,8 @@
             </tr>
         </table>
     </div>
+    <hr>
 </div>
-<hr>
 <div>
     <button *ngIf='selectedSubGroups.length > 0'
             class="btn btn-primary"

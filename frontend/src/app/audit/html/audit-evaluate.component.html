@@ -3,13 +3,14 @@
 <p class="h2">Grupos</p>
 <show-list [objectList]="mainGroups" (selected)="selected($event)"></show-list>
 <hr>
-<div *ngIf="subGroups">
-	<p class="h2">Sub-grupos</p>
+<div *ngIf="subGroups  && subGroups.length > 0">
+	<p class="h2">Subgrupos</p>
 	<show-list [objectList]="subGroups" (selected)="selected($event)">
 	</show-list>
+	<hr>
 </div>
 <hr>
-<div *ngIf="criteria">
+<div *ngIf="criteria && criteria.length > 0">
 	<p class="h2">Critérios</p>
 	<audit-evaluate-criterion [auditId]="auditId" [criteria]="criteria">
 	</audit-evaluate-criterion>
