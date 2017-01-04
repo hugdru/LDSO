@@ -299,3 +299,28 @@ func (ds *Datastore) GetMaingroups(limit, offset int, filter map[string]interfac
 
 	return maingroups, err
 }
+
+func (ds *Datastore) GetMaingroupsByTemplateId(idTemplate int64) ([]*Maingroup, error) {
+	const sql = `SELECT ` +
+		`id, id_template, name, weight, created_date ` +
+		`FROM places4all.maingroup ` +
+		`WHERE id_template = $1`
+
+	maingroups := make([]*Maingroup, 0)
+	rows, err := ds.postgres.Queryx(sql, idTemplate)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		maingroup := NewMaingroup(false)
+		maingroup.SetExists()
+		err := rows.StructScan(maingroup)
+		if err != nil {
+			return nil, err
+		}
+		maingroups = append(maingroups, maingroup)
+	}
+
+	return maingroups, err
+}

@@ -23,6 +23,9 @@ func (h *Handler) templatesRoutes(router chi.Router) {
 func (h *Handler) templateRoutes(router chi.Router) {
 	router.Use(h.templateContext)
 	router.Get("/", decorators.ReplyJson(h.getTemplate))
+	router.Get("/maingroups", decorators.ReplyJson(h.getTemplateMaingroups))
+	router.Get("/subgroups", decorators.ReplyJson(h.getTemplateSubgroups))
+	router.Get("/criteria", decorators.ReplyJson(h.getTemplateCriteria))
 	router.Put("/", decorators.OnlySuperadmins(decorators.ReplyJson(h.updateTemplate)))
 	router.Delete("/", decorators.OnlySuperadmins(decorators.ReplyJson(h.deleteTemplate)))
 }
@@ -177,6 +180,63 @@ func (h *Handler) getTemplate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write(templateWithMaingroupsSlice)
+}
+
+func (h *Handler) getTemplateMaingroups(w http.ResponseWriter, r *http.Request) {
+
+	template := r.Context().Value("template").(*datastore.Template)
+
+	templateMaingroups, err := h.Datastore.GetMaingroupsByTemplateId(template.Id)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 500)
+		return
+	}
+
+	templateMaingroupsSlice, err := json.Marshal(templateMaingroups)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 500)
+		return
+	}
+
+	w.Write(templateMaingroupsSlice)
+}
+
+func (h *Handler) getTemplateSubgroups(w http.ResponseWriter, r *http.Request) {
+
+	template := r.Context().Value("template").(*datastore.Template)
+
+	templateSubgroups, err := h.Datastore.GetSubgroupsByTemplateId(template.Id)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 500)
+		return
+	}
+
+	templateSubgroupsSlice, err := json.Marshal(templateSubgroups)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 500)
+		return
+	}
+
+	w.Write(templateSubgroupsSlice)
+}
+
+func (h *Handler) getTemplateCriteria(w http.ResponseWriter, r *http.Request) {
+
+	template := r.Context().Value("template").(*datastore.Template)
+
+	templateCriteria, err := h.Datastore.GetCriteriaByTemplateIdWithCriterionAccessibility(template.Id)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 500)
+		return
+	}
+
+	templateCriteriaSlice, err := json.Marshal(templateCriteria)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 500)
+		return
+	}
+
+	w.Write(templateCriteriaSlice)
 }
 
 func (h *Handler) updateTemplate(w http.ResponseWriter, r *http.Request) {

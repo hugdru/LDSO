@@ -262,7 +262,7 @@ func (ds *Datastore) GetSubgroupsByMaingroupIdWithCriteria(idMaingroup int64) ([
 			return nil, err
 		}
 		subgroups = append(subgroups, subgroup)
-		subgroup.Criteria, err = ds.GetCriteriaBySubgroupIdWithLegislation(subgroup.Id)
+		subgroup.Criteria, err = ds.GetCriteriaBySubgroupIdWithLegislationAndCriterionAccessibility(subgroup.Id)
 		if err != nil {
 			return nil, err
 		}
@@ -290,6 +290,31 @@ func (ds *Datastore) GetSubgroups(limit, offset int, filter map[string]interface
 	subgroups := make([]*Subgroup, 0)
 	for rows.Next() {
 		subgroup := NewSubgroup(false)
+		err := rows.StructScan(subgroup)
+		if err != nil {
+			return nil, err
+		}
+		subgroups = append(subgroups, subgroup)
+	}
+
+	return subgroups, err
+}
+
+func (ds *Datastore) GetSubgroupsByTemplateId(idTemplate int64) ([]*Subgroup, error) {
+	const sql = `SELECT ` +
+		`subgroup.id, subgroup.id_maingroup, subgroup.name, subgroup.weight, subgroup.created_date ` +
+		`FROM places4all.subgroup ` +
+		`JOIN places4all.maingroup ON maingroup.id = subgroup.id_maingroup AND maingroup.id_template = $1`
+
+	subgroups := make([]*Subgroup, 0)
+	rows, err := ds.postgres.Queryx(sql, idTemplate)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		subgroup := NewSubgroup(false)
+		subgroup.SetExists()
 		err := rows.StructScan(subgroup)
 		if err != nil {
 			return nil, err
