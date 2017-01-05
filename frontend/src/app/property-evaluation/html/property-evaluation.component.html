@@ -1,35 +1,29 @@
 <div class="container">
-    <div *ngFor='let propertyEvaluation of propertyEvaluations'>
-        {{propertyEvaluation.idProperty}}
-    </div>
-    <div>
-        {{thisProperty.name}}
-    </div>
-<!--    <div class="col-sm-8 col-md-8">
+    <div class="col-sm-8 col-md-8">
         <blockquote>
-            <p> {{propertyEvalutationEMock[+id].property.name}}</p> <small><cite title="Property address">{{propertyEvalutationEMock[+id].property.adress}} <i class="glyphicon glyphicon-map-marker"></i></cite></small>
+            <p> {{thisProperty.name}}</p> <small><!--<cite title="Property address">{{thisProperty.image_path}} <i class="glyphicon glyphicon-map-marker"></i></cite>--></small>
         </blockquote>
     </div>
     <div class="col-sm-2 col-md-2">
-        <img src={{propertyEvalutationEMock[+id].property.imagePath}} alt="" class="img-rounded img-responsive" />
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Estadio_do_Dragao_20050805.jpg/300px-Estadio_do_Dragao_20050805.jpg" alt="" class="img-rounded img-responsive" />
     </div>
 </div>
-<div *ngFor="let item of propertyEvalutationEMock">
+<div *ngFor="let item of PropertyEvaluation">
     <br>
     <div class="container" >
-            <a href="#demo{{item.id}}" class="btn" data-toggle="collapse">{{item.auditor.name}} com rating {{item.rating}} </a>
+            <a href="#demo{{item.id}}" class="btn" data-toggle="collapse">{{item.auditor.id}} com rating {{item.rating}} </a>
             <div id="demo{{item.id}}" class="collapse">
             <br>
-                <label class="labelSpace">Nome do audior : </label>{{item.auditor.name}}<br>
+                <label class="labelSpace">Nome do audior : </label>{{item.auditor.id}}<br>
                 <label class="labelSpace">Valor do rating: </label>{{item.rating}} <br>
                 <label class="labelSpace">Seguindo as normas : </label>{{item.idTemplate}}<br>
                 <label class="labelSpace">Criado em : </label>{{item.createdDate}}<br>
                 <label class="labelSpace">Finalizado em :</label>{{item.finishedDate}}<br>
                 <label class="col-sm-2 ">Comment</label>
                 <div class="col-sm-10">
-                    <textarea class="form-control" name="addComment" id="addComment" rows="5">{{item.coment}}</textarea>
+                    <textarea class="form-control" name="addComment" id="addComment" rows="5">...</textarea>
                 </div>
             </div>
     </div>
-    <br>-->
+    <br>
 </div>

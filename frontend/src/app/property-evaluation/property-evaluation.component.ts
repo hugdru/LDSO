@@ -20,13 +20,14 @@ export class PropertyEvaluationComponent implements OnInit {
 
    constructor(private propertyEvaluationService: PropertyEvaluationService,
                private propertyService: PropertyService,
-               private route: ActivatedRoute) {
-   }
+               private route: ActivatedRoute)
+   {}
 
     ngOnInit(): void {
         this.thisProperty.id = +this.route.snapshot.params['id'];
         this.initPropertyEvaluations();
         this.initProperty();
+
     }
 
     initPropertyEvaluations(): void {
@@ -38,7 +39,10 @@ export class PropertyEvaluationComponent implements OnInit {
        this.propertyService.getProperty(this.thisProperty.id)
                .subscribe(data => this.thisProperty = data);
     }
-/*
+
+
+
+
     propertyMock =
     [
         {id: 1, name: "casa das francesinhas",adress:"rua x do catino y da freguesia z",imagePath:"http://cdn1.buuteeq.com/upload/2020657/foto3.jpg.694x0_default.jpg"}
@@ -59,7 +63,7 @@ export class PropertyEvaluationComponent implements OnInit {
         {id: 3, property:this.propertyMock[0],  auditor: this.auditorMock[2] ,idTemplate:1,rating:25,createdDate:"0",finishedDate:"3",coment:"Scams in this decade are very prevalent, unfortunately preying on the kind and naive. The blog above is unfortunately pretty accurate. The CNN article I found on a more general note had an entire list of the worst 50 charities distinguished by the percentage falsely promised to go to the cause. This link [http://www.tampabay.com/americas-worst-charities/ ] will take you directly to this list."},
     ]
     ;
-*/
+
 
 
 }
