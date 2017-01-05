@@ -24,6 +24,7 @@ func (h *Handler) templateRoutes(router chi.Router) {
 	router.Use(h.templateContext)
 	router.Get("/", decorators.ReplyJson(h.getTemplate))
 	router.Post("/close", decorators.OnlySuperadmins(decorators.ReplyJson(h.closeTemplate)))
+	router.Get("/used", decorators.ReplyJson(h.checkTemplateUsed))
 	router.Get("/maingroups", decorators.ReplyJson(h.getTemplateMaingroups))
 	router.Get("/subgroups", decorators.ReplyJson(h.getTemplateSubgroups))
 	router.Get("/criteria", decorators.ReplyJson(h.getTemplateCriteria))
@@ -168,6 +169,19 @@ func (h *Handler) getTemplate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write(templateWithMaingroupsSlice)
+}
+
+func (h *Handler) checkTemplateUsed(w http.ResponseWriter, r *http.Request) {
+
+	template := r.Context().Value("template").(*datastore.Template)
+
+	used, err := h.Datastore.CheckTemplateUsed(template.Id)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 400)
+		return
+	}
+
+	w.Write([]byte(helpers.FastConcat(`{"used":`, strconv.FormatBool(used), `}`)))
 }
 
 func (h *Handler) closeTemplate(w http.ResponseWriter, r *http.Request) {
