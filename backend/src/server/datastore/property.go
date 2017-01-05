@@ -231,6 +231,8 @@ func (ds *Datastore) InsertPropertyWithAddress(p *Property) (err error) {
 		return err
 	}
 
+	p.IdAddress = p.Address.Id
+
 	err = ds.InsertPropertyTx(tx, p)
 	if err != nil {
 		return err
