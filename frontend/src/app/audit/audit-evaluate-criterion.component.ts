@@ -30,7 +30,6 @@ export class AuditEvaluateCriterionComponent {
 
     ngOnInit(): void {
 		this.remarks = [];
-		console.log("auditid: " + this.auditId);
     }
 
 	changedCheckbox(): void {
