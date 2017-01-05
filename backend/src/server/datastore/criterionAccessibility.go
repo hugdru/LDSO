@@ -2,14 +2,16 @@ package datastore
 
 import (
 	"errors"
+	"gopkg.in/guregu/null.v3/zero"
 	"server/datastore/metadata"
 )
 
 type CriterionAccessibility struct {
-	IdCriterion     int64  `json:"-" db:"id_criterion"`
-	IdAccessibility int64  `json:"id" db:"id_accessibility"`
-	Name            string `json:"name" db:"name"`
-	Weight          int    `json:"weight" db:"weight"`
+	IdCriterion     int64     `json:"-" db:"id_criterion"`
+	IdAccessibility int64     `json:"id" db:"id_accessibility"`
+	Name            string    `json:"name" db:"name"`
+	Weight          int       `json:"weight" db:"weight"`
+	Closed          zero.Bool `json:"closed" db:"closed"`
 
 	meta metadata.Metadata
 }
@@ -70,7 +72,7 @@ func (ds *Datastore) DeleteCriterionAccessibilityByIds(idCriterion, idAccessibil
 func (ds *Datastore) GetCriterionAccessibilitiesByCriterionId(idCriterion int64) ([]*CriterionAccessibility, error) {
 	rows, err := ds.postgres.Queryx(
 		`SELECT criterion_accessibility.id_criterion, `+
-			`criterion_accessibility.id_accessibility, accessibility.name, criterion_accessibility.weight `+
+			`criterion_accessibility.id_accessibility, accessibility.name, criterion_accessibility.weight, criterion_accessibility.closed `+
 			`FROM places4all.criterion_accessibility `+
 			`JOIN places4all.accessibility ON accessibility.id = criterion_accessibility.id_accessibility `+
 			`WHERE criterion_accessibility.id_criterion = $1`, idCriterion)
@@ -95,8 +97,7 @@ func (ds *Datastore) GetCriterionAccessibilitiesByCriterionId(idCriterion int64)
 func (ds *Datastore) GetCriterionAccessibilityByIds(idCriterion, idAccessibility int64) (*CriterionAccessibility, error) {
 	row := ds.postgres.QueryRowx(
 		`SELECT criterion_accessibility.id_criterion, `+
-			`criterion_accessibility.id_accessibility, accessibility.name, `+
-			`criterion_accessibility.weight `+
+			`criterion_accessibility.id_accessibility, accessibility.name, criterion_accessibility.weight, criterion_accessibility.closed `+
 			`FROM places4all.criterion_accessibility `+
 			`JOIN places4all.accessibility ON accessibility.id = criterion_accessibility.id_accessibility `+
 			`WHERE criterion_accessibility.id_criterion = $1 AND `+
