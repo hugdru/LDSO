@@ -1,30 +1,29 @@
 <div class="container">
     <div class="col-sm-8 col-md-8">
         <blockquote>
-            <p> {{propertyEMock[0].property.name}}</p> <small><cite title="Property address">{{propertyEMock[0].property.adress}} <i class="glyphicon glyphicon-map-marker"></i></cite></small>
+            <p> {{propertyEvalutationEMock[+id].property.name}}</p> <small><cite title="Property address">{{propertyEvalutationEMock[+id].property.adress}} <i class="glyphicon glyphicon-map-marker"></i></cite></small>
         </blockquote>
     </div>
     <div class="col-sm-2 col-md-2">
-        <img src={{propertyEMock[0].property.imagePath}} alt="" class="img-rounded img-responsive" />
+        <img src={{propertyEvalutationEMock[+id].property.imagePath}} alt="" class="img-rounded img-responsive" />
     </div>
 </div>
-<div *ngFor="let item of propertyEMock">
+<div *ngFor="let item of propertyEvalutationEMock">
     <br>
-    <div class="container">
-        <a href="#demo{{item.id}}" class="btn" data-toggle="collapse">{{item.auditor.name}} com rating {{item.rating}} </a>
-        <div id="demo{{item.id}}" class="collapse">
-            <label class="col-sm-2 control-label">Nome do audior : </label><p>{{item.auditor.name}}</p>
-            <label class="col-sm-2 control-label">Valor do rating: </label><p>{{item.rating}}</p>
-            <label class="col-sm-2 control-label">Seguindo as normas : </label><br><p>{{item.idTemplate}}</p>
+    <div class="container" >
+            <a href="#demo{{item.id}}" class="btn" data-toggle="collapse">{{item.auditor.name}} com rating {{item.rating}} </a>
+            <div id="demo{{item.id}}" class="collapse">
             <br>
-            <label class="col-sm-2 control-label">Criado em : </label><p>{{item.createdDate}}</p>
-            <label class="col-sm-2 control-label">Finalizado em :</label><p>{{item.finishedDate}}</p>
-            <br>
-            <label class="col-sm-2 control-label">Comment</label>
-            <div class="col-sm-10">
-                <textarea class="form-control" name="addComment" id="addComment" rows="5">{{item.coment}}</textarea>
+                <label class="labelSpace">Nome do audior : </label>{{item.auditor.name}}<br>
+                <label class="labelSpace">Valor do rating: </label>{{item.rating}} <br>
+                <label class="labelSpace">Seguindo as normas : </label>{{item.idTemplate}}<br>
+                <label class="labelSpace">Criado em : </label>{{item.createdDate}}<br>
+                <label class="labelSpace">Finalizado em :</label>{{item.finishedDate}}<br>
+                <label class="col-sm-2 ">Comment</label>
+                <div class="col-sm-10">
+                    <textarea class="form-control" name="addComment" id="addComment" rows="5">{{item.coment}}</textarea>
+                </div>
             </div>
-        </div>
     </div>
     <br>
 </div>
