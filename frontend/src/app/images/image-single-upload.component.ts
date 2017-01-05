@@ -26,13 +26,12 @@ export class ImageSingleUploadComponent {
 	// 	// allowedFileType: ["jpg","png","jpeg"]
 	// };
 
-	// uploader: FileUploader = new FileUploader(this.settings);
 	uploader: FileUploader;
 
 	@Input() remark: Remark;
 
 	constructor() { }
-	
+
 	ngOnInit(): void {
 		this.settings = {
 			url: imageUploadUrl.replace(/#/g, this.remark.idAudit.toString())
@@ -41,6 +40,6 @@ export class ImageSingleUploadComponent {
 		this.uploader = new FileUploader(this.settings);
 		this.uploader.onBuildItemForm = (item, form) => {
 			form.append("observation", this.remark.data);
-		};		
+		};
 	}
 }

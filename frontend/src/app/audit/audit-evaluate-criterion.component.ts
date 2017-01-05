@@ -18,7 +18,7 @@ export class AuditEvaluateCriterionComponent {
 
 	id: number = 0;
 	selectedId; number = -1;
-	uncheckedCriteria: Criterion[] = [];
+	unselectedCriteria: Criterion[] = [];
 	remarks: Remark[];
 	selectedAdd: boolean = false;
 	checked: boolean = false;
@@ -28,10 +28,9 @@ export class AuditEvaluateCriterionComponent {
 
 	}
 
-	@Input() criteria: Criterion[];
-
     ngOnInit(): void {
 		this.remarks = [];
+		console.log("auditid: " + this.auditId);
     }
 
 	changedCheckbox(): void {
@@ -63,7 +62,7 @@ export class AuditEvaluateCriterionComponent {
 	}
 
 	checkCriterion(criterion: Criterion): boolean {
-		return this.uncheckedCriteria.includes(criterion);
+		return this.unselectedCriteria.includes(criterion);
 	}
 
 	selectAdd(): void {

@@ -16,6 +16,7 @@ import {Criterion} from "criterion/criterion";
 
 export class AuditEvaluateComponent implements OnInit {
     @Input() selectedSubGroups: SubGroup[];
+    @Input() auditId: number;
 
     mainGroups: MainGroup[] = [];
     mainGroupsId: number[] = [];

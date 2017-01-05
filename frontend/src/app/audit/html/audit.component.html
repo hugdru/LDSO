@@ -8,7 +8,6 @@
     </audit-select>
 </div>
 <div *ngIf="selectedSubGroups">
-
-    <audit-evaluate [selectedSubGroups]="selectedSubGroups">
+    <audit-evaluate [auditId]="auditId" [selectedSubGroups]="selectedSubGroups">
     </audit-evaluate>
 </div>
