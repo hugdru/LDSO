@@ -60,18 +60,22 @@ export class AuditTemplateComponent implements OnInit {
         this.close = new Close();
         this.close.close = true;
         this.auditTemplateService.closeAuditTemplate(
-                auditTemplate.id, this.close).subscribe();
+                auditTemplate.id, this.close).subscribe(
+                        response => auditTemplate.closed = true
+                        );
         this.parentAuditTemplate = undefined;
-        this.initAuditTemplates();
+//        this.initAuditTemplates();
     }
 
     onOpen(auditTemplate: AuditTemplate): void {
         this.close = new Close();
         this.close.close = false;
         this.auditTemplateService.closeAuditTemplate(
-                auditTemplate.id, this.close).subscribe();
+                auditTemplate.id, this.close).subscribe(
+                response => auditTemplate.closed = false
+        );
         this.parentAuditTemplate = undefined;
-        this.initAuditTemplates();
+//        this.initAuditTemplates();
     }
 
 }
