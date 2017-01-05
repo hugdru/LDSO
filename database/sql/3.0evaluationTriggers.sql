@@ -103,23 +103,23 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER check_audit_criterion_belongs_to_audit_subgroup_trigger BEFORE UPDATE OR INSERT ON audit_criterion
 FOR EACH ROW EXECUTE PROCEDURE check_audit_criterion_belongs_to_audit_subgroup_procedure();
 
-CREATE FUNCTION initialize_audit_criterion_on_audit_subgroup_procedure() RETURNS TRIGGER AS $$
-BEGIN
-  SET search_path TO places4all, public;
-
-  INSERT INTO audit_criterion (id_audit, id_criterion, value)
-  SELECT NEW.id_audit id, crit, 0 val
-  FROM unnest(ARRAY(
-    SELECT criterion.id
-    FROM criterion
-    WHERE criterion.id_subgroup = NEW.id_subgroup
-  )) crit;
-
-  RETURN NULL;
-END;
-$$ LANGUAGE plpgsql;
-CREATE TRIGGER initialize_audit_criterion_on_audit_subgroup_trigger AFTER INSERT ON audit_subgroup
-FOR EACH ROW EXECUTE PROCEDURE initialize_audit_criterion_on_audit_subgroup_procedure();
+-- CREATE FUNCTION initialize_audit_criterion_on_audit_subgroup_procedure() RETURNS TRIGGER AS $$
+-- BEGIN
+--   SET search_path TO places4all, public;
+--
+--   INSERT INTO audit_criterion (id_audit, id_criterion, value)
+--   SELECT NEW.id_audit id, crit, 0 val
+--   FROM unnest(ARRAY(
+--     SELECT criterion.id
+--     FROM criterion
+--     WHERE criterion.id_subgroup = NEW.id_subgroup
+--   )) crit;
+--
+--   RETURN NULL;
+-- END;
+-- $$ LANGUAGE plpgsql;
+-- CREATE TRIGGER initialize_audit_criterion_on_audit_subgroup_trigger AFTER INSERT ON audit_subgroup
+-- FOR EACH ROW EXECUTE PROCEDURE initialize_audit_criterion_on_audit_subgroup_procedure();
 
 CREATE FUNCTION audit_subgroup_audit_criterion_consistency_procedure() RETURNS TRIGGER AS $$
 BEGIN
