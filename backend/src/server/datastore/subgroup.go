@@ -2,6 +2,7 @@ package datastore
 
 import (
 	"errors"
+	"gopkg.in/guregu/null.v3/zero"
 	"server/datastore/generators"
 	"server/datastore/metadata"
 	"strconv"
@@ -13,6 +14,7 @@ type Subgroup struct {
 	IdMaingroup int64     `json:"idMaingroup" db:"id_maingroup"`
 	Name        string    `json:"name" db:"name"`
 	Weight      int       `json:"weight" db:"weight"`
+	Closed      zero.Bool `json:"closed" db:"closed"`
 	CreatedDate time.Time `json:"createdDate" db:"created_date"`
 
 	// Objects
@@ -230,7 +232,7 @@ func (ds *Datastore) DeleteSubgroupById(id int64) error {
 func (ds *Datastore) GetSubgroupById(id int64) (*Subgroup, error) {
 
 	const sql = `SELECT ` +
-		`id, id_maingroup, name, weight, created_date ` +
+		`id, id_maingroup, name, weight, closed, created_date ` +
 		`FROM places4all.subgroup ` +
 		`WHERE id = $1`
 
@@ -248,7 +250,7 @@ func (ds *Datastore) GetSubgroupById(id int64) (*Subgroup, error) {
 func (ds *Datastore) GetSubgroupsByMaingroupIdWithCriteria(idMaingroup int64) ([]*Subgroup, error) {
 	subgroups := make([]*Subgroup, 0)
 	rows, err := ds.postgres.Queryx(
-		`SELECT subgroup.id, subgroup.id_maingroup, subgroup.name, subgroup.weight, subgroup.created_date `+
+		`SELECT subgroup.id, subgroup.id_maingroup, subgroup.name, subgroup.weight, subgroup.closed, subgroup.created_date `+
 			`FROM places4all.subgroup `+
 			`WHERE subgroup.id_maingroup = $1`, idMaingroup)
 	if err != nil {
@@ -262,7 +264,7 @@ func (ds *Datastore) GetSubgroupsByMaingroupIdWithCriteria(idMaingroup int64) ([
 			return nil, err
 		}
 		subgroups = append(subgroups, subgroup)
-		subgroup.Criteria, err = ds.GetCriteriaBySubgroupIdWithLegislation(subgroup.Id)
+		subgroup.Criteria, err = ds.GetCriteriaBySubgroupIdWithLegislationAndCriterionAccessibility(subgroup.Id)
 		if err != nil {
 			return nil, err
 		}
@@ -275,7 +277,7 @@ func (ds *Datastore) GetSubgroups(limit, offset int, filter map[string]interface
 
 	where, values := generators.GenerateAndSearchClause(filter)
 
-	sql := `SELECT subgroup.id, subgroup.id_maingroup, subgroup.name, subgroup.weight, subgroup.created_date ` +
+	sql := `SELECT subgroup.id, subgroup.id_maingroup, subgroup.name, subgroup.weight, subgroup.closed, subgroup.created_date ` +
 		`FROM places4all.subgroup ` +
 		where +
 		`ORDER BY subgroup.id DESC LIMIT ` + strconv.Itoa(limit) +
@@ -290,6 +292,31 @@ func (ds *Datastore) GetSubgroups(limit, offset int, filter map[string]interface
 	subgroups := make([]*Subgroup, 0)
 	for rows.Next() {
 		subgroup := NewSubgroup(false)
+		err := rows.StructScan(subgroup)
+		if err != nil {
+			return nil, err
+		}
+		subgroups = append(subgroups, subgroup)
+	}
+
+	return subgroups, err
+}
+
+func (ds *Datastore) GetSubgroupsByTemplateId(idTemplate int64) ([]*Subgroup, error) {
+	const sql = `SELECT ` +
+		`subgroup.id, subgroup.id_maingroup, subgroup.name, subgroup.weight, subgroup.closed, subgroup.created_date ` +
+		`FROM places4all.subgroup ` +
+		`JOIN places4all.maingroup ON maingroup.id = subgroup.id_maingroup AND maingroup.id_template = $1`
+
+	subgroups := make([]*Subgroup, 0)
+	rows, err := ds.postgres.Queryx(sql, idTemplate)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		subgroup := NewSubgroup(false)
+		subgroup.SetExists()
 		err := rows.StructScan(subgroup)
 		if err != nil {
 			return nil, err

@@ -1,7 +1,7 @@
 import {Component, OnInit} from "@angular/core";
 import {LoginService} from "login/service/login.service";
 import {Session} from "./session";
-import {SessionService} from "../shared/service/session.service";
+import {SessionAnnounceService} from "../shared/service/session-announce.service";
 
 @Component({
     selector: 'login',
@@ -18,7 +18,7 @@ export class LoginComponent implements OnInit {
     errorMsg: string;
 
     constructor(private loginService: LoginService,
-                private sessionService: SessionService) {
+                private sessionService: SessionAnnounceService) {
         this.loggedIn = !!localStorage.getItem('auth_token');
     }
 
@@ -36,10 +36,10 @@ export class LoginComponent implements OnInit {
                     this.session.name = response.json().name;
                     this.session.email = response.json().email;
                     this.session.password = "";
-                    this.loggedIn = true;
-                    this.sessionService.announceSession(this.loggedIn);
                     localStorage.setItem('auth_token', response.json().auth_token);
                     localStorage.setItem('session', JSON.stringify(this.session));
+                    this.loggedIn = true;
+                    this.sessionService.announceSession(this.loggedIn);
                 },
                 error => {
                     this.errorMsg = <any>error;

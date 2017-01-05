@@ -1,11 +1,9 @@
 import {Component} from "@angular/core";
-import {SessionService} from "./shared/service/session.service";
 
 @Component({
     selector: 'p4a-root',
     templateUrl: './app.component.html',
-    styleUrls: ['./app.component.css'],
-    providers: [SessionService]
+    styleUrls: ['./app.component.css']
 })
 
 export class AppComponent {

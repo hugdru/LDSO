@@ -2,6 +2,7 @@ package datastore
 
 import (
 	"errors"
+	"gopkg.in/guregu/null.v3/zero"
 	"server/datastore/generators"
 	"server/datastore/metadata"
 	"strconv"
@@ -13,6 +14,7 @@ type Maingroup struct {
 	IdTemplate  int64     `json:"idTemplate" db:"id_template"`
 	Name        string    `json:"name" db:"name"`
 	Weight      int       `json:"weight" db:"weight"`
+	Closed      zero.Bool `json:"closed" db:"closed"`
 	CreatedDate time.Time `json:"createdDate" db:"created_date"`
 
 	// Objects
@@ -230,7 +232,7 @@ func (ds *Datastore) DeleteMaingroupById(id int64) error {
 func (ds *Datastore) GetMaingroupById(id int64) (*Maingroup, error) {
 
 	const sql = `SELECT ` +
-		`id, id_template, name, weight, created_date ` +
+		`id, id_template, name, weight, closed, created_date ` +
 		`FROM places4all.maingroup ` +
 		`WHERE id = $1`
 
@@ -248,7 +250,7 @@ func (ds *Datastore) GetMaingroupById(id int64) (*Maingroup, error) {
 func (ds *Datastore) GetMaingroupsByTemplateIdWithSubgroups(idTemplate int64) ([]*Maingroup, error) {
 	maingroups := make([]*Maingroup, 0)
 	rows, err := ds.postgres.Queryx(
-		`SELECT maingroup.id, maingroup.id_template, maingroup.name, maingroup.weight, maingroup.created_date `+
+		`SELECT maingroup.id, maingroup.id_template, maingroup.name, maingroup.weight, maingroup.closed, maingroup.created_date `+
 			`FROM places4all.maingroup `+
 			`WHERE maingroup.id_template = $1`, idTemplate)
 	if err != nil {
@@ -275,7 +277,7 @@ func (ds *Datastore) GetMaingroups(limit, offset int, filter map[string]interfac
 
 	where, values := generators.GenerateAndSearchClause(filter)
 
-	sql := `SELECT maingroup.id, maingroup.id_template, maingroup.name, maingroup.weight, maingroup.created_date ` +
+	sql := `SELECT maingroup.id, maingroup.id_template, maingroup.name, maingroup.weight, maingroup.closed, maingroup.created_date ` +
 		`FROM places4all.maingroup ` +
 		where +
 		`ORDER BY maingroup.id DESC LIMIT ` + strconv.Itoa(limit) +
@@ -290,6 +292,31 @@ func (ds *Datastore) GetMaingroups(limit, offset int, filter map[string]interfac
 
 	for rows.Next() {
 		maingroup := NewMaingroup(false)
+		err := rows.StructScan(maingroup)
+		if err != nil {
+			return nil, err
+		}
+		maingroups = append(maingroups, maingroup)
+	}
+
+	return maingroups, err
+}
+
+func (ds *Datastore) GetMaingroupsByTemplateId(idTemplate int64) ([]*Maingroup, error) {
+	const sql = `SELECT ` +
+		`id, id_template, name, weight, closed, created_date ` +
+		`FROM places4all.maingroup ` +
+		`WHERE id_template = $1`
+
+	maingroups := make([]*Maingroup, 0)
+	rows, err := ds.postgres.Queryx(sql, idTemplate)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		maingroup := NewMaingroup(false)
+		maingroup.SetExists()
 		err := rows.StructScan(maingroup)
 		if err != nil {
 			return nil, err

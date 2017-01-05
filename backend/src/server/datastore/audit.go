@@ -303,6 +303,22 @@ func (ds *Datastore) GetAudits(limit, offset int, filter map[string]interface{})
 	return audit, err
 }
 
+func (ds *Datastore) CheckTemplateUsed(idTemplate int64) (bool, error) {
+	const query = `SELECT id ` +
+		`FROM places4all.audit ` +
+		`WHERE id_template = $1 LIMIT 1`
+
+	var idAudit int64
+	err := ds.postgres.QueryRow(query, idTemplate).Scan(&idAudit)
+	if err == sql.ErrNoRows {
+		return false, nil
+	} else if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
 func (ds *Datastore) DeleteAuditById(id int64) error {
 
 	const sql = `DELETE FROM places4all.audit WHERE id = $1`

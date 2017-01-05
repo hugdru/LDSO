@@ -44,7 +44,7 @@
 						</span>
                     </a>
                 </li>
-                <li>
+                <li *ngIf="session.role == 'superadmin'">
                     <a routerLink="/auditTemplate" routerLinkActive="active">
                         Modelos
                         <span style="font-size:16px;" class="pull-right
@@ -53,7 +53,7 @@
 						</span>
                     </a>
                 </li>
-                <li>
+                <li *ngIf="session.role == 'superadmin' || session.role == 'localadmin' || session.role == 'auditor'">
                     <a routerLink="/listProperties" routerLinkActive="active">
                         Auditar
                         <span style="font-size:16px;" class="pull-right
@@ -71,7 +71,7 @@
 						</span>
                     </a>
                 </li>
-                <li>
+                <li *ngIf="session.role =='client'">
                     <a routerLink="/listProperties" routerLinkActive="active">
                         Submeter Propriedade
                         <span style="font-size:16px;" class="pull-right
