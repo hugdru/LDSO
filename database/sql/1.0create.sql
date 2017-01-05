@@ -112,7 +112,7 @@ CREATE TABLE template (
   name VARCHAR(100) NOT NULL,
   description TEXT,
   closed_date TIMESTAMP,
-  closed BOOLEAN DEFAULT FALSE,
+  closed BOOLEAN DEFAULT FALSE NOT NULL,
   created_date TIMESTAMP NOT NULL
 );
 

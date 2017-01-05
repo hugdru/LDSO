@@ -14,7 +14,7 @@ type Template struct {
 	Name        string      `json:"name" db:"name"`
 	Description zero.String `json:"description" db:"description"`
 	ClosedDate  zero.Time   `json:"closedDate" db:"closed_date"`
-	Closed      zero.Bool   `json:"closed" db:"closed"`
+	Closed      bool        `json:"closed" db:"closed"`
 	CreatedDate time.Time   `json:"createdDate" db:"created_date"`
 
 	// Objects

@@ -212,7 +212,7 @@ func (h *Handler) closeTemplate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	template.Closed = zero.BoolFrom(input.Close)
+	template.Closed = input.Close
 	if input.Close {
 		template.ClosedDate = zero.TimeFrom(helpers.TheTime())
 	} else {
