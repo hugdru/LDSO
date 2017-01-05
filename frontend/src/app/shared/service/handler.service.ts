@@ -9,7 +9,7 @@ import "rxjs/add/operator/catch";
 export class HandlerService {
 
     headers = new Headers({ 'Content-Type': 'application/json' });
-    options = new RequestOptions({ headers: this.headers });
+    options = new RequestOptions({ headers: this.headers, withCredentials: true});
 
     constructor(private http: Http) {
     }
