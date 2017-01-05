@@ -16,9 +16,9 @@ export class AuditEvaluateCriterionComponent {
 	@Input() criteria: Criterion[];
 	@Input() auditId: number;
 
+	id: number = 0;
+	selectedId; number = -1;
 	uncheckedCriteria: Criterion[] = [];
-
-	remark: Remark;
 	remarks: Remark[];
 	selectedAdd: boolean = false;
 	checked: boolean = false;
@@ -27,6 +27,8 @@ export class AuditEvaluateCriterionComponent {
 	constructor(private auditService: AuditService) {
 
 	}
+
+	@Input() criteria: Criterion[];
 
     ngOnInit(): void {
 		this.remarks = [];
@@ -70,8 +72,14 @@ export class AuditEvaluateCriterionComponent {
 
 	onAdd(remark: Remark): void {
 		if (remark != null) {
+			remark.idAudit = this.auditId;
+			remark.id = this.id++;
 			this.remarks.push(remark);
 		}
 		this.selectedAdd = false;
+	}
+
+	selectedRemark(id: number): void {
+		this.selectedId = id;
 	}
 }

@@ -22,4 +22,4 @@ export const auditsSubGroupsUrl = auditsUrl + '/subgroups';
 
 export const auditsCriterionUrl = auditsUrl + '/criterion';
 
-export const imageUploadUrl = serverUrl + '/image';
+export const imageUploadUrl = serverUrl + '/audits/#/criteria/!/remarks';
