@@ -4,6 +4,7 @@ import {Criterion} from "criterion/criterion";
 import {AuditCriterion} from "audit/audit";
 import {Remark} from "remark/remark";
 import {AuditService} from 'audit/service/audit.service';
+import {audit} from "rxjs/operator/audit";
 
 @Component({
     selector: 'audit-evaluate-criterion',
@@ -49,9 +50,11 @@ export class AuditEvaluateCriterionComponent {
 				this.unselectedCriteria.splice(index, 1);
 			}
 			let auditCriterion: AuditCriterion;
+			auditCriterion = new AuditCriterion;
 			auditCriterion.criterion = criterion.id;
 			auditCriterion.rating = this.rating;
-			// this.auditService.setAuditCriterion(auditCriterion).subscribe();
+			this.auditService.setAuditCriterion(auditCriterion,
+					this.auditId).subscribe();
 		}
 		
 	}
