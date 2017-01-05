@@ -121,7 +121,7 @@ CREATE TABLE maingroup (
   id_template INTEGER NOT NULL REFERENCES template(id) ON DELETE CASCADE,
   name VARCHAR(100) NOT NULL,
   weight PERCENTAGE NOT NULL,
-  closed BOOLEAN DEFAULT FALSE,
+  closed BOOLEAN DEFAULT FALSE NOT NULL,
   created_date TIMESTAMP NOT NULL
 );
 
@@ -130,7 +130,7 @@ CREATE TABLE subgroup (
   id_maingroup INTEGER NOT NULL REFERENCES maingroup(id) ON DELETE CASCADE,
   name VARCHAR(100) NOT NULL,
   weight PERCENTAGE NOT NULL,
-  closed BOOLEAN DEFAULT FALSE,
+  closed BOOLEAN DEFAULT FALSE NOT NULL,
   created_date TIMESTAMP NOT NULL
 );
 
@@ -147,7 +147,7 @@ CREATE TABLE criterion (
   id_legislation INTEGER REFERENCES legislation(id),
   name VARCHAR(100) NOT NULL,
   weight PERCENTAGE NOT NULL,
-  closed BOOLEAN DEFAULT FALSE,
+  closed BOOLEAN DEFAULT FALSE NOT NULL,
   created_date TIMESTAMP NOT NULL
 );
 
@@ -160,7 +160,7 @@ CREATE TABLE criterion_accessibility (
   id_criterion INTEGER REFERENCES criterion(id) ON DELETE CASCADE,
   id_accessibility INTEGER REFERENCES accessibility(id),
   weight PERCENTAGE NOT NULL,
-  closed BOOLEAN DEFAULT FALSE,
+  closed BOOLEAN DEFAULT FALSE NOT NULL,
   PRIMARY KEY(id_criterion, id_accessibility)
 );
 

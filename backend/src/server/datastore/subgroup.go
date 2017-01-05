@@ -2,7 +2,6 @@ package datastore
 
 import (
 	"errors"
-	"gopkg.in/guregu/null.v3/zero"
 	"server/datastore/generators"
 	"server/datastore/metadata"
 	"strconv"
@@ -14,7 +13,7 @@ type Subgroup struct {
 	IdMaingroup int64     `json:"idMaingroup" db:"id_maingroup"`
 	Name        string    `json:"name" db:"name"`
 	Weight      int       `json:"weight" db:"weight"`
-	Closed      zero.Bool `json:"closed" db:"closed"`
+	Closed      bool      `json:"closed" db:"closed"`
 	CreatedDate time.Time `json:"createdDate" db:"created_date"`
 
 	// Objects
