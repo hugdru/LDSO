@@ -3,7 +3,7 @@ import {Injectable} from "@angular/core";
 import {Observable} from "rxjs/Observable";
 import {
     auditTemplatesUrl, currentAuditTemplateUrl,
-    closeAuditTemplateUrl
+    closeAuditTemplateUrl, usedAuditTemplateUrl
 } from "shared/shared-data";
 import {HandlerService} from "../../shared/service/handler.service";
 import {AuditTemplate} from "../audit-template";
@@ -46,6 +46,10 @@ export class AuditTemplateService {
     closeAuditTemplate(id: number, close: Close): Observable<Response> {
         return this.handler.set<Close>(
                 closeAuditTemplateUrl.replace(/#/g, id.toString()), close);
+    }
+
+    getUsed(id: number): Observable<Response> {
+        return this.handler.getAll<Response>(usedAuditTemplateUrl.replace(/#/g, id.toString()));
     }
 
 }
