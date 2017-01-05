@@ -57,7 +57,6 @@
                         <li class="divider"></li>
                         <li><a href="#">Informes</a></li>
                     </ul>
->>>>>>> 3c36bb5... inicio da property evaluation
                 </li>
                 <li *ngIf="session.role == 'superadmin'">
                     <a routerLink="/auditTemplate" routerLinkActive="active">
@@ -69,7 +68,8 @@
                     </a>
                 </li>
                 <li *ngIf="session.role == 'superadmin' || session.role == 'localadmin' || session.role == 'auditor'">
-                    <a routerLink="/listProperties" routerLinkActive="active">
+                    <a routerLink="/listPropertiesAudit"
+                       routerLinkActive="active">
                         Auditar
                         <span style="font-size:16px;" class="pull-right
 								hidden-xs showopacity glyphicon
@@ -78,7 +78,8 @@
                     </a>
                 </li>
                 <li>
-                    <a routerLink="/listProperties" routerLinkActive="active">
+                    <a routerLink="/listPropertiesView"
+                       routerLinkActive="active">
                         Propriedades
                         <span style="font-size:16px;" class="pull-right
 								hidden-xs showopacity glyphicon

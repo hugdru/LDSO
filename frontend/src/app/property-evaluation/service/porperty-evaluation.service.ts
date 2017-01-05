@@ -1,8 +1,8 @@
-import {Response} from "@angular/http";
 import {Injectable} from "@angular/core";
 import {HandlerService} from "../../handler.service";
 import {Observable} from "rxjs/Observable";
 import {PropertyEvaluation} from "../property-evaluation";
+import {auditsUrl} from "../../shared/shared-data";
 
 
 
@@ -11,10 +11,9 @@ export class PropertyEvaluationService {
 
     constructor(private handler: HandlerService) {
     }
-    getPropertyEvaluation(id: number): Observable<PropertyEvaluation[]> {
-        let formated = "/audits?idProperty=" + id ;
-        return this.handler.getAll<PropertyEvaluation[]>(formated);
-    }
 
+    getSomePropertyEvaluation(tag: string, value: any): Observable<PropertyEvaluation[]> {
+        return this.handler.getSome<PropertyEvaluation[]>(auditsUrl, tag, value);
+    }
 
 }

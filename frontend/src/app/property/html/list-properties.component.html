@@ -1,5 +1,13 @@
 <p class="h1">Propriedades</p>
-<div *ngFor="let property of properties"
-     [routerLink]="['/audit', property.id]">
-    {{property.name}}
+<div *ngIf="router.url == '/listPropertiesAudit'" >
+    <div *ngFor="let property of properties"
+         [routerLink]="['/audit', property.id]">
+        {{property.name}}
+    </div>
+</div>
+<div *ngIf="router.url != '/listPropertiesAudit'" >
+    <div *ngFor="let property of properties"
+         [routerLink]="['/propertyEvaluation', property.id]">
+        {{property.name}}
+    </div>
 </div>

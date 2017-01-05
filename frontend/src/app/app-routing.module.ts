@@ -31,9 +31,13 @@ const routes: Routes = [
         canActivate: [AuditGuard]
     },
     {
-        path: 'listProperties',
+        path: 'listPropertiesAudit',
         component: ListPropertiesComponent,
         canActivate: [AuditGuard]
+    },
+    {
+        path: 'listPropertiesView',
+        component: ListPropertiesComponent
     },
     {
         path: 'login',
