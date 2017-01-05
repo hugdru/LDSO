@@ -14,6 +14,7 @@ type Template struct {
 	Name        string      `json:"name" db:"name"`
 	Description zero.String `json:"description" db:"description"`
 	ClosedDate  zero.Time   `json:"closedDate" db:"closed_date"`
+	Closed      zero.Bool   `json:"closed" db:"closed"`
 	CreatedDate time.Time   `json:"createdDate" db:"created_date"`
 
 	// Objects
@@ -89,11 +90,11 @@ func (ds *Datastore) InsertTemplate(t *Template) error {
 	}
 
 	const sql = `INSERT INTO places4all.template (` +
-		`name, description, closed_date, created_date` +
+		`name, description, closed_date, closed, created_date` +
 		`) VALUES (` +
-		`$1, $2, $3` +
+		`$1, $2, $3, $4, $5` +
 		`) RETURNING id`
-	err := ds.postgres.QueryRow(sql, t.Name, t.Description, t.ClosedDate, t.CreatedDate).Scan(&t.Id)
+	err := ds.postgres.QueryRow(sql, t.Name, t.Description, t.ClosedDate, t.Closed, t.CreatedDate).Scan(&t.Id)
 	if err != nil {
 		return err
 	}
@@ -118,12 +119,12 @@ func (ds *Datastore) UpdateTemplate(t *Template) error {
 	}
 
 	const sql = `UPDATE places4all.template SET (` +
-		`name, description, closed_date, created_date` +
+		`name, description, closed_date, closed, created_date` +
 		`) = ( ` +
-		`$1, $2, $3, $4` +
-		`) WHERE id = $5`
+		`$1, $2, $3, $4, $5` +
+		`) WHERE id = $6`
 
-	_, err := ds.postgres.Exec(sql, t.Name, t.Description, t.ClosedDate, t.CreatedDate, t.Id)
+	_, err := ds.postgres.Exec(sql, t.Name, t.Description, t.ClosedDate, t.Closed, t.CreatedDate, t.Id)
 	return err
 }
 
@@ -151,16 +152,16 @@ func (ds *Datastore) UpsertTemplate(t *Template) error {
 	}
 
 	const sql = `INSERT INTO places4all.template (` +
-		`id, name, description, closed_date, created_date` +
+		`id, name, description, closed_date, closed, created_date` +
 		`) VALUES (` +
-		`$1, $2, $3, $4, $5` +
+		`$1, $2, $3, $4, $5, $6` +
 		`) ON CONFLICT (id) DO UPDATE SET (` +
-		`id, name, description, closed_date, created_date` +
+		`id, name, description, closed_date, closed, created_date` +
 		`) = (` +
-		`EXCLUDED.id, EXCLUDED.name, EXCLUDED.description, EXCLUDED.closed_date, EXCLUDED.created_date` +
+		`EXCLUDED.id, EXCLUDED.name, EXCLUDED.description, EXCLUDED.closed_date, EXCLUDED.closed, EXCLUDED.created_date` +
 		`)`
 
-	_, err := ds.postgres.Exec(sql, t.Id, t.Name, t.Description, t.ClosedDate, t.CreatedDate)
+	_, err := ds.postgres.Exec(sql, t.Id, t.Name, t.Description, t.ClosedDate, t.Closed, t.CreatedDate)
 	if err != nil {
 		return err
 	}
@@ -210,14 +211,14 @@ func (ds *Datastore) DeleteTemplateById(id int64) error {
 
 func (ds *Datastore) GetCurrentTemplate() (*Template, error) {
 
-	const sql = `SELECT id, name, description, closed_date, created_date ` +
+	const sql = `SELECT id, name, description, closed_date, closed, created_date ` +
 		`FROM places4all.template ` +
 		`WHERE template.closed_date IS NOT NULL ` +
 		`ORDER BY template.closed_date DESC LIMIT 1`
 
 	t := ATemplate(false)
 	t.SetExists()
-	err := ds.postgres.QueryRow(sql).Scan(&t.Id, &t.Name, &t.Description, &t.ClosedDate, &t.CreatedDate)
+	err := ds.postgres.QueryRow(sql).Scan(&t.Id, &t.Name, &t.Description, &t.ClosedDate, &t.Closed, &t.CreatedDate)
 	if err != nil {
 		return nil, err
 	}
@@ -228,14 +229,14 @@ func (ds *Datastore) GetCurrentTemplate() (*Template, error) {
 func (ds *Datastore) GetTemplateById(id int64) (*Template, error) {
 
 	const sql = `SELECT ` +
-		`id, name, description, closed_date, created_date ` +
+		`id, name, description, closed_date, closed, created_date ` +
 		`FROM places4all.template ` +
 		`WHERE id = $1`
 
 	t := ATemplate(false)
 	t.SetExists()
 
-	err := ds.postgres.QueryRow(sql, id).Scan(&t.Id, &t.Name, &t.Description, &t.ClosedDate, &t.CreatedDate)
+	err := ds.postgres.QueryRow(sql, id).Scan(&t.Id, &t.Name, &t.Description, &t.ClosedDate, &t.Closed, &t.CreatedDate)
 	if err != nil {
 		return nil, err
 	}
@@ -247,7 +248,7 @@ func (ds *Datastore) GetTemplatesWithMaingroups(limit, offset int, filter map[st
 
 	where, values := generators.GenerateAndSearchClause(filter)
 
-	sql := `SELECT template.id, template.name, template.description, template.closed_date, template.created_date ` +
+	sql := `SELECT template.id, template.name, template.description, template.closed_date, template.closed, template.created_date ` +
 		`FROM places4all.template ` +
 		where +
 		`ORDER BY template.id DESC LIMIT ` + strconv.Itoa(limit) +
@@ -278,7 +279,7 @@ func (ds *Datastore) GetTemplatesWithMaingroups(limit, offset int, filter map[st
 
 func (ds *Datastore) GetTemplateWithMaingroups(id int64) (*Template, error) {
 	rows := ds.postgres.QueryRowx(
-		`SELECT template.id, template.name, template.description, template.closed_date, template.created_date `+
+		`SELECT template.id, template.name, template.description, template.closed_date, template.closed, template.created_date `+
 			`FROM places4all.template `+
 			`WHERE id = $1`, id)
 
