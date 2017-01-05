@@ -52,6 +52,8 @@ import {SessionAnnounceService} from "./shared/service/session-announce.service"
 import {SuperAdminGuard} from "shared/service/superadmin.guard";
 import {SessionService} from "./shared/service/session.service";
 import {AuditGuard} from "./shared/service/audit.guard";
+import {PropertyGuard} from "./shared/service/property.guard";
+import {PropertyAddComponent} from "./property/property-add.component";
 
 @NgModule({
     declarations: [
@@ -87,6 +89,7 @@ import {AuditGuard} from "./shared/service/audit.guard";
         ListPropertiesComponent,
         ShowListComponent,
         PropertiesInfoComponent,
+        PropertyAddComponent,
         AuditComponent,
         AuditEvaluateComponent,
         AuditEvaluateCriterionComponent,
@@ -109,7 +112,8 @@ import {AuditGuard} from "./shared/service/audit.guard";
         SessionService,
         SessionAnnounceService,
         SuperAdminGuard,
-        AuditGuard
+        AuditGuard,
+        PropertyGuard
     ],
     bootstrap: [AppComponent]
 })
