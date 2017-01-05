@@ -8,6 +8,8 @@ import {AuditService} from "../audit/service/audit.service";
 import {AuditTemplateService}
 		from "../audit-template/service/audit-template.service";
 import {AuditTemplate} from "../audit-template/audit-template";
+import {AuditSubgrups} from "./audit";
+import {ActivatedRoute} from "@angular/router";
 
 @Component({
     selector: 'audit-select',
@@ -25,6 +27,7 @@ export class AuditSelectComponent implements OnInit {
     selectedSubGroups: SubGroup[];
     errorMsg: string;
 	auditId: number;
+	auditSubgroups: AuditSubgrups;
 
     @Output() onDone = new EventEmitter<SubGroup[]>();
     @Output() sendId = new EventEmitter<number>();
@@ -32,7 +35,8 @@ export class AuditSelectComponent implements OnInit {
     constructor(private auditTemplateService: AuditTemplateService,
                 private mainGroupService: MainGroupService,
 				private auditService: AuditService,
-                private subGroupService: SubGroupService) {
+                private subGroupService: SubGroupService,
+                private route: ActivatedRoute) {
     }
 
     ngOnInit(): void {
@@ -40,6 +44,8 @@ export class AuditSelectComponent implements OnInit {
         this.mainGroups = [];
         this.subGroups = [];
         this.selectedSubGroups = [];
+        this.auditSubgroups = new AuditSubgrups;
+        this.auditSubgroups.idProperty = +this.route.snapshot.params['id']
     }
 
     initAuditTemplate() : void {
@@ -78,6 +84,13 @@ export class AuditSelectComponent implements OnInit {
         else {
             this.selectedSubGroups.push(subGroup);
         }
+ /*       let index1 = this.auditSubgroups.subgroups.indexOf(subGroup.id, 0)
+        if (index1 > -1) {
+            this.auditSubgroups.subgroups.splice(index, 1);
+        }
+        else {
+            this.auditSubgroups.subgroups.push(subGroup.id);
+        }*/
     }
 
 	isSelected(subGroup: SubGroup): boolean {
@@ -85,10 +98,9 @@ export class AuditSelectComponent implements OnInit {
 	}
 
     pressed(): void {
-		// this.auditService.setAuditSubGroups(this.selectedSubgroups).subscribe(
-		// 	data => this.auditId = data
-		// );
-		this.auditId = 1;
+        this.auditService.setAuditSubGroups(this.auditSubgroups).subscribe(
+		 	response => this.auditId = response.json().id
+        );
         this.onDone.emit(this.selectedSubGroups);
 		this.sendId.emit(this.auditId);
     }
