@@ -45,6 +45,7 @@ export class AuditSelectComponent implements OnInit {
         this.subGroups = [];
         this.selectedSubGroups = [];
         this.auditSubgroups = new AuditSubgrups;
+        this.auditSubgroups.subgroups = [];
         this.auditSubgroups.idProperty = +this.route.snapshot.params['id']
     }
 
@@ -80,17 +81,12 @@ export class AuditSelectComponent implements OnInit {
 		let index = this.selectedSubGroups.indexOf(subGroup, 0);
         if (index > -1) {
             this.selectedSubGroups.splice(index, 1);
-        }
-        else {
-            this.selectedSubGroups.push(subGroup);
-        }
- /*       let index1 = this.auditSubgroups.subgroups.indexOf(subGroup.id, 0)
-        if (index1 > -1) {
             this.auditSubgroups.subgroups.splice(index, 1);
         }
         else {
+            this.selectedSubGroups.push(subGroup);
             this.auditSubgroups.subgroups.push(subGroup.id);
-        }*/
+        }
     }
 
 	isSelected(subGroup: SubGroup): boolean {
