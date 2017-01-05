@@ -1,6 +1,7 @@
-<p class="h1">SubGrupo</p>
+<p class="h1">Auditoria - Escolha dos Sub-grupos</p>
+<br>
+<p class="h2">Grupos</p>
 <div class="list" *ngFor='let mainGroup of mainGroups'>
-
     <table class="cursor-pointer" (click)="showChildren(mainGroup)">
         <tr>
             {{mainGroup.name}}
@@ -9,16 +10,11 @@
 </div>
 <hr>
 <div *ngIf='subGroups'>
-    <p class="h2">SubGrupos Criterios</p>
-	<md-checkbox [checked]="allSelected()"
-		[indeterminate]="isIndeterminate()" (change)="toggleAll()">
-		Selecionar Todos
-	</md-checkbox>
+    <p class="h2">Sub-grupos</p>
     <div *ngFor='let subGroup of subGroups'>
         <table>
             <tr>
-				<md-checkbox style="padding-left: 30px;"
-					 [checked]="isSelected(subGroup)"
+				<md-checkbox [checked]="isSelected(subGroup)"
 					 (change)="toggleSubGroup(subGroup)">
 					{{subGroup.name}}
 				</md-checkbox>
@@ -28,15 +24,9 @@
 </div>
 <hr>
 <div>
-    <div *ngIf='selectedSubGroups'>
-        <p class="h2">Criterios Selecionado</p>
-        <span *ngFor='let subGroup of selectedSubGroups'>
-            {{subGroup.id}}
-        </span>
-    </div>
     <button *ngIf='selectedSubGroups.length > 0'
-            class="btn btn-success round outline"
+            class="btn btn-primary"
             (click)="pressed()">
-        <i class="glyphicon glyphicon-ok"></i>
+		Concluido
     </button>
 </div>

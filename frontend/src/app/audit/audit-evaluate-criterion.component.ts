@@ -1,17 +1,20 @@
 import {Component, OnInit, Input} from "@angular/core";
 
 import {Criterion} from "criterion/criterion";
+import {AuditCriterion} from "audit/audit";
 import {Remark} from "remark/remark";
+import {AuditService} from 'audit/service/audit.service';
 
 @Component({
     selector: 'audit-evaluate-criterion',
     templateUrl: 'html/audit-evaluate-criterion.component.html',
-    styleUrls: ['../main-group/main-group.component.css']
-    // providers: [MainGroupService, SubGroupService, CriterionService]
+    styleUrls: ['../main-group/main-group.component.css'],
+    providers: [AuditService]
 })
 
 export class AuditEvaluateCriterionComponent {
 	@Input() criteria: Criterion[];
+	@Input() auditId: number;
 
 	unselectedCriteria: Criterion[] = [];
 
@@ -19,7 +22,11 @@ export class AuditEvaluateCriterionComponent {
 	remarks: Remark[];
 	selectedAdd: boolean = false;
 	checked: boolean = false;
-	b: number = 1;
+	rating: number;
+
+	constructor(private auditService: AuditService) {
+
+	}
 
     ngOnInit(): void {
 		this.remarks = [];
@@ -41,7 +48,12 @@ export class AuditEvaluateCriterionComponent {
 			if (index > -1) {
 				this.unselectedCriteria.splice(index, 1);
 			}
+			let auditCriterion: AuditCriterion;
+			auditCriterion.criterion = criterion.id;
+			auditCriterion.rating = this.rating;
+			// this.auditService.setAuditCriterion(auditCriterion).subscribe();
 		}
+		
 	}
 
 	checkUnselected(criterion: Criterion): boolean {
@@ -58,4 +70,5 @@ export class AuditEvaluateCriterionComponent {
 		}
 		this.selectedAdd = false;
 	}
+
 }

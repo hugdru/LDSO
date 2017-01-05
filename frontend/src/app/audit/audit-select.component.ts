@@ -4,29 +4,33 @@ import {MainGroup} from "main-group/main-group";
 import {SubGroup} from "../sub-group/sub-group";
 import {MainGroupService} from "main-group/service/main-group.service";
 import {SubGroupService} from "../sub-group/service/sub-group.service";
+import {AuditService} from "../audit/service/audit.service";
 
 @Component({
     selector: 'audit-select',
     templateUrl: './html/audit-select.component.html',
     styleUrls: ['./audit.component.css'],
-    providers: [MainGroupService, SubGroupService]
+    providers: [MainGroupService, SubGroupService, AuditService]
 })
 
 export class AuditSelectComponent implements OnInit {
 
     mainGroups: MainGroup[];
     subGroups: SubGroup[];
-    errorMsg: string;
     selectedSubGroups: SubGroup[];
+    errorMsg: string;
+	auditId: number;
+
     @Output() onDone = new EventEmitter<SubGroup[]>();
+    @Output() sendId = new EventEmitter<number>();
 
     constructor(private mainGroupService: MainGroupService,
+				private auditService: AuditService,
                 private subGroupService: SubGroupService) {
     }
 
     ngOnInit(): void {
         this.initMainGroups();
-        this.subGroups = [];
         this.selectedSubGroups = [];
     }
 
@@ -61,23 +65,11 @@ export class AuditSelectComponent implements OnInit {
 	}
 
     pressed(): void {
+		// this.auditService.setAuditSubGroups(this.selectedSubgroups).subscribe(
+		// 	data => this.auditId = data
+		// );
+		this.auditId = 1;
         this.onDone.emit(this.selectedSubGroups);
+		this.sendId.emit(this.auditId);
     }
-
-	allSelected(): boolean {
-		return this.subGroups.length == this.selectedSubGroups.length;
-	}
-
-	isIndeterminate(): boolean {
-		return this.selectedSubGroups.length != 0 &&
-			this.subGroups.length != this.selectedSubGroups.length;
-	}
-
-	toggleAll(): void {
-		for (let subGroup of this.subGroups) {
-			if (!this.isSelected(subGroup)) {
-				this.toggleSubGroup(subGroup);
-			}
-		}
-	}
 }

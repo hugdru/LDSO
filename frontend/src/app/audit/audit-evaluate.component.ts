@@ -74,4 +74,7 @@ export class AuditEvaluateComponent implements OnInit {
         }
 	}
 
+	finishedAudit(){
+		//TODO
+	}
 }

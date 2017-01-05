@@ -1,11 +1,20 @@
-<p class="h2">Criterios Avaliação</p>
+<p class="h1">Auditoria</p>
+<br>
+<p class="h2">Grupos</p>
 <show-list [objectList]="mainGroups" (selected)="selected($event)"></show-list>
 <hr>
 <div *ngIf="subGroups">
+	<p class="h2">Sub-grupos</p>
 	<show-list [objectList]="subGroups" (selected)="selected($event)">
 	</show-list>
 </div>
 <hr>
 <div *ngIf="criteria">
-	<audit-evaluate-criterion [criteria]="criteria"></audit-evaluate-criterion>
+	<p class="h2">Critérios</p>
+	<audit-evaluate-criterion [auditId]="auditId" [criteria]="criteria">
+	</audit-evaluate-criterion>
 </div>
+<br>
+<button class="btn btn-primary" (click)="finishedAudit()">
+	Concluido
+</button>
