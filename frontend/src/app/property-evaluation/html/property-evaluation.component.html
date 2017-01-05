@@ -1,12 +1,30 @@
-<div class="col-sm-4 col-md-4">
-    <blockquote>
-    <!--    <p>{{propertyE.name}}</p> <small><cite title="Source Title">{{propertyE.adress}} <i class="glyphicon glyphicon-map-marker"></i></cite></small>-->
-        <p> nome</p> <small><cite title="Property address">endreço <i class="glyphicon glyphicon-map-marker"></i></cite></small>
-    </blockquote>
-    <p> <i class="glyphicon glyphicon-envelope"></i>rating
-        <br /> <i class="glyphicon glyphicon-gift"></i>avaliacao</p>
+<div class="container">
+    <div class="col-sm-8 col-md-8">
+        <blockquote>
+            <p> {{propertyEMock[0].property.name}}</p> <small><cite title="Property address">{{propertyEMock[0].property.adress}} <i class="glyphicon glyphicon-map-marker"></i></cite></small>
+        </blockquote>
+    </div>
+    <div class="col-sm-2 col-md-2">
+        <img src={{propertyEMock[0].property.imagePath}} alt="" class="img-rounded img-responsive" />
+    </div>
 </div>
-<div class="col-sm-2 col-md-2">
-    <img src="http://thetransformedmale.files.wordpress.com/2011/06/bruce-wayne-armani.jpg"
-         alt="" class="img-rounded img-responsive" />
+<div *ngFor="let item of propertyEMock">
+    <br>
+    <div class="container">
+        <a href="#demo{{item.id}}" class="btn" data-toggle="collapse">{{item.auditor.name}} com rating {{item.rating}} </a>
+        <div id="demo{{item.id}}" class="collapse">
+            <label class="col-sm-2 control-label">Nome do audior : </label><p>{{item.auditor.name}}</p>
+            <label class="col-sm-2 control-label">Valor do rating: </label><p>{{item.rating}}</p>
+            <label class="col-sm-2 control-label">Seguindo as normas : </label><br><p>{{item.idTemplate}}</p>
+            <br>
+            <label class="col-sm-2 control-label">Criado em : </label><p>{{item.createdDate}}</p>
+            <label class="col-sm-2 control-label">Finalizado em :</label><p>{{item.finishedDate}}</p>
+            <br>
+            <label class="col-sm-2 control-label">Comment</label>
+            <div class="col-sm-10">
+                <textarea class="form-control" name="addComment" id="addComment" rows="5">{{item.coment}}</textarea>
+            </div>
+        </div>
+    </div>
+    <br>
 </div>
