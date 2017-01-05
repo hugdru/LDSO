@@ -11,13 +11,14 @@ import {Remark} from "remark/remark";
 })
 
 export class AuditEvaluateCriterionComponent {
-	@Input() criteria: Criterion[];
-
+	idAudit = 1;
+	id: number = 0;
+	selectedId; number = -1;
 	uncheckedCriteria: Criterion[] = [];
-
-	remark: Remark;
 	remarks: Remark[];
 	selectedAdd: boolean = false;
+
+	@Input() criteria: Criterion[];
 
     ngOnInit(): void {
 		this.remarks = [];
@@ -42,8 +43,14 @@ export class AuditEvaluateCriterionComponent {
 
 	onAdd(remark: Remark): void {
 		if (remark != null) {
+			remark.idAudit = this.idAudit;
+			remark.id = this.id++;
 			this.remarks.push(remark);
 		}
 		this.selectedAdd = false;
+	}
+
+	selectedRemark(id: number): void {
+		this.selectedId = id;
 	}
 }

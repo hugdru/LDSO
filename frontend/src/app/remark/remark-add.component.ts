@@ -23,7 +23,7 @@ export class RemarkAddComponent {
 	}
 
 	onAdd(remark: Remark): void {
-		this.remark.criterion = this.criterion.id;
+		this.remark.idCriterion = this.criterion.id;
 		this.add.emit(remark);
 	}
 }

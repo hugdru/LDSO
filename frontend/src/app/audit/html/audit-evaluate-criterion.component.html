@@ -34,6 +34,18 @@
 			</div>
 			<div *ngFor="let remark of remarks">
 				{{remark.data}}
+				<button class="btn btn-primary round outline"
+					(click)="selectedRemark(remark.id)">
+					Image
+				</button>
+				<button *ngIf="selectedId != -1 && selectedId == remark.id"
+					class="btn btn-primary round outline"
+					(click)="selectedRemark(-1)">
+					Cancel
+				</button>
+				<image-single-upload *ngIf="selectedId == remark.id"
+						[remark]="remark">
+				</image-single-upload>
 			</div>
 		</modal-content>
 		<modal-footer>

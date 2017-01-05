@@ -18,4 +18,4 @@ export const auditsUrl = serverUrl + '/audits';
 
 export const auditsFindUrl = auditsUrl + '/find';
 
-export const imageUploadUrl = serverUrl + '/image';
+export const imageUploadUrl = serverUrl + '/audits/#/criteria/!/remarks';
