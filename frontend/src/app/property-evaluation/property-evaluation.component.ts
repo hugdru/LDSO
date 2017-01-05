@@ -4,6 +4,7 @@ import {PropertyEvaluationService} from "./service/porperty-evaluation.service";
 import {ActivatedRoute} from '@angular/router';
 import {Property} from "../property/property";
 import {PropertyService} from "../property/service/property.service";
+import {Address} from "../property/address";
 
 @Component({
   selector: 'app-property-evaluation',
@@ -12,7 +13,7 @@ import {PropertyService} from "../property/service/property.service";
   providers: [PropertyEvaluationService, PropertyService]
 })
 export class PropertyEvaluationComponent implements OnInit {
-    thisProperty: Property = new Property();
+    thisProperty: Property;
     propertyEvaluations:  PropertyEvaluation[];
     errorMsg: string;
     id: string;
@@ -24,7 +25,9 @@ export class PropertyEvaluationComponent implements OnInit {
    {}
 
     ngOnInit(): void {
-        this.thisProperty.address ;
+        this.thisProperty = new Property();
+        this.thisProperty.address = new Address();
+        this.propertyEvaluations = [];
         this.thisProperty.id = +this.route.snapshot.params['id'];
         this.initPropertyEvaluations();
         this.initProperty();

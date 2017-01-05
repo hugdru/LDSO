@@ -15,22 +15,18 @@
     </div>
 </div>
 
-<div *ngFor="let item of PropertyEvaluation">
+<div *ngFor="let item of propertyEvaluations">
     <br>
 
    <div class="container" >
-            <a href="#demo{{item.id}}" class="btn" data-toggle="collapse">{{item.idAuditor}} com rating {{item.rating}} </a>
+            <a href="#demo{{item.id}}" class="btn" data-toggle="collapse">{{item.idAuditor}} --> {{item.rating}} </a>
             <div id="demo{{item.id}}" class="collapse">
             <br>
-                <label class="labelSpace">Nome do audior : </label>{{item.auditor.id}}<br>
+                <label class="labelSpace">Id do auditor : </label>{{item.idAuditor}}<br>
                 <label class="labelSpace">Valor do rating: </label>{{item.rating}} <br>
-                <label class="labelSpace">Seguindo as normas : </label>{{item.idTemplate}}<br>
+                <label class="labelSpace">Seguindo o template : </label>{{item.idTemplate}}<br>
                 <label class="labelSpace">Criado em : </label>{{item.createdDate}}<br>
                 <label class="labelSpace">Finalizado em :</label>{{item.finishedDate}}<br>
-                <label class="col-sm-2 ">Comment</label>
-                <div class="col-sm-10">
-                    <textarea class="form-control" name="addComment" id="addComment" rows="5">...</textarea>
-                </div>
             </div>
     </div>
     <br>
