@@ -8,6 +8,7 @@ import {
 import {HandlerService} from "../../shared/service/handler.service";
 import {AuditTemplate} from "../audit-template";
 import {Close} from "../close";
+import {Used} from "../used";
 
 @Injectable()
 export class AuditTemplateService {
@@ -48,8 +49,8 @@ export class AuditTemplateService {
                 closeAuditTemplateUrl.replace(/#/g, id.toString()), close);
     }
 
-    getUsed(id: number): Observable<Response> {
-        return this.handler.getAll<Response>(usedAuditTemplateUrl.replace(/#/g, id.toString()));
+    getUsed(id: number): Observable<Used> {
+        return this.handler.getAll<Used>(usedAuditTemplateUrl.replace(/#/g, id.toString()));
     }
 
 }
