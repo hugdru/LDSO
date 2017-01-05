@@ -4,50 +4,58 @@
         <div class="form-group">
             <input type="text"
                    class="form-control"
+                   name ="name"
                    required
                    [(ngModel)]="selectedObject.name"
                    placeholder="Nome">
         </div>
         <div class="form-group">
             <textarea
-                   class="form-control"
-                   required
-                   [(ngModel)]="selectedObject.details"
-                   placeholder="Detalhes"></textarea>
+                    class="form-control"
+                    required
+                    name ="details"
+                    [(ngModel)]="selectedObject.details"
+                    placeholder="Detalhes"></textarea>
         </div>
         <div class="form-group">
             <input type="text"
                    class="form-control"
+                   name ="addressLine1"
                    [(ngModel)]="selectedObject.address.addressLine1"
                    placeholder="Endereço Linha 1">
         </div>
         <div class="form-group">
             <input type="text"
                    class="form-control"
+                   name ="addressLine2"
                    [(ngModel)]="selectedObject.address.addressLine2"
                    placeholder="Endereço Linha 2">
         </div>
         <div class="form-group">
             <input type="text"
                    class="form-control"
+                   name ="addressLine3"
                    [(ngModel)]="selectedObject.address.addressLine3"
                    placeholder="Endereço Linha 3">
         </div>
         <div class="form-group">
             <input type="text"
                    class="form-control"
+                   name ="townCity"
                    [(ngModel)]="selectedObject.address.townCity"
                    placeholder="Concelho">
         </div>
         <div class="form-group">
             <input type="text"
                    class="form-control"
+                   name ="county"
                    [(ngModel)]="selectedObject.address.county"
                    placeholder="Distrito">
         </div>
         <div class="form-group">
             <input type="text"
                    class="form-control"
+                   name ="postcode"
                    [(ngModel)]="selectedObject.address.postcode"
                    placeholder="Código Postal">
         </div>

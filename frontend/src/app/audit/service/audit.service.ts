@@ -2,8 +2,12 @@ import {Response} from "@angular/http";
 import {Injectable} from "@angular/core";
 import {Observable} from "rxjs/Observable";
 import {auditsUrl} from "shared/shared-data";
+import {auditsSubGroupsUrl} from "shared/shared-data";
+import {auditsCriterionUrl} from "shared/shared-data";
 import {HandlerService} from "../../shared/service/handler.service";
 import {Audit} from "audit/audit";
+import {AuditCriterion} from "audit/audit";
+import {SubGroup} from "sub-group/sub-group";
 
 @Injectable()
 export class AuditService {
@@ -34,4 +38,13 @@ export class AuditService {
     removeAudit(id: number): Observable<Response> {
         return this.handler.delete(auditsUrl, id);
     }
+
+	setAuditSubGroups(subGroups: SubGroup[]): Observable<Response> {
+		return this.handler.set<SubGroup[]>(auditsSubGroupsUrl, subGroups);
+	}
+
+	setAuditCriterion(auditCriterion: AuditCriterion): Observable<Response> {
+		return this.handler.set<AuditCriterion>(auditsCriterionUrl,
+				auditCriterion);
+	}
 }

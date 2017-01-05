@@ -3,11 +3,11 @@
 	</properties-info>
 </div>-->
 <div *ngIf="!selectedSubGroups">
-    <audit-select (onDone)="onDone($event)">
+    <audit-select (onDone)="onDone($event)"
+		(sendId)="sendId($event)">
     </audit-select>
 </div>
 <div *ngIf="selectedSubGroups">
-
-    <audit-evaluate [selectedSubGroups]="selectedSubGroups">
+    <audit-evaluate [auditId]="auditId" [selectedSubGroups]="selectedSubGroups">
     </audit-evaluate>
 </div>

@@ -1,6 +1,6 @@
-dist: trusty
+language: generic 
 sudo: required
-language: generic
+install: true
 
 os:
   - linux
@@ -15,12 +15,11 @@ branches:
 env:
   global:
     - GIMME_OS=linux GIMME_ARCH=amd64 GIMME_GO_VERSION=1.7.3
+    - IMAGE_NAME=tsuru/api
     - NODE_VERSION=6.9.1
-    - PROJECT="$PWD"
+    - PROJECT="$PWD" 
     - FRONTEND="$PROJECT/frontend"
     - BACKEND="$PROJECT/backend"
-    - DATABASE="$PROJECT/database"
-    - API_TESTS="$PROJECT/apiTests"
 
 addons:
   hosts:
@@ -70,8 +69,27 @@ script:
    - cd "$API_TESTS"
    - ./apiTests.sh noinit
 
+before_install:
+  - eval "$(gimme)"
+  - nvm install $NODE_VERSION
+  - nvm use $NODE_VERSION
+  - sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
+  - echo "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/3.2 main" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.list
+  - sudo apt-get update
+  - sudo apt-get install -y mongodb-org
+  - go get github.com/constabulary/gb/...
+script:
+   - cd "$FRONTEND" 
+   - npm install -g angular-cli  
+   - npm install
+   #- ng test
+   - cd "$BACKEND" 
+   - gb vendor restore
+   - gb test server
+
 notifications:
-  slack: ldso51:sq2rhGIJnWafmF0MWN2phN3W
+  slack: ldso51:CK9j3GCfFoj0QpTTTxDdt8lZ
 
 services:
   - docker
+  - mongodb

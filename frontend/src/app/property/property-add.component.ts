@@ -1,6 +1,7 @@
-import {Component, Output, EventEmitter, OnInit} from "@angular/core";
+import {Component, OnInit} from "@angular/core";
 import {PropertyService} from "./service/property.service";
 import {Property} from "./property";
+import {Address} from "./address";
 
 @Component({
     selector: 'property-add',
@@ -17,6 +18,7 @@ export class PropertyAddComponent implements OnInit {
 
     ngOnInit(): void {
         this.selectedObject = new Property();
+        this.selectedObject.address = new Address();
     }
 
     addProperty(): void {
@@ -27,6 +29,7 @@ export class PropertyAddComponent implements OnInit {
 
     cancel(): void {
         this.selectedObject = new Property();
+        this.selectedObject.address = new Address();
     }
 
 }

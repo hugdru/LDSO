@@ -15,6 +15,7 @@ import {SubGroup} from "../sub-group/sub-group";
 export class AuditComponent implements OnInit {
     property: Property = new Property();
     selectedSubGroups: SubGroup[];
+	auditId: number;
 
     constructor(private route: ActivatedRoute) {
     }
@@ -25,5 +26,9 @@ export class AuditComponent implements OnInit {
 
     onDone(selectedSubGroups: SubGroup[]): void {
         this.selectedSubGroups = selectedSubGroups;
+    }
+
+    sendId(auditId: number): void {
+        this.auditId = auditId;
     }
 }

@@ -24,7 +24,11 @@ export const auditsUrl = serverUrl + '/audits';
 
 export const auditsFindUrl = auditsUrl + '/find';
 
-export const imageUploadUrl = serverUrl + '/image';
+export const auditsSubGroupsUrl = auditsUrl + '/subgroups';
+
+export const auditsCriterionUrl = auditsUrl + '/criterion';
+
+export const imageUploadUrl = serverUrl + '/audits/#/criteria/!/remarks';
 
 export const loginUrl = serverUrl + '/entities/login';
 

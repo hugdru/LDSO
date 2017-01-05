@@ -2,16 +2,15 @@ package datastore
 
 import (
 	"errors"
-	"gopkg.in/guregu/null.v3/zero"
 	"server/datastore/metadata"
 )
 
 type CriterionAccessibility struct {
-	IdCriterion     int64     `json:"-" db:"id_criterion"`
-	IdAccessibility int64     `json:"id" db:"id_accessibility"`
-	Name            string    `json:"name" db:"name"`
-	Weight          int       `json:"weight" db:"weight"`
-	Closed          zero.Bool `json:"closed" db:"closed"`
+	IdCriterion     int64  `json:"-" db:"id_criterion"`
+	IdAccessibility int64  `json:"id" db:"id_accessibility"`
+	Name            string `json:"name" db:"name"`
+	Weight          int    `json:"weight" db:"weight"`
+	Closed          bool   `json:"closed" db:"closed"`
 
 	meta metadata.Metadata
 }

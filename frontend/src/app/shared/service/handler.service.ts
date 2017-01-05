@@ -9,7 +9,7 @@ import "rxjs/add/operator/catch";
 export class HandlerService {
 
     headers = new Headers({ 'Content-Type': 'application/json' });
-    options = new RequestOptions({ headers: this.headers });
+    options = new RequestOptions({ headers: this.headers, withCredentials: true});
 
     constructor(private http: Http) {
     }
@@ -39,7 +39,7 @@ export class HandlerService {
     }
 
     getAll<T>(url: string): Observable<T> {
-        return this.http.get(url)
+        return this.http.get(url, this.options)
                 .map((response: Response) => response.json())
                 .map((data: any) => {
                     let result: T = null;
@@ -51,7 +51,7 @@ export class HandlerService {
     }
 
     getResponse(url: string): Observable<Response> {
-        return this.http.get(url)
+        return this.http.get(url, this.options)
                 .map((response: Response) => response)
                 .catch(this.handleError);
     }
@@ -64,7 +64,7 @@ export class HandlerService {
 
     delete(url: string, id: number): Observable<Response> {
         let formated = url + "/" + id;
-        return this.http.delete(formated)
+        return this.http.delete(formated, this.options)
                 .map((response: Response) => response)
                 .catch(this.handleError);
     }

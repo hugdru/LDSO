@@ -1,3 +1,6 @@
+<p class="h1">Auditoria</p>
+<br>
+<p class="h2">Grupos</p>
 <show-list [objectList]="mainGroups" (selected)="selected($event)"></show-list>
 <hr>
 <div *ngIf="subGroups  && subGroups.length > 0">
@@ -6,7 +9,13 @@
 	</show-list>
 	<hr>
 </div>
+<hr>
 <div *ngIf="criteria && criteria.length > 0">
 	<p class="h2">Critérios</p>
-	<audit-evaluate-criterion [criteria]="criteria"></audit-evaluate-criterion>
+	<audit-evaluate-criterion [auditId]="auditId" [criteria]="criteria">
+	</audit-evaluate-criterion>
 </div>
+<br>
+<button class="btn btn-primary" (click)="finishedAudit()">
+	Concluido
+</button>

@@ -1,16 +1,20 @@
 import {Component, OnInit, Output, EventEmitter} from "@angular/core";
+
 import {MainGroup} from "main-group/main-group";
 import {SubGroup} from "../sub-group/sub-group";
 import {MainGroupService} from "main-group/service/main-group.service";
 import {SubGroupService} from "../sub-group/service/sub-group.service";
-import {AuditTemplateService} from "../audit-template/service/audit-template.service";
+import {AuditService} from "../audit/service/audit.service";
+import {AuditTemplateService}
+		from "../audit-template/service/audit-template.service";
 import {AuditTemplate} from "../audit-template/audit-template";
 
 @Component({
     selector: 'audit-select',
     templateUrl: './html/audit-select.component.html',
     styleUrls: ['./audit.component.css'],
-    providers: [AuditTemplateService, MainGroupService, SubGroupService]
+	providers: [AuditTemplateService, MainGroupService, SubGroupService,
+			AuditService]
 })
 
 export class AuditSelectComponent implements OnInit {
@@ -18,12 +22,16 @@ export class AuditSelectComponent implements OnInit {
     auditTemplate: AuditTemplate;
     mainGroups: MainGroup[];
     subGroups: SubGroup[];
-    errorMsg: string;
     selectedSubGroups: SubGroup[];
+    errorMsg: string;
+	auditId: number;
+
     @Output() onDone = new EventEmitter<SubGroup[]>();
+    @Output() sendId = new EventEmitter<number>();
 
     constructor(private auditTemplateService: AuditTemplateService,
                 private mainGroupService: MainGroupService,
+				private auditService: AuditService,
                 private subGroupService: SubGroupService) {
     }
 
@@ -63,10 +71,7 @@ export class AuditSelectComponent implements OnInit {
     }
 
     toggleSubGroup(subGroup: SubGroup): void {
-        var index = this.selectedSubGroups.map(
-                function (x) {
-                    return x.id;
-                }).indexOf(subGroup.id);
+		let index = this.selectedSubGroups.indexOf(subGroup, 0);
         if (index > -1) {
             this.selectedSubGroups.splice(index, 1);
         }
@@ -75,16 +80,16 @@ export class AuditSelectComponent implements OnInit {
         }
     }
 
-    checkedSubGroup(subGroup: SubGroup): boolean {
-        var index = this.selectedSubGroups.map(
-                function (x) {
-                    return x.id;
-                }).indexOf(subGroup.id);
-        return index > -1;
-    }
+	isSelected(subGroup: SubGroup): boolean {
+		return this.selectedSubGroups.includes(subGroup);
+	}
 
     pressed(): void {
+		// this.auditService.setAuditSubGroups(this.selectedSubgroups).subscribe(
+		// 	data => this.auditId = data
+		// );
+		this.auditId = 1;
         this.onDone.emit(this.selectedSubGroups);
+		this.sendId.emit(this.auditId);
     }
-
 }
