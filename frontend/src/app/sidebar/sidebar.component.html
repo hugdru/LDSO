@@ -73,7 +73,7 @@
 						</span>
                     </a>
                 </li>
-                <li *ngIf="session.role == 'superadmin' || session.role == 'localadmin' ||session.role =='client'">
+                <li *ngIf="session.role =='client'">
                     <a routerLink="/addProperty" routerLinkActive="active">
                         Submeter Propriedade
                         <span style="font-size:16px;" class="pull-right
