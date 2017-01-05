@@ -19,8 +19,10 @@ import {EqualValidator} from "shared/equal-validator.directive";
 import {LoginComponent} from "login/login.component";
 import {RegisterComponent} from "./register/register.component";
 import {AuditTemplateComponent} from "audit-template/audit-template.component";
-import {AuditTemplateEditComponent} from "audit-template/audit-template-edit.component";
-import {AuditTemplateAddComponent} from "audit-template/audit-template-add.component";
+import {AuditTemplateEditComponent}
+		from "audit-template/audit-template-edit.component";
+import {AuditTemplateAddComponent}
+		from "audit-template/audit-template-add.component";
 import {MainGroupComponent} from "main-group/main-group.component";
 import {MainGroupEditComponent} from "main-group/main-group-edit.component";
 import {MainGroupAddComponent} from "main-group/main-group-add.component";
@@ -31,25 +33,34 @@ import {CriterionComponent} from "criterion/criterion.component";
 import {CriterionEditComponent} from "criterion/criterion-edit.component";
 import {CriterionAddComponent} from "criterion/criterion-add.component";
 import {AccessibilityComponent} from "accessibility/accessibility.component";
-import {AccessibilityEditComponent} from "accessibility/accessibility-edit.component";
-import {AccessibilityAddComponent} from "accessibility/accessibility-add.component";
-import {ListManageComponent} from "shared/list-manage/list-manage.component";
-import {ListSelectAddComponent} from "shared/list-select/list-select-add.component";
-import {ListSelectEditComponent} from "shared/list-select/list-select-edit.component";
-import {ListShowValueComponent} from "shared/list-show-value/list-show-value.component";
+import {AccessibilityEditComponent}
+		from "accessibility/accessibility-edit.component";
+import {AccessibilityAddComponent}
+		from "accessibility/accessibility-add.component";
+import {ListManageComponent}
+		from "shared/list-manage/list-manage.component";
+import {ListSelectAddComponent}
+		from "shared/list-select/list-select-add.component";
+import {ListSelectEditComponent}
+		from "shared/list-select/list-select-edit.component";
+import {ListShowValueComponent}
+		from "shared/list-show-value/list-show-value.component";
 import {ShowListComponent} from "shared/show-list/show-list.component";
 import {ListPropertiesComponent} from "property/list-properties.component";
 import {PropertiesInfoComponent} from "property/property-info.component";
 import {AuditComponent} from "audit/audit.component";
 import {AuditEvaluateComponent} from "audit/audit-evaluate.component";
-import {AuditEvaluateCriterionComponent} from "audit/audit-evaluate-criterion.component";
+import {AuditEvaluateCriterionComponent}
+		from "audit/audit-evaluate-criterion.component";
 import {AuditSelectComponent} from "audit/audit-select.component";
 import {RemarkAddComponent} from "remark/remark-add.component";
 import {ImageSingleUploadComponent} from "images/image-single-upload.component";
 import {HandlerService} from "shared/service/handler.service";
 import {MainPageComponent} from "./main-page/main-page.component";
-import {PropertyEvaluationComponent} from "./property-evaluation/property-evaluation.component";
-import {SessionAnnounceService} from "./shared/service/session-announce.service";
+import {PropertyEvaluationComponent}
+		from "./property-evaluation/property-evaluation.component";
+import {SessionAnnounceService}
+		from "./shared/service/session-announce.service";
 import {SuperAdminGuard} from "shared/service/superadmin.guard";
 import {SessionService} from "./shared/service/session.service";
 import {AuditGuard} from "./shared/service/audit.guard";

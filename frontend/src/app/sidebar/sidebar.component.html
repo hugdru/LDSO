@@ -43,20 +43,6 @@
 								hidden-xs showopacity glyphicon glyphicon-user">
 						</span>
                     </a>
-                    <a routerLink="/propertyEvaluation/1" routerLinkActive="active">
-                        Property Evaluation
-                        <span style="font-size:16px;" class="pull-right
-								hidden-xs showopacity glyphicon glyphicon-user">
-						</span>
-                    </a>
-                    <ul class="dropdown-menu forAnimate" role="menu">
-                        <li><a>Crition</a></li>
-                        <li><a href="#">Reportar</a></li>
-                        <li class="divider"></li>
-                        <li><a href="#">Separated link</a></li>
-                        <li class="divider"></li>
-                        <li><a href="#">Informes</a></li>
-                    </ul>
                 </li>
                 <li *ngIf="session.role == 'superadmin'">
                     <a routerLink="/auditTemplate" routerLinkActive="active">

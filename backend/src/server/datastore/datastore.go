@@ -8,6 +8,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"net/http"
+	"time"
 )
 
 type Datastore struct {
@@ -28,11 +29,14 @@ func Connect() *Datastore {
 	}
 	engine := redisstore.New(pool)
 	sessionManager := session.Manage(engine,
-		//session.Domain("example.org"), // Domain is not set by default.
-		session.HttpOnly(true),         // HttpOnly attribute is true by default.
-		session.Path("/"),              // Path is set to "/" by default.
-		session.Secure(false),          // Secure attribute is false by default.)
-		session.ErrorFunc(ServerError), // Custom error handler
+		//session.Domain("example.org"),
+		session.HttpOnly(true),
+		session.Path("/"),
+		session.IdleTimeout(15 * time.Hour * 24),
+		session.Lifetime(time.Hour * 24),
+		session.Persist(true),
+		session.Secure(false),
+		session.ErrorFunc(ServerError),
 	)
 
 	return &Datastore{postgres: postgres, SessionManager: sessionManager}
