@@ -4,9 +4,7 @@ import {MainGroup} from "main-group/main-group";
 import {SubGroup} from "../sub-group/sub-group";
 import {MainGroupService} from "main-group/service/main-group.service";
 import {SubGroupService} from "../sub-group/service/sub-group.service";
-<<<<<<< HEAD
 import {AuditService} from "../audit/service/audit.service";
-=======
 import {AuditTemplateService}
 		from "../audit-template/service/audit-template.service";
 import {AuditTemplate} from "../audit-template/audit-template";
