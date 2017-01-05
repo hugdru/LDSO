@@ -9,6 +9,8 @@ import {RegisterComponent} from "./register/register.component";
 import {PropertyEvaluationComponent} from "./property-evaluation/property-evaluation.component";
 import {SuperAdminGuard} from "shared/service/superadmin.guard";
 import {AuditGuard} from "./shared/service/audit.guard";
+import {PropertyGuard} from "./shared/service/property.guard";
+import {PropertyAddComponent} from "./property/property-add.component";
 
 const routes: Routes = [
     {
@@ -31,9 +33,13 @@ const routes: Routes = [
         canActivate: [AuditGuard]
     },
     {
-        path: 'listProperties',
+        path: 'listPropertiesAudit',
         component: ListPropertiesComponent,
         canActivate: [AuditGuard]
+    },
+    {
+        path: 'listPropertiesView',
+        component: ListPropertiesComponent
     },
     {
         path: 'login',
@@ -47,6 +53,11 @@ const routes: Routes = [
         path: 'propertyEvaluation/:id',
         component: PropertyEvaluationComponent
     },
+    {
+        path: 'addProperty',
+        component: PropertyAddComponent,
+        canActivate: [PropertyGuard]
+    }
 
 ];
 

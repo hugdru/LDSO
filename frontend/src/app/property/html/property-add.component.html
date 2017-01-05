@@ -1,0 +1,65 @@
+<div class="col-md-8">
+    <h1>Submeter Propriedade</h1>
+    <form name="form">
+        <div class="form-group">
+            <input type="text"
+                   class="form-control"
+                   required
+                   [(ngModel)]="selectedObject.name"
+                   placeholder="Nome">
+        </div>
+        <div class="form-group">
+            <textarea
+                   class="form-control"
+                   required
+                   [(ngModel)]="selectedObject.details"
+                   placeholder="Detalhes"></textarea>
+        </div>
+        <div class="form-group">
+            <input type="text"
+                   class="form-control"
+                   [(ngModel)]="selectedObject.address.addressLine1"
+                   placeholder="Endereço Linha 1">
+        </div>
+        <div class="form-group">
+            <input type="text"
+                   class="form-control"
+                   [(ngModel)]="selectedObject.address.addressLine2"
+                   placeholder="Endereço Linha 2">
+        </div>
+        <div class="form-group">
+            <input type="text"
+                   class="form-control"
+                   [(ngModel)]="selectedObject.address.addressLine3"
+                   placeholder="Endereço Linha 3">
+        </div>
+        <div class="form-group">
+            <input type="text"
+                   class="form-control"
+                   [(ngModel)]="selectedObject.address.townCity"
+                   placeholder="Concelho">
+        </div>
+        <div class="form-group">
+            <input type="text"
+                   class="form-control"
+                   [(ngModel)]="selectedObject.address.county"
+                   placeholder="Distrito">
+        </div>
+        <div class="form-group">
+            <input type="text"
+                   class="form-control"
+                   [(ngModel)]="selectedObject.address.postcode"
+                   placeholder="Código Postal">
+        </div>
+        <div class="form-group">
+            <button class="btn btn-success round outline"
+                    (click)="addProperty()">
+                <i class="glyphicon glyphicon-ok"></i>
+            </button>
+            <button class="btn btn-neutral round outline"
+                    (click)="cancel()">
+                <i class="glyphicon glyphicon-remove"></i>
+            </button>
+        </div>
+    </form>
+</div>

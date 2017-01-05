@@ -41,7 +41,9 @@ export class AuditTemplateComponent implements OnInit {
 
     initAuditTemplateUsed(auditTemplate: AuditTemplate): void {
         this.auditTemplateService.getUsed(auditTemplate.id).subscribe(
-                data => auditTemplate.used = data.json().used
+                data => {
+                    auditTemplate.used = data.used;
+                }
         );
     }
 

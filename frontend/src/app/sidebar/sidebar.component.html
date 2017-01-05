@@ -54,7 +54,8 @@
                     </a>
                 </li>
                 <li *ngIf="session.role == 'superadmin' || session.role == 'localadmin' || session.role == 'auditor'">
-                    <a routerLink="/listProperties" routerLinkActive="active">
+                    <a routerLink="/listPropertiesAudit"
+                       routerLinkActive="active">
                         Auditar
                         <span style="font-size:16px;" class="pull-right
 								hidden-xs showopacity glyphicon
@@ -63,7 +64,8 @@
                     </a>
                 </li>
                 <li>
-                    <a routerLink="propertyEvaluation/1" routerLinkActive="active">
+                    <a routerLink="/listPropertiesView"
+                       routerLinkActive="active">
                         Propriedades
                         <span style="font-size:16px;" class="pull-right
 								hidden-xs showopacity glyphicon
@@ -71,8 +73,8 @@
 						</span>
                     </a>
                 </li>
-                <li *ngIf="session.role =='client'">
-                    <a routerLink="/listProperties" routerLinkActive="active">
+                <li *ngIf="session.role == 'superadmin' || session.role == 'localadmin' ||session.role =='client'">
+                    <a routerLink="/addProperty" routerLinkActive="active">
                         Submeter Propriedade
                         <span style="font-size:16px;" class="pull-right
 								hidden-xs showopacity glyphicon
