@@ -23,33 +23,33 @@
 		{
 			"importpath": "github.com/garyburd/redigo/internal",
 			"repository": "https://github.com/garyburd/redigo",
-			"revision": "80f7de34463b0ed3d7c61303e5619efe1b227f92",
+			"revision": "8c052d82153967815d9093a7e9d3e7fd2e554861",
 			"branch": "master",
 			"path": "/internal"
 		},
 		{
 			"importpath": "github.com/garyburd/redigo/redis",
 			"repository": "https://github.com/garyburd/redigo",
-			"revision": "80f7de34463b0ed3d7c61303e5619efe1b227f92",
+			"revision": "8c052d82153967815d9093a7e9d3e7fd2e554861",
 			"branch": "master",
 			"path": "/redis"
 		},
 		{
 			"importpath": "github.com/jmoiron/sqlx",
 			"repository": "https://github.com/jmoiron/sqlx",
-			"revision": "a9cfc4a06cca420057207ac0a619e7f45fcbf4b7",
+			"revision": "cac998c4f0959c19c638c523e374fa8e4e0bcfe3",
 			"branch": "master"
 		},
 		{
 			"importpath": "github.com/lib/pq",
 			"repository": "https://github.com/lib/pq",
-			"revision": "d8eeeb8bae8896dd8e1b7e514ab0d396c4f12a1b",
+			"revision": "8df6253d1317616f36b0c3740eb30c239a7372cb",
 			"branch": "master"
 		},
 		{
 			"importpath": "github.com/pressly/chi",
 			"repository": "https://github.com/pressly/chi",
-			"revision": "265a8fa9e1f3a4050178ed8aa902298875ec48db",
+			"revision": "980ac9fefe03002715cfe7e6eea7db2d056d5eb1",
 			"branch": "master"
 		},
 		{
@@ -67,21 +67,21 @@
 		{
 			"importpath": "golang.org/x/crypto/pbkdf2",
 			"repository": "https://go.googlesource.com/crypto",
-			"revision": "d8e61c69ab46ca38328da2f4995abaf93b252290",
+			"revision": "5b4074c2c416448b5d06e287167144493aabda43",
 			"branch": "master",
 			"path": "/pbkdf2"
 		},
 		{
 			"importpath": "golang.org/x/crypto/scrypt",
 			"repository": "https://go.googlesource.com/crypto",
-			"revision": "d8e61c69ab46ca38328da2f4995abaf93b252290",
+			"revision": "5b4074c2c416448b5d06e287167144493aabda43",
 			"branch": "master",
 			"path": "/scrypt"
 		},
 		{
 			"importpath": "golang.org/x/net/context",
 			"repository": "https://go.googlesource.com/net",
-			"revision": "4971afdc2f162e82d185353533d3cf16188a9f4e",
+			"revision": "67957fd0b1868d2b9f4fd2b3a3474c83bc3d49c3",
 			"branch": "master",
 			"path": "/context"
 		},
