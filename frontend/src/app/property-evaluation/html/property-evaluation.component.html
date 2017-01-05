@@ -1,5 +1,11 @@
 <div class="container">
-    <div class="col-sm-8 col-md-8">
+    <div *ngFor='let propertyEvaluation of propertyEvaluations'>
+        {{propertyEvaluation.idProperty}}
+    </div>
+    <div>
+        {{thisProperty.name}}
+    </div>
+<!--    <div class="col-sm-8 col-md-8">
         <blockquote>
             <p> {{propertyEvalutationEMock[+id].property.name}}</p> <small><cite title="Property address">{{propertyEvalutationEMock[+id].property.adress}} <i class="glyphicon glyphicon-map-marker"></i></cite></small>
         </blockquote>
@@ -25,5 +31,5 @@
                 </div>
             </div>
     </div>
-    <br>
+    <br>-->
 </div>
