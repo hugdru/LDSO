@@ -24,6 +24,7 @@ export class PropertyEvaluationComponent implements OnInit {
    {}
 
     ngOnInit(): void {
+        this.thisProperty.address ;
         this.thisProperty.id = +this.route.snapshot.params['id'];
         this.initPropertyEvaluations();
         this.initProperty();

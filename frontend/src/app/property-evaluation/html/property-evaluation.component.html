@@ -1,17 +1,25 @@
 <div class="container">
     <div class="col-sm-8 col-md-8">
         <blockquote>
-            <p> {{thisProperty.name}}</p> <small><!--<cite title="Property address">{{thisProperty.image_path}} <i class="glyphicon glyphicon-map-marker"></i></cite>--></small>
+            <p> {{thisProperty.name}}</p>
+            <small>
+                <cite title="Property address">{{thisProperty.address.addressLine1}}<i class="glyphicon glyphicon-map-marker"></i></cite>
+                <cite title="Property address">{{thisProperty.address.addressLine2}}</cite>
+                <cite title="Property address">{{thisProperty.address.addressLine3}}</cite>
+                <cite title="Property address">{{thisProperty.address.county}}</cite>
+            </small>
         </blockquote>
     </div>
     <div class="col-sm-2 col-md-2">
         <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Estadio_do_Dragao_20050805.jpg/300px-Estadio_do_Dragao_20050805.jpg" alt="" class="img-rounded img-responsive" />
     </div>
 </div>
+
 <div *ngFor="let item of PropertyEvaluation">
     <br>
-    <div class="container" >
-            <a href="#demo{{item.id}}" class="btn" data-toggle="collapse">{{item.auditor.id}} com rating {{item.rating}} </a>
+
+   <div class="container" >
+            <a href="#demo{{item.id}}" class="btn" data-toggle="collapse">{{item.idAuditor}} com rating {{item.rating}} </a>
             <div id="demo{{item.id}}" class="collapse">
             <br>
                 <label class="labelSpace">Nome do audior : </label>{{item.auditor.id}}<br>

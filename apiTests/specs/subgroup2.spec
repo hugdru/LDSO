@@ -1,1 +1,1 @@
-{"id":2,"idMaingroup":1,"name":"Subgrupo 2 (G1)","weight":42,"createdDate":"2016-11-25T14:46:26.680513Z"}
+{"id":2,"idMaingroup":1,"name":"Subgrupo 2 (G1)","weight":42,"closed":true,"createdDate":"2016-11-25T14:46:26.680513Z"}
