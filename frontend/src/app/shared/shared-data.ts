@@ -8,6 +8,8 @@ export const currentAuditTemplateUrl = serverUrl + '/templates/current';
 
 export const closeAuditTemplateUrl = serverUrl + '/template/#/close';
 
+export const usedAuditTemplateUrl = serverUrl + '/template/#/used';
+
 export const mainGroupsUrl = serverUrl + '/maingroups';
 
 export const subGroupsUrl = serverUrl + '/subgroups';
