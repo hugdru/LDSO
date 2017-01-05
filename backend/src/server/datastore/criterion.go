@@ -15,7 +15,7 @@ type Criterion struct {
 	IdLegislation zero.Int  `json:"idLegislation" db:"id_legislation"`
 	Name          string    `json:"name" db:"name"`
 	Weight        int       `json:"weight" db:"weight"`
-	Closed        zero.Bool `json:"closed" db:"closed"`
+	Closed        bool      `json:"closed" db:"closed"`
 	CreatedDate   time.Time `json:"createdDate" db:"created_date"`
 
 	// Objects
