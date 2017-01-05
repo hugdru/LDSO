@@ -1,8 +1,9 @@
 export class PropertyEvaluation {
     id: number;
-    name: string;
-    image_path: string;
+    idProperty: number;
+    idAuditor: number;
+    idTemplate: number;
     rating: number;
-    dataOfEvaluation: string;
-    address: string;
+    createdDate: string;
+    finishedDate: string;
 }
