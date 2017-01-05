@@ -1,5 +1,5 @@
 import {Injectable} from "@angular/core";
-import {HandlerService} from "../../handler.service";
+import {HandlerService} from "../../shared/service/handler.service";
 import {Observable} from "rxjs/Observable";
 import {PropertyEvaluation} from "../property-evaluation";
 import {auditsUrl} from "../../shared/shared-data";

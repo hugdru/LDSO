@@ -213,7 +213,7 @@ func (ds *Datastore) GetAuditCriteria(filter map[string]interface{}) ([]*AuditCr
 
 	where, values := generators.GenerateAndSearchClause(filter)
 
-	sql := `SELECT  id_audit, id_criterion, value ` +
+	sql := ds.postgres.Rebind(`SELECT  id_audit, id_criterion, value ` +
 		`FROM places4all.audit_criterion ` +
 		where)
 
