@@ -26,7 +26,7 @@ export const auditsFindUrl = auditsUrl + '/find';
 
 export const auditsSubGroupsUrl = auditsUrl + '/subgroups';
 
-export const auditsCriterionUrl = auditsUrl + '/criterion';
+export const auditsCriterionUrl = auditsUrl + '/#/criteria/!';
 
 export const imageUploadUrl = serverUrl + '/audits/#/criteria/!/remarks';
 
