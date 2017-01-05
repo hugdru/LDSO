@@ -30,8 +30,6 @@ export class ImageSingleUploadComponent {
 
 	@Input() remark: Remark;
 
-	constructor() { }
-
 	ngOnInit(): void {
 		this.settings = {
 			url: imageUploadUrl.replace(/#/g, this.remark.idAudit.toString())

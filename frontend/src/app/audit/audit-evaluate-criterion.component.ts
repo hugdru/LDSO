@@ -28,6 +28,8 @@ export class AuditEvaluateCriterionComponent {
 
 	}
 
+	@Input() criteria: Criterion[];
+
     ngOnInit(): void {
 		this.remarks = [];
 		console.log("auditid: " + this.auditId);
