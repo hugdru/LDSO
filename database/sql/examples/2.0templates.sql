@@ -133,5 +133,5 @@ INSERT INTO criterion_accessibility(id_criterion, id_accessibility, weight) VALU
   (20, 4, 20);
 
 UPDATE template
-SET closed_date = '2017-01-03T22:30:53.083371Z'
+SET closed_date = '2017-01-03T22:30:53.083371Z', closed = TRUE
 WHERE id IN (1, 2);

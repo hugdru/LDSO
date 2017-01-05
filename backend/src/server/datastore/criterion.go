@@ -15,6 +15,7 @@ type Criterion struct {
 	IdLegislation zero.Int  `json:"idLegislation" db:"id_legislation"`
 	Name          string    `json:"name" db:"name"`
 	Weight        int       `json:"weight" db:"weight"`
+	Closed        zero.Bool `json:"closed" db:"closed"`
 	CreatedDate   time.Time `json:"createdDate" db:"created_date"`
 
 	// Objects
@@ -249,7 +250,7 @@ func (ds *Datastore) GetCriterionLegislation(c *Criterion) (*Legislation, error)
 func (ds *Datastore) GetCriterionByIdWithLegislation(id int64) (*Criterion, error) {
 
 	const sql = `SELECT ` +
-		`id, id_subgroup, id_legislation, name, weight, created_date ` +
+		`id, id_subgroup, id_legislation, name, weight, closed, created_date ` +
 		`FROM places4all.criterion ` +
 		`WHERE id = $1`
 
@@ -261,8 +262,7 @@ func (ds *Datastore) GetCriterionByIdWithLegislation(id int64) (*Criterion, erro
 		return nil, err
 	}
 	if c.IdLegislation.Valid {
-		legislation := NewLegislation(true)
-		legislation, err = ds.GetLegislationById(c.IdLegislation.Int64)
+		legislation, err := ds.GetLegislationById(c.IdLegislation.Int64)
 		if err != nil {
 			return nil, err
 		}
@@ -270,7 +270,6 @@ func (ds *Datastore) GetCriterionByIdWithLegislation(id int64) (*Criterion, erro
 	}
 	/*
 		if c.IdLegislation.Valid {
-			c.Legislation = NewLegislation(false)
 			c.Legislation, err = ds.GetLegislationById(c.IdLegislation.Int64)
 			if err != nil {
 				return nil, err
@@ -280,10 +279,10 @@ func (ds *Datastore) GetCriterionByIdWithLegislation(id int64) (*Criterion, erro
 	return &c, err
 }
 
-func (ds *Datastore) GetCriteriaBySubgroupIdWithLegislation(idSubgroup int64) ([]*Criterion, error) {
+func (ds *Datastore) GetCriteriaBySubgroupIdWithLegislationAndCriterionAccessibility(idSubgroup int64) ([]*Criterion, error) {
 	criteria := make([]*Criterion, 0)
 	rows, err := ds.postgres.Queryx(
-		`SELECT criterion.id, criterion.id_subgroup, criterion.id_legislation, criterion.name, criterion.weight, criterion.created_date `+
+		`SELECT criterion.id, criterion.id_subgroup, criterion.id_legislation, criterion.name, criterion.weight, criterion.closed, criterion.created_date `+
 			`FROM places4all.criterion `+
 			`WHERE criterion.id_subgroup = $1`, idSubgroup)
 	if err != nil {
@@ -297,8 +296,7 @@ func (ds *Datastore) GetCriteriaBySubgroupIdWithLegislation(idSubgroup int64) ([
 			return nil, err
 		}
 		if criterion.IdLegislation.Valid {
-			legislation := NewLegislation(true)
-			legislation, err = ds.GetLegislationById(criterion.IdLegislation.Int64)
+			legislation, err := ds.GetLegislationById(criterion.IdLegislation.Int64)
 			if err != nil {
 				return nil, err
 			}
@@ -306,18 +304,17 @@ func (ds *Datastore) GetCriteriaBySubgroupIdWithLegislation(idSubgroup int64) ([
 		}
 		/*
 			if criterion.IdLegislation.Valid {
-				criterion.Legislation = NewLegislation(false)
 				criterion.Legislation, err = ds.GetLegislationById(criterion.IdLegislation.Int64)
 				if err != nil {
 					return nil, err
 				}
 			}
 		*/
-		criteria = append(criteria, criterion)
 		criterion.CriterionAccessibility, err = ds.GetCriterionAccessibilitiesByCriterionId(criterion.Id)
 		if err != nil {
 			return nil, err
 		}
+		criteria = append(criteria, criterion)
 	}
 
 	return criteria, err
@@ -327,7 +324,7 @@ func (ds *Datastore) GetCriteriaWithLegislation(limit, offset int, filter map[st
 
 	where, values := generators.GenerateAndSearchClause(filter)
 
-	sql := `SELECT criterion.id, criterion.id_subgroup, criterion.id_legislation, criterion.name, criterion.weight,criterion.created_date ` +
+	sql := `SELECT criterion.id, criterion.id_subgroup, criterion.id_legislation, criterion.name, criterion.weight, criterion.closed, criterion.created_date ` +
 		`FROM places4all.criterion ` +
 		where +
 		`ORDER BY criterion.id DESC LIMIT ` + strconv.Itoa(limit) +
@@ -347,8 +344,7 @@ func (ds *Datastore) GetCriteriaWithLegislation(limit, offset int, filter map[st
 			return nil, err
 		}
 		if criterion.IdLegislation.Valid {
-			legislation := NewLegislation(true)
-			legislation, err = ds.GetLegislationById(criterion.IdLegislation.Int64)
+			legislation, err := ds.GetLegislationById(criterion.IdLegislation.Int64)
 			if err != nil {
 				return nil, err
 			}
@@ -356,13 +352,56 @@ func (ds *Datastore) GetCriteriaWithLegislation(limit, offset int, filter map[st
 		}
 		/*
 			if criterion.IdLegislation.Valid {
-				criterion.Legislation = NewLegislation(false)
 				criterion.Legislation, err = ds.GetLegislationById(criterion.IdLegislation.Int64)
 				if err != nil {
 					return nil, err
 				}
 			}
 		*/
+		criteria = append(criteria, criterion)
+	}
+
+	return criteria, err
+}
+
+func (ds *Datastore) GetCriteriaByTemplateIdWithCriterionAccessibility(idTemplate int64) ([]*Criterion, error) {
+	const sql = `SELECT criterion.id, criterion.id_subgroup, criterion.id_legislation, criterion.name, criterion.weight, criterion.closed, criterion.created_date ` +
+		`FROM places4all.criterion ` +
+		`JOIN places4all.subgroup ON subgroup.id = criterion.id_subgroup ` +
+		`JOIN places4all.maingroup ON maingroup.id = subgroup.id_maingroup AND maingroup.id_template = $1`
+
+	criteria := make([]*Criterion, 0)
+	rows, err := ds.postgres.Queryx(sql, idTemplate)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		criterion := NewCriterion(false)
+		criterion.SetExists()
+		err := rows.StructScan(criterion)
+		if err != nil {
+			return nil, err
+		}
+		if criterion.IdLegislation.Valid {
+			legislation, err := ds.GetLegislationById(criterion.IdLegislation.Int64)
+			if err != nil {
+				return nil, err
+			}
+			criterion.Legislation = legislation.Name
+		}
+		/*
+			if c.IdLegislation.Valid {
+				c.Legislation, err = ds.GetLegislationById(c.IdLegislation.Int64)
+				if err != nil {
+					return nil, err
+				}
+			}
+		*/
+		criterion.CriterionAccessibility, err = ds.GetCriterionAccessibilitiesByCriterionId(criterion.Id)
+		if err != nil {
+			return nil, err
+		}
 		criteria = append(criteria, criterion)
 	}
 
