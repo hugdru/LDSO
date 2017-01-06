@@ -11,6 +11,7 @@ import (
 	"server/handler/helpers"
 	"server/handler/helpers/decorators"
 	"server/handler/sessionData"
+	"strconv"
 )
 
 func (h *Handler) auditsRoutes(router chi.Router) {
@@ -751,7 +752,7 @@ func (h *Handler) createCriterionRemark(w http.ResponseWriter, r *http.Request) 
 	case "multipart/form-data":
 		input.Observation = r.PostFormValue("Observation")
 		var err error
-		input.imageBytes, input.imageMimetype, input.imageHash, err = helpers.ReadImage(r, "image", helpers.MaxImageFileSize)
+		input.imageBytes, input.imageMimetype, input.imageHash, err = helpers.ReadImage(r, "file", helpers.MaxImageFileSize)
 		if err != nil && err != http.ErrMissingFile {
 			http.Error(w, helpers.Error(err.Error()), 500)
 			return
