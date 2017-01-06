@@ -4,6 +4,7 @@ import {Criterion} from "criterion/criterion";
 import {AuditCriterion} from "audit/audit";
 import {Remark} from "remark/remark";
 import {AuditService} from 'audit/service/audit.service';
+import {audit} from "rxjs/operator/audit";
 
 @Component({
     selector: 'audit-evaluate-criterion',
@@ -19,6 +20,7 @@ export class AuditEvaluateCriterionComponent {
 	id: number = 0;
 	selectedId; number = -1;
 	unselectedCriteria: Criterion[] = [];
+	alreadyEvaluated: Criterion[] = [];
 	remarks: Remark[];
 	selectedAdd: boolean = false;
 	checked: boolean = false;
@@ -30,7 +32,6 @@ export class AuditEvaluateCriterionComponent {
 
     ngOnInit(): void {
 		this.remarks = [];
-		console.log("auditid: " + this.auditId);
     }
 
 	changedCheckbox(): void {
@@ -49,12 +50,18 @@ export class AuditEvaluateCriterionComponent {
 			if (index > -1) {
 				this.unselectedCriteria.splice(index, 1);
 			}
+		}
+
+		if (!this.checked && !this.alreadyEvaluated.includes(criterion)) {
 			let auditCriterion: AuditCriterion;
+
+			this.alreadyEvaluated.push(criterion);
+			auditCriterion = new AuditCriterion;
 			auditCriterion.criterion = criterion.id;
 			auditCriterion.rating = this.rating;
-			// this.auditService.setAuditCriterion(auditCriterion).subscribe();
+			this.auditService.setAuditCriterion(auditCriterion,
+					this.auditId).subscribe();
 		}
-		
 	}
 
 	checkUnselected(criterion: Criterion): boolean {

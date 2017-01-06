@@ -9,3 +9,8 @@ export class Audit {
     rating: number;
     criteria: AuditCriterion[];
 }
+
+export class AuditSubgrups {
+    idProperty: number;
+    subgroups: number[];
+}

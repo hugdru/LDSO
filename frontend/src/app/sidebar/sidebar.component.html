@@ -53,7 +53,7 @@
 						</span>
                     </a>
                 </li>
-                <li *ngIf="session.role == 'superadmin' || session.role == 'localadmin' || session.role == 'auditor'">
+                <li *ngIf="session.role == 'auditor'">
                     <a routerLink="/listPropertiesAudit"
                        routerLinkActive="active">
                         Auditar

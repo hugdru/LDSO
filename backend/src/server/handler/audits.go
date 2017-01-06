@@ -11,6 +11,7 @@ import (
 	"server/handler/helpers"
 	"server/handler/helpers/decorators"
 	"server/handler/sessionData"
+	"strconv"
 )
 
 func (h *Handler) auditsRoutes(router chi.Router) {
@@ -349,6 +350,47 @@ func (h *Handler) getAudit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write(auditSlice)
+}
+
+func (h *Handler) closeAudit(w http.ResponseWriter, r *http.Request) {
+
+	audit := r.Context().Value("audit").(*datastore.Audit)
+
+	var input struct {
+		Close bool `json:"close"`
+	}
+
+	switch helpers.GetContentType(r.Header.Get("Content-type")) {
+	case "multipart/form-data":
+		var err error
+		input.Close, err = strconv.ParseBool(r.PostFormValue("close"))
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+	case "application/json":
+		d := json.NewDecoder(r.Body)
+		err := d.Decode(&input)
+		if err != nil {
+			http.Error(w, helpers.Error(err.Error()), 400)
+			return
+		}
+	default:
+		http.Error(w, helpers.Error("Content-type not supported"), 415)
+		return
+	}
+
+	if input.Close {
+		audit.FinishedDate = zero.TimeFrom(helpers.TheTime())
+	} else {
+		audit.FinishedDate = zero.Time{}
+	}
+
+	err := h.Datastore.UpdateAudit(audit)
+	if err != nil {
+		http.Error(w, helpers.Error(err.Error()), 400)
+		return
+	}
 }
 
 func (h *Handler) updateAudit(w http.ResponseWriter, r *http.Request) {
@@ -751,7 +793,7 @@ func (h *Handler) createCriterionRemark(w http.ResponseWriter, r *http.Request) 
 	case "multipart/form-data":
 		input.Observation = r.PostFormValue("Observation")
 		var err error
-		input.imageBytes, input.imageMimetype, input.imageHash, err = helpers.ReadImage(r, "image", helpers.MaxImageFileSize)
+		input.imageBytes, input.imageMimetype, input.imageHash, err = helpers.ReadImage(r, "file", helpers.MaxImageFileSize)
 		if err != nil && err != http.ErrMissingFile {
 			http.Error(w, helpers.Error(err.Error()), 500)
 			return
@@ -772,6 +814,7 @@ func (h *Handler) createCriterionRemark(w http.ResponseWriter, r *http.Request) 
 	remark.Observation = zero.StringFrom(input.Observation)
 	remark.Image = input.imageBytes
 	remark.ImageMimetype = zero.StringFrom(input.imageMimetype)
+	remark.ImageHash = zero.StringFrom(input.imageHash)
 
 	err := h.Datastore.InsertRemark(remark)
 	if err != nil {

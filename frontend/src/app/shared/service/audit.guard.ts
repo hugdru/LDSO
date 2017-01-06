@@ -13,8 +13,8 @@ export class AuditGuard implements CanActivate {
     canActivate() {
         this.session = this.sessionService.getSession();
         return this.session != undefined && (
-                this.session.role == 'superadmin' ||
-                this.session.role == 'localadmin' ||
+/*                this.session.role == 'superadmin' ||
+                this.session.role == 'localadmin' ||*/
                 this.session.role == 'auditor'
                 );
     }

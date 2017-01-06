@@ -1,1 +1,1 @@
-[{"idAudit":1,"idCriterion":1,"value":10},{"idAudit":1,"idCriterion":2,"value":30},{"idAudit":1,"idCriterion":3,"value":20},{"idAudit":1,"idCriterion":4,"value":0},{"idAudit":1,"idCriterion":5,"value":0},{"idAudit":1,"idCriterion":6,"value":0},{"idAudit":1,"idCriterion":7,"value":0},{"idAudit":1,"idCriterion":8,"value":0},{"idAudit":1,"idCriterion":9,"value":0},{"idAudit":1,"idCriterion":10,"value":0},{"idAudit":1,"idCriterion":11,"value":0}]
+[{"idAudit":1,"idCriterion":1,"value":10},{"idAudit":1,"idCriterion":2,"value":30},{"idAudit":1,"idCriterion":3,"value":20}]

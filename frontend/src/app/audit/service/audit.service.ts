@@ -5,7 +5,7 @@ import {auditsUrl} from "shared/shared-data";
 import {auditsSubGroupsUrl} from "shared/shared-data";
 import {auditsCriterionUrl} from "shared/shared-data";
 import {HandlerService} from "../../shared/service/handler.service";
-import {Audit} from "audit/audit";
+import {Audit, AuditSubgrups} from "audit/audit";
 import {AuditCriterion} from "audit/audit";
 import {SubGroup} from "sub-group/sub-group";
 
@@ -39,12 +39,21 @@ export class AuditService {
         return this.handler.delete(auditsUrl, id);
     }
 
-	setAuditSubGroups(subGroups: SubGroup[]): Observable<Response> {
-		return this.handler.set<SubGroup[]>(auditsSubGroupsUrl, subGroups);
-	}
+  setAuditSubGroups(auditSubgroups: AuditSubgrups): Observable<Response> {
+    return this.handler.set<AuditSubgrups>(auditsSubGroupsUrl,
+      auditSubgroups);
+  }
 
-	setAuditCriterion(auditCriterion: AuditCriterion): Observable<Response> {
-		return this.handler.set<AuditCriterion>(auditsCriterionUrl,
-				auditCriterion);
-	}
+  setAuditCriterion(auditCriterion: AuditCriterion, auditId: number):
+      Observable<Response> {
+    return this.handler.set<any>(auditsCriterionUrl
+        .replace(/#/g, auditId.toString()).replace(/!/g,
+        auditCriterion.criterion.toString()),
+        {value: auditCriterion.rating});
+  }
+
+  closeAudit(auditId: number): Observable<Response> {
+    return this.handler.set<boolean>(auditsCloseUrl
+        .replace(/#/g, auditId.toString()), true);
+  }
 }
