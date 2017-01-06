@@ -281,7 +281,7 @@ func (ds *Datastore) GetAudits(limit, offset int, filter map[string]interface{})
 		`id, id_property, id_auditor, id_template, rating, observation, created_date, finished_date ` +
 		`FROM places4all.audit ` +
 		where +
-		`ORDER BY audit.id DESC LIMIT ` + strconv.Itoa(limit) +
+		`ORDER BY audit.finished_date DESC LIMIT ` + strconv.Itoa(limit) +
 		` OFFSET ` + strconv.Itoa(offset))
 
 	rows, err := ds.postgres.Queryx(sql, values...)
