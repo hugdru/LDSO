@@ -1,5 +1,4 @@
 import {Component, OnInit, Input} from "@angular/core";
-
 import {MainGroupService} from "main-group/service/main-group.service";
 import {MainGroup} from "main-group/main-group";
 import {SubGroupService} from "sub-group/service/sub-group.service";
@@ -7,6 +6,7 @@ import {SubGroup} from "sub-group/sub-group";
 import {CriterionService} from "criterion/service/criterion.service";
 import {Criterion} from "criterion/criterion";
 import {AuditService} from "audit/service/audit.service";
+import {Router, ActivatedRoute} from "@angular/router";
 
 @Component({
     selector: 'audit-evaluate',
@@ -21,12 +21,14 @@ export class AuditEvaluateComponent implements OnInit {
 
     mainGroups: MainGroup[] = [];
     mainGroupsId: number[] = [];
-  subGroups: SubGroup[];
+    subGroups: SubGroup[];
     criteria: Criterion[];
 
     constructor(private mainGroupService: MainGroupService,
-      private auditService: AuditService,
-      private criterionService: CriterionService) {
+                private auditService: AuditService,
+                private criterionService: CriterionService,
+                private router: Router,
+                private activeRoute: ActivatedRoute) {
     }
 
     ngOnInit(): void {
@@ -51,11 +53,11 @@ export class AuditEvaluateComponent implements OnInit {
 
     selected(object: Object): void {
         if ((<SubGroup>object).idMaingroup !== undefined) {
-      this.showCriteria(<SubGroup>object);
+            this.showCriteria(<SubGroup>object);
         }
         else {
-      this.initSubGroups(<MainGroup>object);
-      this.criteria = [];
+            this.initSubGroups(<MainGroup>object);
+            this.criteria = [];
         }
     }
 
@@ -68,16 +70,19 @@ export class AuditEvaluateComponent implements OnInit {
                 subGroup.id).subscribe(data => this.criteria = data);
     }
 
-  initSubGroups(mainGroup: MainGroup): void {
+    initSubGroups(mainGroup: MainGroup): void {
         this.subGroups = [];
-        for(let subGroup of this.selectedSubGroups) {
+        for (let subGroup of this.selectedSubGroups) {
             if (subGroup.idMaingroup == mainGroup.id) {
                 this.subGroups.push(subGroup);
             }
         }
-  }
+    }
 
-  finishedAudit(){
-    this.auditService.closeAudit(this.auditId).subscribe();
-  }
+    finishedAudit() {
+        this.auditService.closeAudit(this.auditId).subscribe(
+                response => this.router.navigate(['/propertyEvaluation/'
+                        + this.activeRoute.snapshot.params['id']])
+        );
+    }
 }
