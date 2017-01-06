@@ -8,6 +8,8 @@ import {HandlerService} from "../../shared/service/handler.service";
 import {Audit, AuditSubgrups} from "audit/audit";
 import {AuditCriterion} from "audit/audit";
 import {SubGroup} from "sub-group/sub-group";
+import {auditsCloseUrl} from "shared/shared-data";
+import {Close} from "../../audit-template/close";
 
 @Injectable()
 export class AuditService {
@@ -53,7 +55,7 @@ export class AuditService {
   }
 
   closeAudit(auditId: number): Observable<Response> {
-    return this.handler.set<boolean>(auditsCloseUrl
-        .replace(/#/g, auditId.toString()), true);
+    return this.handler.set<any>(auditsCloseUrl
+        .replace(/#/g, auditId.toString()), {close: true});
   }
 }

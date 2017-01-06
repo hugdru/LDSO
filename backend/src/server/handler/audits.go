@@ -24,6 +24,7 @@ func (h *Handler) auditsRoutes(router chi.Router) {
 func (h *Handler) auditRoutes(router chi.Router) {
 	router.Use(h.auditContext)
 	router.Get("/", decorators.ReplyJson(h.getAudit))
+	router.Post("/close", decorators.OnlySuperadminsOrLocaladminsOrAuditors(decorators.ReplyJson(h.closeAudit)))
 	router.Put("/", decorators.OnlySuperadminsOrLocaladminsOrAuditors(decorators.ReplyJson(h.updateAudit)))
 	router.Delete("/", decorators.OnlySuperadminsOrLocaladminsOrAuditors(decorators.ReplyJson(h.deleteAudit)))
 	router.Route("/subgroups", h.auditSubgroupsRoutes)

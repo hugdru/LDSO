@@ -21,12 +21,12 @@ export class AuditEvaluateComponent implements OnInit {
 
     mainGroups: MainGroup[] = [];
     mainGroupsId: number[] = [];
-	subGroups: SubGroup[];
+  subGroups: SubGroup[];
     criteria: Criterion[];
 
     constructor(private mainGroupService: MainGroupService,
-			private auditService: AuditService,
-			private criterionService: CriterionService) {
+      private auditService: AuditService,
+      private criterionService: CriterionService) {
     }
 
     ngOnInit(): void {
@@ -51,11 +51,11 @@ export class AuditEvaluateComponent implements OnInit {
 
     selected(object: Object): void {
         if ((<SubGroup>object).idMaingroup !== undefined) {
-			this.showCriteria(<SubGroup>object);
+      this.showCriteria(<SubGroup>object);
         }
         else {
-			this.initSubGroups(<MainGroup>object);
-			this.criteria = [];
+      this.initSubGroups(<MainGroup>object);
+      this.criteria = [];
         }
     }
 
@@ -68,16 +68,16 @@ export class AuditEvaluateComponent implements OnInit {
                 subGroup.id).subscribe(data => this.criteria = data);
     }
 
-	initSubGroups(mainGroup: MainGroup): void {
+  initSubGroups(mainGroup: MainGroup): void {
         this.subGroups = [];
         for(let subGroup of this.selectedSubGroups) {
             if (subGroup.idMaingroup == mainGroup.id) {
                 this.subGroups.push(subGroup);
             }
         }
-	}
+  }
 
-	finishedAudit(){
-		this.auditService.closeAudit(auditId).subscribe();
-	}
+  finishedAudit(){
+    this.auditService.closeAudit(this.auditId).subscribe();
+  }
 }
