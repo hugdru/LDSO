@@ -11,7 +11,6 @@ import (
 	"server/handler/helpers"
 	"server/handler/helpers/decorators"
 	"server/handler/sessionData"
-	"strconv"
 )
 
 func (h *Handler) auditsRoutes(router chi.Router) {
