@@ -20,6 +20,7 @@ export class AuditEvaluateCriterionComponent {
 	id: number = 0;
 	selectedId; number = -1;
 	unselectedCriteria: Criterion[] = [];
+	alreadyEvaluated: Criterion[] = [];
 	remarks: Remark[];
 	selectedAdd: boolean = false;
 	checked: boolean = false;
@@ -49,14 +50,18 @@ export class AuditEvaluateCriterionComponent {
 			if (index > -1) {
 				this.unselectedCriteria.splice(index, 1);
 			}
+		}
+
+		if (!this.checked && !this.alreadyEvaluated.includes(criterion)) {
 			let auditCriterion: AuditCriterion;
+
+			this.alreadyEvaluated.push(criterion);
 			auditCriterion = new AuditCriterion;
 			auditCriterion.criterion = criterion.id;
 			auditCriterion.rating = this.rating;
 			this.auditService.setAuditCriterion(auditCriterion,
 					this.auditId).subscribe();
 		}
-		
 	}
 
 	checkUnselected(criterion: Criterion): boolean {
