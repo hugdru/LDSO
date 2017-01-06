@@ -18,7 +18,7 @@
 <div *ngFor="let item of propertyEvaluations">
     <br>
 
-   <div class="container" >
+   <div class="container" *ngIf="item.finishedDate !='0001-01-01T00:00:00Z'">
             <a href="#demo{{item.id}}" class="btn" data-toggle="collapse">Auditoria {{item.id}} com o resultado {{item.rating}}</a>
             <div id="demo{{item.id}}" class="collapse">
             <br>
