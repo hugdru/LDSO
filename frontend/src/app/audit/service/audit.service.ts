@@ -39,16 +39,16 @@ export class AuditService {
         return this.handler.delete(auditsUrl, id);
     }
 
-	setAuditSubGroups(auditSubgroups: AuditSubgrups): Observable<Response> {
-		return this.handler.set<AuditSubgrups>(auditsSubGroupsUrl,
-			auditSubgroups);
-	}
+  setAuditSubGroups(auditSubgroups: AuditSubgrups): Observable<Response> {
+    return this.handler.set<AuditSubgrups>(auditsSubGroupsUrl,
+      auditSubgroups);
+  }
 
-	setAuditCriterion(auditCriterion: AuditCriterion, auditId: number):
-			Observable<Response> {
-		return this.handler.set<any>(auditsCriterionUrl
-				.replace('/#/g', auditId.toString()).replace('/!/g',
-				auditCriterion.criterion.toString()),
-				{"value": auditCriterion.rating});
-	}
+  setAuditCriterion(auditCriterion: AuditCriterion, auditId: number):
+      Observable<Response> {
+    return this.handler.set<any>(auditsCriterionUrl
+        .replace(/#/g, auditId.toString()).replace(/!/g,
+        auditCriterion.criterion.toString()),
+        {value: auditCriterion.rating});
+  }
 }

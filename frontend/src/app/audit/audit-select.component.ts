@@ -6,7 +6,7 @@ import {MainGroupService} from "main-group/service/main-group.service";
 import {SubGroupService} from "../sub-group/service/sub-group.service";
 import {AuditService} from "../audit/service/audit.service";
 import {AuditTemplateService}
-		from "../audit-template/service/audit-template.service";
+    from "../audit-template/service/audit-template.service";
 import {AuditTemplate} from "../audit-template/audit-template";
 import {AuditSubgrups} from "./audit";
 import {ActivatedRoute} from "@angular/router";
@@ -15,8 +15,8 @@ import {ActivatedRoute} from "@angular/router";
     selector: 'audit-select',
     templateUrl: './html/audit-select.component.html',
     styleUrls: ['./audit.component.css'],
-	providers: [AuditTemplateService, MainGroupService, SubGroupService,
-			AuditService]
+  providers: [AuditTemplateService, MainGroupService, SubGroupService,
+      AuditService]
 })
 
 export class AuditSelectComponent implements OnInit {
@@ -26,15 +26,15 @@ export class AuditSelectComponent implements OnInit {
     subGroups: SubGroup[];
     selectedSubGroups: SubGroup[];
     errorMsg: string;
-	auditId: number;
-	auditSubgroups: AuditSubgrups;
+  auditId: number;
+  auditSubgroups: AuditSubgrups;
 
     @Output() onDone = new EventEmitter<SubGroup[]>();
     @Output() sendId = new EventEmitter<number>();
 
     constructor(private auditTemplateService: AuditTemplateService,
                 private mainGroupService: MainGroupService,
-				private auditService: AuditService,
+        private auditService: AuditService,
                 private subGroupService: SubGroupService,
                 private route: ActivatedRoute) {
     }
@@ -78,7 +78,7 @@ export class AuditSelectComponent implements OnInit {
     }
 
     toggleSubGroup(subGroup: SubGroup): void {
-		let index = this.selectedSubGroups.indexOf(subGroup, 0);
+    let index = this.selectedSubGroups.indexOf(subGroup, 0);
         if (index > -1) {
             this.selectedSubGroups.splice(index, 1);
             this.auditSubgroups.subgroups.splice(index, 1);
@@ -89,15 +89,24 @@ export class AuditSelectComponent implements OnInit {
         }
     }
 
-	isSelected(subGroup: SubGroup): boolean {
-		return this.selectedSubGroups.includes(subGroup);
-	}
+  isSelected(subGroup: SubGroup): boolean {
+    return this.selectedSubGroups.includes(subGroup);
+  }
 
     pressed(): void {
         this.auditService.setAuditSubGroups(this.auditSubgroups).subscribe(
-		 	response => this.auditId = response.json().id
+      response => this.auditId = response.json().id
         );
-        this.onDone.emit(this.selectedSubGroups);
-		this.sendId.emit(this.auditId);
+
+        this.sleep(500).then(() => {
+          console.log("auditid: " + this.auditId);
+          this.onDone.emit(this.selectedSubGroups);
+          this.sendId.emit(this.auditId);
+        });
     }
+
+  sleep (time) {
+    return new Promise((resolve) => setTimeout(resolve, time));
+  }
 }
+
