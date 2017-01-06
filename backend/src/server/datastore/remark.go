@@ -117,7 +117,7 @@ func (ds *Datastore) GetRemarkByIdsAuditCriterionRemark(idAudit, idCriterion, id
 	r := ARemark(true)
 	r.SetExists()
 
-	err := ds.postgres.QueryRow(sql, idRemark).Scan(
+	err := ds.postgres.QueryRow(sql, idAudit, idCriterion, idRemark).Scan(
 		&r.Id, &r.IdAudit, &r.IdCriterion, &r.Observation, &r.Image, &r.ImageMimetype, &r.ImageHash,
 	)
 
