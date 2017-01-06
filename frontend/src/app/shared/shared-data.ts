@@ -28,6 +28,8 @@ export const auditsSubGroupsUrl = auditsUrl + '/subgroups';
 
 export const auditsCriterionUrl = auditsUrl + '/#/criteria/!';
 
+export const auditsCloseUrl = auditsUrl + '/#/close';
+
 export const imageUploadUrl = serverUrl + '/audits/#/criteria/!/remarks';
 
 export const loginUrl = serverUrl + '/entities/login';

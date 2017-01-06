@@ -51,4 +51,9 @@ export class AuditService {
         auditCriterion.criterion.toString()),
         {value: auditCriterion.rating});
   }
+
+  closeAudit(auditId: number): Observable<Response> {
+    return this.handler.set<boolean>(auditsCloseUrl
+        .replace(/#/g, auditId.toString()), true);
+  }
 }

@@ -6,12 +6,13 @@ import {SubGroupService} from "sub-group/service/sub-group.service";
 import {SubGroup} from "sub-group/sub-group";
 import {CriterionService} from "criterion/service/criterion.service";
 import {Criterion} from "criterion/criterion";
+import {AuditService} from "audit/service/audit.service";
 
 @Component({
     selector: 'audit-evaluate',
     templateUrl: 'html/audit-evaluate.component.html',
     styleUrls: ['../main-group/main-group.component.css'],
-    providers: [MainGroupService, SubGroupService, CriterionService]
+    providers: [AuditService, MainGroupService, SubGroupService, CriterionService]
 })
 
 export class AuditEvaluateComponent implements OnInit {
@@ -24,6 +25,7 @@ export class AuditEvaluateComponent implements OnInit {
     criteria: Criterion[];
 
     constructor(private mainGroupService: MainGroupService,
+			private auditService: AuditService,
 			private criterionService: CriterionService) {
     }
 
@@ -76,6 +78,6 @@ export class AuditEvaluateComponent implements OnInit {
 	}
 
 	finishedAudit(){
-		//TODO
+		this.auditService.closeAudit(auditId).subscribe();
 	}
 }
