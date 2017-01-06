@@ -24,7 +24,7 @@ func Connect() *Datastore {
 	pool := &redis.Pool{
 		MaxIdle: 10,
 		Dial: func() (redis.Conn, error) {
-			return redis.Dial("tcp", "localhost:6379")
+			return redis.Dial("tcp", "redis:6379")
 		},
 	}
 	engine := redisstore.New(pool)
