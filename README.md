@@ -21,6 +21,50 @@
   * *Continuous Deployment Aids* [docker-compose](https://docs.docker.com/compose/) - pega nas imagens e cria uma rede em que os contendores (imagens em execução) podem comunicar entre si
   * *Continuous Integration Tool* [travis-ci](https://travis-ci.org/) - Usado para fazer alguns testes automaticamente
 
+### Physical Architecture ###
+![Physical Architecture Image](/docs/physical.png)
+
+### File Structure ###
+ * apiTests/
+  * specs/ - ficheiros com os resultados esperados
+  * apiTests.sh - testes curl que comparam as especificações com o resultado do pedido
+ * backend/
+  * vendor/
+    * manifest - ficheiro do gb que guarda a informação das bibliotecas usadas
+  * src/server/
+    * datastore/ - modelos, validação do modelo, sql e conexões ao postgresql e ao redis. Funciona como um wrapper de queries, para não estarmos a fazer queries iguais ou validações repetidas em cada handler.
+     * datastore.go - ficheiro com as conexões
+       * generators/ - geradores de partes de código sql para ins, filtros, etc com bindings (prepared statements)
+    * handler/ - rotas e ficheiros auxiliares. Com o chi é possível dividir em partes a API (.Route), isto melhora a legibilidade e permite agrupar código comum através do contexto(novo no go 1.7) que é passado nos middlewares(.Use, ).
+      * handler.go - ficheiro com as subrotas
+      * sessionData/ - contém funções de auxílio para lidar com a sessão
+      * helpers/
+        * datetime.go - maneira universal de lidar com datas
+        * functions.go - misc de funções úteis
+        * images.go - funções que lidam com as imagens
+        * decorators/ - decoradores que envolvem os handlers e que fazem validação, etc antes de chegar ao código do handler
+ * frontend/ ficheiros do angular2
+   * frontend/src/environments/ - ficheiros com os urls da API dependendo se staging ou prod. Usado no Docker, chama ng build --env="$BUILD" . O ficheiro environment.ts é substituído pelo angular2 dependendo de "$BUILD".
+ * database/
+   * sql/
+     * \*.sql - ficheiros sql ordenados, ordem de execução. Estes ficheiros lidam com o schema. Creates, Indexes, Triggers, etc.
+     * examples/ - ficheiros sql ordenados, ordem de execução. Inserts e updates exemplares.
+   * uml/classdiagram.txt - ficheiro plantuml com o class diagram da base de dados
+   * allin.sh - script que concatena tudo o que estiver na pasta sql/ num só ficheiro por ordem e de forma recursiva.
+   * pgr - script que faz wrapping ao postgresql, e que permite iniciar um cluster local rapidamente.
+ * docker/
+   * common/ - ficheiros docker comuns a todas as partes
+   * coreos/ - ficheiros de configuração da distribuição linux coreos
+   * development/ - ficheiros docker e docker-compose associados à máquina de cada programador
+   * production/ - ficheiros docker e docker-compose associados ao servidor de production
+   * staging/ - ficheiros docker e docker-compose associados ao servidor de staging
+   * templates/ - ficheiros usados na criação de imagens do docker que podem ser reutilizados
+   * exclude_context - ficheiro usado pelo script dkr que previne certos ficheiros serem enviados no contexto do docker quando uma imagem é criada
+ * setup/
+   * debian_based_tools - ficheiro de ajuda de instalação de ferramentas no debian, encontra-se desatualizado
+ * .travis.yml - ficheiro do travis que efetua testes automaticamente
+ * dkr - script que auxilia a execução, substituição, criação, etc das imagens do docker e que se pretendido as coloca para os servidores
+
 ### Resources ###
 
 #### Go ####
