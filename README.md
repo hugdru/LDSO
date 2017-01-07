@@ -49,7 +49,7 @@
    * sql/
      * \*.sql - ficheiros sql ordenados, ordem de execução. Estes ficheiros lidam com o schema. Creates, Indexes, Triggers, etc.
      * examples/ - ficheiros sql ordenados, ordem de execução. Inserts e updates exemplares.
-   * uml/classdiagram.txt - ficheiro plantuml com o class diagram da base de dados
+   * uml/classdiagram.txt - ficheiro plantuml com o class diagram da base de dados. Ligeiramente desatualizado, comparar com 1.0create.sql.
    * allin.sh - script que concatena tudo o que estiver na pasta sql/ num só ficheiro por ordem e de forma recursiva.
    * pgr - script que faz wrapping ao postgresql, e que permite iniciar um cluster local rapidamente.
  * docker/
