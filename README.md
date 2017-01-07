@@ -9,7 +9,7 @@
    * [alexedwards/scs/engine/redisstore](https://github.com/alexedwards/scs/tree/master/engine/redisstore) - Biblioteca necessária para guardar a sessão no redis
   * *Database Bulk* [postgresql](https://www.postgresql.org/) - Guardamos todos os dados da aplicação incluindo imagens (bytea) aqui
   * *Session Management* [redis](https://redis.io/) - Usado para guardar os dados da sessão de cada utilizar
-  * *Build Tool* [gb](https://getgb.io/) - Ferramenta que permite guardar o código go em modo projeto vs workspace(default do go) tipo eclipse. Também facilita a gestão de bibliotecas: instalação, atualização, controlo de versão, etc. Ver como o go organiza o código por default em [go organization](https://golang.org/doc/code.html#Organization). E posteriormente comparar com a estrutura de projeto imposta pelo gb.
+  * *Build Tool* [gb](https://getgb.io/) - Ferramenta que permite guardar o código go em modo projeto vs workspace(default do go, tipo eclipse). Também facilita a gestão de bibliotecas: instalação, atualização, controlo de versão, etc. Ver como o go organiza o código por default em [go organization](https://golang.org/doc/code.html#Organization). E posteriormente comparar com a estrutura de projeto imposta pelo gb.
 
 ### Frontend ###
   * *Framework* [angular](https://angular.io/) 2 with typescript and angular-cli - Usado para desenhar a single page app (SPA). Faz pedidos à API escrita em go. Usámos o angular-cli porque facilita a criação da estrutura base, a atualização, execução, etc.
