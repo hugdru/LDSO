@@ -1,7 +1,7 @@
 ### Backend ###
   * *Language* go
    * [pressly/chi](https://github.com/pressly/chi) - Ajuda a configurar as rotas de maneira organizada
-   * [rs/cors](https://github.com/rs/cors) - Biblioteca [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS) que permite aceitar pedidos da frontend
+   * [rs/cors](https://github.com/rs/cors) - Biblioteca [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS) que permite à frontend fazer pedidos à API
    * [elithrar/simple-scrypt](https://github.com/elithrar/simple-scrypt) - Hashing e Salting seguro de passwords
    * [jmoiron/sqlx](https://github.com/jmoiron/sqlx) - Facilita o uso de sql, extende a biblioteca principal
    * [guregu/null.v3](https://github.com/guregu/null) - Melhora o tratamento de nulls da base de dados por parte do go
