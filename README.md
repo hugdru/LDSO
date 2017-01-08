@@ -110,4 +110,6 @@
    1. Run an updated linux distribution, for instance [ubuntu](https://www.ubuntu.com/).
    2. Install [docker](https://docs.docker.com/engine/installation/)
    3. (Optional) Install [docker-compose](https://docs.docker.com/compose/install/)
-   4. Run ./dkr redo prod . To turn the remote containers off, build all the prod images, clean all remote images, push all  the prod images, push the prod docker-compose file, turn the remote containers on.
+   4. Make sure the docker daemon is running.
+   5. You might need to add your user to the docker group
+   6. Run ./dkr redo prod . To turn the remote containers off, build all the prod images, clean all remote images, push all  the prod images, push the prod docker-compose file, turn the remote containers on.
