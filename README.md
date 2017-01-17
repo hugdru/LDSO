@@ -49,7 +49,7 @@
    * sql/
      * \*.sql - ficheiros sql ordenados, ordem de execução. Estes ficheiros lidam com o schema. Creates, Indexes, Triggers, etc.
      * examples/ - ficheiros sql ordenados, ordem de execução. Inserts e updates exemplares.
-   * uml/classdiagram.txt - ficheiro plantuml com o class diagram da base de dados
+   * uml/classdiagram.txt - ficheiro plantuml com o class diagram da base de dados. Ligeiramente desatualizado, comparar com 1.0create.sql.
    * allin.sh - script que concatena tudo o que estiver na pasta sql/ num só ficheiro por ordem e de forma recursiva.
    * pgr - script que faz wrapping ao postgresql, e que permite iniciar um cluster local rapidamente.
  * docker/
@@ -81,3 +81,35 @@
 #### HTTP ####
   * https://code.tutsplus.com/tutorials/http-the-protocol-every-web-developer-must-know-part-1--net-31177
   * https://code.tutsplus.com/tutorials/http-the-protocol-every-web-developer-must-know-part-2--net-31155
+
+### How to run the project ###
+   1. Run an updated linux distribution, for instance [ubuntu](https://www.ubuntu.com/).
+   2. Install [go >= 1.7](https://golang.org/doc/install)
+   3. Install gb after configuring go paths and PATH, go get github.com/constabulary/gb/...
+   4. Install [nodejs and npm](https://nodejs.org/en/download/)
+   5. Add the npm bin folder to PATH
+   6. Install [angular-cli](https://github.com/angular/angular-cli) globally, npm install -g angular-cli
+   7. Install [redis](https://redis.io/download) and [postgresql](https://www.postgresql.org/download/)
+   8. Go to the backend folder and do, gb vendor restore , gets the backend dependencies
+   9. Go to the frontend folder and do, npm install , gets the frontend dependencies
+   10. Add the following to /etc/hosts . postgres and redis hosts are important because these are hardcoded in the backend and used in docker. api.lp4adev.tk can be set in the frontend environments as explained previously.
+       1. 127.0.0.1 go1
+       2. 127.0.0.1 gon
+       3. 127.0.0.1 postgres
+       4. 127.0.0.1 redis
+       5. 127.0.0.1 lp4adev.tk
+       6. 127.0.0.1 www.lp4adev.tk
+       7. 127.0.0.1 api.lp4adev.tk
+   11. Check if redis is already running in your computer if not run it. systemctl status|start|stop|enable|disable program-name . ps aux | grep redis
+   12. Go to the frontend folder and do ng server
+   13. Go to the database folder and do ./pgr initddlexamples
+   14. Go to the backend folder and do gb build server && ./bin/server
+   15. Insert lp4adev.tk:4200 in a browser.
+
+### How to build the images and send to the server ###
+   1. Run an updated linux distribution, for instance [ubuntu](https://www.ubuntu.com/).
+   2. Install [docker](https://docs.docker.com/engine/installation/)
+   3. (Optional) Install [docker-compose](https://docs.docker.com/compose/install/)
+   4. Make sure the docker daemon is running.
+   5. You might need to add your user to the docker group
+   6. Run ./dkr redo prod . To turn the remote containers off, build all the prod images, clean all remote images, push all  the prod images, push the prod docker-compose file, turn the remote containers on.
