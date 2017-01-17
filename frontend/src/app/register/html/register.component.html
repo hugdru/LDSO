@@ -71,7 +71,7 @@
         <div *ngIf="f.submitted && !confirmPassword.valid" class="help-block">
             Palavra passe tem que ser confirmada
         </div>
-        <div *ngIf="session.role == 'superadmin' || session.role == 'localadmin'"
+        <div *ngIf="session.role == 'superadmin'"
              class="form-group"
              [ngClass]="{'has-error': f.submitted && !user.role}">
             Tipo:
@@ -79,7 +79,19 @@
                     [(ngModel)]="user.role"
                     name="role"
                     required>
-                <option *ngFor="let optionRole of optionRoles"
+                <option *ngFor="let optionRole of optionRolesSA"
+                        [ngValue]="optionRole.value">{{optionRole.label}}</option>
+            </select>
+        </div>
+        <div *ngIf="session.role == 'localadmin'"
+             class="form-group"
+             [ngClass]="{'has-error': f.submitted && !user.role}">
+            Tipo:
+            <select class="form-control"
+                    [(ngModel)]="user.role"
+                    name="role"
+                    required>
+                <option *ngFor="let optionRole of optionRolesLA"
                         [ngValue]="optionRole.value">{{optionRole.label}}</option>
             </select>
         </div>
