@@ -17,10 +17,14 @@ export class RegisterComponent implements OnInit {
     user: User;
     session: Session;
     errorMsg: string;
-    optionRoles = [
+    optionRolesSA = [
         {value: "client", label: "Cliente"},
         {value: "superadmin", label: "Administrador"},
         {value: "localadmin", label: "Administrador Local"},
+        {value: "auditor", label: "Auditor"},
+    ];
+    optionRolesLA = [
+        {value: "client", label: "Cliente"},
         {value: "auditor", label: "Auditor"},
     ];
 
