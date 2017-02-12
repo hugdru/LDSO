@@ -4,15 +4,15 @@
 		{
 			"importpath": "github.com/alexedwards/scs",
 			"repository": "https://github.com/alexedwards/scs",
-			"revision": "05f2c051214a1a036c734bfa40a74ebe3516a72e",
+			"revision": "521704752d397177f4292654df51269a00c17939",
 			"branch": "master"
 		},
 		{
-			"importpath": "github.com/alexedwards/scs/engine/redisstore",
+			"importpath": "github.com/alexedwards/scs/engine/memstore",
 			"repository": "https://github.com/alexedwards/scs",
-			"revision": "05f2c051214a1a036c734bfa40a74ebe3516a72e",
+			"revision": "521704752d397177f4292654df51269a00c17939",
 			"branch": "master",
-			"path": "/engine/redisstore"
+			"path": "/engine/memstore"
 		},
 		{
 			"importpath": "github.com/elithrar/simple-scrypt",
@@ -21,35 +21,27 @@
 			"branch": "master"
 		},
 		{
-			"importpath": "github.com/garyburd/redigo/internal",
-			"repository": "https://github.com/garyburd/redigo",
-			"revision": "8c052d82153967815d9093a7e9d3e7fd2e554861",
-			"branch": "master",
-			"path": "/internal"
-		},
-		{
-			"importpath": "github.com/garyburd/redigo/redis",
-			"repository": "https://github.com/garyburd/redigo",
-			"revision": "8c052d82153967815d9093a7e9d3e7fd2e554861",
-			"branch": "master",
-			"path": "/redis"
-		},
-		{
 			"importpath": "github.com/jmoiron/sqlx",
 			"repository": "https://github.com/jmoiron/sqlx",
-			"revision": "cac998c4f0959c19c638c523e374fa8e4e0bcfe3",
+			"revision": "f980a91bdc37abef88269b8f122d7de6352102f5",
 			"branch": "master"
 		},
 		{
 			"importpath": "github.com/lib/pq",
 			"repository": "https://github.com/lib/pq",
-			"revision": "8df6253d1317616f36b0c3740eb30c239a7372cb",
+			"revision": "0477eb88c5ca4009cb281f13c90633375b6a9987",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/patrickmn/go-cache",
+			"repository": "https://github.com/patrickmn/go-cache",
+			"revision": "e7a9def80f35fe1b170b7b8b68871d59dea117e1",
 			"branch": "master"
 		},
 		{
 			"importpath": "github.com/pressly/chi",
 			"repository": "https://github.com/pressly/chi",
-			"revision": "980ac9fefe03002715cfe7e6eea7db2d056d5eb1",
+			"revision": "7765b0916fdc6791938554e9d53d39cae059ac8c",
 			"branch": "master"
 		},
 		{
@@ -67,21 +59,21 @@
 		{
 			"importpath": "golang.org/x/crypto/pbkdf2",
 			"repository": "https://go.googlesource.com/crypto",
-			"revision": "5b4074c2c416448b5d06e287167144493aabda43",
+			"revision": "453249f01cfeb54c3d549ddb75ff152ca243f9d8",
 			"branch": "master",
 			"path": "/pbkdf2"
 		},
 		{
 			"importpath": "golang.org/x/crypto/scrypt",
 			"repository": "https://go.googlesource.com/crypto",
-			"revision": "5b4074c2c416448b5d06e287167144493aabda43",
+			"revision": "453249f01cfeb54c3d549ddb75ff152ca243f9d8",
 			"branch": "master",
 			"path": "/scrypt"
 		},
 		{
 			"importpath": "golang.org/x/net/context",
 			"repository": "https://go.googlesource.com/net",
-			"revision": "67957fd0b1868d2b9f4fd2b3a3474c83bc3d49c3",
+			"revision": "61557ac0112b576429a0df080e1c2cef5dfbb642",
 			"branch": "master",
 			"path": "/context"
 		},

@@ -2,9 +2,8 @@ package datastore
 
 import (
 	"database/sql"
-	"github.com/alexedwards/scs/engine/redisstore"
+	"github.com/alexedwards/scs/engine/memstore"
 	"github.com/alexedwards/scs/session"
-	"github.com/garyburd/redigo/redis"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"net/http"
@@ -21,21 +20,15 @@ const connectionDetails = "host=postgres user=admin password=admin dbname=places
 func Connect() *Datastore {
 	postgres := sqlx.MustConnect("postgres", connectionDetails)
 
-	pool := &redis.Pool{
-		MaxIdle: 10,
-		Dial: func() (redis.Conn, error) {
-			return redis.Dial("tcp", "redis:6379")
-		},
-	}
-	engine := redisstore.New(pool)
+	engine := memstore.New(10 * time.Minute)
 	sessionManager := session.Manage(engine,
-		//session.Domain("example.org"),
+		//session.Domain("place4all.com"),
 		session.HttpOnly(true),
-		session.Path("/"),
-		session.IdleTimeout(15*time.Hour*24),
-		session.Lifetime(6*time.Hour*24),
+		//session.Path("/"),
+		session.IdleTimeout(7*time.Hour*24),
+		session.Lifetime(14*time.Hour*24),
 		session.Persist(true),
-		session.Secure(false),
+		//session.Secure(true),
 		session.ErrorFunc(ServerError),
 	)
 

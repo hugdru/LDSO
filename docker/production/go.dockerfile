@@ -50,6 +50,7 @@ ENV GOPATH="$HOME/go"
 ENV PATH="$GOPATH/bin:$SCRIPTS_DIR:/usr/local/go/bin:$PATH"
 RUN \
       go get github.com/constabulary/gb/... && \
+      git config --global http.https://gopkg.in.followRedirects true && \
       cd backend && gb vendor restore && gb build server && \
       find . -maxdepth 1 ! \( -name 'bin' -o -name "." -o -name ".." \) -exec rm -rf {} +
 

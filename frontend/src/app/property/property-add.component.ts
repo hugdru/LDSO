@@ -6,7 +6,7 @@ import {Router} from "@angular/router";
 
 @Component({
     selector: 'property-add',
-    templateUrl: '/html/property-add.component.html',
+    templateUrl: 'html/property-add.component.html',
     providers: [PropertyService]
 })
 
